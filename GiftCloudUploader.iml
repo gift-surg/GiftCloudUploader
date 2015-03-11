@@ -58,8 +58,9 @@
     <orderEntry type="library" name="Maven: org.nrg:DicomEdit:4.0.0" level="application" />
     <orderEntry type="library" name="Maven: org.nrg:ecat:0.2.0" level="application" />
     <orderEntry type="library" name="Maven: org.nrg:ecat-edit:0.2.0" level="application" />
-    <orderEntry type="library" name="Maven: org.nrg:DicomUtils:1.4" level="application" />
     <orderEntry type="library" name="Maven: org.nrg:nrgutil:2.0.0" level="application" />
     <orderEntry type="library" name="Maven: dcm4che:dcm4che-core:2.0.25" level="application" />
+    <orderEntry type="library" name="Maven: org.nrg:dicom-xnat-sop:1.6.4-SNAPSHOT" level="application" />
+    <orderEntry type="library" name="Maven: org.nrg:DicomUtils:1.4" level="application" />
   </component>
 </module>
