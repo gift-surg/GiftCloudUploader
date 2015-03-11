@@ -63,5 +63,6 @@
     <orderEntry type="library" name="Maven: com.jgoodies:common:1.2.0" level="project" />
     <orderEntry type="library" name="Maven: com.jgoodies:looks:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.swinglabs:wizard:1.1" level="application" />
+    <orderEntry type="library" name="com.google.guava:guava:16.0.1" level="project" />
   </component>
 </module>
