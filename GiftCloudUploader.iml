@@ -62,5 +62,6 @@
     <orderEntry type="library" name="Maven: dcm4che:dcm4che-core:2.0.25" level="application" />
     <orderEntry type="library" name="Maven: org.nrg:dicom-xnat-sop:1.6.4-SNAPSHOT" level="application" />
     <orderEntry type="library" name="Maven: org.nrg:DicomUtils:1.4" level="application" />
+    <orderEntry type="library" name="Maven: org.nrg:ecat-io:0.1.0" level="application" />
   </component>
 </module>
