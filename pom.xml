@@ -149,6 +149,11 @@
             <artifactId>ecat-edit</artifactId>
             <version>0.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>1.6.2</version>
+        </dependency>
     </dependencies>
 
 
