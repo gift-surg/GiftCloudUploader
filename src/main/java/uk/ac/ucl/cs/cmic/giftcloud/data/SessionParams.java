@@ -1,9 +1,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.data;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
+import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.UploadSelector;
 
 import java.util.HashMap;
@@ -45,7 +45,7 @@ public class SessionParams {
         //TODO: we want to verify this visit... and if there isn't a visit, we want to check the project to see if it has a protocol
         //so we can get a list of visits and let the user associate the session with a visit.
         //For now, we'll just assume the visit is a valid, existing label for a pVisitdata and pass it through to the importer.
-        if (!Strings.isNullOrEmpty(visitLabel)) {
+        if (StringUtils.isNotBlank(visitLabel)) {
             reporter.trace("visit: {}", visitLabel);
             params.put(SessionVariableNames.VISIT_LABEL, new AssignedSessionVariable(SessionVariableNames.VISIT_LABEL, visitLabel));
         }
@@ -54,37 +54,37 @@ public class SessionParams {
         //TODO: we want to verify this experiment's protocol is valid for this visit... and if there isn't a visit, we want to check the project to see
         //if it has a protocol so we can get a list of visits and let the user associate the session with a visit.
         //For now, we'll just assume the protocol is valid and pass it through to the importer.
-        if (!Strings.isNullOrEmpty(protocolLabel)) {
+        if (StringUtils.isNotBlank(protocolLabel)) {
             reporter.trace("protocol: {}", protocolLabel);
             params.put(SessionVariableNames.PROTOCOL_LABEL, new AssignedSessionVariable(SessionVariableNames.PROTOCOL_LABEL, protocolLabel));
         }
 
         final String expectedModality = multiUploadParameters.getParameter(MultiUploadParameters.EXPECTED_MODALITY);
-        if (!Strings.isNullOrEmpty(expectedModality)) {
+        if (StringUtils.isNotBlank(expectedModality)) {
             reporter.trace("expected modality: {}", expectedModality);
             params.put(MultiUploadParameters.EXPECTED_MODALITY_LABEL, expectedModality);
 
         }
 
         final String sessionLabel = multiUploadParameters.getParameter(MultiUploadParameters.XNAT_SESSION);
-        if (!Strings.isNullOrEmpty(sessionLabel)) {
+        if (StringUtils.isNotBlank(sessionLabel)) {
             reporter.trace("session: {}", sessionLabel);
             params.put(SessionVariableNames.PREDEF_SESSION, new AssignedSessionVariable(SessionVariableNames.SESSION_LABEL, sessionLabel));
         }
 
         final String warnOnDupeSessionLabels = multiUploadParameters.getParameter(SessionVariableNames.WARN_ON_DUPE_SESSION_LABELS);
-        if (!Strings.isNullOrEmpty(warnOnDupeSessionLabels)) {
+        if (StringUtils.isNotBlank(warnOnDupeSessionLabels)) {
             reporter.trace("Warn on dupe session labels: {}", warnOnDupeSessionLabels);
             params.put(SessionVariableNames.WARN_ON_DUPE_SESSION_LABELS, new AssignedSessionVariable(SessionVariableNames.WARN_ON_DUPE_SESSION_LABELS, warnOnDupeSessionLabels));
         }
 
         final String allowOverwriteOnDupeSessionLabels = multiUploadParameters.getParameter(SessionVariableNames.ALLOW_OVERWRITE_ON_DUPE_SESSION_LABELS);
-        if (!Strings.isNullOrEmpty(allowOverwriteOnDupeSessionLabels)) {
+        if (StringUtils.isNotBlank(allowOverwriteOnDupeSessionLabels)) {
             reporter.trace("Allow overwrite on dupe session labels: {}", allowOverwriteOnDupeSessionLabels);
             params.put(SessionVariableNames.ALLOW_OVERWRITE_ON_DUPE_SESSION_LABELS, new AssignedSessionVariable(SessionVariableNames.ALLOW_OVERWRITE_ON_DUPE_SESSION_LABELS, allowOverwriteOnDupeSessionLabels));
         }
         final String allowAppendOnDupeSessionLabels = multiUploadParameters.getParameter(SessionVariableNames.ALLOW_APPEND_ON_DUPE_SESSION_LABELS);
-        if (!Strings.isNullOrEmpty(allowAppendOnDupeSessionLabels)) {
+        if (StringUtils.isNotBlank(allowAppendOnDupeSessionLabels)) {
             reporter.trace("Allow append on dupe session labels: {}", allowAppendOnDupeSessionLabels);
             params.put(SessionVariableNames.ALLOW_APPEND_ON_DUPE_SESSION_LABELS, new AssignedSessionVariable(SessionVariableNames.ALLOW_APPEND_ON_DUPE_SESSION_LABELS, allowAppendOnDupeSessionLabels));
         }
