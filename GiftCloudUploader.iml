@@ -29,5 +29,6 @@
     <orderEntry type="library" name="Maven: com.sun.jmx:jmxri:1.2.1" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.5.6" level="project" />
     <orderEntry type="library" name="junit:junit:4.8.1" level="project" />
+    <orderEntry type="library" name="hsqldb:hsqldb:1.8.1.1" level="project" />
   </component>
 </module>
