@@ -11,12 +11,12 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HttpUtils {
@@ -45,7 +45,7 @@ public class HttpUtils {
         IOException ioexception = null;
         final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         try {
-            final List<String> lines = Lists.newArrayList();
+            final List<String> lines = new ArrayList();
             String line;
             while (null != (line = reader.readLine())) {
                 lines.add(line);
