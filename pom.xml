@@ -6,7 +6,196 @@
 
     <groupId>uk.ac.ucl.cs.cmic.giftcloud</groupId>
     <artifactId>giftclouduploader</artifactId>
+    <name>GIFT-Cloud Uploader</name>
+    <description>Application for uploading data to a GIFT-Cloud server.</description>
+    <url>http://www.cmictig.cs.ucl.ac.uk</url>
     <version>1.0</version>
+    <organization>
+        <name>University College London Translational imaging Group (TIG)</name>
+        <url>http://cmictig.cs.ucl.ac.uk</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>BSD</name>
+            <url>http://www.opensource.org/licenses/bsd-license.php</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Tom Doel</name>
+            <email>t.doel@ucl.ac.uk</email>
+        </developer>
+        <developer>
+            <name>"Josh" Dzhoshkun Ismail Shakir</name>
+            <email>d.shakir@ucl.ac.uk</email>
+        </developer>
+        <developer>
+            <id>karchie</id>
+            <name>Kevin Archie</name>
+            <email>karchie@wustl.edu</email>
+            <timezone>-6</timezone>
+        </developer>
+        <developer>
+            <name>John Paulett</name>
+            <email>jpaulett@wustl.edu</email>
+        </developer>
+        <developer>
+            <name>Aditya Siram</name>
+            <email>aditya.siram@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Rick Herrick</name>
+            <email>rick.herrick@wustl.edu</email>
+        </developer>
+    </developers>
+
+    <properties>
+        <signing.keystore>${basedir}/keystore</signing.keystore>
+        <signing.alias>****** put here the alias ******</signing.alias>
+        <signing.storepass>****** put here the store pass ******</signing.storepass>
+        <signing.keypass>****** put here the key pass ******</signing.keypass>
+    </properties>
+
+    <!-- 	Profiles based on http://blog.sonatype.com/2010/01/how-to-create-two-jars-from-one-project-and-why-you-shouldnt/#.VP1Q9Esij1o
+            but in general not recommended. This is a quick and dirty way of creating two different jars: -PApplet creates an applet jar,
+            while -PStandalone creates an executable one. Note that *only* one option can be specified at a time.
+    -->
+    <profiles>
+        <profile>
+            <id>Applet</id>
+            <properties>
+                <applet.main.class>MultiUploadAssistantApplet</applet.main.class>
+                <applet.main.package>uk.ac.ucl.cs.cmic.giftcloud.uploadapplet</applet.main.package>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>webstart-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                    </plugin>
+                </plugins>
+                <pluginManagement>
+                    <plugins>
+                        <!-- Ignore/Execute plugin execution -->
+                        <plugin>
+                            <groupId>org.eclipse.m2e</groupId>
+                            <artifactId>lifecycle-mapping</artifactId>
+                            <version>1.0.0</version>
+                            <configuration>
+                                <lifecycleMappingMetadata>
+                                    <pluginExecutions>
+                                        <!-- copy-dependency plugin -->
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>org.apache.maven.plugins</groupId>
+                                                <artifactId>maven-dependency-plugin</artifactId>
+                                                <versionRange>[1.0.0,)</versionRange>
+                                                <goals>
+                                                    <goal>copy-dependencies</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <ignore/>
+                                            </action>
+                                        </pluginExecution>
+                                    </pluginExecutions>
+                                </lifecycleMappingMetadata>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+        <profile>
+            <id>Application</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <mainClass>uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderApp</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                    </plugin>
+                </plugins>
+                <pluginManagement>
+                    <plugins>
+                        <!-- Ignore/Execute plugin execution -->
+                        <plugin>
+                            <groupId>org.eclipse.m2e</groupId>
+                            <artifactId>lifecycle-mapping</artifactId>
+                            <version>1.0.0</version>
+                            <configuration>
+                                <lifecycleMappingMetadata>
+                                    <pluginExecutions>
+                                        <!-- copy-dependency plugin -->
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>org.apache.maven.plugins</groupId>
+                                                <artifactId>maven-dependency-plugin</artifactId>
+                                                <versionRange>[1.0.0,)</versionRange>
+                                                <goals>
+                                                    <goal>copy-dependencies</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <ignore/>
+                                            </action>
+                                        </pluginExecution>
+                                    </pluginExecutions>
+                                </lifecycleMappingMetadata>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+    </profiles>
+
     <dependencies>
         <!-- NRG dependencies -->
         <dependency>
