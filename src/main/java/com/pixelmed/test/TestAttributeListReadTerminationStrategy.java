@@ -8,6 +8,7 @@ import junit.framework.*;
 
 import java.io.File;
 
+@SuppressWarnings("deprecation")
 public class TestAttributeListReadTerminationStrategy extends TestCase {
 	
 	// constructor to support adding tests to suite ...

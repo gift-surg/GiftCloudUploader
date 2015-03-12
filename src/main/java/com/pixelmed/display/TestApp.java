@@ -2,17 +2,12 @@
 
 package com.pixelmed.display;
 
-import java.awt.*; 
-import java.awt.event.*; 
-import java.awt.image.*; 
-import java.awt.color.*; 
-import java.util.*; 
-import java.io.*; 
-import javax.swing.*; 
-import javax.swing.event.*;
+import com.pixelmed.dicom.DicomInputStream;
 
-import com.pixelmed.display.event.*; 
-import com.pixelmed.dicom.*;
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
 
 /**
  * @author	dclunie
@@ -95,7 +90,7 @@ class TestApp extends ApplicationFrame {
 		try {
 			//com.apple.cocoa.application.NSMenu.setMenuBarVisible(false);							// Won't compile on other platforms
 			//Class classToUse = ClassLoader.getSystemClassLoader().loadClass("com.apple.cocoa.application.NSMenu");	// Needs "/System/Library/Java" in classpath
-			Class classToUse = new java.net.URLClassLoader(new java.net.URL[]{new File("/System/Library/Java").toURL()}).loadClass("com.apple.cocoa.application.NSMenu");
+			@SuppressWarnings("deprecation") Class classToUse = new java.net.URLClassLoader(new java.net.URL[]{new File("/System/Library/Java").toURL()}).loadClass("com.apple.cocoa.application.NSMenu");
 			Class[] parameterTypes = { Boolean.TYPE };
 			java.lang.reflect.Method methodToUse = classToUse.getDeclaredMethod("setMenuBarVisible",parameterTypes);
 			Object[] args = { Boolean.FALSE };

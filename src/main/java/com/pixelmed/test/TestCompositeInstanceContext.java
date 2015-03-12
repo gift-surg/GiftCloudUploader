@@ -2,11 +2,10 @@
 
 package com.pixelmed.test;
 
-import com.pixelmed.dose.*;
-
-import junit.framework.*;
-
 import com.pixelmed.dicom.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 public class TestCompositeInstanceContext extends TestCase {
 	
@@ -523,7 +522,7 @@ public class TestCompositeInstanceContext extends TestCase {
 			{ SequenceAttribute a = new SequenceAttribute(TagFromName.RequestAttributesSequence); a.addItem(rasList); list.put(a); }
 		}
 		
-		CompositeInstanceContext cic = new CompositeInstanceContext(list);		// default (deprecated) constructor without explicitly specifying forSR
+		@SuppressWarnings("deprecation") CompositeInstanceContext cic = new CompositeInstanceContext(list);		// default (deprecated) constructor without explicitly specifying forSR
 		AttributeList cicList = cic.getAttributeList();
 		
 		assertEquals("Checking SOPClassUID",sopClassUID,Attribute.getSingleStringValueOrEmptyString(cicList,TagFromName.SOPClassUID));

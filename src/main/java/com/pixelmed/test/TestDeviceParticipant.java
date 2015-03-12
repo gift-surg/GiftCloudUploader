@@ -68,7 +68,7 @@ public class TestDeviceParticipant extends TestCase {
 		String modelName = "Scanner";
 		String serialNumber = "72349236741";
 		
-		DeviceParticipant dp = new DeviceParticipant(manufacturer,modelName,serialNumber);
+		@SuppressWarnings("deprecation") DeviceParticipant dp = new DeviceParticipant(manufacturer,modelName,serialNumber);
 
 		assertEquals("Checking manufacturer",manufacturer,dp.getManufacturer());
 		assertEquals("Checking modelName",modelName,dp.getModelName());
