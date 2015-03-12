@@ -272,7 +272,7 @@ if (debugLevel > 1) System.err.println("NetworkConfigurationFromMulticastDNS.reg
 			//ServiceInfo info = ServiceInfo.create(DICOMServiceName,calledApplicationEntityTitle,port,0/*weight*/,0/*priority*/,properties);
 			try {
 				Class classToUse = Thread.currentThread().getContextClassLoader().loadClass("javax.jmdns.ServiceInfo");
-				Class [] argTypes  = {String.class,String.class,java.lang.Integer.TYPE,java.lang.Integer.TYPE,java.lang.Integer.TYPE,Map.class};
+                Class [] argTypes  = {String.class,String.class,java.lang.Integer.TYPE,java.lang.Integer.TYPE,java.lang.Integer.TYPE,Hashtable.class};
 				// (000611)
 				java.lang.reflect.Method methodToUse = classToUse.getDeclaredMethod("create",argTypes);
 				Object[] argValues = {DICOMServiceName,calledApplicationEntityTitle,port,0/*weight*/,0/*priority*/,properties};
