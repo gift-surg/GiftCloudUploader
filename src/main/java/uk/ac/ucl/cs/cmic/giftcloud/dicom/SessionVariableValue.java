@@ -10,12 +10,12 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
-import java.util.*;
-
 import org.dcm4che2.data.DicomObject;
 import org.nrg.dcm.edit.Value;
 import org.nrg.dcm.edit.Variable;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
+
+import java.util.*;
 
 public final class SessionVariableValue implements Value {
     private final Set<?> tags;
@@ -70,7 +70,7 @@ public final class SessionVariableValue implements Value {
      * (non-Javadoc)
      * @see org.nrg.dcm.edit.Value#replaceVariable(org.nrg.dcm.edit.Variable)
      */
-    public void replace(final Variable _) {}
+    public void replace(final Variable v) {}
     
     public String toString() {
         final StringBuilder sb = new StringBuilder(super.toString());
