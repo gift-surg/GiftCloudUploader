@@ -32,15 +32,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="commons-net:commons-net:3.3" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/jmdns.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="library" name="com.google.guava:guava:16.0.1" level="project" />
     <orderEntry type="module-library">
       <library>
@@ -61,13 +52,11 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.5" level="project" />
-    <orderEntry type="library" name="Maven: log4j:log4j:1.2.15" level="project" />
     <orderEntry type="library" name="Maven: javax.mail:mail:1.4" level="project" />
     <orderEntry type="library" name="Maven: javax.activation:activation:1.1" level="project" />
     <orderEntry type="library" name="Maven: javax.jms:jms:1.1" level="project" />
     <orderEntry type="library" name="Maven: com.sun.jdmk:jmxtools:1.2.1" level="project" />
     <orderEntry type="library" name="Maven: com.sun.jmx:jmxri:1.2.1" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.5.6" level="project" />
     <orderEntry type="library" name="Maven: org.json:json:20140107" level="project" />
     <orderEntry type="library" name="Maven: com.toedter:jcalendar:1.4" level="project" />
     <orderEntry type="library" name="Maven: com.jgoodies:common:1.2.0" level="project" />
@@ -80,12 +69,10 @@
     <orderEntry type="library" name="Maven: org.nrg:ecat:0.2.0" level="application" />
     <orderEntry type="library" name="Maven: org.nrg:ecat-io:0.1.0" level="application" />
     <orderEntry type="library" name="Maven: org.nrg:nrg:1.6.4-SNAPSHOT" level="application" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.10" level="project" />
-    <orderEntry type="library" name="Maven: org.nrg:DicomEdit:1.4" level="project" />
     <orderEntry type="library" name="Maven: org.nrg:DicomUtils:1.4" level="project" />
     <orderEntry type="library" name="Maven: com.google:google:1" level="project" />
     <orderEntry type="library" name="Maven: org.nrg:dicom-xnat-util:1.6.4-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.nrg:nrgutil:2.0.0" level="project" />
-    <orderEntry type="library" name="Maven: org.nrg:nrgutil:1.1.0" level="project" />
+    <orderEntry type="library" name="org.apache.directory.studio:org.slf4j.log4j12:1.7.2" level="project" />
   </component>
 </module>
