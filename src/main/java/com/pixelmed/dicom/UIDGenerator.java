@@ -2,13 +2,12 @@
 
 package com.pixelmed.dicom;
 
-import java.util.StringTokenizer;
-import java.rmi.server.UID;
-import java.rmi.dgc.VMID;
-
-import java.util.HashSet;		// for main() testing for uniqueness
-
 import com.pixelmed.utils.MACAddress;
+
+import java.rmi.dgc.VMID;
+import java.rmi.server.UID;
+import java.util.HashSet;
+import java.util.StringTokenizer;
 
 /**
  * <p>A class for generating new UIDs, deterministically or not, including potentially reproducible Study, Series and SOP Instance UIDs.</p>
@@ -49,7 +48,8 @@ public class UIDGenerator {
 		;			// no study#, series# or instance#
 	
 	private static VMID vmid = new VMID();									// virtual machine ID
-	private static long machineAddress =  vmid.isUnique() ? (((long)vmid.hashCode())&0x0ffffffffl) : new MACAddress().getMACAddress();
+	@SuppressWarnings("deprecation")
+    private static long machineAddress =  vmid.isUnique() ? (((long)vmid.hashCode())&0x0ffffffffl) : new MACAddress().getMACAddress();
 	//private static long machineAddress = new MACAddress().getMACAddress();
 
 	/**
