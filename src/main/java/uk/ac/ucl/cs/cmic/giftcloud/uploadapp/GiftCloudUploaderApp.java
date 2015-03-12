@@ -5,6 +5,7 @@ import com.apple.eawt.Application;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 import java.util.ResourceBundle;
 
 public class GiftCloudUploaderApp {
@@ -20,11 +21,17 @@ public class GiftCloudUploaderApp {
 		try {
 
             // Set the dock icon - we need to do this before the main class is created
-            Image iconImage = ImageIO.read(GiftCloudUploaderApp.class.getResource("/GiftSurgIconOnly.png"));
-            if (iconImage == null) {
-                System.out.println("Could not find icon");
+            URL iconURL = GiftCloudUploaderApp.class.getResource("/GiftSurgMiniIcon.png");
+
+            if (iconURL == null) {
+                System.out.println("Could not find icon resource");
             } else {
-                Application.getApplication().setDockIconImage(new ImageIcon(iconImage).getImage());
+                Image iconImage = ImageIO.read(iconURL);
+                if (iconImage == null) {
+                    System.out.println("Could not find icon");
+                } else {
+                    Application.getApplication().setDockIconImage(new ImageIcon(iconImage).getImage());
+                }
             }
 
             System.setProperty("apple.laf.useScreenMenuBar", "true");

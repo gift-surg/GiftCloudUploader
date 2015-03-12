@@ -2,9 +2,12 @@
 
 package com.pixelmed.display;
 
-import java.util.*;
+import com.pixelmed.dicom.AttributeList;
+import com.pixelmed.dicom.DicomException;
+import com.pixelmed.dicom.StructuredReportBrowser;
 
-import com.pixelmed.dicom.*;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * @author	dclunie
