@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 
 public final class PETTracerRetriever implements Callable<Set<String>> {
-    private static final String DEFAULT_TRACERS_RESOURCE = "/PET-tracers.txt";
+    private static final String DEFAULT_TRACERS_RESOURCE = "/uk/ac/ucl/cs/cmic/giftcloud/PET-tracers.txt";
     private static final Set<String> defaultTracers = getDefaultTracers(DEFAULT_TRACERS_RESOURCE);
 
     private final RestServerHelper restServerHelper;

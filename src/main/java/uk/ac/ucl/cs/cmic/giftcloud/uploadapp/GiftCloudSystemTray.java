@@ -21,7 +21,7 @@ public class GiftCloudSystemTray {
         }
 
         final PopupMenu popup = new PopupMenu();
-        Image image = ImageIO.read(this.getClass().getClassLoader().getResource("GiftSurgMiniIcon.png"));
+        Image image = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));
         final TrayIcon trayIcon = new TrayIcon(image, "GIFT-Cloud Uploader");
         final SystemTray tray = SystemTray.getSystemTray();
 

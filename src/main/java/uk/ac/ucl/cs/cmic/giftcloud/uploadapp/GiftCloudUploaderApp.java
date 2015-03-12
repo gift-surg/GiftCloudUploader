@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
 
 public class GiftCloudUploaderApp {
 
-    protected static String resourceBundleName  = "com.pixelmed.display.GiftCloudUploader";
+    protected static String resourceBundleName  = "uk.ac.ucl.cs.cmic.giftcloud.GiftCloudUploader";
 
 	/**
 	 * <p>The method to invoke the application.</p>
@@ -21,7 +21,7 @@ public class GiftCloudUploaderApp {
 		try {
 
             // Set the dock icon - we need to do this before the main class is created
-            URL iconURL = GiftCloudUploaderApp.class.getResource("/GiftSurgMiniIcon.png");
+            URL iconURL = GiftCloudUploaderApp.class.getResource("/uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png");
 
             if (iconURL == null) {
                 System.out.println("Could not find icon resource");

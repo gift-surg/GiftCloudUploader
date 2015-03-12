@@ -8,7 +8,7 @@ class GiftCloudMainFrame implements MainFrame {
 
     GiftCloudMainFrame(final String applicationTitle) {
         container = new JDialog();
-        container.setIconImage(new ImageIcon(this.getClass().getClassLoader().getResource("GiftSurgMiniIcon.png")).getImage()); // ToDo: This icon is loaded multiple times in the code
+        container.setIconImage(new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png")).getImage()); // ToDo: This icon is loaded multiple times in the code
         container.setTitle(applicationTitle);
         container.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }

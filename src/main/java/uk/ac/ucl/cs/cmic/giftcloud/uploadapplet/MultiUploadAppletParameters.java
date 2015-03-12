@@ -69,7 +69,7 @@ public class MultiUploadAppletParameters extends MultiUploadParameters {
         InputStream appletProperties = null;
 
         try {
-            appletProperties = applet.getClass().getResourceAsStream("/applet.properties");
+            appletProperties = applet.getClass().getResourceAsStream("/uk/ac/ucl/cs/cmic/giftcloud/uploadapplet/applet.properties");
             if (appletProperties != null) {
                 properties.load(appletProperties);
             }

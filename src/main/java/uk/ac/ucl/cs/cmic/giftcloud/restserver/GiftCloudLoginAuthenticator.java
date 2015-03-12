@@ -85,7 +85,7 @@ class GiftCloudLoginAuthenticator extends Authenticator {
         usernamePasswordPanel.add(passwordField, fieldConstraint);
 
         // Get the GIFT-Cloud icon - this will return null if not found
-        ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("GiftCloud.png"));
+        ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
 
         // Show the login dialog
         final int returnValue = JOptionPane.showConfirmDialog(new JDialog(getFrame(parent)), usernamePasswordPanel, LOGIN_DIALOG_TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
