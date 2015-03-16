@@ -55,9 +55,11 @@ public class GiftCloudUploaderPanel extends JPanel {
     private List<QuerySelection> currentRemoteQuerySelectionList;
 
     private GiftCloudBridge giftCloudBridge = null;
+    private GiftCloudReporter reporter;
+    private GiftCloudUploaderController controller;
     private GiftCloudPropertiesFromBridge giftCloudProperties = null;
 
-    private DicomNode dicomNode;
+    final private DicomNode dicomNode;
 
     private QueryInformationModel currentRemoteQueryInformationModel;
 
@@ -120,18 +122,14 @@ public class GiftCloudUploaderPanel extends JPanel {
 	protected JTextField queryFilterStudyDateTextField;
 	protected JTextField queryFilterAccessionNumberTextField;
 	
-	protected SafeProgressBarUpdaterThread progressBarUpdater;
-	
-	protected SafeCursorChanger cursorChanger;
-	
-	protected MessageLogger logger;
 
+
+    private final StatusPanel statusPanel;
 
 
 
 
     private GiftCloudDialogs giftCloudDialogs;
-    private MainFrame mainFrame;
     private String buildDate;
     private JLabel statusBar;
 
@@ -196,7 +194,23 @@ public class GiftCloudUploaderPanel extends JPanel {
 	protected DatabaseTreeRecord[] currentSourceDatabaseSelections;
 	protected Vector currentSourceFilePathSelections;
 
-	protected class OurSourceDatabaseTreeBrowser extends DatabaseTreeBrowser {
+    public void addFile(final String fileName) {
+        System.out.println("** CHANGE IN FILELIST **"); // ToDo
+        srcDatabasePanel.removeAll();
+
+        try {
+            new OurSourceDatabaseTreeBrowser(dicomNode.getSrcDatabase(), srcDatabasePanel);
+
+        } catch (DicomException e) {
+            // ToDo
+//				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Refresh source database browser failed: "+e));
+//				e.printStackTrace(System.err);
+            e.printStackTrace();
+        }
+        srcDatabasePanel.validate();
+    }
+
+    protected class OurSourceDatabaseTreeBrowser extends DatabaseTreeBrowser {
 		public OurSourceDatabaseTreeBrowser(DatabaseInformationModel d,Container content) throws DicomException {
 			super(d,content);
 		}
@@ -229,285 +243,280 @@ public class GiftCloudUploaderPanel extends JPanel {
 //		}
 //	}
 	
-	// very similar to code in DicomImageViewer and DoseUtility apart from logging and progress bar ... should refactor :(
-	protected void purgeFilesAndDatabaseInformation(DatabaseTreeRecord[] databaseSelections,MessageLogger logger,SafeProgressBarUpdaterThread progressBarUpdater,int done,int maximum) throws DicomException, IOException {
-		if (databaseSelections != null) {
-			for (DatabaseTreeRecord databaseSelection : databaseSelections) {
-				purgeFilesAndDatabaseInformation(databaseSelection,logger,progressBarUpdater,done,maximum);
-			}
-		}
-	}
+//	// very similar to code in DicomImageViewer and DoseUtility apart from logging and progress bar ... should refactor :(
+//	protected void purgeFilesAndDatabaseInformation(DatabaseTreeRecord[] databaseSelections,MessageLogger logger,SafeProgressBarUpdaterThread progressBarUpdater,int done,int maximum) throws DicomException, IOException {
+//		if (databaseSelections != null) {
+//			for (DatabaseTreeRecord databaseSelection : databaseSelections) {
+//				purgeFilesAndDatabaseInformation(databaseSelection,logger,progressBarUpdater,done,maximum);
+//			}
+//		}
+//	}
 	
-	protected void purgeFilesAndDatabaseInformation(DatabaseTreeRecord databaseSelection,MessageLogger logger,SafeProgressBarUpdaterThread progressBarUpdater,int done,int maximum) throws DicomException, IOException {
-		if (databaseSelection != null) {
-			SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,done,maximum);
-			InformationEntity ie = databaseSelection.getInformationEntity();
-			if (ie == null /* the root of the tree, i.e., everything */ || !ie.equals(InformationEntity.INSTANCE)) {
-				// Do it one study at a time, in the order in which the patients and studies are sorted in the tree
-				Enumeration children = databaseSelection.children();
-				if (children != null) {
-					maximum+=databaseSelection.getChildCount();
-					while (children.hasMoreElements()) {
-						DatabaseTreeRecord child = (DatabaseTreeRecord)(children.nextElement());
-						if (child != null) {
-							purgeFilesAndDatabaseInformation(child,logger,progressBarUpdater,done,maximum);
-							++done;
-						}
-					}
-				}
-				// AFTER we have processed all the children, if any, we can delete ourselves, unless we are the root
-				if (ie != null) {
-					logger.sendLn("Purging "+databaseSelection);
-					databaseSelection.removeFromParent();
-				}
-			}
-			else {
-				// Instance level ... may need to delete files
-				String fileName = databaseSelection.getLocalFileNameValue();
-				String fileReferenceType = databaseSelection.getLocalFileReferenceTypeValue();
-				if (fileReferenceType != null && fileReferenceType.equals(DatabaseInformationModel.FILE_COPIED)) {
-					try {
-						logger.sendLn("Deleting file "+fileName);
-						if (!new File(fileName).delete()) {
-							logger.sendLn("Failed to delete local copy of file "+fileName);
-						}
-					}
-					catch (Exception e) {
-						e.printStackTrace(System.err);
-						logger.sendLn("Failed to delete local copy of file "+fileName);
-					}
-				}
-                dicomNode.removeFileFromEasliestDatesIndex(fileName);
-				logger.sendLn("Purging "+databaseSelection);
-				databaseSelection.removeFromParent();
-			}
-		}
-	}
-
-	protected class PurgeWorker implements Runnable {
-		//PurgeWorker() {
-		//}
-
-		public void run() {
-			cursorChanger.setWaitCursor();
-			logger.sendLn("Purging started");
-			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Purging started"));
-			SafeProgressBarUpdaterThread.startProgressBar(progressBarUpdater);
-			try {
-				purgeFilesAndDatabaseInformation(currentSourceDatabaseSelections,logger,progressBarUpdater,0,1);
-//				purgeFilesAndDatabaseInformation(currentDestinationDatabaseSelections,logger,progressBarUpdater,0,1);
-			} catch (Exception e) {
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Purging failed: "+e));
-				e.printStackTrace(System.err);
-			}
-			srcDatabasePanel.removeAll();
-
-            // ToDo: Can a purge fire a DicomNode changed event to automatically repopulate the source panel?
-
-//			dstDatabasePanel.removeAll();
-			try {
-				new OurSourceDatabaseTreeBrowser(dicomNode.getSrcDatabase(), srcDatabasePanel);
-//				new OurDestinationDatabaseTreeBrowser(dstDatabase,dstDatabasePanel);
-			} catch (Exception e) {
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Refresh source database browser failed: "+e));
-				e.printStackTrace(System.err);
-			}
-			srcDatabasePanel.validate();
-			SafeProgressBarUpdaterThread.endProgressBar(progressBarUpdater);
-			logger.sendLn("Purging complete");
-			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done purging"));
-			cursorChanger.restoreCursor();
-		}
-	}
-
-	protected class PurgeActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			try {
-				activeThread = new Thread(new PurgeWorker());
-				activeThread.start();
-			} catch (Exception e) {
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Purging failed: "+e));
-				e.printStackTrace(System.err);
-			}
-		}
-	}
-		
-	protected boolean copyFromOriginalToCleanedPerformingAction(Vector paths,Date earliestDateInSet,MessageLogger logger,SafeProgressBarUpdaterThread progressBarUpdater) throws DicomException, IOException {
-		boolean success = true;
-		if (paths != null) {
-			Date epochForDateModification = null;
-//			if (modifyDatesCheckBox.isSelected()) {
-//				try {
-//					epochForDateModification = DateTimeAttribute.getDateFromFormattedString(modifyDatesTextField.getText().trim());		// assumes 0 time and UTC if not specified
-//System.err.println("GiftCloudUploaderPanel.copyFromOriginalToCleanedPerformingAction(): epochForDateModification "+epochForDateModification);
+//	protected void purgeFilesAndDatabaseInformation(DatabaseTreeRecord databaseSelection,MessageLogger logger,SafeProgressBarUpdaterThread progressBarUpdater,int done,int maximum) throws DicomException, IOException {
+//		if (databaseSelection != null) {
+//			SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,done,maximum);
+//			InformationEntity ie = databaseSelection.getInformationEntity();
+//			if (ie == null /* the root of the tree, i.e., everything */ || !ie.equals(InformationEntity.INSTANCE)) {
+//				// Do it one study at a time, in the order in which the patients and studies are sorted in the tree
+//				Enumeration children = databaseSelection.children();
+//				if (children != null) {
+//					maximum+=databaseSelection.getChildCount();
+//					while (children.hasMoreElements()) {
+//						DatabaseTreeRecord child = (DatabaseTreeRecord)(children.nextElement());
+//						if (child != null) {
+//							purgeFilesAndDatabaseInformation(child,logger,progressBarUpdater,done,maximum);
+//							++done;
+//						}
+//					}
 //				}
-//				catch (java.text.ParseException e) {
-//					e.printStackTrace(System.err);
-//					epochForDateModification = new Date(0);		// use system epoch if failed; better than to not modify them at all when requested to
+//				// AFTER we have processed all the children, if any, we can delete ourselves, unless we are the root
+//				if (ie != null) {
+//					logger.sendLn("Purging "+databaseSelection);
+//					databaseSelection.removeFromParent();
 //				}
 //			}
-			SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,0,paths.size());
-			for (int j=0; j< paths.size(); ++j) {
-				String dicomFileName = (String)(paths.get(j));
-				if (dicomFileName != null) {
-//System.err.println("GiftCloudUploaderPanel.copyFromOriginalToCleanedPerformingAction(): doing file "+dicomFileName);
-					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Cleaning "+dicomFileName));
-					try {
-						// do not log it yet ... wait till we have output file name
-//long startTime = System.currentTimeMillis();
-						File file = new File(dicomFileName);
-						DicomInputStream i = new DicomInputStream(file);
-						AttributeList list = new AttributeList();
-//long currentTime = System.currentTimeMillis();
-//System.err.println("GiftCloudUploaderPanel.copyFromOriginalToCleanedPerformingAction(): reading AttributeList took = "+(currentTime-startTime)+" ms");
-//startTime=currentTime;
-						list.setDecompressPixelData(false);
-						list.read(i);
-						i.close();
-
-						list.removeGroupLengthAttributes();
-						// did not decompress, so do not need to change ImagePixelModule attributes or insert lossy compression history
-
-						String outputTransferSyntaxUID = null;
-						{
-							String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.TransferSyntaxUID);		// did not decompress it
-							// did not compress, so leave it alone unless Implicit VR, which we always want to convert to Explicit VR
-							outputTransferSyntaxUID = transferSyntaxUID.equals(TransferSyntax.ImplicitVRLittleEndian) ? TransferSyntax.ExplicitVRLittleEndian : transferSyntaxUID;
-						}
-						list.removeMetaInformationHeaderAttributes();
-					
-//						if (removeClinicalTrialAttributesCheckBox.isSelected()) {
-//							ClinicalTrialsAttributes.removeClinicalTrialsAttributes(list);
+//			else {
+//				// Instance level ... may need to delete files
+//				String fileName = databaseSelection.getLocalFileNameValue();
+//				String fileReferenceType = databaseSelection.getLocalFileReferenceTypeValue();
+//				if (fileReferenceType != null && fileReferenceType.equals(DatabaseInformationModel.FILE_COPIED)) {
+//					try {
+//						logger.sendLn("Deleting file "+fileName);
+//						if (!new File(fileName).delete()) {
+//							logger.sendLn("Failed to delete local copy of file "+fileName);
 //						}
-//						if (removeIdentityCheckBox.isSelected()) {
-//							ClinicalTrialsAttributes.removeOrNullIdentifyingAttributes(list,
-//								ClinicalTrialsAttributes.HandleUIDs.keep,
-//								!removeDescriptionsCheckBox.isSelected(),
-//								!removeSeriesDescriptionsCheckBox.isSelected(),
-//								!removeProtocolNameCheckBox.isSelected(),
-//								!removeCharacteristicsCheckBox.isSelected(),
-//								!removeDeviceIdentityCheckBox.isSelected(),
-//								!removeInstitutionIdentityCheckBox.isSelected(),
-//								modifyDatesCheckBox.isSelected() ? ClinicalTrialsAttributes.HandleDates.modify : ClinicalTrialsAttributes.HandleDates.keep,epochForDateModification,earliestDateInSet);
+//					}
+//					catch (Exception e) {
+//						e.printStackTrace(System.err);
+//						logger.sendLn("Failed to delete local copy of file "+fileName);
+//					}
+//				}
+//                dicomNode.removeFileFromEasliestDatesIndex(fileName);
+//				logger.sendLn("Purging "+databaseSelection);
+//				databaseSelection.removeFromParent();
+//			}
+//		}
+//	}
+
+//	protected class PurgeWorker implements Runnable {
+//		//PurgeWorker() {
+//		//}
+//
+//		public void run() {
+//			cursorChanger.setWaitCursor();
+//			logger.sendLn("Purging started");
+//			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Purging started"));
+//			SafeProgressBarUpdaterThread.startProgressBar(progressBarUpdater);
+//			try {
+//				purgeFilesAndDatabaseInformation(currentSourceDatabaseSelections,logger,progressBarUpdater,0,1);
+////				purgeFilesAndDatabaseInformation(currentDestinationDatabaseSelections,logger,progressBarUpdater,0,1);
+//			} catch (Exception e) {
+//				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Purging failed: "+e));
+//				e.printStackTrace(System.err);
+//			}
+//			srcDatabasePanel.removeAll();
+//
+//            // ToDo: Can a purge fire a DicomNode changed event to automatically repopulate the source panel?
+//
+////			dstDatabasePanel.removeAll();
+//			try {
+//				new OurSourceDatabaseTreeBrowser(dicomNode.getSrcDatabase(), srcDatabasePanel);
+////				new OurDestinationDatabaseTreeBrowser(dstDatabase,dstDatabasePanel);
+//			} catch (Exception e) {
+//				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Refresh source database browser failed: "+e));
+//				e.printStackTrace(System.err);
+//			}
+//			srcDatabasePanel.validate();
+//			SafeProgressBarUpdaterThread.endProgressBar(progressBarUpdater);
+//			logger.sendLn("Purging complete");
+//			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done purging"));
+//			cursorChanger.restoreCursor();
+//		}
+//	}
+
+//	protected class PurgeActionListener implements ActionListener {
+//		public void actionPerformed(ActionEvent event) {
+//			try {
+//				activeThread = new Thread(new PurgeWorker());
+//				activeThread.start();
+//			} catch (Exception e) {
+//				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Purging failed: "+e));
+//				e.printStackTrace(System.err);
+//			}
+//		}
+//	}
+		
+//	protected boolean copyFromOriginalToCleanedPerformingAction(Vector paths,Date earliestDateInSet,MessageLogger logger,SafeProgressBarUpdaterThread progressBarUpdater) throws DicomException, IOException {
+//		boolean success = true;
+//		if (paths != null) {
+//			Date epochForDateModification = null;
+////			if (modifyDatesCheckBox.isSelected()) {
+////				try {
+////					epochForDateModification = DateTimeAttribute.getDateFromFormattedString(modifyDatesTextField.getText().trim());		// assumes 0 time and UTC if not specified
+////System.err.println("GiftCloudUploaderPanel.copyFromOriginalToCleanedPerformingAction(): epochForDateModification "+epochForDateModification);
+////				}
+////				catch (java.text.ParseException e) {
+////					e.printStackTrace(System.err);
+////					epochForDateModification = new Date(0);		// use system epoch if failed; better than to not modify them at all when requested to
+////				}
+////			}
+//			SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,0,paths.size());
+//			for (int j=0; j< paths.size(); ++j) {
+//				String dicomFileName = (String)(paths.get(j));
+//				if (dicomFileName != null) {
+//					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Cleaning "+dicomFileName));
+//					try {
+//						// do not log it yet ... wait till we have output file name
+//						File file = new File(dicomFileName);
+//						DicomInputStream i = new DicomInputStream(file);
+//						AttributeList list = new AttributeList();
+//						list.setDecompressPixelData(false);
+//						list.read(i);
+//						i.close();
+//
+//						list.removeGroupLengthAttributes();
+//						// did not decompress, so do not need to change ImagePixelModule attributes or insert lossy compression history
+//
+//						String outputTransferSyntaxUID = null;
+//						{
+//							String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.TransferSyntaxUID);		// did not decompress it
+//							// did not compress, so leave it alone unless Implicit VR, which we always want to convert to Explicit VR
+//							outputTransferSyntaxUID = transferSyntaxUID.equals(TransferSyntax.ImplicitVRLittleEndian) ? TransferSyntax.ExplicitVRLittleEndian : transferSyntaxUID;
 //						}
-//						if (replacePatientNameCheckBox.isSelected()) {
-//							String newName = replacementPatientNameTextField.getText().trim();
-//							{ AttributeTag tag = TagFromName.PatientName; list.remove(tag); Attribute a = new PersonNameAttribute(tag); a.addValue(newName); list.put(tag,a); }
-//						}
-//						if (replacePatientIDCheckBox.isSelected()) {
-//							String newID = replacementPatientIDTextField.getText().trim();
-//							{ AttributeTag tag = TagFromName.PatientID; list.remove(tag); Attribute a = new LongStringAttribute(tag); a.addValue(newID); list.put(tag,a); }
-//						}
-//						if (replaceAccessionNumberCheckBox.isSelected()) {
-//							String newAccessionNumber = replacementAccessionNumberTextField.getText().trim();
-//							{ AttributeTag tag = TagFromName.AccessionNumber; list.remove(tag); Attribute a = new ShortStringAttribute(tag); a.addValue(newAccessionNumber); list.put(tag,a); }
-//						}
-					
-//						if (removePrivateCheckBox.isSelected()) {
-
-
-
-
-
-//							list.removeUnsafePrivateAttributes();
+//						list.removeMetaInformationHeaderAttributes();
+//
+////						if (removeClinicalTrialAttributesCheckBox.isSelected()) {
+////							ClinicalTrialsAttributes.removeClinicalTrialsAttributes(list);
+////						}
+////						if (removeIdentityCheckBox.isSelected()) {
+////							ClinicalTrialsAttributes.removeOrNullIdentifyingAttributes(list,
+////								ClinicalTrialsAttributes.HandleUIDs.keep,
+////								!removeDescriptionsCheckBox.isSelected(),
+////								!removeSeriesDescriptionsCheckBox.isSelected(),
+////								!removeProtocolNameCheckBox.isSelected(),
+////								!removeCharacteristicsCheckBox.isSelected(),
+////								!removeDeviceIdentityCheckBox.isSelected(),
+////								!removeInstitutionIdentityCheckBox.isSelected(),
+////								modifyDatesCheckBox.isSelected() ? ClinicalTrialsAttributes.HandleDates.modify : ClinicalTrialsAttributes.HandleDates.keep,epochForDateModification,earliestDateInSet);
+////						}
+////						if (replacePatientNameCheckBox.isSelected()) {
+////							String newName = replacementPatientNameTextField.getText().trim();
+////							{ AttributeTag tag = TagFromName.PatientName; list.remove(tag); Attribute a = new PersonNameAttribute(tag); a.addValue(newName); list.put(tag,a); }
+////						}
+////						if (replacePatientIDCheckBox.isSelected()) {
+////							String newID = replacementPatientIDTextField.getText().trim();
+////							{ AttributeTag tag = TagFromName.PatientID; list.remove(tag); Attribute a = new LongStringAttribute(tag); a.addValue(newID); list.put(tag,a); }
+////						}
+////						if (replaceAccessionNumberCheckBox.isSelected()) {
+////							String newAccessionNumber = replacementAccessionNumberTextField.getText().trim();
+////							{ AttributeTag tag = TagFromName.AccessionNumber; list.remove(tag); Attribute a = new ShortStringAttribute(tag); a.addValue(newAccessionNumber); list.put(tag,a); }
+////						}
+//
+////						if (removePrivateCheckBox.isSelected()) {
+//
+//
+//
+//
+//
+////							list.removeUnsafePrivateAttributes();
+////							{
+////								Attribute a = list.get(TagFromName.DeidentificationMethod);
+////								if (a != null) {
+////									a.addValue("Unsafe private removed");
+////								}
+////							}
+////							{
+////								SequenceAttribute a = (SequenceAttribute)(list.get(TagFromName.DeidentificationMethodCodeSequence));
+////								if (a != null) {
+////									a.addItem(new CodedSequenceItem("113111","DCM","Retain Safe Private Option").getAttributeList());
+////								}
+////							}
+////						}
+////						else {
 //							{
 //								Attribute a = list.get(TagFromName.DeidentificationMethod);
 //								if (a != null) {
-//									a.addValue("Unsafe private removed");
+//									a.addValue("All private retained");
 //								}
 //							}
 //							{
 //								SequenceAttribute a = (SequenceAttribute)(list.get(TagFromName.DeidentificationMethodCodeSequence));
 //								if (a != null) {
-//									a.addItem(new CodedSequenceItem("113111","DCM","Retain Safe Private Option").getAttributeList());
+//									a.addItem(new CodedSequenceItem("210002","99PMP","Retain all private elements").getAttributeList());
 //								}
 //							}
-//						}
-//						else {
-							{
-								Attribute a = list.get(TagFromName.DeidentificationMethod);
-								if (a != null) {
-									a.addValue("All private retained");
-								}
-							}
-							{
-								SequenceAttribute a = (SequenceAttribute)(list.get(TagFromName.DeidentificationMethodCodeSequence));
-								if (a != null) {
-									a.addItem(new CodedSequenceItem("210002","99PMP","Retain all private elements").getAttributeList());
-								}
-							}
-//						}
-//						if (cleanUIDsCheckBox.isSelected()) {
-//							ClinicalTrialsAttributes.remapUIDAttributes(list);
-//							{
-//								Attribute a = list.get(TagFromName.DeidentificationMethod);
-//								if (a != null) {
-//									a.addValue("UIDs remapped");
-//								}
-//							}
-//							// remove the default Retain UIDs added by ClinicalTrialsAttributes.removeOrNullIdentifyingAttributes() with the ClinicalTrialsAttributes.HandleUIDs.keep option
-//							{
-//								SequenceAttribute a = (SequenceAttribute)(list.get(TagFromName.DeidentificationMethodCodeSequence));
-//								if (a != null) {
-//									Iterator<SequenceItem> it = a.iterator();
-//									while (it.hasNext()) {
-//										SequenceItem item = it.next();
-//										if (item != null) {
-//											CodedSequenceItem testcsi = new CodedSequenceItem(item.getAttributeList());
-//											if (testcsi != null) {
-//												String cv = testcsi.getCodeValue();
-//												String csd = testcsi.getCodingSchemeDesignator();
-//												if (cv != null && cv.equals("113110") && csd != null && csd.equals("DCM")) {	// "Retain UIDs Option"
-//													it.remove();
-//												}
-//											}
-//										}
-//									}
-//								}
-//							}
-//							{
-//								SequenceAttribute a = (SequenceAttribute)(list.get(TagFromName.DeidentificationMethodCodeSequence));
-//								if (a != null) {
-//									a.addItem(new CodedSequenceItem("210001","99PMP","Remap UIDs").getAttributeList());
-//								}
-//							}
-//						}
-//						if (addContributingEquipmentCheckBox.isSelected()) {
-							ClinicalTrialsAttributes.addContributingEquipmentSequence(list,
-								true,
-								new CodedSequenceItem("109104","DCM","De-identifying Equipment"),	// per CP 892
-								"TIG",  														// Manufacturer
-								"UCL",															// Institution Name
-								"CMIC",															// Institutional Department Name
-								null		,													// Institution Address
-								dicomNode.getOurCalledAETitle(),												// Station Name
-								"GIFT-Cloud Uploader",													// Manufacturer's Model Name
-								null,															// Device Serial Number
-								getBuildDate(),													// Software Version(s)
-								"Cleaned");
-//						}
-						FileMetaInformation.addFileMetaInformation(list, outputTransferSyntaxUID, dicomNode.getOurCalledAETitle());
-						list.insertSuitableSpecificCharacterSetForAllStringValues();	// E.g., may have de-identified Kanji name and need new character set
-						File cleanedFile = File.createTempFile("clean",".dcm");
-						cleanedFile.deleteOnExit();
-						list.write(cleanedFile,outputTransferSyntaxUID,true/*useMeta*/,true/*useBufferedStream*/);
-						logger.sendLn("Cleaned "+dicomFileName+" into "+cleanedFile.getCanonicalPath());
-
-                        // ToDo: Removed insertion into destination
-//						dstDatabase.insertObject(list,cleanedFile.getCanonicalPath(),DatabaseInformationModel.FILE_COPIED);
-					}
-					catch (Exception e) {
-						System.err.println("GiftCloudUploaderPanel.copyFromOriginalToCleanedPerformingAction(): while cleaning "+dicomFileName);
-						e.printStackTrace(System.err);
-						logger.sendLn("Cleaning failed for "+dicomFileName+" because "+e.toString());
-						success = false;
-					}
-				}
-				SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,j+1);
-			}
-		}
-		return success;
-	}
+////						}
+////						if (cleanUIDsCheckBox.isSelected()) {
+////							ClinicalTrialsAttributes.remapUIDAttributes(list);
+////							{
+////								Attribute a = list.get(TagFromName.DeidentificationMethod);
+////								if (a != null) {
+////									a.addValue("UIDs remapped");
+////								}
+////							}
+////							// remove the default Retain UIDs added by ClinicalTrialsAttributes.removeOrNullIdentifyingAttributes() with the ClinicalTrialsAttributes.HandleUIDs.keep option
+////							{
+////								SequenceAttribute a = (SequenceAttribute)(list.get(TagFromName.DeidentificationMethodCodeSequence));
+////								if (a != null) {
+////									Iterator<SequenceItem> it = a.iterator();
+////									while (it.hasNext()) {
+////										SequenceItem item = it.next();
+////										if (item != null) {
+////											CodedSequenceItem testcsi = new CodedSequenceItem(item.getAttributeList());
+////											if (testcsi != null) {
+////												String cv = testcsi.getCodeValue();
+////												String csd = testcsi.getCodingSchemeDesignator();
+////												if (cv != null && cv.equals("113110") && csd != null && csd.equals("DCM")) {	// "Retain UIDs Option"
+////													it.remove();
+////												}
+////											}
+////										}
+////									}
+////								}
+////							}
+////							{
+////								SequenceAttribute a = (SequenceAttribute)(list.get(TagFromName.DeidentificationMethodCodeSequence));
+////								if (a != null) {
+////									a.addItem(new CodedSequenceItem("210001","99PMP","Remap UIDs").getAttributeList());
+////								}
+////							}
+////						}
+////						if (addContributingEquipmentCheckBox.isSelected()) {
+//							ClinicalTrialsAttributes.addContributingEquipmentSequence(list,
+//								true,
+//								new CodedSequenceItem("109104","DCM","De-identifying Equipment"),	// per CP 892
+//								"TIG",  														// Manufacturer
+//								"UCL",															// Institution Name
+//								"CMIC",															// Institutional Department Name
+//								null		,													// Institution Address
+//								dicomNode.getOurCalledAETitle(),												// Station Name
+//								"GIFT-Cloud Uploader",													// Manufacturer's Model Name
+//								null,															// Device Serial Number
+//								getBuildDate(),													// Software Version(s)
+//								"Cleaned");
+////						}
+//						FileMetaInformation.addFileMetaInformation(list, outputTransferSyntaxUID, dicomNode.getOurCalledAETitle());
+//						list.insertSuitableSpecificCharacterSetForAllStringValues();	// E.g., may have de-identified Kanji name and need new character set
+//						File cleanedFile = File.createTempFile("clean",".dcm");
+//						cleanedFile.deleteOnExit();
+//						list.write(cleanedFile,outputTransferSyntaxUID,true/*useMeta*/,true/*useBufferedStream*/);
+//						logger.sendLn("Cleaned "+dicomFileName+" into "+cleanedFile.getCanonicalPath());
+//
+//                        // ToDo: Removed insertion into destination
+////						dstDatabase.insertObject(list,cleanedFile.getCanonicalPath(),DatabaseInformationModel.FILE_COPIED);
+//					}
+//					catch (Exception e) {
+//						System.err.println("GiftCloudUploaderPanel.copyFromOriginalToCleanedPerformingAction(): while cleaning "+dicomFileName);
+//						e.printStackTrace(System.err);
+//						logger.sendLn("Cleaning failed for "+dicomFileName+" because "+e.toString());
+//						success = false;
+//					}
+//				}
+//				SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,j+1);
+//			}
+//		}
+//		return success;
+//	}
 
 
 	
@@ -579,8 +588,8 @@ public class GiftCloudUploaderPanel extends JPanel {
 	protected class OurMediaImporter extends MediaImporter {
 		boolean acceptAnyTransferSyntax;
 		
-		public OurMediaImporter(MessageLogger logger,JProgressBar progressBar,boolean acceptAnyTransferSyntax) {
-			super(logger,progressBar);
+		public OurMediaImporter(MessageLogger logger, StatusPanel statusPanel, boolean acceptAnyTransferSyntax) {
+			super(logger,statusPanel.getProgressBar());
 			this.acceptAnyTransferSyntax = acceptAnyTransferSyntax;
 		}
 		
@@ -626,16 +635,17 @@ public class GiftCloudUploaderPanel extends JPanel {
 		String pathName;
 		
 		ImportWorker(String pathName,DatabaseInformationModel srcDatabase,JPanel srcDatabasePanel) {
-			importer = new OurMediaImporter(logger,progressBarUpdater.getProgressBar(), giftCloudProperties.acceptAnyTransferSyntax());
+			importer = new OurMediaImporter(reporter, statusPanel, giftCloudProperties.acceptAnyTransferSyntax());
 			this.srcDatabase=srcDatabase;
 			this.srcDatabasePanel=srcDatabasePanel;
 			this.pathName=pathName;
 		}
 
 		public void run() {
-			cursorChanger.setWaitCursor();
-			logger.sendLn("Import starting");
-			SafeProgressBarUpdaterThread.startProgressBar(progressBarUpdater);
+			reporter.setWaitCursor();
+            reporter.sendLn("Import starting");
+
+            statusPanel.startProgressBar();
 			try {
 				importer.importDicomFiles(pathName);
 			} catch (Exception e) {
@@ -650,19 +660,18 @@ public class GiftCloudUploaderPanel extends JPanel {
 //				e.printStackTrace(System.err);
 //			}
 //			srcDatabasePanel.validate();
-			SafeProgressBarUpdaterThread.endProgressBar(progressBarUpdater);
+
+            statusPanel.endProgressBar();
 			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done importing"));
 			// importer sends its own completion message to log, so do not need another one
-			cursorChanger.restoreCursor();
+			reporter.restoreCursor();
 		}
 	}
 
 	protected class ImportActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			try {
-                if (logger instanceof DialogMessageLogger) {
-                    ((DialogMessageLogger) logger).setVisible(true);
-                }
+                reporter.showMesageLogger();
                 if (importDirectoryPath == null || importDirectoryPath.length() == 0) {
                     importDirectoryPath = "/";
                 }
@@ -707,32 +716,31 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 
 		public void run() {
-			cursorChanger.setWaitCursor();
-			logger.sendLn("Export started");
+			reporter.setWaitCursor();
+            reporter.sendLn("Export started");
 			try {
 				int nFiles = destinationFilePathSelections.size();
-				SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,0,nFiles+1);		// include DICOMDIR
+                statusPanel.updateProgressBar(0, nFiles+1); // include DICOMDIR
 				String exportFileNames[] = new String[nFiles];
 				for (int j=0; j<nFiles; ++j) {
 					String databaseFileName = (String)(destinationFilePathSelections.get(j));
 					String exportRelativePathName = hierarchicalExportCheckBox.isSelected() ? makeNewFullyQualifiedHierarchicalInstancePathName(databaseFileName) : makeNewFullyQualifiedInterchangeMediaInstancePathName(j);
 					File exportFile = new File(exportDirectory,exportRelativePathName);
 					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Exporting "+exportRelativePathName));
-					logger.sendLn("Exporting "+databaseFileName+" to "+exportFile.getCanonicalPath());
+					reporter.sendLn("Exporting "+databaseFileName+" to "+exportFile.getCanonicalPath());
 					exportFile.getParentFile().mkdirs();
 					CopyStream.copy(new File(databaseFileName),exportFile);
 					exportFileNames[j] = exportRelativePathName;
-					SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,j+1);
+                    statusPanel.updateProgressBar(j + 1);
 				}
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Exporting DICOMDIR"));
-				logger.sendLn("Exporting DICOMDIR");
-				DicomDirectory dicomDirectory = new DicomDirectory(exportDirectory,exportFileNames);
-				dicomDirectory.write(new File(exportDirectory,nameForDicomDirectoryOnInterchangeMedia).getCanonicalPath());
-				SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,nFiles+1);		// include DICOMDIR
+                reporter.updateProgress("Exporting DICOMDIR");
+				DicomDirectory dicomDirectory = new DicomDirectory(exportDirectory, exportFileNames);
+                dicomDirectory.write(new File(exportDirectory,nameForDicomDirectoryOnInterchangeMedia).getCanonicalPath());
+                statusPanel.updateProgressBar(nFiles+1); // include DICOMDIR
 
 				if (zipExportCheckBox.isSelected()) {
 					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Zipping exported files"));
-					logger.sendLn("Zipping exported files");
+                    reporter.updateProgress("Zipping exported files");
 					File zipFile = new File(exportDirectory,exportedZipFileName);
 					zipFile.delete();
 					FileOutputStream fout = new FileOutputStream(zipFile);
@@ -740,7 +748,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 					zout.setMethod(ZipOutputStream.DEFLATED);
 					zout.setLevel(9);
 
-					SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,0,nFiles+1);		// include DICOMDIR
+                    statusPanel.updateProgressBar(0, nFiles + 1); // include DICOMDIR
 					for (int j=0; j<nFiles; ++j) {
 						String exportRelativePathName = exportFileNames[j];
 						File inFile = new File(exportDirectory,exportRelativePathName);
@@ -752,7 +760,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 						zout.closeEntry();
 						in.close();
 						inFile.delete();
-						SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,j+1);
+                        statusPanel.updateProgressBar(j + 1);
 					}
 
 					{
@@ -765,7 +773,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 						zout.closeEntry();
 						in.close();
 						inFile.delete();
-						SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,nFiles+1);		// include DICOMDIR
+                        statusPanel.updateProgressBar(nFiles + 1); // include DICOMDIR
 					}
 					zout.close();
 					fout.close();
@@ -776,10 +784,10 @@ public class GiftCloudUploaderPanel extends JPanel {
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Export failed: "+e));
 				e.printStackTrace(System.err);
 			}
-			SafeProgressBarUpdaterThread.endProgressBar(progressBarUpdater);
-			logger.sendLn("Export complete");
-			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done exporting to "+exportDirectory));
-			cursorChanger.restoreCursor();
+            reporter.updateProgress("Done exporting to " + exportDirectory);
+            reporter.endProgress();
+            reporter.sendLn("Export complete");
+			reporter.restoreCursor();
 		}
 	}
 
@@ -817,35 +825,35 @@ public class GiftCloudUploaderPanel extends JPanel {
                 return;
             }
 
-            cursorChanger.setWaitCursor();
+            reporter.setWaitCursor();
 
             if (sourceFilePathSelections == null) {
-                logger.sendLn("GIFT-Cloud upload: no files were uploaded because sourceFilePathSelections was null");
+                reporter.sendLn("GIFT-Cloud upload: no files were uploaded because sourceFilePathSelections was null");
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("No files selected for upload."));
                 giftCloudDialogs.showError("No files were selected for uploading.");
             } else {
-                logger.sendLn("GIFT-Cloud upload started");
-                SafeProgressBarUpdaterThread.startProgressBar(progressBarUpdater);
+                reporter.sendLn("GIFT-Cloud upload started");
+                statusPanel.startProgressBar();
                 try {
-                    if (giftCloudBridge.uploadToGiftCloud(sourceFilePathSelections, logger, progressBarUpdater)) {
-                        logger.sendLn("GIFT-Cloud upload complete");
+                    if (giftCloudBridge.uploadToGiftCloud(sourceFilePathSelections)) {
+                        reporter.sendLn("GIFT-Cloud upload complete");
                         ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload complete"));
                     } else {
-                        logger.sendLn("GIFT-Cloud upload failed");
+                        reporter.sendLn("GIFT-Cloud upload failed");
                         ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload (partially) failed: "));
                     }
                 } catch (GiftCloudHttpException e) {
                     ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload failed with the following error: " + e.getHtmlText()));
-                    logger.sendLn("GIFT-Cloud upload failed");
+                    reporter.sendLn("GIFT-Cloud upload failed");
                     e.printStackTrace(System.err);
                 } catch (Exception e) {
                     ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload failed: " + e));
-                    logger.sendLn("GIFT-Cloud upload failed");
+                    reporter.sendLn("GIFT-Cloud upload failed");
                     e.printStackTrace(System.err);
                 }
-                SafeProgressBarUpdaterThread.endProgressBar(progressBarUpdater);
+                statusPanel.endProgressBar();
             }
-            cursorChanger.restoreCursor();
+            reporter.restoreCursor();
         }
     }
 
@@ -862,100 +870,24 @@ public class GiftCloudUploaderPanel extends JPanel {
         }
     }
 
-    protected class GiftCloudAppendUploadWorker implements Runnable {
-        private final Vector<String> sourceFilePathSelections;
-
-        GiftCloudAppendUploadWorker(Vector<String> sourceFilePathSelections) {
-            this.sourceFilePathSelections = sourceFilePathSelections;
-        }
-
-        public void run() {
-            if (giftCloudBridge == null) {
-                giftCloudDialogs.showError("An error occurred which prevents the uploader from connecting to the server. Please restart GIFT-Cloud uploader.");
-                return;
-            }
-
-            cursorChanger.setWaitCursor();
-
-            if (sourceFilePathSelections == null) {
-                logger.sendLn("GIFT-Cloud upload: no files were uploaded because sourceFilePathSelections was null");
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("No files selected for upload."));
-                giftCloudDialogs.showError("No files were selected for uploading.");
-            } else {
-                logger.sendLn("GIFT-Cloud upload started");
-                SafeProgressBarUpdaterThread.startProgressBar(progressBarUpdater);
-
-                for (final String fileName : sourceFilePathSelections) {
-                    try {
-                        Vector singleFile = new Vector();
-                        singleFile.add(fileName);
-
-                        System.out.println("Uploading single file: " + fileName);
-                        if (giftCloudBridge.appendToGiftCloud(singleFile, logger, progressBarUpdater)) {
-
-                            logger.sendLn("GIFT-Cloud upload complete");
-                            ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload complete"));
-                        } else {
-                            logger.sendLn("GIFT-Cloud upload failed");
-                            ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload (partially) failed: "));
-                        }
-                    } catch (GiftCloudHttpException e) {
-                        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload failed with the following error: " + e.getHtmlText()));
-                        logger.sendLn("GIFT-Cloud upload failed");
-                        e.printStackTrace(System.err);
-                    } catch (Exception e) {
-                        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload failed: " + e));
-                        logger.sendLn("GIFT-Cloud upload failed");
-                        e.printStackTrace(System.err);
-                    }
-                }
-
-                SafeProgressBarUpdaterThread.endProgressBar(progressBarUpdater);
-            }
-            cursorChanger.restoreCursor();
-        }
-    }
-
-    protected class GiftCloudAppendUploadActionListener {
-
-        private Vector<String> filesAlreadyUploaded = new Vector<String>();
 
 
-        public void filesChanged(final String fileName) {
-            try {
-                if (filesAlreadyUploaded.contains(fileName)) {
-                    System.out.println("File " + fileName + " has already been uploaded.");
-                } else {
-                    System.out.println("File " + fileName + " not uploaded. Adding to list");
-                    Vector<String> filesToUpload = new Vector<String>();
-                    filesToUpload.add(fileName);
-                    activeThread = new Thread(new GiftCloudAppendUploadWorker(filesToUpload));
-                    activeThread.start();
-                    filesAlreadyUploaded.add(fileName);
-                }
-            }
-            catch (Exception e) {
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload failed: "+e));
-                e.printStackTrace(System.err);
-            }
-        }
-    }
 
 
 	protected class OurMultipleInstanceTransferStatusHandler extends MultipleInstanceTransferStatusHandlerWithFileName {
 		int nFiles;
 		MessageLogger logger;
-		SafeProgressBarUpdaterThread progressBarUpdater;
+		StatusPanel statusPanel;
 		
-		OurMultipleInstanceTransferStatusHandler(int nFiles,MessageLogger logger,SafeProgressBarUpdaterThread progressBarUpdater) {
+		OurMultipleInstanceTransferStatusHandler(int nFiles,MessageLogger logger, StatusPanel statusPanel) {
 			this.nFiles=nFiles;
 			this.logger=logger;
-			this.progressBarUpdater=progressBarUpdater;
+			this.statusPanel=statusPanel;
 		}
 		
 		public void updateStatus(int nRemaining,int nCompleted,int nFailed,int nWarning,String sopInstanceUID,String fileName,boolean success) {
 			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Remaining "+nRemaining+", completed "+nCompleted+", failed "+nFailed+", warning "+nWarning));
-			SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,nFiles - nRemaining);
+            statusPanel.updateProgressBar(nFiles - nRemaining);
 			if (logger != null) {
 				logger.sendLn((success ? "Sent " : "Failed to send ")+fileName);
 			}
@@ -978,52 +910,52 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 
 		public void run() {
-			cursorChanger.setWaitCursor();
-			logger.sendLn("Send starting");
+			reporter.setWaitCursor();
+            reporter.sendLn("Send starting");
 			try {
 				int nFiles = setOfDicomFiles.size();
-				SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,0,nFiles);
+                statusPanel.updateProgressBar(0, nFiles);
 				new StorageSOPClassSCU(hostname,port,calledAETitle,callingAETitle,setOfDicomFiles,0/*compressionLevel*/,
-					new OurMultipleInstanceTransferStatusHandler(nFiles,logger,progressBarUpdater),
+					new OurMultipleInstanceTransferStatusHandler(nFiles,reporter,statusPanel),
 					0/*debugLevel*/);
 			} catch (Exception e) {
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Send failed: "+e));
-				logger.sendLn("Send failed");
+                reporter.sendLn("Send failed");
 				e.printStackTrace(System.err);
 			}
-			SafeProgressBarUpdaterThread.endProgressBar(progressBarUpdater);
-			logger.sendLn("Send complete");
+            statusPanel.endProgressBar();
+            reporter.sendLn("Send complete");
 			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending to "+calledAETitle));
-			cursorChanger.restoreCursor();
+			reporter.restoreCursor();
 		}
 	}
 
-	protected class SendActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			if (currentDestinationFilePathSelections != null && currentDestinationFilePathSelections.size() > 0) {
-                String ae = giftCloudProperties.getPropertyCurrentlySelectedStorageTargetAE();
-				ae = showInputDialogToSelectNetworkTargetByLocalApplicationEntityName("Select destination","Send ...",ae);
-				if (ae != null && giftCloudProperties.areNetworkPropertiesValid()) {
-					try {
-						String                   callingAETitle = giftCloudProperties.getCallingAETitle();
-						String                    calledAETitle = dicomNode.getCalledAETitle(ae);
-						PresentationAddress presentationAddress = dicomNode.getPresentationAddress(calledAETitle);
-						String                         hostname = presentationAddress.getHostname();
-						int                                port = presentationAddress.getPort();
-						
-						SetOfDicomFiles setOfDicomFiles = new SetOfDicomFiles(currentDestinationFilePathSelections);
-						new Thread(new SendWorker(hostname,port,calledAETitle,callingAETitle,setOfDicomFiles)).start();
-					}
-					catch (Exception e) {
-						e.printStackTrace(System.err);
-					}
-				}
-				// else user cancelled operation in JOptionPane.showInputDialog() so gracefully do nothing
-			}
-			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending."));
-			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending."));
-		}
-	}
+//	protected class SendActionListener implements ActionListener {
+//		public void actionPerformed(ActionEvent event) {
+//			if (currentDestinationFilePathSelections != null && currentDestinationFilePathSelections.size() > 0) {
+//                String ae = giftCloudProperties.getPropertyCurrentlySelectedStorageTargetAE();
+//				ae = showInputDialogToSelectNetworkTargetByLocalApplicationEntityName("Select destination","Send ...",ae);
+//				if (ae != null && giftCloudProperties.areNetworkPropertiesValid()) {
+//					try {
+//						String                   callingAETitle = giftCloudProperties.getCallingAETitle();
+//						String                    calledAETitle = dicomNode.getCalledAETitle(ae);
+//						PresentationAddress presentationAddress = dicomNode.getPresentationAddress(calledAETitle);
+//						String                         hostname = presentationAddress.getHostname();
+//						int                                port = presentationAddress.getPort();
+//
+//						SetOfDicomFiles setOfDicomFiles = new SetOfDicomFiles(currentDestinationFilePathSelections);
+//						new Thread(new SendWorker(hostname,port,calledAETitle,callingAETitle,setOfDicomFiles)).start();
+//					}
+//					catch (Exception e) {
+//						e.printStackTrace(System.err);
+//					}
+//				}
+//				// else user cancelled operation in JOptionPane.showInputDialog() so gracefully do nothing
+//			}
+//			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending."));
+//			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending."));
+//		}
+//	}
 	
 	protected class OurDicomImageBlackout extends DicomImageBlackout {
 	
@@ -1036,7 +968,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 		public class ApplicationStatusChangeEventNotificationHandler extends StatusNotificationHandler {
 			public void notify(int status,String message,Throwable t) {
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Blackout "+message));
-				logger.sendLn("Blackout "+message);
+                reporter.sendLn("Blackout "+message);
 				System.err.println("DicomImageBlackout.DefaultStatusNotificationHandler.notify(): status = "+status);
 				System.err.println("DicomImageBlackout.DefaultStatusNotificationHandler.notify(): message = "+message);
 				if (t != null) {
@@ -1192,23 +1124,23 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 
 		public void run() {
-			cursorChanger.setWaitCursor();
+            reporter.setWaitCursor();
 			String calledAET = currentRemoteQueryInformationModel.getCalledAETitle();
 			String localName = dicomNode.getLocalNameFromApplicationEntityTitle(calledAET); //networkApplicationInformation.getLocalNameFromApplicationEntityTitle(calledAET);
 			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Performing query on "+localName));
-			logger.sendLn("Query to "+localName+" ("+calledAET+") starting");
+            reporter.sendLn("Query to "+localName+" ("+calledAET+") starting");
 			try {
 				QueryTreeModel treeModel = currentRemoteQueryInformationModel.performHierarchicalQuery(filter);
 				new OurQueryTreeBrowser(currentRemoteQueryInformationModel,treeModel,remoteQueryRetrievePanel);
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done querying "+localName));
 			} catch (Exception e) {
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Query to "+localName+" failed "+e));
-				logger.sendLn("Query to "+localName+" ("+calledAET+") failed due to"+ e);
+                reporter.sendLn("Query to "+localName+" ("+calledAET+") failed due to"+ e);
 				e.printStackTrace(System.err);
 			}
-			logger.sendLn("Query to "+localName+" ("+calledAET+") complete");
+            reporter.sendLn("Query to "+localName+" ("+calledAET+") complete");
 			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done querying  "+localName));
-			cursorChanger.restoreCursor();
+			reporter.restoreCursor();
 		}
 	}
 
@@ -1318,14 +1250,14 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 
         public void run() {
-            cursorChanger.setWaitCursor();
+            reporter.setWaitCursor();
 
             final List<QuerySelection> queryList = currentRemoteQuerySelectionList;
             for (QuerySelection currentQuerySelection : queryList) {
                 retrieve(currentQuerySelection);
             }
 
-            cursorChanger.restoreCursor();
+            reporter.restoreCursor();
         }
 
 		public void retrieve(QuerySelection currentQuerySelection) {
@@ -1334,34 +1266,34 @@ public class GiftCloudUploaderPanel extends JPanel {
 				QueryTreeRecord parent = currentQuerySelection.getCurrentRemoteQuerySelectionQueryTreeRecord();
 				if (parent != null) {
 					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Retrieving everything from "+localName));
-					logger.sendLn("Retrieving everything from "+localName+" (" + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE() + ")");
+                    reporter.sendLn("Retrieving everything from "+localName+" (" + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE() + ")");
 					Enumeration children = parent.children();
 					if (children != null) {
 						int nChildren = parent.getChildCount();
-						SafeProgressBarUpdaterThread.startProgressBar(progressBarUpdater,nChildren);
+                        statusPanel.startProgressBar(nChildren);
 						int doneCount = 0;
 						while (children.hasMoreElements()) {
 							QueryTreeRecord r = (QueryTreeRecord)(children.nextElement());
 							if (r != null) {
                                 QuerySelection currentRemoteQuerySelection = new QuerySelection(r);
 								ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Retrieving "+currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName));
-								logger.sendLn("Retrieving "+currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName+" ("+currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE()+")");
-								performRetrieve(currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKeys(),currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel(), currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
-								SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater,++doneCount);
+                                reporter.sendLn("Retrieving " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel() + " " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString() + " from " + localName + " (" + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE() + ")");
+								performRetrieve(currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKeys(), currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel(), currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
+                                statusPanel.updateProgressBar(++doneCount);
 							}
 						}
-						SafeProgressBarUpdaterThread.endProgressBar(progressBarUpdater);
+                        statusPanel.endProgressBar();
 					}
 					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending retrieval request"));
 				}
 			}
 			else {
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Retrieving "+currentQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName));
-				logger.sendLn("Request retrieval of "+currentQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName+" ("+currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE()+")");
-				SafeProgressBarUpdaterThread.startProgressBar(progressBarUpdater,1);
+                reporter.sendLn("Request retrieval of "+currentQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName+" ("+currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE()+")");
+                statusPanel.startProgressBar(1);
 				performRetrieve(currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKeys(),currentQuerySelection.getCurrentRemoteQuerySelectionLevel(),currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending retrieval request"));
-				SafeProgressBarUpdaterThread.endProgressBar(progressBarUpdater);
+				statusPanel.endProgressBar();
 			}
 		}
 	}
@@ -1384,12 +1316,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 	protected class ConfigureActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			try {
-                dicomNode.shutdownStorageSCP();
-				new NetworkApplicationConfigurationDialog(mainFrame.getContainer(), dicomNode.getNetworkApplicationInformation(), giftCloudProperties, giftCloudDialogs);
-				// should now save properties to file
-                giftCloudProperties.updatePropertiesWithNetworkProperties();
-				giftCloudProperties.storeProperties("Edited and saved from user interface");
-				dicomNode.activateStorageSCP();
+                controller.showConfigureDialog();
 			} catch (Exception e) {
 				e.printStackTrace(System.err);
 			}
@@ -1438,55 +1365,24 @@ public class GiftCloudUploaderPanel extends JPanel {
 //		}
 //	}
 
-    private class DicomNodeListener implements Observer {
 
-        private GiftCloudAppendUploadActionListener appendListener = new GiftCloudAppendUploadActionListener();
-
-        @Override
-        public void update(Observable o, Object arg) {
-            System.out.println("** CHANGE IN FILELIST **"); // ToDo
-            srcDatabasePanel.removeAll();
-
-            try {
-                new OurSourceDatabaseTreeBrowser(dicomNode.getSrcDatabase(), srcDatabasePanel);
-
-                final String newFileName = (String) arg;
-                Vector names = new Vector();
-                names.add(newFileName);
-//                appendListener.filesChanged(newFileName);
-
-            } catch (DicomException e) {
-                // ToDo
-//				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Refresh source database browser failed: "+e));
-//				e.printStackTrace(System.err);
-                e.printStackTrace();
-            }
-            srcDatabasePanel.validate();
-        }
-    }
-
-
-    public GiftCloudUploaderPanel(final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final MainFrame mainFrame, final String buildDate, final JLabel statusBar) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final DicomNode dicomNode, final GiftCloudBridge giftCloudBridge, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final MainFrame mainFrame, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
 		super();
+        this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.resourceBundle = resourceBundle;
         this.giftCloudDialogs = giftCloudDialogs;
-        this.mainFrame = mainFrame;
+//        this.mainFrame = mainFrame;
         this.buildDate = buildDate;
         this.statusBar = statusBar;
+        this.dicomNode = dicomNode;
+        this.giftCloudBridge = giftCloudBridge;
+        this.reporter = reporter;
+
 //		resourceBundle = ResourceBundle.getBundle(resourceBundleName);
 //		setTitle(resourceBundle.getString("applicationTitle"));
 
-        dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"));
 
-        dicomNode.addObserver(new DicomNodeListener());
-
-
-        dicomNode.activateStorageSCP();
-
-		logger = new DialogMessageLogger("GIFT-Cloud Log",512,384,false/*exitApplicationOnClose*/,false/*visible*/);
-		
-		cursorChanger = new SafeCursorChanger(this);
 
 
 
@@ -1761,35 +1657,9 @@ public class GiftCloudUploaderPanel extends JPanel {
 //		acceptAnyTransferSyntaxCheckBox.setToolTipText(resourceBundle.getString("acceptAnyTransferSyntaxToolTipText"));
 //		checkBoxPanel.add(acceptAnyTransferSyntaxCheckBox);
 				
-		JPanel statusBarPanel = new JPanel();
-		{
-			GridBagLayout statusBarPanelLayout = new GridBagLayout();
-			statusBarPanel.setLayout(statusBarPanelLayout);
-			{
-				JLabel statusBarTemp = getStatusBar();
-				GridBagConstraints statusBarConstraints = new GridBagConstraints();
-				statusBarConstraints.weightx = 1;
-				statusBarConstraints.fill = GridBagConstraints.BOTH;
-				statusBarConstraints.anchor = GridBagConstraints.WEST;
-				statusBarConstraints.gridwidth = GridBagConstraints.RELATIVE;
-				statusBarPanelLayout.setConstraints(statusBarTemp,statusBarConstraints);
-				statusBarPanel.add(statusBarTemp);
-			}
-			{
-				JProgressBar progressBar = new JProgressBar();		// local not class scope; helps detect when being accessed other than through SafeProgressBarUpdaterThread
-				progressBar.setStringPainted(false);
-				GridBagConstraints progressBarConstraints = new GridBagConstraints();
-				progressBarConstraints.weightx = 0.5;
-				progressBarConstraints.fill = GridBagConstraints.BOTH;
-				progressBarConstraints.anchor = GridBagConstraints.EAST;
-				progressBarConstraints.gridwidth = GridBagConstraints.REMAINDER;
-				statusBarPanelLayout.setConstraints(progressBar,progressBarConstraints);
-				statusBarPanel.add(progressBar);
-				
-				progressBarUpdater = new SafeProgressBarUpdaterThread(progressBar);
-			}
-		}
-		
+		statusPanel = new StatusPanel(getStatusBar());
+        reporter.addProgressListener(statusPanel);
+
 //		JPanel mainPanel = new JPanel();
 		{
 			GridBagLayout mainPanelLayout = new GridBagLayout();
@@ -1849,8 +1719,8 @@ public class GiftCloudUploaderPanel extends JPanel {
 				statusBarPanelConstraints.gridx = 0;
 				statusBarPanelConstraints.gridy = 6;
 				statusBarPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-				mainPanelLayout.setConstraints(statusBarPanel,statusBarPanelConstraints);
-				add(statusBarPanel);
+				mainPanelLayout.setConstraints(statusPanel, statusBarPanelConstraints);
+				add(statusPanel);
 			}
 		}
 //		Container content = getContentPane();
@@ -1860,15 +1730,9 @@ public class GiftCloudUploaderPanel extends JPanel {
 
 
 
-        // Initialise GIFT-Cloud
-        try {
-            giftCloudBridge = new GiftCloudBridge(mainFrame.getContainer(), giftCloudProperties);
-
-        } catch (Throwable t) {
-            System.out.println("Failed to initialise the GIFT-Cloud component:" + t.getMessage());
-        }
 
         // The model for the list of projects is managed by the GiftCloudBridge
+        // ToDo: Deal with null giftCloudBridge
         projectList.setModel(giftCloudBridge.getProjectListModel());
 	}
 
