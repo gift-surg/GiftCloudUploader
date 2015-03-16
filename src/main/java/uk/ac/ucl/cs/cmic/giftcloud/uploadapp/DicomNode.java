@@ -52,28 +52,39 @@ class DicomNode extends Observable {
      *
      * @throws	com.pixelmed.dicom.DicomException
      */
-    void activateStorageSCP() throws DicomException, IOException {
-        // Start up DICOM association listener in background for receiving images and responding to echoes ...
-        if (giftCloudProperties.areNetworkPropertiesValid()) {
-            {
-                int port = giftCloudProperties.getListeningPort();
-                ourCalledAETitle = giftCloudProperties.getCalledAETitle();
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port "+port+" AET "+ourCalledAETitle));
-                int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
-                int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
-                storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(port,ourCalledAETitle,savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
-                        srcDatabase == null ? null : srcDatabase.getQueryResponseGeneratorFactory(queryDebugLevel),
-                        srcDatabase == null ? null : srcDatabase.getRetrieveResponseGeneratorFactory(queryDebugLevel),
-                        networkApplicationInformation,
-                        new OurPresentationContextSelectionPolicy(),
-                        false/*secureTransport*/,
-                        storageSCPDebugLevel);
-                new Thread(storageSOPClassSCPDispatcher).start();
+    void activateStorageSCP() throws DicomNodeStartException {
+        try {
+            // Start up DICOM association listener in background for receiving images and responding to echoes ...
+            if (giftCloudProperties.areNetworkPropertiesValid()) {
+                {
+                    int port = giftCloudProperties.getListeningPort();
+                    ourCalledAETitle = giftCloudProperties.getCalledAETitle();
+                    ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port + " AET " + ourCalledAETitle));
+                    int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
+                    int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
+                    storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(port, ourCalledAETitle, savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
+                            srcDatabase == null ? null : srcDatabase.getQueryResponseGeneratorFactory(queryDebugLevel),
+                            srcDatabase == null ? null : srcDatabase.getRetrieveResponseGeneratorFactory(queryDebugLevel),
+                            networkApplicationInformation,
+                            new OurPresentationContextSelectionPolicy(),
+                            false/*secureTransport*/,
+                            storageSCPDebugLevel);
+                    new Thread(storageSOPClassSCPDispatcher).start();
+                }
             }
+        } catch (IOException e) {
+            throw new DicomNodeStartException("Could not start the Dicom storage SCP service due to the following error: " + e.getLocalizedMessage(), e);
         }
     }
 
-    String getOurCalledAETitle() {
+    class DicomNodeStartException extends Exception {
+        DicomNodeStartException(final String message, final Exception cause) {
+            super(message, cause);
+        }
+    }
+
+
+            String getOurCalledAETitle() {
         return ourCalledAETitle;
     }
 

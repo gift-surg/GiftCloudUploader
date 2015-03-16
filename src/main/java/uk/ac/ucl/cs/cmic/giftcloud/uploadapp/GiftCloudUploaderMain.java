@@ -24,6 +24,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     GiftCloudBridge giftCloudBridge = null;
     final GiftCloudUploaderPanel giftCloudUploaderPanel;
     final GiftCloudReporter reporter;
+    final GiftCloudSystemTray giftCloudSystemTray;
 
     public GiftCloudUploaderMain(ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
@@ -40,7 +41,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"));
         dicomNode.addObserver(new DicomNodeListener());
-        dicomNode.activateStorageSCP();
+        try {
+            dicomNode.activateStorageSCP();
+        } catch (DicomNode.DicomNodeStartException e) {
+            System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
+        }
 
         reporter = new GiftCloudReporter(giftCloudMainFrame.getContainer());
 
@@ -58,18 +63,41 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
         giftCloudMainFrame.show();
 
-        new GiftCloudSystemTray(giftCloudMainFrame, giftCloudDialogs, resourceBundle.getString("giftCloudProductName"));
+        giftCloudSystemTray = new GiftCloudSystemTray(this, true);
     }
 
     @Override
-    public void showConfigureDialog() throws IOException, DicomNetworkException, DicomException {
+    public void showConfigureDialog() throws IOException, DicomNode.DicomNodeStartException {
         dicomNode.shutdownStorageSCP();
-        new NetworkApplicationConfigurationDialog(giftCloudMainFrame.getContainer(), dicomNode.getNetworkApplicationInformation(), giftCloudProperties, giftCloudDialogs);
+        try {
+            new NetworkApplicationConfigurationDialog(giftCloudMainFrame.getContainer(), dicomNode.getNetworkApplicationInformation(), giftCloudProperties, giftCloudDialogs);
+        } catch (DicomNetworkException e) {
+            throw new IOException("Failed to create configuration dialog due to error: " + e.getCause());
+        }
         // should now save properties to file
         giftCloudProperties.updatePropertiesWithNetworkProperties();
         giftCloudProperties.storeProperties("Edited and saved from user interface");
         dicomNode.activateStorageSCP();
     }
+
+    @Override
+    public void showAboutDialog() {
+        giftCloudMainFrame.show();
+        giftCloudDialogs.showMessage(resourceBundle.getString("giftCloudProductName"));
+    }
+
+    @Override
+    public void hide() {
+        giftCloudMainFrame.hide();
+        giftCloudSystemTray.updateMenu(false);
+    }
+
+    @Override
+    public void show() {
+        giftCloudMainFrame.show();
+        giftCloudSystemTray.updateMenu(true);
+    }
+
 
     private class DicomNodeListener implements Observer {
 
