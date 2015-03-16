@@ -1,7 +1,5 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.pixelmed.display.SafeProgressBarUpdaterThread;
-import com.pixelmed.utils.MessageLogger;
 import org.apache.commons.lang.StringUtils;
 
 import javax.security.sasl.AuthenticationException;
@@ -23,10 +21,10 @@ public class GiftCloudBridge {
 
     Optional<GiftCloudAutoUploader> giftCloudAutoUploader = Optional.empty();
 
-    public GiftCloudBridge(final Container container, final GiftCloudPropertiesFromBridge giftCloudProperties) throws IOException {
+    public GiftCloudBridge(final GiftCloudReporter reporter, final Container container, final GiftCloudPropertiesFromBridge giftCloudProperties) throws IOException {
         this.container = container;
         this.giftCloudProperties = giftCloudProperties;
-        reporter = new GiftCloudReporter(container);
+        this.reporter = reporter;
 
         if (!giftCloudProperties.getGiftCloudUrl().isPresent()) {
             JOptionPane.showMessageDialog(container, "Please set an URL for the GIFT-Cloud server.", "Error", JOptionPane.DEFAULT_OPTION);
@@ -56,7 +54,7 @@ public class GiftCloudBridge {
         return projectListModel;
     }
 
-    public boolean uploadToGiftCloud(Vector paths, MessageLogger logger, SafeProgressBarUpdaterThread progressBarUpdaterThread) throws IOException {
+    public boolean uploadToGiftCloud(Vector paths) throws IOException {
 
         try {
             final GiftCloudAutoUploader giftCloudAutoUploader = getGiftCloudAutoUploader();
@@ -75,7 +73,7 @@ public class GiftCloudBridge {
 
             final String projectName = selectedProjectName;
 
-            return getGiftCloudAutoUploader().uploadToGiftCloud(paths, logger, progressBarUpdaterThread, projectName);
+            return getGiftCloudAutoUploader().uploadToGiftCloud(paths, projectName);
 
         } catch (Throwable throwable) {
 
@@ -83,7 +81,7 @@ public class GiftCloudBridge {
         }
     }
 
-    public boolean appendToGiftCloud(Vector paths, MessageLogger logger, SafeProgressBarUpdaterThread progressBarUpdaterThread) throws IOException {
+    public boolean appendToGiftCloud(Vector paths) throws IOException {
 
         try {
             final GiftCloudAutoUploader giftCloudAutoUploader = getGiftCloudAutoUploader();
@@ -102,7 +100,7 @@ public class GiftCloudBridge {
 
             final String projectName = selectedProjectName;
 
-            return getGiftCloudAutoUploader().appendToGiftCloud(paths, logger, progressBarUpdaterThread, projectName);
+            return getGiftCloudAutoUploader().appendToGiftCloud(paths, projectName);
 
         } catch (Throwable throwable) {
 

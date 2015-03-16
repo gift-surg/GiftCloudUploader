@@ -21,9 +21,15 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 
+import com.pixelmed.display.DialogMessageLogger;
+import com.pixelmed.display.SafeCursorChanger;
+import com.pixelmed.display.event.StatusChangeEvent;
+import com.pixelmed.event.ApplicationEventDispatcher;
+import com.pixelmed.utils.MessageLogger;
 import netscape.javascript.JSObject;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
 import org.slf4j.Logger;
+import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,16 +37,23 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 
-public class GiftCloudReporter implements MultiUploadReporter {
+public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
 
     private Container container;
 
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(GiftCloudReporter.class);
 
+    protected SafeCursorChanger cursorChanger;
+    protected MessageLogger messageLogger;
+
+    private final ProgressModel progressModel = new ProgressModel();
+
 
     public GiftCloudReporter(Container container) {
         this.container = container;
         configureLogging();
+        messageLogger = new DialogMessageLogger("GIFT-Cloud Log", 512, 384, false/*exitApplicationOnClose*/, false/*visible*/);
+        cursorChanger = new SafeCursorChanger(container);
     }
 
     @Override
@@ -180,5 +193,47 @@ public class GiftCloudReporter implements MultiUploadReporter {
      * LOG4J_PROPS_URL applet parameter.
      */
     private void configureLogging() {
+    }
+
+    public void setWaitCursor() {
+        cursorChanger.setWaitCursor();
+    }
+
+    public void updateProgress(String message) {
+        messageLogger.sendLn(message);
+        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent(message));
+
+    }
+
+    public void restoreCursor() {
+        cursorChanger.restoreCursor();
+    }
+
+    void endProgress() {
+        progressModel.endProgress();
+    }
+
+    void startProgressBar() {
+        progressModel.startProgress();
+    }
+
+    void addProgressListener(final Progress progress) {
+        progressModel.addListener(progress);
+    }
+
+    @Override
+    public void sendLn(String message) {
+        messageLogger.sendLn(message);
+    }
+
+    @Override
+    public void send(String message) {
+        messageLogger.send(message);
+    }
+
+    public void showMesageLogger() {
+        if (logger instanceof DialogMessageLogger) {
+            ((DialogMessageLogger) logger).setVisible(true);
+        }
     }
 }

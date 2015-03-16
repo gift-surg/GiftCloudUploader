@@ -3,20 +3,18 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Lists;
 import com.pixelmed.display.EmptyProgress;
-import com.pixelmed.display.SafeProgressBarUpdaterThread;
-import com.pixelmed.utils.MessageLogger;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingProgressMonitor;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerXnat;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingProgressMonitor;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -87,7 +85,7 @@ public class GiftCloudAutoUploader {
         return giftCloudServerUrl;
     }
 
-    public boolean uploadToGiftCloud(Vector paths, MessageLogger logger, SafeProgressBarUpdaterThread progressBarUpdaterThread, final String projectName) throws IOException {
+    public boolean uploadToGiftCloud(Vector paths, final String projectName) throws IOException {
 
 
         SeriesImportFilterApplicatorRetriever filter;
@@ -191,7 +189,7 @@ public class GiftCloudAutoUploader {
 
 
 
-    public boolean appendToGiftCloud(Vector paths, MessageLogger logger, SafeProgressBarUpdaterThread progressBarUpdaterThread, final String projectName) throws IOException {
+    public boolean appendToGiftCloud(Vector paths, final String projectName) throws IOException {
 
 
         SeriesImportFilterApplicatorRetriever filter;

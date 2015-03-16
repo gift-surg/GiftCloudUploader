@@ -2,6 +2,8 @@
 
 package com.pixelmed.display;
 
+import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+
 import javax.swing.JProgressBar;
 
 /**
@@ -25,7 +27,7 @@ import javax.swing.JProgressBar;
  * </pre>
  */
 
-public class SafeProgressBarUpdaterThread implements Runnable {
+public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 	
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/display/SafeProgressBarUpdaterThread.java,v 1.2 2013/02/01 13:53:20 dclunie Exp $";
 
@@ -63,7 +65,8 @@ public class SafeProgressBarUpdaterThread implements Runnable {
 	
 	// convenience methods ...
 	
-	public void startProgressBar(int maximum) {
+	@Override
+    public void startProgressBar(int maximum) {
 		{
 			if (java.awt.EventQueue.isDispatchThread()) {
 				progressBar.setValue(0);
@@ -80,11 +83,13 @@ public class SafeProgressBarUpdaterThread implements Runnable {
 		}
 	}
 	
-	public void startProgressBar() {
+	@Override
+    public void startProgressBar() {
 		startProgressBar(100);	// assume standard default of 100 if unknown, expecting that it will be updated when known
 	}
 	
-	public void updateProgressBar(int value) {
+	@Override
+    public void updateProgressBar(int value) {
 		{
 			if (java.awt.EventQueue.isDispatchThread()) {
 				progressBar.setValue(value);
@@ -99,7 +104,8 @@ public class SafeProgressBarUpdaterThread implements Runnable {
 		}
 	}
 	
-	public void updateProgressBar(int value,int maximum) {
+	@Override
+    public void updateProgressBar(int value, int maximum) {
 		{
 			if (java.awt.EventQueue.isDispatchThread()) {
 				progressBar.setValue(value);
@@ -116,7 +122,8 @@ public class SafeProgressBarUpdaterThread implements Runnable {
 		}
 	}
 	
-	public void endProgressBar() {
+	@Override
+    public void endProgressBar() {
 		{
 			if (java.awt.EventQueue.isDispatchThread()) {
 				progressBar.setValue(0);
