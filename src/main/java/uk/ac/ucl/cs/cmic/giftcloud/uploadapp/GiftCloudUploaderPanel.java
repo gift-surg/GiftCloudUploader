@@ -211,23 +211,23 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 	}
 	
-	protected DatabaseTreeRecord[] currentDestinationDatabaseSelections;
+//	protected DatabaseTreeRecord[] currentDestinationDatabaseSelections;
 	protected Vector currentDestinationFilePathSelections;
 
-	protected class OurDestinationDatabaseTreeBrowser extends DatabaseTreeBrowser {
-		public OurDestinationDatabaseTreeBrowser(DatabaseInformationModel d,Container content) throws DicomException {
-			super(d,content);
-		}
-		
-		protected boolean doSomethingWithSelections(DatabaseTreeRecord[] selections) {
-			currentDestinationDatabaseSelections = selections;
-			return false;	// still want to call doSomethingWithSelectedFiles()
-		}
-		
-		protected void doSomethingWithSelectedFiles(Vector paths) {
-			currentDestinationFilePathSelections = paths;
-		}
-	}
+//	protected class OurDestinationDatabaseTreeBrowser extends DatabaseTreeBrowser {
+//		public OurDestinationDatabaseTreeBrowser(DatabaseInformationModel d,Container content) throws DicomException {
+//			super(d,content);
+//		}
+//
+//		protected boolean doSomethingWithSelections(DatabaseTreeRecord[] selections) {
+//			currentDestinationDatabaseSelections = selections;
+//			return false;	// still want to call doSomethingWithSelectedFiles()
+//		}
+//
+//		protected void doSomethingWithSelectedFiles(Vector paths) {
+//			currentDestinationFilePathSelections = paths;
+//		}
+//	}
 	
 	// very similar to code in DicomImageViewer and DoseUtility apart from logging and progress bar ... should refactor :(
 	protected void purgeFilesAndDatabaseInformation(DatabaseTreeRecord[] databaseSelections,MessageLogger logger,SafeProgressBarUpdaterThread progressBarUpdater,int done,int maximum) throws DicomException, IOException {
@@ -295,7 +295,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 			SafeProgressBarUpdaterThread.startProgressBar(progressBarUpdater);
 			try {
 				purgeFilesAndDatabaseInformation(currentSourceDatabaseSelections,logger,progressBarUpdater,0,1);
-				purgeFilesAndDatabaseInformation(currentDestinationDatabaseSelections,logger,progressBarUpdater,0,1);
+//				purgeFilesAndDatabaseInformation(currentDestinationDatabaseSelections,logger,progressBarUpdater,0,1);
 			} catch (Exception e) {
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Purging failed: "+e));
 				e.printStackTrace(System.err);
@@ -486,25 +486,15 @@ public class GiftCloudUploaderPanel extends JPanel {
 								getBuildDate(),													// Software Version(s)
 								"Cleaned");
 //						}
-//System.err.println("Writing outputTransferSyntaxUID = "+outputTransferSyntaxUID);
 						FileMetaInformation.addFileMetaInformation(list, outputTransferSyntaxUID, dicomNode.getOurCalledAETitle());
 						list.insertSuitableSpecificCharacterSetForAllStringValues();	// E.g., may have de-identified Kanji name and need new character set
-//currentTime = System.currentTimeMillis();
-//System.err.println("GiftCloudUploaderPanel.copyFromOriginalToCleanedPerformingAction(): cleaning AttributeList took = "+(currentTime-startTime)+" ms");
-//startTime=currentTime;
 						File cleanedFile = File.createTempFile("clean",".dcm");
 						cleanedFile.deleteOnExit();
 						list.write(cleanedFile,outputTransferSyntaxUID,true/*useMeta*/,true/*useBufferedStream*/);
-//currentTime = System.currentTimeMillis();
-//System.err.println("GiftCloudUploaderPanel.copyFromOriginalToCleanedPerformingAction(): writing AttributeList took = "+(currentTime-startTime)+" ms");
-//startTime=currentTime;
 						logger.sendLn("Cleaned "+dicomFileName+" into "+cleanedFile.getCanonicalPath());
 
                         // ToDo: Removed insertion into destination
 //						dstDatabase.insertObject(list,cleanedFile.getCanonicalPath(),DatabaseInformationModel.FILE_COPIED);
-//currentTime = System.currentTimeMillis();
-//System.err.println("GiftCloudUploaderPanel.copyFromOriginalToCleanedPerformingAction(): inserting cleaned object in database took = "+(currentTime-startTime)+" ms");
-//startTime=currentTime;
 					}
 					catch (Exception e) {
 						System.err.println("GiftCloudUploaderPanel.copyFromOriginalToCleanedPerformingAction(): while cleaning "+dicomFileName);
@@ -609,8 +599,6 @@ public class GiftCloudUploaderPanel extends JPanel {
 		// override base class isOKToImport(), which rejects unsupported compressed transfer syntaxes
 		
 		protected boolean isOKToImport(String sopClassUID,String transferSyntaxUID) {
-//System.err.println(new TransferSyntax(transferSyntaxUID).dump());
-//System.err.println(sopClassUID+" isImageStorage = "+SOPClass.isImageStorage(sopClassUID));
 			return sopClassUID != null
 				&& (SOPClass.isImageStorage(sopClassUID) || (SOPClass.isNonImageStorage(sopClassUID) && ! SOPClass.isDirectory(sopClassUID)))
 				&& transferSyntaxUID != null
@@ -1033,6 +1021,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 				// else user cancelled operation in JOptionPane.showInputDialog() so gracefully do nothing
 			}
 			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending."));
+			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending."));
 		}
 	}
 	
@@ -1057,30 +1046,30 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 	}
 	
-	protected class BlackoutActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			cursorChanger.setWaitCursor();
-			logger.sendLn("Blackout starting");
-			if (currentDestinationFilePathSelections != null && currentDestinationFilePathSelections.size() > 0) {
-				{
-					try {
-						int nFiles = currentDestinationFilePathSelections.size();
-						String fileNames[] = new String[nFiles];
-						for (int j=0; j< nFiles; ++j) {
-							fileNames[j] = (String)(currentDestinationFilePathSelections.get(j));
-						}
-						new OurDicomImageBlackout("Dicom Image Blackout",fileNames,DicomImageBlackout.BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED, dicomNode.getOurCalledAETitle());
-					}
-					catch (Exception e) {
-						e.printStackTrace(System.err);
-					}
-				}
-			}
-			// don't need to send StatusChangeEvent("Blackout complete.") ... DicomImageBlackout already does something similar
-			// DicomImageBlackout sends its own completion message to log, so do not need another one
-			cursorChanger.restoreCursor();
-		}
-	}
+//	protected class BlackoutActionListener implements ActionListener {
+//		public void actionPerformed(ActionEvent event) {
+//			cursorChanger.setWaitCursor();
+//			logger.sendLn("Blackout starting");
+//			if (currentDestinationFilePathSelections != null && currentDestinationFilePathSelections.size() > 0) {
+//				{
+//					try {
+//						int nFiles = currentDestinationFilePathSelections.size();
+//						String fileNames[] = new String[nFiles];
+//						for (int j=0; j< nFiles; ++j) {
+//							fileNames[j] = (String)(currentDestinationFilePathSelections.get(j));
+//						}
+//						new OurDicomImageBlackout("Dicom Image Blackout",fileNames,DicomImageBlackout.BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED, dicomNode.getOurCalledAETitle());
+//					}
+//					catch (Exception e) {
+//						e.printStackTrace(System.err);
+//					}
+//				}
+//			}
+//			// don't need to send StatusChangeEvent("Blackout complete.") ... DicomImageBlackout already does something similar
+//			// DicomImageBlackout sends its own completion message to log, so do not need another one
+//			cursorChanger.restoreCursor();
+//		}
+//	}
 
     class QuerySelection {
         private AttributeList currentRemoteQuerySelectionUniqueKeys;
