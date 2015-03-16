@@ -4,7 +4,7 @@ import com.pixelmed.dicom.DicomException;
 import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.DicomNetworkException;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudHttpException;
+import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudAppendUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 
 import javax.swing.*;
@@ -144,7 +144,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     filesToUpload.add(fileName);
 
                     // ToDo: this is not threadsafe!
-                    Thread activeThread = new Thread(new GiftCloudAppendUploadWorker(filesToUpload));
+                    Thread activeThread = new Thread(new GiftCloudAppendUploadWorker(filesToUpload, giftCloudBridge, reporter));
                     activeThread.start();
                     filesAlreadyUploaded.add(fileName);
                 }
@@ -153,54 +153,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload failed: "+e));
                 e.printStackTrace(System.err);
             }
-        }
-    }
-
-    protected class GiftCloudAppendUploadWorker implements Runnable {
-        private final Vector<String> sourceFilePathSelections;
-
-        GiftCloudAppendUploadWorker(Vector<String> sourceFilePathSelections) {
-            this.sourceFilePathSelections = sourceFilePathSelections;
-        }
-
-        public void run() {
-            if (giftCloudBridge == null) {
-                giftCloudDialogs.showError("An error occurred which prevents the uploader from connecting to the server. Please restart GIFT-Cloud uploader.");
-                return;
-            }
-
-            reporter.setWaitCursor();
-
-            if (sourceFilePathSelections == null) {
-                reporter.updateProgress("GIFT-Cloud upload: no files were selected for upload");
-                giftCloudDialogs.showError("No files were selected for uploading.");
-            } else {
-                reporter.sendLn("GIFT-Cloud upload started");
-                reporter.startProgressBar();
-
-                for (final String fileName : sourceFilePathSelections) {
-                    try {
-                        Vector singleFile = new Vector();
-                        singleFile.add(fileName);
-
-                        System.out.println("Uploading single file: " + fileName);
-                        if (giftCloudBridge.appendToGiftCloud(singleFile)) {
-                            reporter.updateProgress("GIFT-Cloud upload complete");
-                        } else {
-                            reporter.updateProgress("Partial failure in GIFT-Cloud upload");
-                        }
-                    } catch (GiftCloudHttpException e) {
-                        reporter.updateProgress("Partial failure in GIFT-Cloud upload, due to the following error: " + e.getHtmlText());
-                        e.printStackTrace(System.err);
-                    } catch (Exception e) {
-                        reporter.updateProgress("Failure in GIFT-Cloud upload, due to the following error: " + e.toString());
-                        e.printStackTrace(System.err);
-                    }
-                }
-
-                reporter.endProgress();
-            }
-            reporter.restoreCursor();
         }
     }
 
