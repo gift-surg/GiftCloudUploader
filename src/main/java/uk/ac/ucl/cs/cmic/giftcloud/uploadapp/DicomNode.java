@@ -11,7 +11,7 @@ import com.pixelmed.utils.CapabilitiesAvailable;
 import java.io.*;
 import java.util.*;
 
-class DicomNode extends Observable {
+public class DicomNode extends Observable {
 
     private StorageSOPClassSCPDispatcher storageSOPClassSCPDispatcher;
     private String ourCalledAETitle;		// set when reading network properties; used not just in StorageSCP, but also when creating exported meta information headers
@@ -22,7 +22,7 @@ class DicomNode extends Observable {
     protected Map<String,Date> earliestDatesIndexedBySourceFilePath = new HashMap<String,Date>();
 
 
-    DicomNode(final GiftCloudPropertiesFromBridge giftCloudProperties, final String databaseRootTitle) throws DicomException {
+    public DicomNode(final GiftCloudPropertiesFromBridge giftCloudProperties, final String databaseRootTitle) throws DicomException {
         this.giftCloudProperties = giftCloudProperties;
         savedImagesFolder = new File(System.getProperty("java.io.tmpdir"));
 
@@ -52,7 +52,7 @@ class DicomNode extends Observable {
      *
      * @throws	com.pixelmed.dicom.DicomException
      */
-    void activateStorageSCP() throws DicomNodeStartException {
+    public void activateStorageSCP() throws DicomNodeStartException {
         try {
             // Start up DICOM association listener in background for receiving images and responding to echoes ...
             if (giftCloudProperties.areNetworkPropertiesValid()) {
@@ -77,7 +77,7 @@ class DicomNode extends Observable {
         }
     }
 
-    class DicomNodeStartException extends Exception {
+    public class DicomNodeStartException extends Exception {
         DicomNodeStartException(final String message, final Exception cause) {
             super(message, cause);
         }
@@ -130,7 +130,7 @@ class DicomNode extends Observable {
         return networkApplicationInformation;
     }
 
-    void importFileIntoDatabase(String dicomFileName,String fileReferenceType) throws FileNotFoundException, IOException, DicomException {
+    public void importFileIntoDatabase(String dicomFileName,String fileReferenceType) throws FileNotFoundException, IOException, DicomException {
 
         System.out.println(">>>> DICOM FILE IMPORTING: " + dicomFileName);
         ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Importing: "+dicomFileName));

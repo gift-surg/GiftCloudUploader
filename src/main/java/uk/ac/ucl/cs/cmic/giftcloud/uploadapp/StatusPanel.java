@@ -6,7 +6,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import javax.swing.*;
 import java.awt.*;
 
-class StatusPanel extends JPanel implements Progress {
+public class StatusPanel extends JPanel implements Progress {
 
     protected SafeProgressBarUpdaterThread progressBarUpdater;
     private JProgressBar progressBar;

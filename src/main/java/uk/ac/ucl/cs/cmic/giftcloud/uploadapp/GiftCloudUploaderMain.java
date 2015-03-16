@@ -5,6 +5,7 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.DicomNetworkException;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudHttpException;
+import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -96,6 +97,18 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     public void show() {
         giftCloudMainFrame.show();
         giftCloudSystemTray.updateMenu(true);
+    }
+
+    @Override
+    public void upload(Vector filePaths) {
+        try {
+            Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudBridge, reporter));
+            activeThread.start();
+        } catch (Exception e) {
+            reporter.updateProgress("GIFT-Cloud upload failed: " + e);
+            reporter.error("GIFT-Cloud upload failed: " + e);
+            e.printStackTrace(System.err);
+        }
     }
 
 

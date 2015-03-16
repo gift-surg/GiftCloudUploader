@@ -6,15 +6,15 @@ import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.database.DatabaseTreeBrowser;
 import com.pixelmed.database.DatabaseTreeRecord;
 import com.pixelmed.dicom.*;
-import com.pixelmed.display.*;
+import com.pixelmed.display.DicomImageBlackout;
 import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
-import com.pixelmed.network.*;
+import com.pixelmed.network.NetworkApplicationProperties;
+import com.pixelmed.network.PresentationAddress;
 import com.pixelmed.query.*;
-import com.pixelmed.utils.CapabilitiesAvailable;
 import com.pixelmed.utils.CopyStream;
-import com.pixelmed.utils.MessageLogger;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
+import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -165,22 +165,22 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 	}
 
-	private String showInputDialogToSelectNetworkTargetByLocalApplicationEntityName(String message,String title,String defaultSelection) {
-		String ae = defaultSelection;
-		if (dicomNode.isNetworkApplicationInformationValid()) {
-			Set localNamesOfRemoteAEs = dicomNode.getListOfLocalNamesOfApplicationEntities();
-			if (localNamesOfRemoteAEs != null) {
-				String sta[] = new String[localNamesOfRemoteAEs.size()];
-				int i=0;
-				Iterator it = localNamesOfRemoteAEs.iterator();
-				while (it.hasNext()) {
-					sta[i++]=(String)(it.next());
-				}
-                ae = giftCloudDialogs.getSelection(message, title, sta, ae);
-			}
-		}
-		return ae;
-	}
+//	private String showInputDialogToSelectNetworkTargetByLocalApplicationEntityName(String message,String title,String defaultSelection) {
+//		String ae = defaultSelection;
+//		if (dicomNode.isNetworkApplicationInformationValid()) {
+//			Set localNamesOfRemoteAEs = dicomNode.getListOfLocalNamesOfApplicationEntities();
+//			if (localNamesOfRemoteAEs != null) {
+//				String sta[] = new String[localNamesOfRemoteAEs.size()];
+//				int i=0;
+//				Iterator it = localNamesOfRemoteAEs.iterator();
+//				while (it.hasNext()) {
+//					sta[i++]=(String)(it.next());
+//				}
+//                ae = giftCloudDialogs.getSelection(message, title, sta, ae);
+//			}
+//		}
+//		return ae;
+//	}
 	
     public String getBuildDate() {
         return buildDate;
@@ -585,90 +585,10 @@ public class GiftCloudUploaderPanel extends JPanel {
 //		}
 //	}
 	
-	protected class OurMediaImporter extends MediaImporter {
-		boolean acceptAnyTransferSyntax;
-		
-		public OurMediaImporter(MessageLogger logger, StatusPanel statusPanel, boolean acceptAnyTransferSyntax) {
-			super(logger,statusPanel.getProgressBar());
-			this.acceptAnyTransferSyntax = acceptAnyTransferSyntax;
-		}
-		
-		protected void doSomethingWithDicomFileOnMedia(String mediaFileName) {
-			try {
-				logger.sendLn("Importing DICOM file: "+mediaFileName);
-				dicomNode.importFileIntoDatabase(mediaFileName, DatabaseInformationModel.FILE_REFERENCED);
-			}
-			catch (Exception e) {
-				e.printStackTrace(System.err);
-			}
-		}
-		
-		protected boolean canUseBzip = CapabilitiesAvailable.haveBzip2Support();
-
-		// override base class isOKToImport(), which rejects unsupported compressed transfer syntaxes
-		
-		protected boolean isOKToImport(String sopClassUID,String transferSyntaxUID) {
-			return sopClassUID != null
-				&& (SOPClass.isImageStorage(sopClassUID) || (SOPClass.isNonImageStorage(sopClassUID) && ! SOPClass.isDirectory(sopClassUID)))
-				&& transferSyntaxUID != null
-				&& ((acceptAnyTransferSyntax && new TransferSyntax(transferSyntaxUID).isRecognized())
-				 || transferSyntaxUID.equals(TransferSyntax.ImplicitVRLittleEndian)
-				 || transferSyntaxUID.equals(TransferSyntax.ExplicitVRLittleEndian)
-				 || transferSyntaxUID.equals(TransferSyntax.ExplicitVRBigEndian)
-				 || transferSyntaxUID.equals(TransferSyntax.DeflatedExplicitVRLittleEndian)
-				 || (transferSyntaxUID.equals(TransferSyntax.DeflatedExplicitVRLittleEndian) && canUseBzip)
-				 || transferSyntaxUID.equals(TransferSyntax.RLE)
-				 || transferSyntaxUID.equals(TransferSyntax.JPEGBaseline)
-				 || CapabilitiesAvailable.haveJPEGLosslessCodec() && (transferSyntaxUID.equals(TransferSyntax.JPEGLossless) || transferSyntaxUID.equals(TransferSyntax.JPEGLosslessSV1))
-				 || CapabilitiesAvailable.haveJPEG2000Part1Codec() && (transferSyntaxUID.equals(TransferSyntax.JPEG2000) || transferSyntaxUID.equals(TransferSyntax.JPEG2000Lossless))
-				 || CapabilitiesAvailable.haveJPEGLSCodec() && (transferSyntaxUID.equals(TransferSyntax.JPEGLS) || transferSyntaxUID.equals(TransferSyntax.JPEGNLS))
-				);
-		}
-	}
 
 	protected String importDirectoryPath;	// keep around between invocations
 
-	protected class ImportWorker implements Runnable {
-		MediaImporter importer;
-		DatabaseInformationModel srcDatabase;
-		JPanel srcDatabasePanel;
-		String pathName;
-		
-		ImportWorker(String pathName,DatabaseInformationModel srcDatabase,JPanel srcDatabasePanel) {
-			importer = new OurMediaImporter(reporter, statusPanel, giftCloudProperties.acceptAnyTransferSyntax());
-			this.srcDatabase=srcDatabase;
-			this.srcDatabasePanel=srcDatabasePanel;
-			this.pathName=pathName;
-		}
-
-		public void run() {
-			reporter.setWaitCursor();
-            reporter.sendLn("Import starting");
-
-            statusPanel.startProgressBar();
-			try {
-				importer.importDicomFiles(pathName);
-			} catch (Exception e) {
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Importing failed: "+e));
-				e.printStackTrace(System.err);
-			}
-//			srcDatabasePanel.removeAll();
-//			try {
-//				new OurSourceDatabaseTreeBrowser(srcDatabase,srcDatabasePanel);
-//			} catch (Exception e) {
-//				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Refresh source database browser failed: "+e));
-//				e.printStackTrace(System.err);
-//			}
-//			srcDatabasePanel.validate();
-
-            statusPanel.endProgressBar();
-			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done importing"));
-			// importer sends its own completion message to log, so do not need another one
-			reporter.restoreCursor();
-		}
-	}
-
-	protected class ImportActionListener implements ActionListener {
+    protected class ImportActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			try {
                 reporter.showMesageLogger();
@@ -681,7 +601,7 @@ public class GiftCloudUploaderPanel extends JPanel {
                 if (selectFileOrDirectory.isPresent()) {
                     importDirectoryPath = selectFileOrDirectory.get().getSelectedPath();
                     String filePath = selectFileOrDirectory.get().getSelectedFile();
-                    new Thread(new ImportWorker(filePath, dicomNode.getSrcDatabase(), srcDatabasePanel)).start();
+                    new Thread(new ImportWorker(dicomNode, filePath, statusPanel.getProgressBar(), giftCloudProperties.acceptAnyTransferSyntax(), reporter)).start();
                 }
             } catch (Exception e) {
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Importing failed: " + e));
@@ -814,15 +734,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     protected class GiftCloudUploadActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            try {
-                activeThread = new Thread(new GiftCloudUploadWorker(currentSourceFilePathSelections, giftCloudBridge, reporter));
-                activeThread.start();
-            }
-            catch (Exception e) {
-                reporter.updateProgress("GIFT-Cloud upload failed: " + e);
-                reporter.error("GIFT-Cloud upload failed: " + e);
-                e.printStackTrace(System.err);
-            }
+            controller.upload(currentSourceFilePathSelections);
         }
     }
 
