@@ -40,6 +40,7 @@ import java.net.MalformedURLException;
 public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
 
     private Container container;
+    private GiftCloudDialogs giftCloudDialogs;
 
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(GiftCloudReporter.class);
 
@@ -49,8 +50,9 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
     private final ProgressModel progressModel = new ProgressModel();
 
 
-    public GiftCloudReporter(Container container) {
+    public GiftCloudReporter(Container container, final GiftCloudDialogs giftCloudDialogs) {
         this.container = container;
+        this.giftCloudDialogs = giftCloudDialogs;
         configureLogging();
         messageLogger = new DialogMessageLogger("GIFT-Cloud Log", 512, 384, false/*exitApplicationOnClose*/, false/*visible*/);
         cursorChanger = new SafeCursorChanger(container);
@@ -209,15 +211,15 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
         cursorChanger.restoreCursor();
     }
 
-    void endProgress() {
+    public void endProgress() {
         progressModel.endProgress();
     }
 
-    void startProgressBar() {
+    public void startProgressBar() {
         progressModel.startProgress();
     }
 
-    void addProgressListener(final Progress progress) {
+    public void addProgressListener(final Progress progress) {
         progressModel.addListener(progress);
     }
 
@@ -235,5 +237,9 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
         if (logger instanceof DialogMessageLogger) {
             ((DialogMessageLogger) logger).setVisible(true);
         }
+    }
+
+    public void showError(final String errorMessage) {
+        giftCloudDialogs.showError(errorMessage);
     }
 }

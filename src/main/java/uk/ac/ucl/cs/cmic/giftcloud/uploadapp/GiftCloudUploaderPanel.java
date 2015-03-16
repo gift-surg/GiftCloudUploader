@@ -14,7 +14,7 @@ import com.pixelmed.query.*;
 import com.pixelmed.utils.CapabilitiesAvailable;
 import com.pixelmed.utils.CopyStream;
 import com.pixelmed.utils.MessageLogger;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudHttpException;
+import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -812,59 +812,15 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 	}
 
-    protected class GiftCloudUploadWorker implements Runnable {
-        Vector sourceFilePathSelections;
-
-        GiftCloudUploadWorker(Vector sourceFilePathSelections) {
-            this.sourceFilePathSelections = sourceFilePathSelections;
-        }
-
-        public void run() {
-            if (giftCloudBridge == null) {
-                giftCloudDialogs.showError("An error occurred which prevents the uploader from connecting to the server. Please restart GIFT-Cloud uploader.");
-                return;
-            }
-
-            reporter.setWaitCursor();
-
-            if (sourceFilePathSelections == null) {
-                reporter.sendLn("GIFT-Cloud upload: no files were uploaded because sourceFilePathSelections was null");
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("No files selected for upload."));
-                giftCloudDialogs.showError("No files were selected for uploading.");
-            } else {
-                reporter.sendLn("GIFT-Cloud upload started");
-                statusPanel.startProgressBar();
-                try {
-                    if (giftCloudBridge.uploadToGiftCloud(sourceFilePathSelections)) {
-                        reporter.sendLn("GIFT-Cloud upload complete");
-                        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload complete"));
-                    } else {
-                        reporter.sendLn("GIFT-Cloud upload failed");
-                        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload (partially) failed: "));
-                    }
-                } catch (GiftCloudHttpException e) {
-                    ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload failed with the following error: " + e.getHtmlText()));
-                    reporter.sendLn("GIFT-Cloud upload failed");
-                    e.printStackTrace(System.err);
-                } catch (Exception e) {
-                    ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload failed: " + e));
-                    reporter.sendLn("GIFT-Cloud upload failed");
-                    e.printStackTrace(System.err);
-                }
-                statusPanel.endProgressBar();
-            }
-            reporter.restoreCursor();
-        }
-    }
-
     protected class GiftCloudUploadActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             try {
-                activeThread = new Thread(new GiftCloudUploadWorker(currentSourceFilePathSelections));
+                activeThread = new Thread(new GiftCloudUploadWorker(currentSourceFilePathSelections, giftCloudBridge, reporter));
                 activeThread.start();
             }
             catch (Exception e) {
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload failed: "+e));
+                reporter.updateProgress("GIFT-Cloud upload failed: " + e);
+                reporter.error("GIFT-Cloud upload failed: " + e);
                 e.printStackTrace(System.err);
             }
         }
@@ -874,61 +830,61 @@ public class GiftCloudUploaderPanel extends JPanel {
 
 
 
-	protected class OurMultipleInstanceTransferStatusHandler extends MultipleInstanceTransferStatusHandlerWithFileName {
-		int nFiles;
-		MessageLogger logger;
-		StatusPanel statusPanel;
-		
-		OurMultipleInstanceTransferStatusHandler(int nFiles,MessageLogger logger, StatusPanel statusPanel) {
-			this.nFiles=nFiles;
-			this.logger=logger;
-			this.statusPanel=statusPanel;
-		}
-		
-		public void updateStatus(int nRemaining,int nCompleted,int nFailed,int nWarning,String sopInstanceUID,String fileName,boolean success) {
-			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Remaining "+nRemaining+", completed "+nCompleted+", failed "+nFailed+", warning "+nWarning));
-            statusPanel.updateProgressBar(nFiles - nRemaining);
-			if (logger != null) {
-				logger.sendLn((success ? "Sent " : "Failed to send ")+fileName);
-			}
-		}
-	}
+//	protected class OurMultipleInstanceTransferStatusHandler extends MultipleInstanceTransferStatusHandlerWithFileName {
+//		int nFiles;
+//		MessageLogger logger;
+//		StatusPanel statusPanel;
+//
+//		OurMultipleInstanceTransferStatusHandler(int nFiles,MessageLogger logger, StatusPanel statusPanel) {
+//			this.nFiles=nFiles;
+//			this.logger=logger;
+//			this.statusPanel=statusPanel;
+//		}
+//
+//		public void updateStatus(int nRemaining,int nCompleted,int nFailed,int nWarning,String sopInstanceUID,String fileName,boolean success) {
+//			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Remaining "+nRemaining+", completed "+nCompleted+", failed "+nFailed+", warning "+nWarning));
+//            statusPanel.updateProgressBar(nFiles - nRemaining);
+//			if (logger != null) {
+//				logger.sendLn((success ? "Sent " : "Failed to send ")+fileName);
+//			}
+//		}
+//	}
 
-	protected class SendWorker implements Runnable {
-		String hostname;
-		int port;
-		String calledAETitle;
-		String callingAETitle;
-		SetOfDicomFiles setOfDicomFiles;
-		
-		SendWorker(String hostname,int port,String calledAETitle,String callingAETitle,SetOfDicomFiles setOfDicomFiles) {
-			this.hostname=hostname;
-			this.port=port;
-			this.calledAETitle=calledAETitle;
-			this.callingAETitle=callingAETitle;
-			this.setOfDicomFiles=setOfDicomFiles;
-		}
-
-		public void run() {
-			reporter.setWaitCursor();
-            reporter.sendLn("Send starting");
-			try {
-				int nFiles = setOfDicomFiles.size();
-                statusPanel.updateProgressBar(0, nFiles);
-				new StorageSOPClassSCU(hostname,port,calledAETitle,callingAETitle,setOfDicomFiles,0/*compressionLevel*/,
-					new OurMultipleInstanceTransferStatusHandler(nFiles,reporter,statusPanel),
-					0/*debugLevel*/);
-			} catch (Exception e) {
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Send failed: "+e));
-                reporter.sendLn("Send failed");
-				e.printStackTrace(System.err);
-			}
-            statusPanel.endProgressBar();
-            reporter.sendLn("Send complete");
-			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending to "+calledAETitle));
-			reporter.restoreCursor();
-		}
-	}
+//	protected class SendWorker implements Runnable {
+//		String hostname;
+//		int port;
+//		String calledAETitle;
+//		String callingAETitle;
+//		SetOfDicomFiles setOfDicomFiles;
+//
+//		SendWorker(String hostname,int port,String calledAETitle,String callingAETitle,SetOfDicomFiles setOfDicomFiles) {
+//			this.hostname=hostname;
+//			this.port=port;
+//			this.calledAETitle=calledAETitle;
+//			this.callingAETitle=callingAETitle;
+//			this.setOfDicomFiles=setOfDicomFiles;
+//		}
+//
+//		public void run() {
+//			reporter.setWaitCursor();
+//            reporter.sendLn("Send starting");
+//			try {
+//				int nFiles = setOfDicomFiles.size();
+//                statusPanel.updateProgressBar(0, nFiles);
+//				new StorageSOPClassSCU(hostname,port,calledAETitle,callingAETitle,setOfDicomFiles,0/*compressionLevel*/,
+//					new OurMultipleInstanceTransferStatusHandler(nFiles,reporter,statusPanel),
+//					0/*debugLevel*/);
+//			} catch (Exception e) {
+//				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Send failed: "+e));
+//                reporter.sendLn("Send failed");
+//				e.printStackTrace(System.err);
+//			}
+//            statusPanel.endProgressBar();
+//            reporter.sendLn("Send complete");
+//			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending to "+calledAETitle));
+//			reporter.restoreCursor();
+//		}
+//	}
 
 //	protected class SendActionListener implements ActionListener {
 //		public void actionPerformed(ActionEvent event) {

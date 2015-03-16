@@ -47,7 +47,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
         }
 
-        reporter = new GiftCloudReporter(giftCloudMainFrame.getContainer());
+        reporter = new GiftCloudReporter(giftCloudMainFrame.getContainer(), giftCloudDialogs);
 
         // Initialise GIFT-Cloud
         try {
