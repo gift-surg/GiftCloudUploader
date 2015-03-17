@@ -9,11 +9,13 @@ import com.pixelmed.dicom.*;
 import com.pixelmed.display.DicomImageBlackout;
 import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
+import com.pixelmed.network.DicomNetworkException;
 import com.pixelmed.network.NetworkApplicationProperties;
 import com.pixelmed.network.PresentationAddress;
 import com.pixelmed.query.*;
 import com.pixelmed.utils.CopyStream;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
+import uk.ac.ucl.cs.cmic.giftcloud.workers.QueryWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.RetrieveWorker;
 
 import javax.swing.*;
@@ -54,7 +56,6 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     private List<QuerySelection> currentRemoteQuerySelectionList;
 
-    private GiftCloudBridge giftCloudBridge = null;
     private GiftCloudReporter reporter;
     private GiftCloudUploaderController controller;
     private GiftCloudPropertiesFromBridge giftCloudProperties = null;
@@ -208,6 +209,11 @@ public class GiftCloudUploaderPanel extends JPanel {
             e.printStackTrace();
         }
         srcDatabasePanel.validate();
+    }
+
+    public void updateQueryPanel(final QueryInformationModel queryInformationModel, final AttributeList filter) throws DicomException, IOException, DicomNetworkException {
+        QueryTreeModel treeModel = queryInformationModel.performHierarchicalQuery(filter);
+        new GiftCloudUploaderPanel.OurQueryTreeBrowser(currentRemoteQueryInformationModel, treeModel, remoteQueryRetrievePanel);
     }
 
     protected class OurSourceDatabaseTreeBrowser extends DatabaseTreeBrowser {
@@ -900,35 +906,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 	}
 
-	protected class QueryWorker implements Runnable {
-		AttributeList filter;
-		
-		QueryWorker(AttributeList filter) {
-			this.filter=filter;
-		}
-
-		public void run() {
-            reporter.setWaitCursor();
-			String calledAET = currentRemoteQueryInformationModel.getCalledAETitle();
-			String localName = dicomNode.getLocalNameFromApplicationEntityTitle(calledAET); //networkApplicationInformation.getLocalNameFromApplicationEntityTitle(calledAET);
-			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Performing query on "+localName));
-            reporter.sendLn("Query to "+localName+" ("+calledAET+") starting");
-			try {
-				QueryTreeModel treeModel = currentRemoteQueryInformationModel.performHierarchicalQuery(filter);
-				new OurQueryTreeBrowser(currentRemoteQueryInformationModel,treeModel,remoteQueryRetrievePanel);
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done querying "+localName));
-			} catch (Exception e) {
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Query to "+localName+" failed "+e));
-                reporter.sendLn("Query to "+localName+" ("+calledAET+") failed due to"+ e);
-				e.printStackTrace(System.err);
-			}
-            reporter.sendLn("Query to "+localName+" ("+calledAET+") complete");
-			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done querying  "+localName));
-			reporter.restoreCursor();
-		}
-	}
-
-	protected class QueryActionListener implements ActionListener {
+    protected class QueryActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			//new QueryRetrieveDialog("GiftCloudUploaderPanel Query",400,512);
             String ae = giftCloudProperties.getCurrentlySelectedQueryTargetAE();
@@ -1002,12 +980,13 @@ public class GiftCloudUploaderPanel extends JPanel {
 						{ AttributeTag t = TagFromName.SOPClassUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
 						{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); filter.put(t,a); a.addValue("ISO_IR 100"); }
 
-						activeThread = new Thread(new QueryWorker(filter));
+						activeThread = new Thread(new QueryWorker(GiftCloudUploaderPanel.this, currentRemoteQueryInformationModel, filter, dicomNode, reporter));
 						activeThread.start();
 					}
 					catch (Exception e) {
 						e.printStackTrace(System.err);
-						ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Query to "+ae+" failed"));
+						reporter.updateProgress("Query to " + ae + " failed");
+//                        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Query to "+ae+" failed"));
 					}
 				}
 			}
@@ -1094,7 +1073,6 @@ public class GiftCloudUploaderPanel extends JPanel {
         this.buildDate = buildDate;
         this.statusBar = statusBar;
         this.dicomNode = dicomNode;
-        this.giftCloudBridge = giftCloudBridge;
         this.reporter = reporter;
 
 //		resourceBundle = ResourceBundle.getBundle(resourceBundleName);
