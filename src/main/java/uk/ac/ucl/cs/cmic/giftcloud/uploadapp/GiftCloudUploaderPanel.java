@@ -5,18 +5,17 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.database.DatabaseTreeBrowser;
 import com.pixelmed.database.DatabaseTreeRecord;
-import com.pixelmed.dicom.*;
-import com.pixelmed.display.DicomImageBlackout;
+import com.pixelmed.dicom.AttributeList;
+import com.pixelmed.dicom.DicomException;
 import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.DicomNetworkException;
-import com.pixelmed.network.NetworkApplicationProperties;
-import com.pixelmed.network.PresentationAddress;
-import com.pixelmed.query.*;
+import com.pixelmed.query.QueryInformationModel;
+import com.pixelmed.query.QueryTreeBrowser;
+import com.pixelmed.query.QueryTreeModel;
+import com.pixelmed.query.QueryTreeRecord;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.QueryWorker;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.RetrieveWorker;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -58,7 +57,6 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     final private DicomNode dicomNode;
 
-    private QueryInformationModel currentRemoteQueryInformationModel;
 
 //	protected static String propertiesFileName  = ".uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderPanel.properties";
 	
@@ -125,37 +123,6 @@ public class GiftCloudUploaderPanel extends JPanel {
     private String buildDate;
     private JLabel statusBar;
 
-    protected void setCurrentRemoteQueryInformationModel(String remoteAEForQuery) {
-		currentRemoteQueryInformationModel=null;
-		String stringForTitle="";
-		if (remoteAEForQuery != null && remoteAEForQuery.length() > 0 && giftCloudProperties.areNetworkPropertiesValid() && dicomNode.isNetworkApplicationInformationValid()) {
-			try {
-				String              queryCallingAETitle = giftCloudProperties.getCallingAETitle();
-				String               queryCalledAETitle = dicomNode.getApplicationEntityTitleFromLocalName(remoteAEForQuery);
-				PresentationAddress presentationAddress = dicomNode.getPresentationAddress(queryCalledAETitle);
-				
-				if (presentationAddress == null) {
-					throw new Exception("For remote query AE <"+remoteAEForQuery+">, presentationAddress cannot be determined");
-				}
-				
-				String                        queryHost = presentationAddress.getHostname();
-				int			      queryPort = presentationAddress.getPort();
-				String                       queryModel = dicomNode.getQueryModel(queryCalledAETitle); //    networkApplicationInformation.getApplicationEntityMap().getQueryModel(queryCalledAETitle);
-				int                     queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
-				
-				if (NetworkApplicationProperties.isStudyRootQueryModel(queryModel) || queryModel == null) {
-					currentRemoteQueryInformationModel=new StudyRootQueryInformationModel(queryHost,queryPort,queryCalledAETitle,queryCallingAETitle,queryDebugLevel);
-					stringForTitle=":"+remoteAEForQuery;
-				}
-				else {
-					throw new Exception("For remote query AE <"+remoteAEForQuery+">, query model "+queryModel+" not supported");
-				}
-			}
-			catch (Exception e) {		// if an AE's property has no value, or model not supported
-				e.printStackTrace(System.err);
-			}
-		}
-	}
 
 //	private String showInputDialogToSelectNetworkTargetByLocalApplicationEntityName(String message,String title,String defaultSelection) {
 //		String ae = defaultSelection;
@@ -202,9 +169,9 @@ public class GiftCloudUploaderPanel extends JPanel {
         srcDatabasePanel.validate();
     }
 
-    public void updateQueryPanel(final QueryInformationModel queryInformationModel, final AttributeList filter) throws DicomException, IOException, DicomNetworkException {
+    public void updateQueryPanel(final QueryInformationModel queryInformationModel, final AttributeList filter, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomException, IOException, DicomNetworkException {
         QueryTreeModel treeModel = queryInformationModel.performHierarchicalQuery(filter);
-        new GiftCloudUploaderPanel.OurQueryTreeBrowser(currentRemoteQueryInformationModel, treeModel, remoteQueryRetrievePanel);
+        new GiftCloudUploaderPanel.OurQueryTreeBrowser(queryInformationModel, treeModel, remoteQueryRetrievePanel, currentRemoteQueryInformationModel);
     }
 
     protected class OurSourceDatabaseTreeBrowser extends DatabaseTreeBrowser {
@@ -724,27 +691,27 @@ public class GiftCloudUploaderPanel extends JPanel {
 //		}
 //	}
 	
-	protected class OurDicomImageBlackout extends DicomImageBlackout {
-	
-		OurDicomImageBlackout(String title,String dicomFileNames[],int burnedinflag,String ourAETitle) {
-			super(title,dicomFileNames,null,burnedinflag);
-			statusNotificationHandler = new ApplicationStatusChangeEventNotificationHandler();
-			this.ourAETitle=ourAETitle;
-		}
-
-		public class ApplicationStatusChangeEventNotificationHandler extends StatusNotificationHandler {
-			public void notify(int status,String message,Throwable t) {
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Blackout "+message));
-                reporter.sendLn("Blackout "+message);
-				System.err.println("DicomImageBlackout.DefaultStatusNotificationHandler.notify(): status = "+status);
-				System.err.println("DicomImageBlackout.DefaultStatusNotificationHandler.notify(): message = "+message);
-				if (t != null) {
-					t.printStackTrace(System.err);
-				}
-			}
-		}
-	}
-	
+//	protected class OurDicomImageBlackout extends DicomImageBlackout {
+//
+//		OurDicomImageBlackout(String title,String dicomFileNames[],int burnedinflag,String ourAETitle) {
+//			super(title,dicomFileNames,null,burnedinflag);
+//			statusNotificationHandler = new ApplicationStatusChangeEventNotificationHandler();
+//			this.ourAETitle=ourAETitle;
+//		}
+//
+//		public class ApplicationStatusChangeEventNotificationHandler extends StatusNotificationHandler {
+//			public void notify(int status,String message,Throwable t) {
+//				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Blackout "+message));
+//                reporter.sendLn("Blackout "+message);
+//				System.err.println("DicomImageBlackout.DefaultStatusNotificationHandler.notify(): status = "+status);
+//				System.err.println("DicomImageBlackout.DefaultStatusNotificationHandler.notify(): message = "+message);
+//				if (t != null) {
+//					t.printStackTrace(System.err);
+//				}
+//			}
+//		}
+//	}
+//
 //	protected class BlackoutActionListener implements ActionListener {
 //		public void actionPerformed(ActionEvent event) {
 //			cursorChanger.setWaitCursor();
@@ -771,15 +738,19 @@ public class GiftCloudUploaderPanel extends JPanel {
 //	}
 
     protected class OurQueryTreeBrowser extends QueryTreeBrowser {
-		/**
+        private QueryInformationModel currentRemoteQueryInformationModel;
+
+        /**
 		 * @param	q
 		 * @param	m
 		 * @param	content
 		 * @throws	DicomException
 		 */
-		OurQueryTreeBrowser(QueryInformationModel q,QueryTreeModel m,Container content) throws DicomException {
+		OurQueryTreeBrowser(QueryInformationModel q,QueryTreeModel m,Container content, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomException {
 			super(q,m,content);
-		}
+            this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
+        }
+
 		/***/
 		protected TreeSelectionListener buildTreeSelectionListenerToDoSomethingWithSelectedLevel() {
 			return new TreeSelectionListener() {
@@ -801,88 +772,39 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     protected class QueryActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			//new QueryRetrieveDialog("GiftCloudUploaderPanel Query",400,512);
-            String ae = giftCloudProperties.getCurrentlySelectedQueryTargetAE();
+
+            final QueryParams queryParams = new QueryParams();
+
+            String patientName = queryFilterPatientNameTextField.getText().trim();
+            if (patientName != null && patientName.length() > 0) {
+                queryParams.setPatientName(patientName);
+            }
+
+            String patientID = queryFilterPatientIDTextField.getText().trim();
+            if (patientID != null && patientID.length() > 0) {
+                queryParams.setPatientId(patientID);
+            }
+
+            String accessionNumber = queryFilterAccessionNumberTextField.getText().trim();
+            if (accessionNumber != null && accessionNumber.length() > 0) {
+                queryParams.setAccessionNumber(accessionNumber);
+            }
+
+            String studyDate = queryFilterStudyDateTextField.getText().trim();
+            if (studyDate != null && studyDate.length() > 0) {
+                queryParams.setStudyDate(studyDate);
+            }
+
 //			ae = showInputDialogToSelectNetworkTargetByLocalApplicationEntityName("Select remote system","Query ...",ae);
-			remoteQueryRetrievePanel.removeAll();
-			if (ae != null) {
-				setCurrentRemoteQueryInformationModel(ae);
-				if (currentRemoteQueryInformationModel == null) {
-					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Cannot query "+ae));
-				}
-				else {
-					try {
-						SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet((String[])null);
-						AttributeList filter = new AttributeList();
-						{
-							AttributeTag t = TagFromName.PatientName; Attribute a = new PersonNameAttribute(t,specificCharacterSet);
-							String patientName = queryFilterPatientNameTextField.getText().trim();
-							if (patientName != null && patientName.length() > 0) {
-								a.addValue(patientName);
-							}
-							filter.put(t,a);
-						}
-						{
-							AttributeTag t = TagFromName.PatientID; Attribute a = new LongStringAttribute(t,specificCharacterSet);
-							String patientID = queryFilterPatientIDTextField.getText().trim();
-							if (patientID != null && patientID.length() > 0) {
-								a.addValue(patientID);
-							}
-							filter.put(t,a);
-						}
-						{
-							AttributeTag t = TagFromName.AccessionNumber; Attribute a = new ShortStringAttribute(t,specificCharacterSet);
-							String accessionNumber = queryFilterAccessionNumberTextField.getText().trim();
-							if (accessionNumber != null && accessionNumber.length() > 0) {
-								a.addValue(accessionNumber);
-							}
-							filter.put(t,a);
-						}
-						{ AttributeTag t = TagFromName.PatientBirthDate; Attribute a = new DateAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.PatientSex; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
+            remoteQueryRetrievePanel.removeAll();
 
-						{ AttributeTag t = TagFromName.StudyID; Attribute a = new ShortStringAttribute(t,specificCharacterSet); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.StudyDescription; Attribute a = new LongStringAttribute(t,specificCharacterSet); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.ModalitiesInStudy; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
-						{
-							AttributeTag t = TagFromName.StudyDate; Attribute a = new DateAttribute(t);
-							String studyDate = queryFilterStudyDateTextField.getText().trim();
-							if (studyDate != null && studyDate.length() > 0) {
-								a.addValue(studyDate);
-							}
-							filter.put(t,a);
-						}
-						{ AttributeTag t = TagFromName.StudyTime; Attribute a = new TimeAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.PatientAge; Attribute a = new AgeStringAttribute(t); filter.put(t,a); }
+            controller.query(queryParams);
 
-						{ AttributeTag t = TagFromName.SeriesDescription; Attribute a = new LongStringAttribute(t,specificCharacterSet); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.SeriesNumber; Attribute a = new IntegerStringAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.Modality; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.SeriesDate; Attribute a = new DateAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.SeriesTime; Attribute a = new TimeAttribute(t); filter.put(t,a); }
 
-						{ AttributeTag t = TagFromName.InstanceNumber; Attribute a = new IntegerStringAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.ContentDate; Attribute a = new DateAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.ContentTime; Attribute a = new TimeAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.ImageType; Attribute a = new CodeStringAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.NumberOfFrames; Attribute a = new IntegerStringAttribute(t); filter.put(t,a); }
 
-						{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.SOPClassUID; Attribute a = new UniqueIdentifierAttribute(t); filter.put(t,a); }
-						{ AttributeTag t = TagFromName.SpecificCharacterSet; Attribute a = new CodeStringAttribute(t); filter.put(t,a); a.addValue("ISO_IR 100"); }
 
-						activeThread = new Thread(new QueryWorker(GiftCloudUploaderPanel.this, currentRemoteQueryInformationModel, filter, dicomNode, reporter));
-						activeThread.start();
-					}
-					catch (Exception e) {
-						e.printStackTrace(System.err);
-						reporter.updateProgress("Query to " + ae + " failed");
-//                        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Query to "+ae+" failed"));
-					}
-				}
-			}
+
+
 			remoteQueryRetrievePanel.validate();
 		}
 	}
@@ -890,8 +812,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     protected class RetrieveActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			activeThread = new Thread(new RetrieveWorker(currentRemoteQuerySelectionList, currentRemoteQueryInformationModel, dicomNode, reporter));
-			activeThread.start();
+            controller.retrieve(currentRemoteQuerySelectionList);
 		}
 	}
 
@@ -913,7 +834,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 	}
 	
-	Thread activeThread;
+//	Thread activeThread;
 	
 //	protected class CancelActionListener implements ActionListener {
 //		public void actionPerformed(ActionEvent event) {

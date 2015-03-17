@@ -28,7 +28,7 @@ public class QueryWorker implements Runnable {
 //			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Performing query on "+localName));
         reporter.updateProgress("Performing query on "+localName+" ("+calledAET+")");
         try {
-            giftCloudUploaderPanel.updateQueryPanel(currentRemoteQueryInformationModel, filter);
+            giftCloudUploaderPanel.updateQueryPanel(currentRemoteQueryInformationModel, filter, currentRemoteQueryInformationModel);
             reporter.updateProgress("Done querying " + localName);
 //                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done querying "+localName));
         } catch (Exception e) {
