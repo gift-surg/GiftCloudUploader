@@ -23,4 +23,16 @@ class ProgressModel {
             progress.endProgressBar();
         }
     }
+
+    public void startProgress(int i) {
+        for (Progress progress : listeners) {
+            progress.startProgressBar(i);
+        }
+    }
+
+    public void updateProgressBar(int value) {
+        for (Progress progress : listeners) {
+            progress.updateProgressBar(value);
+        }
+    }
 }

@@ -242,4 +242,12 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
     public void showError(final String errorMessage) {
         giftCloudDialogs.showError(errorMessage);
     }
+
+    public void startProgressBar(int value) {
+        progressModel.startProgress(value);
+    }
+
+    public void updateProgressBar(int value) {
+        progressModel.updateProgressBar(value);
+    }
 }

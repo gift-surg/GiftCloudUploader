@@ -13,8 +13,8 @@ import com.pixelmed.network.NetworkApplicationProperties;
 import com.pixelmed.network.PresentationAddress;
 import com.pixelmed.query.*;
 import com.pixelmed.utils.CopyStream;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
+import uk.ac.ucl.cs.cmic.giftcloud.workers.RetrieveWorker;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -871,91 +871,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 //		}
 //	}
 
-    class QuerySelection {
-        private AttributeList currentRemoteQuerySelectionUniqueKeys;
-        private Attribute currentRemoteQuerySelectionUniqueKey;
-        private String currentRemoteQuerySelectionRetrieveAE;
-        private String currentRemoteQuerySelectionLevel;
-        private QueryTreeRecord currentRemoteQuerySelectionQueryTreeRecord;
-
-
-        QuerySelection(QueryTreeRecord r) {
-            AttributeList uniqueKeys = r == null ? null : r.getUniqueKeys();
-            Attribute uniqueKey = r == null ? null : r.getUniqueKey();
-            AttributeList identifier = r == null ? null : r.getAllAttributesReturnedInIdentifier();
-
-            currentRemoteQuerySelectionQueryTreeRecord = r;
-            currentRemoteQuerySelectionUniqueKeys=uniqueKeys;
-            currentRemoteQuerySelectionUniqueKey=uniqueKey;
-            currentRemoteQuerySelectionRetrieveAE=null;
-            if (identifier != null) {
-                Attribute aRetrieveAETitle=identifier.get(TagFromName.RetrieveAETitle);
-                if (aRetrieveAETitle != null) currentRemoteQuerySelectionRetrieveAE=aRetrieveAETitle.getSingleStringValueOrNull();
-            }
-            if (currentRemoteQuerySelectionRetrieveAE == null) {
-                // it is legal for RetrieveAETitle to be zero length at all but the lowest levels of
-                // the query model :( (See PS 3.4 C.4.1.1.3.2)
-                // (so far the Leonardo is the only one that doesn't send it at all levels)
-                // we could recurse down to the lower levels and get the union of the value there
-                // but lets just keep it simple and ...
-                // default to whoever it was we queried in the first place ...
-                if (currentRemoteQueryInformationModel != null) {
-                    currentRemoteQuerySelectionRetrieveAE=currentRemoteQueryInformationModel.getCalledAETitle();
-                }
-            }
-            currentRemoteQuerySelectionLevel = null;
-            if (identifier != null) {
-                Attribute a = identifier.get(TagFromName.QueryRetrieveLevel);
-                if (a != null) {
-                    currentRemoteQuerySelectionLevel = a.getSingleStringValueOrNull();
-                }
-            }
-            if (currentRemoteQuerySelectionLevel == null) {
-                // QueryRetrieveLevel must have been (erroneously) missing in query response ... see with Dave Harvey's code on public server
-                // so try to guess it from unique key in tree record
-                // Fixes [bugs.mrmf] (000224) Missing query/retrieve level in C-FIND response causes tree select and retrieve to fail
-                if (uniqueKey != null) {
-                    AttributeTag tag = uniqueKey.getTag();
-                    if (tag != null) {
-                        if (tag.equals(TagFromName.PatientID)) {
-                            currentRemoteQuerySelectionLevel="PATIENT";
-                        }
-                        else if (tag.equals(TagFromName.StudyInstanceUID)) {
-                            currentRemoteQuerySelectionLevel="STUDY";
-                        }
-                        else if (tag.equals(TagFromName.SeriesInstanceUID)) {
-                            currentRemoteQuerySelectionLevel="SERIES";
-                        }
-                        else if (tag.equals(TagFromName.SOPInstanceUID)) {
-                            currentRemoteQuerySelectionLevel="IMAGE";
-                        }
-                    }
-                }
-            }
-        }
-
-        AttributeList getCurrentRemoteQuerySelectionUniqueKeys() {
-            return currentRemoteQuerySelectionUniqueKeys;
-        }
-
-        Attribute getCurrentRemoteQuerySelectionUniqueKey() {
-            return currentRemoteQuerySelectionUniqueKey;
-        }
-
-        String getCurrentRemoteQuerySelectionRetrieveAE() {
-            return currentRemoteQuerySelectionRetrieveAE;
-        }
-
-        String getCurrentRemoteQuerySelectionLevel() {
-            return currentRemoteQuerySelectionLevel;
-        }
-
-        QueryTreeRecord getCurrentRemoteQuerySelectionQueryTreeRecord() {
-            return currentRemoteQuerySelectionQueryTreeRecord;
-        }
-    }
-
-	protected class OurQueryTreeBrowser extends QueryTreeBrowser {
+    protected class OurQueryTreeBrowser extends QueryTreeBrowser {
 		/**
 		 * @param	q
 		 * @param	m
@@ -975,7 +891,7 @@ public class GiftCloudUploaderPanel extends JPanel {
                     List<QuerySelection> remoteQuerySelectionList = new ArrayList<QuerySelection>();
                     if (records != null) {
                         for (QueryTreeRecord record : records) {
-                            remoteQuerySelectionList.add(new QuerySelection(record));
+                            remoteQuerySelectionList.add(new QuerySelection(record, currentRemoteQueryInformationModel));
                         }
                     }
                     currentRemoteQuerySelectionList = remoteQuerySelectionList;
@@ -1099,76 +1015,10 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 	}
 
-	protected void performRetrieve(AttributeList uniqueKeys,String selectionLevel,String retrieveAE) {
-		try {
-			AttributeList identifier = new AttributeList();
-			if (uniqueKeys != null) {
-				identifier.putAll(uniqueKeys);
-				{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue(selectionLevel); identifier.put(t,a); }
-				currentRemoteQueryInformationModel.performHierarchicalMoveFrom(identifier,retrieveAE);
-			}
-			// else do nothing, since no unique key to specify what to retrieve
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
-	
-	protected class RetrieveWorker implements Runnable {
-		RetrieveWorker() {
-		}
 
-        public void run() {
-            reporter.setWaitCursor();
-
-            final List<QuerySelection> queryList = currentRemoteQuerySelectionList;
-            for (QuerySelection currentQuerySelection : queryList) {
-                retrieve(currentQuerySelection);
-            }
-
-            reporter.restoreCursor();
-        }
-
-		public void retrieve(QuerySelection currentQuerySelection) {
-			String localName = dicomNode.getLocalNameFromApplicationEntityTitle(currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
-			if (currentQuerySelection.getCurrentRemoteQuerySelectionLevel() == null) {	// they have selected the root of the tree
-				QueryTreeRecord parent = currentQuerySelection.getCurrentRemoteQuerySelectionQueryTreeRecord();
-				if (parent != null) {
-					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Retrieving everything from "+localName));
-                    reporter.sendLn("Retrieving everything from "+localName+" (" + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE() + ")");
-					Enumeration children = parent.children();
-					if (children != null) {
-						int nChildren = parent.getChildCount();
-                        statusPanel.startProgressBar(nChildren);
-						int doneCount = 0;
-						while (children.hasMoreElements()) {
-							QueryTreeRecord r = (QueryTreeRecord)(children.nextElement());
-							if (r != null) {
-                                QuerySelection currentRemoteQuerySelection = new QuerySelection(r);
-								ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Retrieving "+currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName));
-                                reporter.sendLn("Retrieving " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel() + " " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString() + " from " + localName + " (" + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE() + ")");
-								performRetrieve(currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKeys(), currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel(), currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
-                                statusPanel.updateProgressBar(++doneCount);
-							}
-						}
-                        statusPanel.endProgressBar();
-					}
-					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending retrieval request"));
-				}
-			}
-			else {
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Retrieving "+currentQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName));
-                reporter.sendLn("Request retrieval of "+currentQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName+" ("+currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE()+")");
-                statusPanel.startProgressBar(1);
-				performRetrieve(currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKeys(),currentQuerySelection.getCurrentRemoteQuerySelectionLevel(),currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending retrieval request"));
-				statusPanel.endProgressBar();
-			}
-		}
-	}
-	
-	protected class RetrieveActionListener implements ActionListener {
+    protected class RetrieveActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			activeThread = new Thread(new RetrieveWorker());
+			activeThread = new Thread(new RetrieveWorker(currentRemoteQuerySelectionList, currentRemoteQueryInformationModel, dicomNode, reporter));
 			activeThread.start();
 		}
 	}
@@ -1234,7 +1084,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 //	}
 
 
-    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final DicomNode dicomNode, final GiftCloudBridge giftCloudBridge, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final MainFrame mainFrame, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final DicomNode dicomNode, final GiftCloudBridge giftCloudBridge, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
 		super();
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
