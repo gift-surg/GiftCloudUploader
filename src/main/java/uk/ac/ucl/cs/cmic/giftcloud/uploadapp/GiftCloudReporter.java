@@ -250,4 +250,8 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
     public void updateProgressBar(int value) {
         progressModel.updateProgressBar(value);
     }
+
+    public void updateProgress(int value, int maximum) {
+        progressModel.updateProgressBar(value, maximum);
+    }
 }

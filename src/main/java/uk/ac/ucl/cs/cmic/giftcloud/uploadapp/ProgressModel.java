@@ -35,4 +35,11 @@ class ProgressModel {
             progress.updateProgressBar(value);
         }
     }
+
+    public void updateProgressBar(int value, int maximum) {
+        for (Progress progress : listeners) {
+            progress.updateProgressBar(value, maximum);
+        }
+    }
+
 }

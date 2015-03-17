@@ -13,7 +13,7 @@ import com.pixelmed.network.DicomNetworkException;
 import com.pixelmed.network.NetworkApplicationProperties;
 import com.pixelmed.network.PresentationAddress;
 import com.pixelmed.query.*;
-import com.pixelmed.utils.CopyStream;
+import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.QueryWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.RetrieveWorker;
@@ -26,13 +26,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * <p>This class is an application for importing or retrieving DICOM studies,
@@ -67,11 +63,6 @@ public class GiftCloudUploaderPanel extends JPanel {
 //	protected static String propertiesFileName  = ".uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderPanel.properties";
 	
 
-	protected static String rootNameForDicomInstanceFilesOnInterchangeMedia = "DICOM";
-	protected static String filePrefixForDicomInstanceFilesOnInterchangeMedia = "I";
-	protected static String fileSuffixForDicomInstanceFilesOnInterchangeMedia = "";
-	protected static String nameForDicomDirectoryOnInterchangeMedia = "DICOMDIR";
-	protected static String exportedZipFileName = "export.zip";
 
 	protected static int textFieldLengthForQueryPatientName = 16;
 	protected static int textFieldLengthForQueryPatientID = 10;
@@ -617,105 +608,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 	}
 
 	protected String exportDirectoryPath;	// keep around between invocations
-	
-	protected String makeNewFullyQualifiedInterchangeMediaInstancePathName(int fileCount) throws IOException {
-		return new File(
-			rootNameForDicomInstanceFilesOnInterchangeMedia,
-			filePrefixForDicomInstanceFilesOnInterchangeMedia + Integer.toString(fileCount) + fileSuffixForDicomInstanceFilesOnInterchangeMedia)
-			.getPath();
-	}
 
-	protected String makeNewFullyQualifiedHierarchicalInstancePathName(String sourceFileName) throws DicomException, IOException {
-		AttributeList list = new AttributeList();
-		list.read(sourceFileName,TagFromName.PixelData);
-		String hierarchicalFileName = MoveDicomFilesIntoHierarchy.makeHierarchicalPathFromAttributes(list);
-		return new File(rootNameForDicomInstanceFilesOnInterchangeMedia,hierarchicalFileName).getPath();
-	}
-
-	protected class ExportWorker implements Runnable {
-		Vector destinationFilePathSelections;
-		File exportDirectory;
-		
-		ExportWorker(Vector destinationFilePathSelections,File exportDirectory) {
-			this.destinationFilePathSelections=destinationFilePathSelections;
-			this.exportDirectory=exportDirectory;
-		}
-
-		public void run() {
-			reporter.setWaitCursor();
-            reporter.sendLn("Export started");
-			try {
-				int nFiles = destinationFilePathSelections.size();
-                statusPanel.updateProgressBar(0, nFiles+1); // include DICOMDIR
-				String exportFileNames[] = new String[nFiles];
-				for (int j=0; j<nFiles; ++j) {
-					String databaseFileName = (String)(destinationFilePathSelections.get(j));
-					String exportRelativePathName = hierarchicalExportCheckBox.isSelected() ? makeNewFullyQualifiedHierarchicalInstancePathName(databaseFileName) : makeNewFullyQualifiedInterchangeMediaInstancePathName(j);
-					File exportFile = new File(exportDirectory,exportRelativePathName);
-					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Exporting "+exportRelativePathName));
-					reporter.sendLn("Exporting "+databaseFileName+" to "+exportFile.getCanonicalPath());
-					exportFile.getParentFile().mkdirs();
-					CopyStream.copy(new File(databaseFileName),exportFile);
-					exportFileNames[j] = exportRelativePathName;
-                    statusPanel.updateProgressBar(j + 1);
-				}
-                reporter.updateProgress("Exporting DICOMDIR");
-				DicomDirectory dicomDirectory = new DicomDirectory(exportDirectory, exportFileNames);
-                dicomDirectory.write(new File(exportDirectory,nameForDicomDirectoryOnInterchangeMedia).getCanonicalPath());
-                statusPanel.updateProgressBar(nFiles+1); // include DICOMDIR
-
-				if (zipExportCheckBox.isSelected()) {
-					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Zipping exported files"));
-                    reporter.updateProgress("Zipping exported files");
-					File zipFile = new File(exportDirectory,exportedZipFileName);
-					zipFile.delete();
-					FileOutputStream fout = new FileOutputStream(zipFile);
-					ZipOutputStream zout = new ZipOutputStream(fout);
-					zout.setMethod(ZipOutputStream.DEFLATED);
-					zout.setLevel(9);
-
-                    statusPanel.updateProgressBar(0, nFiles + 1); // include DICOMDIR
-					for (int j=0; j<nFiles; ++j) {
-						String exportRelativePathName = exportFileNames[j];
-						File inFile = new File(exportDirectory,exportRelativePathName);
-						ZipEntry zipEntry = new ZipEntry(exportRelativePathName);
-						//zipEntry.setMethod(ZipOutputStream.DEFLATED);
-						zout.putNextEntry(zipEntry);
-						FileInputStream in = new FileInputStream(inFile);
-						CopyStream.copy(in,zout);
-						zout.closeEntry();
-						in.close();
-						inFile.delete();
-                        statusPanel.updateProgressBar(j + 1);
-					}
-
-					{
-						File inFile = new File(exportDirectory,nameForDicomDirectoryOnInterchangeMedia);
-						ZipEntry zipEntry = new ZipEntry(nameForDicomDirectoryOnInterchangeMedia);
-						zipEntry.setMethod(ZipOutputStream.DEFLATED);
-						zout.putNextEntry(zipEntry);
-						FileInputStream in = new FileInputStream(inFile);
-						CopyStream.copy(in,zout);
-						zout.closeEntry();
-						in.close();
-						inFile.delete();
-                        statusPanel.updateProgressBar(nFiles + 1); // include DICOMDIR
-					}
-					zout.close();
-					fout.close();
-					new File(exportDirectory,rootNameForDicomInstanceFilesOnInterchangeMedia).delete();
-				}
-
-			} catch (Exception e) {
-				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Export failed: "+e));
-				e.printStackTrace(System.err);
-			}
-            reporter.updateProgress("Done exporting to " + exportDirectory);
-            reporter.endProgress();
-            reporter.sendLn("Export complete");
-			reporter.restoreCursor();
-		}
-	}
 
     protected class ExportActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
@@ -727,7 +620,7 @@ public class GiftCloudUploaderPanel extends JPanel {
                     if (exportDirectory.isPresent()) {
                         exportDirectoryPath = exportDirectory.get();
                         File exportDirectoryFile = new File(exportDirectoryPath);
-                        new Thread(new ExportWorker(currentDestinationFilePathSelections, exportDirectoryFile)).start();
+                        new Thread(new ExportWorker(currentDestinationFilePathSelections, exportDirectoryFile, hierarchicalExportCheckBox.isSelected(), zipExportCheckBox.isSelected(), reporter)).start();
 
                     } // else the user cancelled
                 } catch (Exception e) {
