@@ -49,8 +49,15 @@ public class GiftCloudDialogs {
         return (String)JOptionPane.showInputDialog(mainFrame.getContainer(), message, title, JOptionPane.QUESTION_MESSAGE, icon, valueArray, defaultSelection);
     }
 
-    Optional<String> selectDirectory(final String exportDirectoryPath) throws IOException {
-        SafeFileChooser chooser = new SafeFileChooser(exportDirectoryPath);
+    Optional<String> selectDirectory(final Optional<String> initialPathInput) throws IOException {
+        String initialPath;
+        if (initialPathInput.isPresent() && StringUtils.isNotBlank(initialPathInput.get())) {
+            initialPath = initialPathInput.get();
+        } else {
+            initialPath = "/";
+        }
+
+        SafeFileChooser chooser = new SafeFileChooser(initialPath);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if (chooser.showOpenDialog(mainFrame.getContainer()) == JFileChooser.APPROVE_OPTION) {
             return Optional.of(chooser.getSelectedFile().getCanonicalPath());
@@ -59,9 +66,14 @@ public class GiftCloudDialogs {
         }
     }
 
-    Optional<SelectedPathAndFile> selectFileOrDirectory(final String initialPathInput) {
+    Optional<SelectedPathAndFile> selectFileOrDirectory(final Optional<String> initialPathInput) {
 
-        final String initialPath = StringUtils.isBlank(initialPathInput) ? "/" : initialPathInput;
+        String initialPath;
+        if (initialPathInput.isPresent() && StringUtils.isNotBlank(initialPathInput.get())) {
+            initialPath = initialPathInput.get();
+        } else {
+            initialPath = "/";
+        }
 
         // need to do the file choosing on the main event thread, since Swing is not thread safe, so do it here, instead of delegating to MediaImporter in ImportWorker
         SafeFileChooser chooser = new SafeFileChooser(initialPath);

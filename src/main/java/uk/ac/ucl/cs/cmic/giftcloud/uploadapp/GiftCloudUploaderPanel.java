@@ -550,40 +550,36 @@ public class GiftCloudUploaderPanel extends JPanel {
 //	}
 	
 
-	protected String importDirectoryPath;	// keep around between invocations
-
     protected class ImportActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			try {
                 reporter.showMesageLogger();
 
-                Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(importDirectoryPath);
+                Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
 
                 if (selectFileOrDirectory.isPresent()) {
-                    importDirectoryPath = selectFileOrDirectory.get().getSelectedPath();
+                    giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
                     String filePath = selectFileOrDirectory.get().getSelectedFile();
                     new Thread(new ImportWorker(dicomNode, filePath, statusPanel.getProgressBar(), giftCloudProperties.acceptAnyTransferSyntax(), reporter)).start();
                 }
             } catch (Exception e) {
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Importing failed: " + e));
+                reporter.updateProgress("Importing failed due to the following error: " + e);
                 e.printStackTrace(System.err);
             }
         }
 	}
-
-	protected String exportDirectoryPath;	// keep around between invocations
-
 
     protected class ExportActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			if (currentDestinationFilePathSelections != null && currentDestinationFilePathSelections.size() > 0) {
 
                 try {
-                    Optional<String> exportDirectory = giftCloudDialogs.selectDirectory(exportDirectoryPath);
+                    Optional<String> exportDirectory = giftCloudDialogs.selectDirectory(giftCloudProperties.getLastExportDirectory());
 
                     if (exportDirectory.isPresent()) {
-                        exportDirectoryPath = exportDirectory.get();
-                        File exportDirectoryFile = new File(exportDirectoryPath);
+
+                        giftCloudProperties.setLastExportDirectory(exportDirectory.get());
+                        File exportDirectoryFile = new File(exportDirectory.get());
                         new Thread(new ExportWorker(currentDestinationFilePathSelections, exportDirectoryFile, hierarchicalExportCheckBox.isSelected(), zipExportCheckBox.isSelected(), reporter)).start();
 
                     } // else the user cancelled

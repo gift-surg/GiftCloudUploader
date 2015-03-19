@@ -15,6 +15,7 @@ public class QueryParams {
         this.patientName = Optional.of(patientName);
     }
 
+
     public void setPatientId(String patientId) {
         this.patientId = Optional.of(patientId);
     }

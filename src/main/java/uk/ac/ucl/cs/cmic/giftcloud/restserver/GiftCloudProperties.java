@@ -7,6 +7,8 @@ public interface GiftCloudProperties {
     static final String propertyName_GiftCloudServerUrl = "GiftCloud_ServerUrl";
     static final String propertyName_GiftCloudLastUsername = "GiftCloud_LastUsername";
     static final String propertyName_GiftCloudLastProject = "GiftCloud_LastUploadProject";
+    static final String propertyName_LastImportDirectory = "LastImportDirectory";
+    static final String propertyName_LastExportDirectory = "LastExportDirectory";
 
     Optional<String> getGiftCloudUrl();
 

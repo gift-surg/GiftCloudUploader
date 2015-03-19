@@ -193,6 +193,39 @@ public class GiftCloudPropertiesFromBridge extends Observable implements GiftClo
         return true;
     }
 
+    public Optional<String> getLastImportDirectory() {
+        final String lastImportDirectory = properties.getProperty(propertyName_LastImportDirectory);
+        if (StringUtils.isNotBlank(lastImportDirectory)) {
+            return Optional.of(lastImportDirectory);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public void setLastImportDirectory(final String lastImportDirectory) {
+        if (!lastImportDirectory.equals(getLastImportDirectory())) {
+            properties.setProperty(propertyName_LastImportDirectory, lastImportDirectory);
+            setChanged();
+            notifyObservers();
+        }
+    }
+
+    public Optional<String> getLastExportDirectory() {
+        final String lastExportDirectory = properties.getProperty(propertyName_LastExportDirectory);
+        if (StringUtils.isNotBlank(lastExportDirectory)) {
+            return Optional.of(lastExportDirectory);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public void setLastExportDirectory(final String lastExportDirectory) {
+        if (!lastExportDirectory.equals(getLastExportDirectory())) {
+            properties.setProperty(propertyName_LastExportDirectory, lastExportDirectory);
+            setChanged();
+            notifyObservers();
+        }
+    }
 
     private class GiftCloudPropertiesListener implements Observer {
         @Override
