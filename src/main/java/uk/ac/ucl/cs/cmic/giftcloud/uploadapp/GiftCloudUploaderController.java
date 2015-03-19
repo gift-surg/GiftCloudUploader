@@ -1,5 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
+import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+
 import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
@@ -21,7 +23,7 @@ public interface GiftCloudUploaderController {
 
     void export(String exportDirectory, Vector<String> filesToExport);
 
-    void runImport(String filePath, JProgressBar progressBar);
+    void runImport(String filePath, final Progress progress);
 
     void selectAndImport(JProgressBar progressBar);
 }

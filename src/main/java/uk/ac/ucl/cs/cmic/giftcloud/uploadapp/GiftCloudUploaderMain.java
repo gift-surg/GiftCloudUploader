@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;
+import com.pixelmed.display.SafeProgressBarUpdaterThread;
 import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.DicomNetworkException;
@@ -9,6 +10,7 @@ import com.pixelmed.network.NetworkApplicationProperties;
 import com.pixelmed.network.PresentationAddress;
 import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.StudyRootQueryInformationModel;
+import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.*;
 
 import javax.swing.*;
@@ -157,8 +159,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void runImport(String filePath, JProgressBar progressBar) {
-        new Thread(new ImportWorker(dicomNode, filePath, progressBar, giftCloudProperties.acceptAnyTransferSyntax(), reporter)).start();
+    public void runImport(String filePath, final Progress progress) {
+        new Thread(new ImportWorker(dicomNode, filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), reporter)).start();
     }
 
     @Override
@@ -171,7 +173,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             if (selectFileOrDirectory.isPresent()) {
                 giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
                 String filePath = selectFileOrDirectory.get().getSelectedFile();
-                runImport(filePath, progressBar);
+                runImport(filePath, new SafeProgressBarUpdaterThread(progressBar));
             }
         } catch (Exception e) {
             reporter.updateProgress("Importing failed due to the following error: " + e);

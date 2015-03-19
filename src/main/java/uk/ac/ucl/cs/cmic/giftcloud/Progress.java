@@ -10,4 +10,8 @@ public interface Progress {
     void updateProgressBar(int value, int maximum);
 
     void endProgressBar();
+
+    void setValueAndMaximum(int value, int maximum);
+
+    void updateValue(int value);
 }

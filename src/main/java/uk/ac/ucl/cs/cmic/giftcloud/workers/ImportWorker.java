@@ -6,21 +6,22 @@ import com.pixelmed.dicom.SOPClass;
 import com.pixelmed.dicom.TransferSyntax;
 import com.pixelmed.utils.CapabilitiesAvailable;
 import com.pixelmed.utils.MessageLogger;
+import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
-
-import javax.swing.*;
 
 public class ImportWorker implements Runnable {
     private DicomNode dicomNode;
     private GiftCloudReporter reporter;
     private MediaImporter importer;
     private String pathName;
+    private Progress progress;
 
-    public ImportWorker(final DicomNode dicomNode, String pathName, final JProgressBar progressBar, final boolean acceptAnyTransferSyntax, final GiftCloudReporter reporter) {
+    public ImportWorker(final DicomNode dicomNode, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudReporter reporter) {
         this.dicomNode = dicomNode;
         this.reporter = reporter;
-        importer = new OurMediaImporter(reporter, progressBar, acceptAnyTransferSyntax);
+        this.progress = progress;
+        importer = new OurMediaImporter(reporter, acceptAnyTransferSyntax);
         this.pathName=pathName;
     }
 
@@ -30,7 +31,7 @@ public class ImportWorker implements Runnable {
         reporter.startProgressBar();
 
         try {
-            importer.importDicomFiles(pathName);
+            importer.importDicomFiles(pathName, progress);
         } catch (Exception e) {
             reporter.updateProgress("Importing failed: " + e);
             e.printStackTrace(System.err);
@@ -54,8 +55,8 @@ public class ImportWorker implements Runnable {
     protected class OurMediaImporter extends MediaImporter {
         boolean acceptAnyTransferSyntax;
 
-        public OurMediaImporter(MessageLogger logger, JProgressBar progressBar, boolean acceptAnyTransferSyntax) {
-            super(logger, progressBar);
+        public OurMediaImporter(MessageLogger logger, boolean acceptAnyTransferSyntax) {
+            super(logger);
             this.acceptAnyTransferSyntax = acceptAnyTransferSyntax;
         }
 

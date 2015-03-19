@@ -52,16 +52,33 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 	public void setValue(int value) {
 		this.value = value;
 	}
-	
-	public void setMaximum(int maximum) {
+
+    public void runOnEdt() {
+        java.awt.EventQueue.invokeLater(this);
+    }
+
+    @Override
+    public void setValueAndMaximum(int value, int maximum) {
+        setValue(value);
+        setMaximum(maximum);
+        setStringPainted(true);
+        runOnEdt();
+    }
+
+    @Override
+    public void updateValue(int value) {
+        setValue(value);
+        setStringPainted(true);
+        runOnEdt();
+    }
+
+    public void setMaximum(int maximum) {
 		this.maximum = maximum;
 	}
 	
-	public void setStringPainted(boolean b) {
+    public void setStringPainted(boolean b) {
 		stringPainted = b;
 	}
-	
-	public JProgressBar getProgressBar() { return progressBar; }
 	
 	// convenience methods ...
 	
