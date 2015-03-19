@@ -64,7 +64,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             System.out.println("Failed to initialise the GIFT-Cloud component:" + t.getMessage());
         }
 
-
+        // ToDo: if giftCloudBridge creation failed we need to deal with this
         giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, giftCloudBridge.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, giftCloudDialogs, buildDate, statusBar, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
