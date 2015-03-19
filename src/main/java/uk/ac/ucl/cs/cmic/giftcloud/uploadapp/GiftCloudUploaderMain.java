@@ -65,7 +65,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
 
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, dicomNode, giftCloudBridge, giftCloudProperties, resourceBundle, giftCloudDialogs, buildDate, statusBar, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, giftCloudBridge, dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, giftCloudDialogs, buildDate, statusBar, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
         giftCloudMainFrame.show();
@@ -202,7 +202,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         @Override
         public void update(Observable o, Object arg) {
             final String newFileName = (String)arg;
-            giftCloudUploaderPanel.addFile(newFileName);
+            giftCloudUploaderPanel.rebuildFileList(dicomNode.getSrcDatabase());
 
             Vector names = new Vector();
             names.add(newFileName);

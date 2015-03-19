@@ -52,9 +52,6 @@ public class GiftCloudUploaderPanel extends JPanel {
     private GiftCloudUploaderController controller;
     private GiftCloudPropertiesFromBridge giftCloudProperties = null;
 
-    final private DicomNode dicomNode;
-
-
 //	protected static String propertiesFileName  = ".uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderPanel.properties";
 	
 
@@ -150,17 +147,15 @@ public class GiftCloudUploaderPanel extends JPanel {
 	protected DatabaseTreeRecord[] currentSourceDatabaseSelections;
 	protected Vector currentSourceFilePathSelections;
 
-    public void addFile(final String fileName) {
-        System.out.println("** CHANGE IN FILELIST **"); // ToDo
+    public void rebuildFileList(final DatabaseInformationModel srcDatabase) {
         srcDatabasePanel.removeAll();
 
         try {
-            new OurSourceDatabaseTreeBrowser(dicomNode.getSrcDatabase(), srcDatabasePanel);
+            new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
 
         } catch (DicomException e) {
             // ToDo
-//				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Refresh source database browser failed: "+e));
-//				e.printStackTrace(System.err);
+            reporter.updateProgress("Refresh of the file database failed: " + e);
             e.printStackTrace();
         }
         srcDatabasePanel.validate();
@@ -865,7 +860,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 //	}
 
 
-    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final DicomNode dicomNode, final GiftCloudBridge giftCloudBridge, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final GiftCloudBridge giftCloudBridge, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
 		super();
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
@@ -874,7 +869,6 @@ public class GiftCloudUploaderPanel extends JPanel {
 //        this.mainFrame = mainFrame;
         this.buildDate = buildDate;
         this.statusBar = statusBar;
-        this.dicomNode = dicomNode;
         this.reporter = reporter;
 
 //		resourceBundle = ResourceBundle.getBundle(resourceBundleName);
@@ -894,7 +888,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 //		dstDatabasePanel.setLayout(new GridLayout(1,1));
 		remoteQueryRetrievePanel.setLayout(new GridLayout(1,1));
 
-        new OurSourceDatabaseTreeBrowser(dicomNode.getSrcDatabase(),srcDatabasePanel);
+        new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
 //		DatabaseTreeBrowser srcDatabaseTreeBrowser = new OurSourceDatabaseTreeBrowser(dicomNode.getSrcDatabase(),srcDatabasePanel);
 //		DatabaseTreeBrowser dstDatabaseTreeBrowser = new OurDestinationDatabaseTreeBrowser(dstDatabase,dstDatabasePanel);
 
