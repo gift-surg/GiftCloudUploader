@@ -34,7 +34,7 @@ public class GiftCloudAppendUploadWorker implements Runnable {
 
             for (final String fileName : sourceFilePathSelections) {
                 try {
-                    Vector singleFile = new Vector();
+                    Vector<String> singleFile = new Vector<String>();
                     singleFile.add(fileName);
 
                     System.out.println("Uploading single file: " + fileName);

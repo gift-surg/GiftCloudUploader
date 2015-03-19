@@ -175,9 +175,9 @@ public class DatabaseTreeBrowser {
 			public void valueChanged(TreeSelectionEvent tse) {
 				DatabaseTreeRecord[] records = getSelectionPaths();
 				if (!doSomethingWithSelections(records)) {
-					Vector names = new Vector();
+					Vector<String> names = new Vector<String>();
 					for (DatabaseTreeRecord r : records) {
-						recurseThroughChildrenGatheringFileNames(r,names);
+						recurseThroughChildrenGatheringFileNames(r, names);
 					}
 					doSomethingWithSelectedFiles(names);
 				}
@@ -194,7 +194,7 @@ public class DatabaseTreeBrowser {
 	 * @param	r		the current DatabaseTreeRecord to process
 	 * @param	names	the file names (paths) to add to
 	 */
-	public static void recurseThroughChildrenGatheringFileNames(DatabaseTreeRecord r,Vector names) {
+	public static void recurseThroughChildrenGatheringFileNames(DatabaseTreeRecord r, Vector<String> names) {
 		InformationEntity ie = r.getInformationEntity();
 		if (ie == InformationEntity.INSTANCE) {
 			String fileName = r.getLocalFileNameValue();
@@ -208,7 +208,7 @@ public class DatabaseTreeBrowser {
 			while (children.hasMoreElements()) {
 				DatabaseTreeRecord child = (DatabaseTreeRecord)(children.nextElement());
 				if (child != null) {
-					recurseThroughChildrenGatheringFileNames(child,names);
+					recurseThroughChildrenGatheringFileNames(child, names);
 				}
 			}
 		}
@@ -303,11 +303,11 @@ public class DatabaseTreeBrowser {
 	 *
 	 * @param	paths
 	 */
-	protected void doSomethingWithSelectedFiles(Vector paths) {
+	protected void doSomethingWithSelectedFiles(Vector<String> paths) {
 		if (paths != null) {
 			Iterator i = paths.iterator();
 			while (i.hasNext()) {
-				System.err.println("DatabaseTreeBrowser.doSomethingWithSelectedFiles(): "+(String)i.next());
+				System.err.println("DatabaseTreeBrowser.doSomethingWithSelectedFiles(): " + i.next());
 			}
 		}
 	}

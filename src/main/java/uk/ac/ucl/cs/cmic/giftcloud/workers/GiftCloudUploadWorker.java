@@ -7,11 +7,11 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
 import java.util.Vector;
 
 public class GiftCloudUploadWorker implements Runnable {
-    Vector sourceFilePathSelections;
+    Vector<String> sourceFilePathSelections;
     private GiftCloudReporter reporter;
     private GiftCloudBridge giftCloudBridge;
 
-    public GiftCloudUploadWorker(Vector sourceFilePathSelections, final GiftCloudBridge giftCloudBridge, final GiftCloudReporter reporter) {
+    public GiftCloudUploadWorker(Vector<String> sourceFilePathSelections, final GiftCloudBridge giftCloudBridge, final GiftCloudReporter reporter) {
         this.sourceFilePathSelections = sourceFilePathSelections;
         this.reporter = reporter;
         this.giftCloudBridge = giftCloudBridge;

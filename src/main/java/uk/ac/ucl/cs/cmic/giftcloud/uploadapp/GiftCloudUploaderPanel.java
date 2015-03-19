@@ -143,7 +143,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 
 
 	protected DatabaseTreeRecord[] currentSourceDatabaseSelections;
-	protected Vector currentSourceFilePathSelections;
+	protected Vector<String> currentSourceFilePathSelections;
 
     public void rebuildFileList(final DatabaseInformationModel srcDatabase) {
         srcDatabasePanel.removeAll();
@@ -174,7 +174,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 			return false;	// still want to call doSomethingWithSelectedFiles()
 		}
 		
-		protected void doSomethingWithSelectedFiles(Vector paths) {
+		protected void doSomethingWithSelectedFiles(Vector<String> paths) {
 			currentSourceFilePathSelections = paths;
 		}
 	}

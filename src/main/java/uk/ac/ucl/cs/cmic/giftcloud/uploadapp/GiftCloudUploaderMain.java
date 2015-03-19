@@ -106,7 +106,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void upload(Vector filePaths) {
+    public void upload(Vector<String> filePaths) {
         try {
             Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudBridge, reporter));
             activeThread.start();
@@ -203,10 +203,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         public void update(Observable o, Object arg) {
             final String newFileName = (String)arg;
             giftCloudUploaderPanel.rebuildFileList(dicomNode.getSrcDatabase());
-
-            Vector names = new Vector();
-            names.add(newFileName);
-
             appendListener.filesChanged(newFileName);
         }
     }

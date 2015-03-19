@@ -54,7 +54,7 @@ public class GiftCloudBridge {
         return projectListModel;
     }
 
-    public boolean uploadToGiftCloud(Vector paths) throws IOException {
+    public boolean uploadToGiftCloud(Vector<String> paths) throws IOException {
 
         try {
             final GiftCloudAutoUploader giftCloudAutoUploader = getGiftCloudAutoUploader();

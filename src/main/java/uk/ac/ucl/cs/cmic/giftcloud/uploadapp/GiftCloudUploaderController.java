@@ -13,7 +13,7 @@ public interface GiftCloudUploaderController {
 
     void show();
 
-    void upload(Vector filePaths);
+    void upload(Vector<String> filePaths);
 
     void retrieve(List<QuerySelection> currentRemoteQuerySelectionList);
 

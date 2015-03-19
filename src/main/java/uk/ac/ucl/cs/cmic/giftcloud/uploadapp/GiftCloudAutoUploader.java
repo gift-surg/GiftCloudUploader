@@ -85,7 +85,7 @@ public class GiftCloudAutoUploader {
         return giftCloudServerUrl;
     }
 
-    public boolean uploadToGiftCloud(Vector paths, final String projectName) throws IOException {
+    public boolean uploadToGiftCloud(Vector<String> paths, final String projectName) throws IOException {
 
 
         SeriesImportFilterApplicatorRetriever filter;
@@ -105,8 +105,8 @@ public class GiftCloudAutoUploader {
         final EmptyProgress emptyProgress = new EmptyProgress();
 
         final Vector<File> fileList = new Vector<File>();
-        for (final Object path : paths) {
-            fileList.add(new File((String) path));
+        for (final String path : paths) {
+            fileList.add(new File(path));
         }
 
 
