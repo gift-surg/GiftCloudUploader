@@ -25,5 +25,5 @@ public interface GiftCloudUploaderController {
 
     void runImport(String filePath, final Progress progress);
 
-    void selectAndImport(JProgressBar progressBar);
+    void selectAndImport();
 }

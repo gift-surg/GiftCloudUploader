@@ -2,7 +2,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;
-import com.pixelmed.display.SafeProgressBarUpdaterThread;
 import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.DicomNetworkException;
@@ -164,7 +163,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void selectAndImport(JProgressBar progressBar) {
+    public void selectAndImport() {
         try {
             reporter.showMesageLogger();
 
@@ -173,7 +172,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             if (selectFileOrDirectory.isPresent()) {
                 giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
                 String filePath = selectFileOrDirectory.get().getSelectedFile();
-                runImport(filePath, new SafeProgressBarUpdaterThread(progressBar));
+                runImport(filePath, reporter);
             }
         } catch (Exception e) {
             reporter.updateProgress("Importing failed due to the following error: " + e);
@@ -243,6 +242,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     filesToUpload.add(fileName);
 
                     // ToDo: this is not threadsafe!
+                    // ToDo: giftCloudBridge might be null!
                     Thread activeThread = new Thread(new GiftCloudAppendUploadWorker(filesToUpload, giftCloudBridge, reporter));
                     activeThread.start();
                     filesAlreadyUploaded.add(fileName);

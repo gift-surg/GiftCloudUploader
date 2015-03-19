@@ -541,7 +541,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     protected class ImportActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-            controller.selectAndImport(statusPanel.getProgressBar());
+            controller.selectAndImport();
         }
 	}
 
