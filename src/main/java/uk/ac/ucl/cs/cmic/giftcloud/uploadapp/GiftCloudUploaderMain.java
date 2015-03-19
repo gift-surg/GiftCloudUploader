@@ -39,7 +39,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
 
-        giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"));
+        giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"), this);
         giftCloudDialogs = new GiftCloudDialogs(giftCloudMainFrame);
 
         final String buildDate = applicationBase.getBuildDateFromApplicationBase();

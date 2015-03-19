@@ -13,6 +13,7 @@ public class GiftCloudSystemTray {
     private TrayIcon trayIcon;
     private MenuItem hideItem;
     private MenuItem showItem;
+    private MenuItem importItem;
 
     GiftCloudSystemTray(final GiftCloudUploaderController controller, final boolean isVisible) throws IOException {
         this.controller = controller;
@@ -40,6 +41,16 @@ public class GiftCloudSystemTray {
         aboutItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 controller.showAboutDialog();
+            }
+        });
+
+        popup.addSeparator();
+
+        importItem = new MenuItem("Import");
+        popup.add(importItem);
+        importItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                controller.selectAndImport();
             }
         });
 

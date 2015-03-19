@@ -2,15 +2,26 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 class GiftCloudMainFrame implements MainFrame {
     protected final JDialog container;
+    private GiftCloudUploaderController controller;
 
-    GiftCloudMainFrame(final String applicationTitle) {
+    GiftCloudMainFrame(final String applicationTitle, final GiftCloudUploaderController controller) {
+        this.controller = controller;
         container = new JDialog();
         container.setIconImage(new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png")).getImage()); // ToDo: This icon is loaded multiple times in the code
         container.setTitle(applicationTitle);
-        container.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        container.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        // Invoke the hide method on the controller, to ensure the system tray menu gets updated correctly
+        container.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent ev) {
+                controller.hide();
+            }
+        });
     }
 
     @Override
