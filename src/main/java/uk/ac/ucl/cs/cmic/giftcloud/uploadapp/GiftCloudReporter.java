@@ -37,7 +37,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 
-public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
+public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Progress {
 
     private Container container;
     private GiftCloudDialogs giftCloudDialogs;
@@ -86,7 +86,7 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
             System.err.println("javascript close failed");
             // this usually means we're in a non-browser applet viewer
         } else {
-            context.call("close", null);
+            context.call("close", (Object)null);
         }
     }
 
@@ -211,13 +211,6 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
         cursorChanger.restoreCursor();
     }
 
-    public void endProgress() {
-        progressModel.endProgress();
-    }
-
-    public void startProgressBar() {
-        progressModel.startProgress();
-    }
 
     public void addProgressListener(final Progress progress) {
         progressModel.addListener(progress);
@@ -243,15 +236,24 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger {
         giftCloudDialogs.showError(errorMessage);
     }
 
-    public void startProgressBar(int value) {
-        progressModel.startProgress(value);
+    public void startProgressBar(int maximum) {
+        progressModel.startProgress(maximum);
+    }
+
+    public void startProgressBar() {
+        progressModel.startProgress();
     }
 
     public void updateProgressBar(int value) {
         progressModel.updateProgressBar(value);
     }
 
-    public void updateProgress(int value, int maximum) {
+    public void updateProgressBar(int value, int maximum) {
         progressModel.updateProgressBar(value, maximum);
     }
+
+    public void endProgressBar() {
+        progressModel.endProgressBar();
+    }
+
 }

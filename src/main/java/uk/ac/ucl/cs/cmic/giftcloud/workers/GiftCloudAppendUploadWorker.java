@@ -52,7 +52,7 @@ public class GiftCloudAppendUploadWorker implements Runnable {
                 }
             }
 
-            reporter.endProgress();
+            reporter.endProgressBar();
         }
         reporter.restoreCursor();
     }

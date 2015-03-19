@@ -56,7 +56,7 @@ public class RetrieveWorker implements Runnable {
                             reporter.updateProgressBar(++doneCount);
                         }
                     }
-                    reporter.endProgress();
+                    reporter.endProgressBar();
                 }
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Done sending retrieval request"));
             }
@@ -68,7 +68,7 @@ public class RetrieveWorker implements Runnable {
             performRetrieve(currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKeys(), currentQuerySelection.getCurrentRemoteQuerySelectionLevel(), currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
 
             reporter.updateProgress("Done sending retrieval request");
-            reporter.endProgress();
+            reporter.endProgressBar();
         }
     }
 

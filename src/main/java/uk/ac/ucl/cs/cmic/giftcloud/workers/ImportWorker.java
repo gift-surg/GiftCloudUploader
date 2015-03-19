@@ -45,7 +45,7 @@ public class ImportWorker implements Runnable {
 //			}
 //			srcDatabasePanel.validate();
 
-        reporter.endProgress();
+        reporter.endProgressBar();
         reporter.updateProgress("Done importing");
         // importer sends its own completion message to log, so do not need another one
         reporter.restoreCursor();

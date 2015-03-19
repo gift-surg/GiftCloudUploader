@@ -44,7 +44,7 @@ public class GiftCloudUploadWorker implements Runnable {
                 reporter.updateProgress("GIFT-Cloud upload failed with the following error: " + e.toString());
                 e.printStackTrace(System.err);
             }
-            reporter.endProgress();
+            reporter.endProgressBar();
         }
         reporter.restoreCursor();
     }

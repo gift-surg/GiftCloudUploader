@@ -43,7 +43,7 @@ this.reporter = reporter;
 reporter.sendLn("Export started");
         try {
             int nFiles = destinationFilePathSelections.size();
-reporter.updateProgress(0, nFiles + 1); // include DICOMDIR
+reporter.updateProgressBar(0, nFiles + 1); // include DICOMDIR
             String exportFileNames[] = new String[nFiles];
             for (int j=0; j<nFiles; ++j) {
                 String databaseFileName = destinationFilePathSelections.get(j);
@@ -71,7 +71,7 @@ reporter.updateProgress("Zipping exported files");
                 zout.setMethod(ZipOutputStream.DEFLATED);
                 zout.setLevel(9);
 
-reporter.updateProgress(0, nFiles + 1); // include DICOMDIR
+reporter.updateProgressBar(0, nFiles + 1); // include DICOMDIR
                 for (int j=0; j<nFiles; ++j) {
                     String exportRelativePathName = exportFileNames[j];
                     File inFile = new File(exportDirectory,exportRelativePathName);
@@ -108,7 +108,7 @@ reporter.updateProgressBar(nFiles + 1); // include DICOMDIR
             e.printStackTrace(System.err);
         }
 reporter.updateProgress("Done exporting to " + exportDirectory);
-reporter.endProgress();
+reporter.endProgressBar();
 reporter.sendLn("Export complete");
         reporter.restoreCursor();
     }

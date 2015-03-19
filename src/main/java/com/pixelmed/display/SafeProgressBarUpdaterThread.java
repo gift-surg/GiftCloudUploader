@@ -29,12 +29,10 @@ import javax.swing.JProgressBar;
 
 public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 	
-	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/display/SafeProgressBarUpdaterThread.java,v 1.2 2013/02/01 13:53:20 dclunie Exp $";
-
-	protected JProgressBar progressBar;
-	protected int value;
-	protected int maximum;
-	protected boolean stringPainted;
+	private JProgressBar progressBar;
+	private int value;
+	private int maximum;
+	private boolean stringPainted;
 	
 	public SafeProgressBarUpdaterThread(JProgressBar progressBar) {
 		this.progressBar = progressBar;
@@ -48,41 +46,8 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 		progressBar.setStringPainted(stringPainted);
 		progressBar.repaint();
 	}
-	
-	public void setValue(int value) {
-		this.value = value;
-	}
-
-    public void runOnEdt() {
-        java.awt.EventQueue.invokeLater(this);
-    }
 
     @Override
-    public void setValueAndMaximum(int value, int maximum) {
-        setValue(value);
-        setMaximum(maximum);
-        setStringPainted(true);
-        runOnEdt();
-    }
-
-    @Override
-    public void updateValue(int value) {
-        setValue(value);
-        setStringPainted(true);
-        runOnEdt();
-    }
-
-    public void setMaximum(int maximum) {
-		this.maximum = maximum;
-	}
-	
-    public void setStringPainted(boolean b) {
-		stringPainted = b;
-	}
-	
-	// convenience methods ...
-	
-	@Override
     public void startProgressBar(int maximum) {
 		{
 			if (java.awt.EventQueue.isDispatchThread()) {
@@ -92,9 +57,9 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 				progressBar.repaint();
 			}
 			else {
-				setValue(0);
-				setMaximum(maximum);
-				setStringPainted(true);
+				setCachedValue(0);
+				setCachedMaximum(maximum);
+				setCachedStringPainted(true);
 				java.awt.EventQueue.invokeLater(this);
 			}
 		}
@@ -114,8 +79,8 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 				progressBar.repaint();
 			}
 			else {
-				setValue(value);
-				setStringPainted(true);
+				setCachedValue(value);
+				setCachedStringPainted(true);
 				java.awt.EventQueue.invokeLater(this);
 			}
 		}
@@ -131,9 +96,9 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 				progressBar.repaint();
 			}
 			else {
-				setValue(value);
-				setMaximum(maximum);
-				setStringPainted(true);
+				setCachedValue(value);
+				setCachedMaximum(maximum);
+				setCachedStringPainted(true);
 				java.awt.EventQueue.invokeLater(this);
 			}
 		}
@@ -149,17 +114,18 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 				progressBar.repaint();
 			}
 			else {
-				setValue(0);
-				setMaximum(100);				// clears the progress bar
-				setStringPainted(false);		// do not want to display 0%
+				setCachedValue(0);
+				setCachedMaximum(100);				// clears the progress bar
+				setCachedStringPainted(false);		// do not want to display 0%
 				java.awt.EventQueue.invokeLater(this);
 			}
 		}
 	}
 
+
 	// static convenience methods ...
 
-	public static void startProgressBar(SafeProgressBarUpdaterThread progressBarUpdater,int maximum) {
+	public static void startProgressBar(SafeProgressBarUpdaterThread progressBarUpdater, int maximum) {
 		if (progressBarUpdater != null) {
 			progressBarUpdater.startProgressBar(maximum);
 		}
@@ -171,13 +137,13 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 		}
 	}
 	
-	public static void updateProgressBar(SafeProgressBarUpdaterThread progressBarUpdater,int value) {
+	public static void updateProgressBar(SafeProgressBarUpdaterThread progressBarUpdater, int value) {
 		if (progressBarUpdater != null) {
 			progressBarUpdater.updateProgressBar(value);
 		}
 	}
 	
-	public static void updateProgressBar(SafeProgressBarUpdaterThread progressBarUpdater,int value,int maximum) {
+	public static void updateProgressBar(SafeProgressBarUpdaterThread progressBarUpdater, int value, int maximum) {
 		if (progressBarUpdater != null) {
 			progressBarUpdater.updateProgressBar(value,maximum);
 		}
@@ -188,6 +154,24 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 			progressBarUpdater.endProgressBar();
 		}
 	}
-	
+
+    // Set cached values for later invocation on EDT
+
+    private void setCachedValue(int value) {
+        this.value = value;
+    }
+
+    private void setCachedMaximum(int maximum) {
+        this.maximum = maximum;
+    }
+
+    private void setCachedStringPainted(boolean b) {
+        stringPainted = b;
+    }
+
+    private void runOnEdt() {
+        java.awt.EventQueue.invokeLater(this);
+    }
+
 }
 

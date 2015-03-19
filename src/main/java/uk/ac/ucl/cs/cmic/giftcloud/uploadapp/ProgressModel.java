@@ -18,15 +18,15 @@ class ProgressModel {
         }
     }
 
-    public void endProgress() {
+    public void endProgressBar() {
         for (Progress progress : listeners) {
             progress.endProgressBar();
         }
     }
 
-    public void startProgress(int i) {
+    public void startProgress(int maximum) {
         for (Progress progress : listeners) {
-            progress.startProgressBar(i);
+            progress.startProgressBar(maximum);
         }
     }
 

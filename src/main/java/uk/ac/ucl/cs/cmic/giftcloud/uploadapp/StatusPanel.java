@@ -54,16 +54,6 @@ public class StatusPanel extends JPanel implements Progress {
     }
 
     @Override
-    public void setValueAndMaximum(int value, int maximum) {
-        progressBarUpdater.setValueAndMaximum(value, maximum);
-    }
-
-    @Override
-    public void updateValue(int value) {
-        progressBarUpdater.updateValue(value);
-    }
-
-    @Override
     public void updateProgressBar(int value, int maximum) {
         SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater, value, maximum);
     }

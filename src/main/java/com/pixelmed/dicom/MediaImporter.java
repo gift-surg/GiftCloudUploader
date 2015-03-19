@@ -143,7 +143,7 @@ public class MediaImporter {
 				DicomDirectory dicomDirectory = new DicomDirectory(list);
 				HashMap allDicomFiles = dicomDirectory.findAllContainedReferencedFileNamesAndTheirRecords(dicomdirFile.getParentFile().getPath());
 				if (progress != null) {
-                    progress.setValueAndMaximum(0, allDicomFiles.size());
+                    progress.updateProgressBar(0, allDicomFiles.size());
 				}
 				int count = 0;
 				Iterator it = allDicomFiles.keySet().iterator();
@@ -201,14 +201,14 @@ public class MediaImporter {
 					}
 					++count;
 					if (progress != null) {
-                        progress.updateValue(count);
+                        progress.updateProgressBar(count);
 					}
 				}
 			}
 			else {
 				ArrayList listOfAllFiles = FileUtilities.listFilesRecursively(path);
 				if (progress != null) {
-                    progress.setValueAndMaximum(0, listOfAllFiles.size());
+                    progress.updateProgressBar(0, listOfAllFiles.size());
 				}
 				int count = 0;
 				Iterator it = listOfAllFiles.iterator();
@@ -266,7 +266,7 @@ public class MediaImporter {
 					}
 					++count;
 					if (progress != null) {
-                        progress.updateValue(count);
+                        progress.updateProgressBar(count);
 					}
 				}
 			}
