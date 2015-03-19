@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.display.SafeFileChooser;
+import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -58,7 +59,10 @@ public class GiftCloudDialogs {
         }
     }
 
-    Optional<SelectedPathAndFile> selectFileOrDirectory(final String initialPath) {
+    Optional<SelectedPathAndFile> selectFileOrDirectory(final String initialPathInput) {
+
+        final String initialPath = StringUtils.isBlank(initialPathInput) ? "/" : initialPathInput;
+
         // need to do the file choosing on the main event thread, since Swing is not thread safe, so do it here, instead of delegating to MediaImporter in ImportWorker
         SafeFileChooser chooser = new SafeFileChooser(initialPath);
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);

@@ -556,9 +556,6 @@ public class GiftCloudUploaderPanel extends JPanel {
 		public void actionPerformed(ActionEvent event) {
 			try {
                 reporter.showMesageLogger();
-                if (importDirectoryPath == null || importDirectoryPath.length() == 0) {
-                    importDirectoryPath = "/";
-                }
 
                 Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(importDirectoryPath);
 
