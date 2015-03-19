@@ -65,7 +65,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
 
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, giftCloudBridge, dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, giftCloudDialogs, buildDate, statusBar, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, giftCloudBridge.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, giftCloudDialogs, buildDate, statusBar, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
         giftCloudMainFrame.show();

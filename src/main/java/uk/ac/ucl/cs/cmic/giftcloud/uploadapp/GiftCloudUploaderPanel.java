@@ -7,8 +7,6 @@ import com.pixelmed.database.DatabaseTreeBrowser;
 import com.pixelmed.database.DatabaseTreeRecord;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;
-import com.pixelmed.display.event.StatusChangeEvent;
-import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.DicomNetworkException;
 import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.QueryTreeBrowser;
@@ -42,7 +40,7 @@ import java.util.List;
 public class GiftCloudUploaderPanel extends JPanel {
 
 	/***/
-	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/display/GiftCloudUploaderPanel.java,v 1.63 2014/12/06 19:03:17 dclunie Exp $";
+//	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/display/GiftCloudUploaderPanel.java,v 1.63 2014/12/06 19:03:17 dclunie Exp $";
 
     private JComboBox<String> projectList;
 
@@ -114,8 +112,8 @@ public class GiftCloudUploaderPanel extends JPanel {
 
 
     private GiftCloudDialogs giftCloudDialogs;
-    private String buildDate;
-    private JLabel statusBar;
+//    private String buildDate;
+//    private JLabel statusBar;
 
 
 //	private String showInputDialogToSelectNetworkTargetByLocalApplicationEntityName(String message,String title,String defaultSelection) {
@@ -135,13 +133,13 @@ public class GiftCloudUploaderPanel extends JPanel {
 //		return ae;
 //	}
 	
-    public String getBuildDate() {
-        return buildDate;
-    }
+//    public String getBuildDate() {
+//        return buildDate;
+//    }
 
-    public JLabel getStatusBar() {
-        return statusBar;
-    }
+//    public JLabel getStatusBar() {
+//        return statusBar;
+//    }
 
 
 	protected DatabaseTreeRecord[] currentSourceDatabaseSelections;
@@ -182,7 +180,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 	}
 	
 //	protected DatabaseTreeRecord[] currentDestinationDatabaseSelections;
-	protected Vector<String> currentDestinationFilePathSelections;
+//	protected Vector<String> currentDestinationFilePathSelections;
 
 //	protected class OurDestinationDatabaseTreeBrowser extends DatabaseTreeBrowser {
 //		public OurDestinationDatabaseTreeBrowser(DatabaseInformationModel d,Container content) throws DicomException {
@@ -561,25 +559,25 @@ public class GiftCloudUploaderPanel extends JPanel {
         }
 	}
 
-    protected class ExportActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			if (currentDestinationFilePathSelections != null && currentDestinationFilePathSelections.size() > 0) {
-
-                try {
-                    Optional<String> exportDirectory = giftCloudDialogs.selectDirectory(giftCloudProperties.getLastExportDirectory());
-
-                    if (exportDirectory.isPresent()) {
-                        giftCloudProperties.setLastExportDirectory(exportDirectory.get());
-                        controller.export(exportDirectory.get(), currentDestinationFilePathSelections);
-
-                    } // else the user cancelled
-                } catch (Exception e) {
-                    ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Export failed: "+e));
-                    e.printStackTrace(System.err);
-                }
-			}
-		}
-	}
+//    protected class ExportActionListener implements ActionListener {
+//		public void actionPerformed(ActionEvent event) {
+//			if (currentDestinationFilePathSelections != null && currentDestinationFilePathSelections.size() > 0) {
+//
+//                try {
+//                    Optional<String> exportDirectory = giftCloudDialogs.selectDirectory(giftCloudProperties.getLastExportDirectory());
+//
+//                    if (exportDirectory.isPresent()) {
+//                        giftCloudProperties.setLastExportDirectory(exportDirectory.get());
+//                        controller.export(exportDirectory.get(), currentDestinationFilePathSelections);
+//
+//                    } // else the user cancelled
+//                } catch (Exception e) {
+//                    ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Export failed: "+e));
+//                    e.printStackTrace(System.err);
+//                }
+//			}
+//		}
+//	}
 
     protected class GiftCloudUploadActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
@@ -860,15 +858,14 @@ public class GiftCloudUploaderPanel extends JPanel {
 //	}
 
 
-    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final GiftCloudBridge giftCloudBridge, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final ComboBoxModel<String> projectListModel, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
 		super();
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.resourceBundle = resourceBundle;
         this.giftCloudDialogs = giftCloudDialogs;
-//        this.mainFrame = mainFrame;
-        this.buildDate = buildDate;
-        this.statusBar = statusBar;
+//        this.buildDate = buildDate;
+//        this.statusBar = statusBar;
         this.reporter = reporter;
 
 //		resourceBundle = ResourceBundle.getBundle(resourceBundleName);
@@ -941,11 +938,11 @@ public class GiftCloudUploaderPanel extends JPanel {
 //		blackoutButton.setToolTipText(resourceBundle.getString("blackoutButtonToolTipText"));
 //		buttonPanel.add(blackoutButton);
 //		blackoutButton.addActionListener(new BlackoutActionListener());
-		
-		JButton exportButton = new JButton(resourceBundle.getString("exportButtonLabelText"));
-		exportButton.setToolTipText(resourceBundle.getString("exportButtonToolTipText"));
-		buttonPanel.add(exportButton);
-		exportButton.addActionListener(new ExportActionListener());
+//
+//		JButton exportButton = new JButton(resourceBundle.getString("exportButtonLabelText"));
+//		exportButton.setToolTipText(resourceBundle.getString("exportButtonToolTipText"));
+//		buttonPanel.add(exportButton);
+//		exportButton.addActionListener(new ExportActionListener());
 
         JButton giftCloudUploadButton = new JButton(resourceBundle.getString("giftCloudUploadButtonLabelText"));
         giftCloudUploadButton.setToolTipText(resourceBundle.getString("giftCloudUploadButtonToolTipText"));
@@ -1149,7 +1146,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 //		acceptAnyTransferSyntaxCheckBox.setToolTipText(resourceBundle.getString("acceptAnyTransferSyntaxToolTipText"));
 //		checkBoxPanel.add(acceptAnyTransferSyntaxCheckBox);
 				
-		statusPanel = new StatusPanel(getStatusBar());
+		statusPanel = new StatusPanel(statusBar);
         reporter.addProgressListener(statusPanel);
 
 //		JPanel mainPanel = new JPanel();
@@ -1223,9 +1220,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 
 
 
-        // The model for the list of projects is managed by the GiftCloudBridge
-        // ToDo: Deal with null giftCloudBridge
-        projectList.setModel(giftCloudBridge.getProjectListModel());
+        projectList.setModel(projectListModel);
 	}
 
 
