@@ -18,7 +18,7 @@ import java.util.zip.ZipOutputStream;
 * Created by tom on 17/03/15.
 */
 public class ExportWorker implements Runnable {
-    private final Vector destinationFilePathSelections;
+    private final Vector<String> destinationFilePathSelections;
     private final File exportDirectory;
 private final boolean hierarchicalExport;
 private final boolean zipExport;
@@ -30,7 +30,7 @@ private String nameForDicomDirectoryOnInterchangeMedia = "DICOMDIR"; // static
 private String exportedZipFileName = "export.zip"; // static
 
 
-public ExportWorker(final Vector destinationFilePathSelections, final File exportDirectory, final boolean hierarchicalExport, final boolean zipExport, final GiftCloudReporter reporter) {
+public ExportWorker(final Vector<String> destinationFilePathSelections, final File exportDirectory, final boolean hierarchicalExport, final boolean zipExport, final GiftCloudReporter reporter) {
         this.destinationFilePathSelections = destinationFilePathSelections;
         this.exportDirectory = exportDirectory;
 this.hierarchicalExport = hierarchicalExport;
@@ -46,7 +46,7 @@ reporter.sendLn("Export started");
 reporter.updateProgress(0, nFiles + 1); // include DICOMDIR
             String exportFileNames[] = new String[nFiles];
             for (int j=0; j<nFiles; ++j) {
-                String databaseFileName = (String)(destinationFilePathSelections.get(j));
+                String databaseFileName = destinationFilePathSelections.get(j);
                 String exportRelativePathName = hierarchicalExport ? makeNewFullyQualifiedHierarchicalInstancePathName(databaseFileName) : makeNewFullyQualifiedInterchangeMediaInstancePathName(j);
                 File exportFile = new File(exportDirectory,exportRelativePathName);
 //					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Exporting "+exportRelativePathName));

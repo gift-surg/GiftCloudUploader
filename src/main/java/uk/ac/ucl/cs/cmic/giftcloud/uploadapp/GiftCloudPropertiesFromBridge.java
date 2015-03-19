@@ -227,6 +227,16 @@ public class GiftCloudPropertiesFromBridge extends Observable implements GiftClo
         }
     }
 
+    // ToDo: Previously this was supported via a checkbox
+    public boolean hierarchicalExport() {
+        return true;
+    }
+
+    // ToDo: Previously this was supported via a checkbox
+    public boolean zipExport() {
+        return false;
+    }
+
     private class GiftCloudPropertiesListener implements Observer {
         @Override
         public void update(Observable o, Object arg) {

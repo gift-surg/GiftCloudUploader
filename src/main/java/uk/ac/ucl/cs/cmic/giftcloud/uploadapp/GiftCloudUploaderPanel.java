@@ -14,8 +14,6 @@ import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.QueryTreeBrowser;
 import com.pixelmed.query.QueryTreeModel;
 import com.pixelmed.query.QueryTreeRecord;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -24,7 +22,6 @@ import javax.swing.event.TreeSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -91,8 +88,8 @@ public class GiftCloudUploaderPanel extends JPanel {
 //	protected JCheckBox removePrivateCheckBox;
 //	protected JCheckBox addContributingEquipmentCheckBox;
 //	protected JCheckBox removeClinicalTrialAttributesCheckBox;
-	protected JCheckBox zipExportCheckBox;
-	protected JCheckBox hierarchicalExportCheckBox;
+//	protected JCheckBox zipExportCheckBox;
+//	protected JCheckBox hierarchicalExportCheckBox;
 //	protected JCheckBox acceptAnyTransferSyntaxCheckBox;
 
 //	protected JCheckBox replacePatientNameCheckBox;
@@ -190,7 +187,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 	}
 	
 //	protected DatabaseTreeRecord[] currentDestinationDatabaseSelections;
-	protected Vector currentDestinationFilePathSelections;
+	protected Vector<String> currentDestinationFilePathSelections;
 
 //	protected class OurDestinationDatabaseTreeBrowser extends DatabaseTreeBrowser {
 //		public OurDestinationDatabaseTreeBrowser(DatabaseInformationModel d,Container content) throws DicomException {
@@ -560,7 +557,7 @@ public class GiftCloudUploaderPanel extends JPanel {
                 if (selectFileOrDirectory.isPresent()) {
                     giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
                     String filePath = selectFileOrDirectory.get().getSelectedFile();
-                    new Thread(new ImportWorker(dicomNode, filePath, statusPanel.getProgressBar(), giftCloudProperties.acceptAnyTransferSyntax(), reporter)).start();
+                    controller.runImport(filePath, statusPanel.getProgressBar());
                 }
             } catch (Exception e) {
                 reporter.updateProgress("Importing failed due to the following error: " + e);
@@ -577,10 +574,8 @@ public class GiftCloudUploaderPanel extends JPanel {
                     Optional<String> exportDirectory = giftCloudDialogs.selectDirectory(giftCloudProperties.getLastExportDirectory());
 
                     if (exportDirectory.isPresent()) {
-
                         giftCloudProperties.setLastExportDirectory(exportDirectory.get());
-                        File exportDirectoryFile = new File(exportDirectory.get());
-                        new Thread(new ExportWorker(currentDestinationFilePathSelections, exportDirectoryFile, hierarchicalExportCheckBox.isSelected(), zipExportCheckBox.isSelected(), reporter)).start();
+                        controller.export(exportDirectory.get(), currentDestinationFilePathSelections);
 
                     } // else the user cancelled
                 } catch (Exception e) {

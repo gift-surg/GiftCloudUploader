@@ -9,12 +9,10 @@ import com.pixelmed.network.NetworkApplicationProperties;
 import com.pixelmed.network.PresentationAddress;
 import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.StudyRootQueryInformationModel;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudAppendUploadWorker;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.QueryWorker;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.RetrieveWorker;
+import uk.ac.ucl.cs.cmic.giftcloud.workers.*;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -150,6 +148,17 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
 
 
+    }
+
+    @Override
+    public void export(String exportDirectory, Vector<String> filesToExport) {
+        File exportDirectoryFile = new File(exportDirectory);
+        new Thread(new ExportWorker(filesToExport, exportDirectoryFile, giftCloudProperties.hierarchicalExport(), giftCloudProperties.zipExport(), reporter)).start();
+    }
+
+    @Override
+    public void runImport(String filePath, JProgressBar progressBar) {
+        new Thread(new ImportWorker(dicomNode, filePath, progressBar, giftCloudProperties.acceptAnyTransferSyntax(), reporter)).start();
     }
 
     protected void setCurrentRemoteQueryInformationModel(String remoteAEForQuery) {
