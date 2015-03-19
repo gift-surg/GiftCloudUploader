@@ -39,36 +39,195 @@ import java.util.List;
  */
 public class GiftCloudUploaderPanel extends JPanel {
 
-    private JComboBox<String> projectList;
-
-    private List<QuerySelection> currentRemoteQuerySelectionList;
-
-    private GiftCloudReporter reporter;
-    private GiftCloudUploaderController controller;
-
-	protected static int textFieldLengthForQueryPatientName = 16;
-	protected static int textFieldLengthForQueryPatientID = 10;
-	protected static int textFieldLengthForQueryStudyDate = 8;
-	protected static int textFieldLengthForQueryAccessionNumber = 10;
+    protected static int textFieldLengthForQueryPatientName = 16;
+    protected static int textFieldLengthForQueryPatientID = 10;
+    protected static int textFieldLengthForQueryStudyDate = 8;
+    protected static int textFieldLengthForQueryAccessionNumber = 10;
     protected static int textFieldLengthForGiftCloudServerUrl = 32;
 
-	protected ResourceBundle resourceBundle;
-
-	protected JPanel srcDatabasePanel;
-	protected JPanel remoteQueryRetrievePanel;
-	
-    protected JTextField giftCloudServerText;
-
-	protected JTextField queryFilterPatientNameTextField;
-	protected JTextField queryFilterPatientIDTextField;
-	protected JTextField queryFilterStudyDateTextField;
-	protected JTextField queryFilterAccessionNumberTextField;
-	
+    // User interface components
     private final StatusPanel statusPanel;
+    private JComboBox<String> projectList;
+    protected JPanel srcDatabasePanel;
+    protected JPanel remoteQueryRetrievePanel;
+    protected JTextField giftCloudServerText;
+    protected JTextField queryFilterPatientNameTextField;
+    protected JTextField queryFilterPatientIDTextField;
+    protected JTextField queryFilterStudyDateTextField;
+    protected JTextField queryFilterAccessionNumberTextField;
 
-	protected DatabaseTreeRecord[] currentSourceDatabaseSelections;
-	protected Vector<String> currentSourceFilePathSelections;
+    // Callback to the controller for invoking actions
+    private GiftCloudUploaderController controller;
 
+    // Models for data selections by the user
+    private List<QuerySelection> currentRemoteQuerySelectionList;
+    protected DatabaseTreeRecord[] currentSourceDatabaseSelections;
+    protected Vector<String> currentSourceFilePathSelections;
+
+    // Error reporting interface
+    private GiftCloudReporter reporter;
+
+    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final ComboBoxModel<String> projectListModel, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
+        super();
+        this.controller = controller;
+        this.reporter = reporter;
+
+        srcDatabasePanel = new JPanel();
+        remoteQueryRetrievePanel = new JPanel();
+
+        srcDatabasePanel.setLayout(new GridLayout(1,1));
+        remoteQueryRetrievePanel.setLayout(new GridLayout(1,1));
+
+        new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
+
+        Border panelBorder = BorderFactory.createEtchedBorder();
+
+        JSplitPane remoteAndLocalBrowserPanes = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,remoteQueryRetrievePanel,srcDatabasePanel);
+        remoteAndLocalBrowserPanes.setOneTouchExpandable(true);
+        remoteAndLocalBrowserPanes.setResizeWeight(0.5);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBorder(panelBorder);
+
+        JButton configureButton = new JButton(resourceBundle.getString("configureButtonLabelText"));
+        configureButton.setToolTipText(resourceBundle.getString("configureButtonToolTipText"));
+        buttonPanel.add(configureButton);
+        configureButton.addActionListener(new ConfigureActionListener());
+
+        JButton queryButton = new JButton(resourceBundle.getString("queryButtonLabelText"));
+        queryButton.setToolTipText(resourceBundle.getString("queryButtonToolTipText"));
+        buttonPanel.add(queryButton);
+        queryButton.addActionListener(new QueryActionListener());
+
+        JButton retrieveButton = new JButton(resourceBundle.getString("retrieveButtonLabelText"));
+        retrieveButton.setToolTipText(resourceBundle.getString("retrieveButtonToolTipText"));
+        buttonPanel.add(retrieveButton);
+        retrieveButton.addActionListener(new RetrieveActionListener());
+
+        JButton importButton = new JButton(resourceBundle.getString("importButtonLabelText"));
+        importButton.setToolTipText(resourceBundle.getString("importButtonToolTipText"));
+        buttonPanel.add(importButton);
+        importButton.addActionListener(new ImportActionListener());
+
+        JButton giftCloudUploadButton = new JButton(resourceBundle.getString("giftCloudUploadButtonLabelText"));
+        giftCloudUploadButton.setToolTipText(resourceBundle.getString("giftCloudUploadButtonToolTipText"));
+        buttonPanel.add(giftCloudUploadButton);
+        giftCloudUploadButton.addActionListener(new GiftCloudUploadActionListener());
+
+        JPanel queryFilterTextEntryPanel = new JPanel();
+        queryFilterTextEntryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        queryFilterTextEntryPanel.setBorder(panelBorder);
+
+        JLabel queryIntroduction = new JLabel(resourceBundle.getString("queryIntroductionLabelText"));
+        queryFilterTextEntryPanel.add(queryIntroduction);
+
+        JLabel queryFilterPatientNameLabel = new JLabel(resourceBundle.getString("queryPatientNameLabelText"));
+        queryFilterPatientNameLabel.setToolTipText(resourceBundle.getString("queryPatientNameToolTipText"));
+        queryFilterTextEntryPanel.add(queryFilterPatientNameLabel);
+        queryFilterPatientNameTextField = new JTextField("",textFieldLengthForQueryPatientName);
+        queryFilterTextEntryPanel.add(queryFilterPatientNameTextField);
+
+        JLabel queryFilterPatientIDLabel = new JLabel(resourceBundle.getString("queryPatientIDLabelText"));
+        queryFilterPatientIDLabel.setToolTipText(resourceBundle.getString("queryPatientIDToolTipText"));
+        queryFilterTextEntryPanel.add(queryFilterPatientIDLabel);
+        queryFilterPatientIDTextField = new JTextField("",textFieldLengthForQueryPatientID);
+        queryFilterTextEntryPanel.add(queryFilterPatientIDTextField);
+
+        JLabel queryFilterStudyDateLabel = new JLabel(resourceBundle.getString("queryStudyDateLabelText"));
+        queryFilterStudyDateLabel.setToolTipText(resourceBundle.getString("queryStudyDateToolTipText"));
+        queryFilterTextEntryPanel.add(queryFilterStudyDateLabel);
+        queryFilterStudyDateTextField = new JTextField("",textFieldLengthForQueryStudyDate);
+        queryFilterTextEntryPanel.add(queryFilterStudyDateTextField);
+
+        JLabel queryFilterAccessionNumberLabel = new JLabel(resourceBundle.getString("queryAccessionNumberLabelText"));
+        queryFilterAccessionNumberLabel.setToolTipText(resourceBundle.getString("queryAccessionNumberToolTipText"));
+        queryFilterTextEntryPanel.add(queryFilterAccessionNumberLabel);
+        queryFilterAccessionNumberTextField = new JTextField("",textFieldLengthForQueryAccessionNumber);
+        queryFilterTextEntryPanel.add(queryFilterAccessionNumberTextField);
+
+
+
+        JPanel newTextEntryPanel = new JPanel();
+        newTextEntryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        newTextEntryPanel.setBorder(panelBorder);
+
+        projectList = new JComboBox<String>();
+        projectList.setEditable(false);
+        projectList.setToolTipText(resourceBundle.getString("giftCloudProjectTooltip"));
+
+        JLabel projectListLabel = new JLabel(resourceBundle.getString("giftCloudProjectLabelText"));
+        newTextEntryPanel.add(projectListLabel);
+        newTextEntryPanel.add(projectList);
+
+        JLabel giftCloudServerLabel = new JLabel(resourceBundle.getString("giftCloudServerText"));
+        giftCloudServerLabel.setToolTipText(resourceBundle.getString("giftCloudServerTextToolTipText"));
+
+
+        giftCloudServerText = new AutoSaveTextField(giftCloudProperties.getGiftCloudUrl(), textFieldLengthForGiftCloudServerUrl) {
+            @Override
+            void autoSave() {
+                giftCloudProperties.setGiftCloudUrl(getText());
+            }
+        };
+
+        newTextEntryPanel.add(giftCloudServerLabel);
+        newTextEntryPanel.add(giftCloudServerText);
+
+        statusPanel = new StatusPanel(statusBar);
+        reporter.addProgressListener(statusPanel);
+
+        {
+            GridBagLayout mainPanelLayout = new GridBagLayout();
+            setLayout(mainPanelLayout);
+            {
+                GridBagConstraints remoteAndLocalBrowserPanesConstraints = new GridBagConstraints();
+                remoteAndLocalBrowserPanesConstraints.gridx = 0;
+                remoteAndLocalBrowserPanesConstraints.gridy = 0;
+                remoteAndLocalBrowserPanesConstraints.weightx = 1;
+                remoteAndLocalBrowserPanesConstraints.weighty = 1;
+                remoteAndLocalBrowserPanesConstraints.fill = GridBagConstraints.BOTH;
+                mainPanelLayout.setConstraints(remoteAndLocalBrowserPanes,remoteAndLocalBrowserPanesConstraints);
+                add(remoteAndLocalBrowserPanes);
+            }
+            {
+                GridBagConstraints buttonPanelConstraints = new GridBagConstraints();
+                buttonPanelConstraints.gridx = 0;
+                buttonPanelConstraints.gridy = 1;
+                buttonPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+                mainPanelLayout.setConstraints(buttonPanel,buttonPanelConstraints);
+                add(buttonPanel);
+            }
+            {
+                GridBagConstraints queryFilterTextEntryPanelConstraints = new GridBagConstraints();
+                queryFilterTextEntryPanelConstraints.gridx = 0;
+                queryFilterTextEntryPanelConstraints.gridy = 2;
+                queryFilterTextEntryPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+                mainPanelLayout.setConstraints(queryFilterTextEntryPanel,queryFilterTextEntryPanelConstraints);
+                add(queryFilterTextEntryPanel);
+            }
+            {
+                GridBagConstraints newTextEntryPanelConstraints = new GridBagConstraints();
+                newTextEntryPanelConstraints.gridx = 0;
+                newTextEntryPanelConstraints.gridy = 3;
+                newTextEntryPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+                mainPanelLayout.setConstraints(newTextEntryPanel,newTextEntryPanelConstraints);
+                add(newTextEntryPanel);
+            }
+            {
+                GridBagConstraints statusBarPanelConstraints = new GridBagConstraints();
+                statusBarPanelConstraints.gridx = 0;
+                statusBarPanelConstraints.gridy = 6;
+                statusBarPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+                mainPanelLayout.setConstraints(statusPanel, statusBarPanelConstraints);
+                add(statusPanel);
+            }
+        }
+
+        projectList.setModel(projectListModel);
+    }
+
+    // Called when the database model has changed
     public void rebuildFileList(final DatabaseInformationModel srcDatabase) {
         srcDatabasePanel.removeAll();
 
@@ -88,71 +247,19 @@ public class GiftCloudUploaderPanel extends JPanel {
         new GiftCloudUploaderPanel.OurQueryTreeBrowser(queryInformationModel, treeModel, remoteQueryRetrievePanel, currentRemoteQueryInformationModel);
     }
 
-    protected class OurSourceDatabaseTreeBrowser extends DatabaseTreeBrowser {
-		public OurSourceDatabaseTreeBrowser(DatabaseInformationModel d,Container content) throws DicomException {
-			super(d,content);
-		}
-		
-		protected boolean doSomethingWithSelections(DatabaseTreeRecord[] selections) {
-			currentSourceDatabaseSelections = selections;
-			return false;	// still want to call doSomethingWithSelectedFiles()
-		}
-		
-		protected void doSomethingWithSelectedFiles(Vector<String> paths) {
-			currentSourceFilePathSelections = paths;
-		}
-	}
-	
-    protected class ImportActionListener implements ActionListener {
+    private class ImportActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
             controller.selectAndImport();
         }
 	}
 
-
-
-    protected class GiftCloudUploadActionListener implements ActionListener {
+    private class GiftCloudUploadActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             controller.upload(currentSourceFilePathSelections);
         }
     }
 
-
-
-    protected class OurQueryTreeBrowser extends QueryTreeBrowser {
-        private QueryInformationModel currentRemoteQueryInformationModel;
-
-        /**
-		 * @param	q
-		 * @param	m
-		 * @param	content
-		 * @throws	DicomException
-		 */
-		OurQueryTreeBrowser(QueryInformationModel q,QueryTreeModel m,Container content, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomException {
-			super(q,m,content);
-            this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
-        }
-
-		/***/
-		protected TreeSelectionListener buildTreeSelectionListenerToDoSomethingWithSelectedLevel() {
-			return new TreeSelectionListener() {
-				public void valueChanged(TreeSelectionEvent tse) {
-
-                    // Store all the selected paths
-                    QueryTreeRecord[] records = getSelectionPaths();
-                    List<QuerySelection> remoteQuerySelectionList = new ArrayList<QuerySelection>();
-                    if (records != null) {
-                        for (QueryTreeRecord record : records) {
-                            remoteQuerySelectionList.add(new QuerySelection(record, currentRemoteQueryInformationModel));
-                        }
-                    }
-                    currentRemoteQuerySelectionList = remoteQuerySelectionList;
-				}
-			};
-		}
-	}
-
-    protected class QueryActionListener implements ActionListener {
+    private class QueryActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 
             final QueryParams queryParams = new QueryParams();
@@ -185,14 +292,13 @@ public class GiftCloudUploaderPanel extends JPanel {
 		}
 	}
 
-
-    protected class RetrieveActionListener implements ActionListener {
+    private class RetrieveActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
             controller.retrieve(currentRemoteQuerySelectionList);
 		}
 	}
 
-	protected class ConfigureActionListener implements ActionListener {
+	private class ConfigureActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			try {
                 controller.showConfigureDialog();
@@ -201,167 +307,52 @@ public class GiftCloudUploaderPanel extends JPanel {
 			}
 		}
 	}
-	
-    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final ComboBoxModel<String> projectListModel, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
-		super();
-        this.controller = controller;
-        this.resourceBundle = resourceBundle;
-        this.reporter = reporter;
 
+    private class OurSourceDatabaseTreeBrowser extends DatabaseTreeBrowser {
+        public OurSourceDatabaseTreeBrowser(DatabaseInformationModel d,Container content) throws DicomException {
+            super(d,content);
+        }
 
-        srcDatabasePanel = new JPanel();
-		remoteQueryRetrievePanel = new JPanel();
+        protected boolean doSomethingWithSelections(DatabaseTreeRecord[] selections) {
+            currentSourceDatabaseSelections = selections;
+            return false;	// still want to call doSomethingWithSelectedFiles()
+        }
 
-		srcDatabasePanel.setLayout(new GridLayout(1,1));
-		remoteQueryRetrievePanel.setLayout(new GridLayout(1,1));
+        protected void doSomethingWithSelectedFiles(Vector<String> paths) {
+            currentSourceFilePathSelections = paths;
+        }
+    }
 
-        new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
+    private class OurQueryTreeBrowser extends QueryTreeBrowser {
+        private QueryInformationModel currentRemoteQueryInformationModel;
 
-		Border panelBorder = BorderFactory.createEtchedBorder();
+        /**
+         * @param	q
+         * @param	m
+         * @param	content
+         * @throws	DicomException
+         */
+        OurQueryTreeBrowser(QueryInformationModel q,QueryTreeModel m,Container content, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomException {
+            super(q,m,content);
+            this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
+        }
 
-        JSplitPane remoteAndLocalBrowserPanes = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,remoteQueryRetrievePanel,srcDatabasePanel);
-		remoteAndLocalBrowserPanes.setOneTouchExpandable(true);
-		remoteAndLocalBrowserPanes.setResizeWeight(0.5);
-		
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-		buttonPanel.setBorder(panelBorder);
-		
-		JButton configureButton = new JButton(resourceBundle.getString("configureButtonLabelText"));
-		configureButton.setToolTipText(resourceBundle.getString("configureButtonToolTipText"));
-		buttonPanel.add(configureButton);
-		configureButton.addActionListener(new ConfigureActionListener());
+        /***/
+        protected TreeSelectionListener buildTreeSelectionListenerToDoSomethingWithSelectedLevel() {
+            return new TreeSelectionListener() {
+                public void valueChanged(TreeSelectionEvent tse) {
 
-		JButton queryButton = new JButton(resourceBundle.getString("queryButtonLabelText"));
-		queryButton.setToolTipText(resourceBundle.getString("queryButtonToolTipText"));
-		buttonPanel.add(queryButton);
-		queryButton.addActionListener(new QueryActionListener());
-		
-		JButton retrieveButton = new JButton(resourceBundle.getString("retrieveButtonLabelText"));
-		retrieveButton.setToolTipText(resourceBundle.getString("retrieveButtonToolTipText"));
-		buttonPanel.add(retrieveButton);
-		retrieveButton.addActionListener(new RetrieveActionListener());
-		
-		JButton importButton = new JButton(resourceBundle.getString("importButtonLabelText"));
-		importButton.setToolTipText(resourceBundle.getString("importButtonToolTipText"));
-		buttonPanel.add(importButton);
-		importButton.addActionListener(new ImportActionListener());
-		
-        JButton giftCloudUploadButton = new JButton(resourceBundle.getString("giftCloudUploadButtonLabelText"));
-        giftCloudUploadButton.setToolTipText(resourceBundle.getString("giftCloudUploadButtonToolTipText"));
-        buttonPanel.add(giftCloudUploadButton);
-        giftCloudUploadButton.addActionListener(new GiftCloudUploadActionListener());
-
-		JPanel queryFilterTextEntryPanel = new JPanel();
-		queryFilterTextEntryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		queryFilterTextEntryPanel.setBorder(panelBorder);
-
-		JLabel queryIntroduction = new JLabel(resourceBundle.getString("queryIntroductionLabelText"));
-		queryFilterTextEntryPanel.add(queryIntroduction);
-
-		JLabel queryFilterPatientNameLabel = new JLabel(resourceBundle.getString("queryPatientNameLabelText"));
-		queryFilterPatientNameLabel.setToolTipText(resourceBundle.getString("queryPatientNameToolTipText"));
-		queryFilterTextEntryPanel.add(queryFilterPatientNameLabel);
-		queryFilterPatientNameTextField = new JTextField("",textFieldLengthForQueryPatientName);
-		queryFilterTextEntryPanel.add(queryFilterPatientNameTextField);
-		
-		JLabel queryFilterPatientIDLabel = new JLabel(resourceBundle.getString("queryPatientIDLabelText"));
-		queryFilterPatientIDLabel.setToolTipText(resourceBundle.getString("queryPatientIDToolTipText"));
-		queryFilterTextEntryPanel.add(queryFilterPatientIDLabel);
-		queryFilterPatientIDTextField = new JTextField("",textFieldLengthForQueryPatientID);
-		queryFilterTextEntryPanel.add(queryFilterPatientIDTextField);
-		
-		JLabel queryFilterStudyDateLabel = new JLabel(resourceBundle.getString("queryStudyDateLabelText"));
-		queryFilterStudyDateLabel.setToolTipText(resourceBundle.getString("queryStudyDateToolTipText"));
-		queryFilterTextEntryPanel.add(queryFilterStudyDateLabel);
-		queryFilterStudyDateTextField = new JTextField("",textFieldLengthForQueryStudyDate);
-		queryFilterTextEntryPanel.add(queryFilterStudyDateTextField);
-		
-		JLabel queryFilterAccessionNumberLabel = new JLabel(resourceBundle.getString("queryAccessionNumberLabelText"));
-		queryFilterAccessionNumberLabel.setToolTipText(resourceBundle.getString("queryAccessionNumberToolTipText"));
-		queryFilterTextEntryPanel.add(queryFilterAccessionNumberLabel);
-		queryFilterAccessionNumberTextField = new JTextField("",textFieldLengthForQueryAccessionNumber);
-		queryFilterTextEntryPanel.add(queryFilterAccessionNumberTextField);
-
-
-
-		JPanel newTextEntryPanel = new JPanel();
-		newTextEntryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		newTextEntryPanel.setBorder(panelBorder);
-
-        projectList = new JComboBox<String>();
-        projectList.setEditable(false);
-		projectList.setToolTipText(resourceBundle.getString("giftCloudProjectTooltip"));
-
-		JLabel projectListLabel = new JLabel(resourceBundle.getString("giftCloudProjectLabelText"));
-		newTextEntryPanel.add(projectListLabel);
-        newTextEntryPanel.add(projectList);
-
-        JLabel giftCloudServerLabel = new JLabel(resourceBundle.getString("giftCloudServerText"));
-        giftCloudServerLabel.setToolTipText(resourceBundle.getString("giftCloudServerTextToolTipText"));
-
-
-        giftCloudServerText = new AutoSaveTextField(giftCloudProperties.getGiftCloudUrl(), textFieldLengthForGiftCloudServerUrl) {
-            @Override
-            void autoSave() {
-                giftCloudProperties.setGiftCloudUrl(getText());
-            }
-        };
-
-        newTextEntryPanel.add(giftCloudServerLabel);
-        newTextEntryPanel.add(giftCloudServerText);
-
-		statusPanel = new StatusPanel(statusBar);
-        reporter.addProgressListener(statusPanel);
-
-		{
-			GridBagLayout mainPanelLayout = new GridBagLayout();
-			setLayout(mainPanelLayout);
-			{
-				GridBagConstraints remoteAndLocalBrowserPanesConstraints = new GridBagConstraints();
-				remoteAndLocalBrowserPanesConstraints.gridx = 0;
-				remoteAndLocalBrowserPanesConstraints.gridy = 0;
-				remoteAndLocalBrowserPanesConstraints.weightx = 1;
-				remoteAndLocalBrowserPanesConstraints.weighty = 1;
-				remoteAndLocalBrowserPanesConstraints.fill = GridBagConstraints.BOTH;
-				mainPanelLayout.setConstraints(remoteAndLocalBrowserPanes,remoteAndLocalBrowserPanesConstraints);
-				add(remoteAndLocalBrowserPanes);
-			}
-			{
-				GridBagConstraints buttonPanelConstraints = new GridBagConstraints();
-				buttonPanelConstraints.gridx = 0;
-				buttonPanelConstraints.gridy = 1;
-				buttonPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-				mainPanelLayout.setConstraints(buttonPanel,buttonPanelConstraints);
-				add(buttonPanel);
-			}
-			{
-				GridBagConstraints queryFilterTextEntryPanelConstraints = new GridBagConstraints();
-				queryFilterTextEntryPanelConstraints.gridx = 0;
-				queryFilterTextEntryPanelConstraints.gridy = 2;
-				queryFilterTextEntryPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-				mainPanelLayout.setConstraints(queryFilterTextEntryPanel,queryFilterTextEntryPanelConstraints);
-				add(queryFilterTextEntryPanel);
-			}
-			{
-				GridBagConstraints newTextEntryPanelConstraints = new GridBagConstraints();
-				newTextEntryPanelConstraints.gridx = 0;
-				newTextEntryPanelConstraints.gridy = 3;
-				newTextEntryPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-				mainPanelLayout.setConstraints(newTextEntryPanel,newTextEntryPanelConstraints);
-				add(newTextEntryPanel);
-			}
-			{
-				GridBagConstraints statusBarPanelConstraints = new GridBagConstraints();
-				statusBarPanelConstraints.gridx = 0;
-				statusBarPanelConstraints.gridy = 6;
-				statusBarPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-				mainPanelLayout.setConstraints(statusPanel, statusBarPanelConstraints);
-				add(statusPanel);
-			}
-		}
-
-        projectList.setModel(projectListModel);
-	}
-
+                    // Store all the selected paths
+                    QueryTreeRecord[] records = getSelectionPaths();
+                    List<QuerySelection> remoteQuerySelectionList = new ArrayList<QuerySelection>();
+                    if (records != null) {
+                        for (QueryTreeRecord record : records) {
+                            remoteQuerySelectionList.add(new QuerySelection(record, currentRemoteQueryInformationModel));
+                        }
+                    }
+                    currentRemoteQuerySelectionList = remoteQuerySelectionList;
+                }
+            };
+        }
+    }
 }
