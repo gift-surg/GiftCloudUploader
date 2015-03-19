@@ -48,7 +48,6 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     private GiftCloudReporter reporter;
     private GiftCloudUploaderController controller;
-    private GiftCloudPropertiesFromBridge giftCloudProperties = null;
 
 //	protected static String propertiesFileName  = ".uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderPanel.properties";
 	
@@ -542,20 +541,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     protected class ImportActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			try {
-                reporter.showMesageLogger();
-
-                Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
-
-                if (selectFileOrDirectory.isPresent()) {
-                    giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
-                    String filePath = selectFileOrDirectory.get().getSelectedFile();
-                    controller.runImport(filePath, statusPanel.getProgressBar());
-                }
-            } catch (Exception e) {
-                reporter.updateProgress("Importing failed due to the following error: " + e);
-                e.printStackTrace(System.err);
-            }
+            controller.selectAndImport(statusPanel.getProgressBar());
         }
 	}
 
@@ -861,7 +847,6 @@ public class GiftCloudUploaderPanel extends JPanel {
     public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final ComboBoxModel<String> projectListModel, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
 		super();
         this.controller = controller;
-        this.giftCloudProperties = giftCloudProperties;
         this.resourceBundle = resourceBundle;
         this.giftCloudDialogs = giftCloudDialogs;
 //        this.buildDate = buildDate;
@@ -1023,7 +1008,6 @@ public class GiftCloudUploaderPanel extends JPanel {
         giftCloudServerText = new AutoSaveTextField(giftCloudProperties.getGiftCloudUrl(), textFieldLengthForGiftCloudServerUrl) {
             @Override
             void autoSave() {
-                System.out.println("&&&&& focus action");
                 giftCloudProperties.setGiftCloudUrl(getText());
             }
         };

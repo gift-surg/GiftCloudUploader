@@ -161,6 +161,24 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         new Thread(new ImportWorker(dicomNode, filePath, progressBar, giftCloudProperties.acceptAnyTransferSyntax(), reporter)).start();
     }
 
+    @Override
+    public void selectAndImport(JProgressBar progressBar) {
+        try {
+            reporter.showMesageLogger();
+
+            Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
+
+            if (selectFileOrDirectory.isPresent()) {
+                giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
+                String filePath = selectFileOrDirectory.get().getSelectedFile();
+                runImport(filePath, progressBar);
+            }
+        } catch (Exception e) {
+            reporter.updateProgress("Importing failed due to the following error: " + e);
+            e.printStackTrace(System.err);
+        }
+    }
+
     protected void setCurrentRemoteQueryInformationModel(String remoteAEForQuery) {
         currentRemoteQueryInformationModel=null;
         String stringForTitle="";

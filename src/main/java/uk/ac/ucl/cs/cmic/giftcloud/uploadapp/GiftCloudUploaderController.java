@@ -22,4 +22,6 @@ public interface GiftCloudUploaderController {
     void export(String exportDirectory, Vector<String> filesToExport);
 
     void runImport(String filePath, JProgressBar progressBar);
+
+    void selectAndImport(JProgressBar progressBar);
 }
