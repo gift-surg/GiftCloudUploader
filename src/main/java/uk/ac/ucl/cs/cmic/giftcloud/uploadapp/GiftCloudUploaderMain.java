@@ -19,18 +19,16 @@ import java.util.*;
 
 public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
-	protected static String propertiesFileName  = ".com.pixelmed.display.GiftCloudUploader.properties";
-	protected ResourceBundle resourceBundle;
-    final GiftCloudPropertiesFromBridge giftCloudProperties;
-    final GiftCloudMainFrame giftCloudMainFrame;
-    final GiftCloudDialogs giftCloudDialogs;
-    final private DicomNode dicomNode;
-    GiftCloudBridge giftCloudBridge = null;
-    final GiftCloudUploaderPanel giftCloudUploaderPanel;
-    final GiftCloudReporter reporter;
-    final GiftCloudSystemTray giftCloudSystemTray;
-
-
+	private static String propertiesFileName  = ".com.pixelmed.display.GiftCloudUploader.properties";
+	private final ResourceBundle resourceBundle;
+    private final GiftCloudPropertiesFromBridge giftCloudProperties;
+    private final GiftCloudMainFrame giftCloudMainFrame;
+    private final GiftCloudDialogs giftCloudDialogs;
+    private final DicomNode dicomNode;
+    private GiftCloudBridge giftCloudBridge = null;
+    private final GiftCloudUploaderPanel giftCloudUploaderPanel;
+    private final GiftCloudReporter reporter;
+    private final GiftCloudSystemTray giftCloudSystemTray;
     private QueryInformationModel currentRemoteQueryInformationModel;
 
 
