@@ -273,8 +273,10 @@ public class Study extends MapEntity implements Entity, Session {
             return false;
         }
 
+        final Set<String> modalities = getModalities();
+
         final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-        return restServerHelper.uploadToStudy(fileCollections, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+        return restServerHelper.uploadToStudy(fileCollections, modalities, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
     }
 
     /*
@@ -290,8 +292,10 @@ public class Study extends MapEntity implements Entity, Session {
             return false;
         }
 
+        final Set<String> modalities = getModalities();
+
         final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-        return restServerHelper.appendToStudy(fileCollections, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+        return restServerHelper.appendToStudy(fileCollections, modalities, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
     }
 
     public List<FileCollection> getFiles() {

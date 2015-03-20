@@ -24,7 +24,7 @@ public class MultiZipSeriesUploader {
     private final Map<Future<Set<String>>, CallableUploader> uploaders;
     private final MultiUploadReporter logger;
 
-    public MultiZipSeriesUploader(final List<FileCollection> uploads, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final MultiUploadReporter logger, final RestServerHelper restServerHelper, final CallableUploader.CallableUploaderFactory callableUploaderFactory) {
+    public MultiZipSeriesUploader(final List<FileCollection> uploads, final Set<String> modalities, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final MultiUploadReporter logger, final RestServerHelper restServerHelper, final CallableUploader.CallableUploaderFactory callableUploaderFactory) {
         this.logger = logger;
         int fileCount = getFileCountFromFileCollection(uploads);
         progress.setProgress(0, fileCount);
@@ -42,7 +42,7 @@ public class MultiZipSeriesUploader {
         final UploadStatisticsReporter stats = new UploadStatisticsReporter(progress);
         for (final FileCollection s : uploads) {
             stats.addToSend(s.getSize());
-            final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, useFixedSize, s, applicators, stats, restServerHelper);
+            final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, modalities, useFixedSize, s, applicators, stats, restServerHelper);
             uploaders.put(completionService.submit(uploader), uploader);
         }
 

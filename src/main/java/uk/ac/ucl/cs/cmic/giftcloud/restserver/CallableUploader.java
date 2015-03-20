@@ -28,6 +28,7 @@ public abstract class CallableUploader implements Callable<Set<String>> {
     protected String projectLabel;
     protected String subjectLabel;
     protected final SessionParameters sessionParameters;
+    protected final Set<String> modalities;
     protected final FileCollection fileCollection;
     protected final UploadStatisticsReporter progress;
     protected final boolean useFixedSizeStreaming;
@@ -41,6 +42,7 @@ public abstract class CallableUploader implements Callable<Set<String>> {
             final String projectLabel,
             final String subjectLabel,
             final SessionParameters sessionParameters,
+            final Set<String> modalities,
             final boolean useFixedSizeStreaming,
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
@@ -49,6 +51,7 @@ public abstract class CallableUploader implements Callable<Set<String>> {
         this.projectLabel = projectLabel;
         this.subjectLabel = subjectLabel;
         this.sessionParameters = sessionParameters;
+        this.modalities = modalities;
         this.useFixedSizeStreaming = useFixedSizeStreaming;
         this.fileCollection = fileCollection;
         this.progress = progress;
@@ -66,6 +69,7 @@ public abstract class CallableUploader implements Callable<Set<String>> {
                 final String projectLabel,
                 final String subjectLabel,
                 final SessionParameters sessionParameters,
+                final Set<String> modalities,
                 final boolean useFixedSizeStreaming,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,

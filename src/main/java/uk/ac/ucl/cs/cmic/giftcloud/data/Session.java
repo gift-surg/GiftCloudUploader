@@ -44,7 +44,7 @@ public interface Session {
 	List<SessionVariable> unify(Iterable<? extends SessionVariable> vars);
 	*/
     boolean uploadTo(final String projectLabel, final String subjectLabel, final RestServerHelper restServerHelper, final SessionParameters sessionParameters, final Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException;
-    boolean appendTo(final String projectLabel, final String subjectLabel, final RestServerHelper restServerHelper, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException;
+    boolean appendTo(final String projectLabel, final String subjectLabel, final RestServerHelper restServerHelper, final SessionParameters sessionParameters, final Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException;
 
 	TimeZone getTimeZone();
 }

@@ -29,12 +29,13 @@ public class ZipSeriesUploader extends CallableUploader {
             final String projectLabel,
             final String subjectLabel,
             final SessionParameters sessionParameters,
+            final Set<String> modalities,
             final boolean useFixedSizeStreaming,
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
             final UploadStatisticsReporter progress,
             final RestServerHelper restServerHelper) {
-        super(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
+        super(projectLabel, subjectLabel, sessionParameters, modalities, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
     }
 
     @Override
@@ -47,12 +48,13 @@ public class ZipSeriesUploader extends CallableUploader {
                 final String projectLabel,
                 final String subjectLabel,
                 final SessionParameters sessionParameters,
+                final Set<String> modalities,
                 final boolean useFixedSizeStreaming,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final UploadStatisticsReporter progress,
                 final RestServerHelper restServerHelper) {
-            return new ZipSeriesUploader(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
+            return new ZipSeriesUploader(projectLabel, subjectLabel, sessionParameters, modalities, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
         }
     }
 }
