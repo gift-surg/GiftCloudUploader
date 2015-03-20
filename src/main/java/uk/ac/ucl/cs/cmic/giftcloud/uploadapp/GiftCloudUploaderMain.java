@@ -28,9 +28,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private GiftCloudBridge giftCloudBridge = null;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
     private final GiftCloudReporter reporter;
-    private final GiftCloudSystemTray giftCloudSystemTray;
+    private final Optional<GiftCloudSystemTray> giftCloudSystemTray;
     private QueryInformationModel currentRemoteQueryInformationModel;
-
 
     public GiftCloudUploaderMain(ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
@@ -69,7 +68,14 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
         giftCloudMainFrame.show();
 
-        giftCloudSystemTray = new GiftCloudSystemTray(this, true);
+        // Try to create a system tray icon. If this fails, then we warn the user and make the main dialog visible
+        giftCloudSystemTray = GiftCloudSystemTray.safeCreateSystemTray(this, resourceBundle, reporter);
+        if (giftCloudSystemTray.isPresent()) {
+            hide();
+        } else {
+            reporter.warnUser("A system tray icon could not be created. The GIFT-Cloud uploader will start in visible mode.");
+            show();
+        }
     }
 
     @Override
@@ -95,13 +101,17 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void hide() {
         giftCloudMainFrame.hide();
-        giftCloudSystemTray.updateMenu(false);
+        if (giftCloudSystemTray.isPresent()) {
+            giftCloudSystemTray.get().updateMenu(GiftCloudMainFrame.MainWindowVisibility.HIDDEN);
+        }
     }
 
     @Override
     public void show() {
         giftCloudMainFrame.show();
-        giftCloudSystemTray.updateMenu(true);
+        if (giftCloudSystemTray.isPresent()) {
+            giftCloudSystemTray.get().updateMenu(GiftCloudMainFrame.MainWindowVisibility.VISIBLE);
+        }
     }
 
     @Override

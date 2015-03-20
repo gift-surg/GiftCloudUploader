@@ -9,6 +9,41 @@ class GiftCloudMainFrame implements MainFrame {
     protected final JDialog container;
     private GiftCloudUploaderController controller;
 
+    /**
+     * Enumeration for the visible states of the main window. Less error-prone than passing round booleans for specifying visibility
+     */
+    public enum MainWindowVisibility {
+        VISIBLE(true),
+        HIDDEN(false);
+
+        private final boolean isVisible;
+
+        MainWindowVisibility(final boolean isVisible) {
+            this.isVisible = isVisible;
+        }
+
+        boolean isVisible() {
+            return isVisible;
+        }
+    }
+
+    public enum ConnectionType {
+        GET("GET"),
+        POST("POST"),
+        PUT("PUT");
+
+        private final String methodString;
+
+        ConnectionType(final String methodString) {
+            this.methodString = methodString;
+        }
+
+        String getMethodString() {
+            return methodString;
+        }
+    }
+
+
     GiftCloudMainFrame(final String applicationTitle, final GiftCloudUploaderController controller) {
         this.controller = controller;
         container = new JDialog();

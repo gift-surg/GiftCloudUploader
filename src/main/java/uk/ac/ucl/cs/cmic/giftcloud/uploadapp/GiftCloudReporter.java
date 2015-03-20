@@ -86,7 +86,7 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
             System.err.println("javascript close failed");
             // this usually means we're in a non-browser applet viewer
         } else {
-            context.call("close", (Object)null);
+            context.call("close", (Object) null);
         }
     }
 
@@ -99,7 +99,7 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
      * Retrieves the Javascript object context if available.
      *
      * @return The Javascript object if available. Returns null if not available (e.g. if running in a debugger or
-     *         non-Javascript-enabled browser.
+     * non-Javascript-enabled browser.
      */
     public JSObject getJSContext() {
         return null;
@@ -256,4 +256,19 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
         progressModel.endProgressBar();
     }
 
+
+
+    // These are the preferred methods for reporting to the user
+
+    public void silentError(final String errorMessage, final Throwable throwable) {
+        if (throwable == null) {
+            messageLogger.sendLn(errorMessage);
+        } else {
+            messageLogger.sendLn(errorMessage + " with exception:" + throwable.getLocalizedMessage());
+        }
+    }
+
+    public void warnUser(final String warningMessage) {
+        giftCloudDialogs.showMessage(warningMessage);
+    }
 }

@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class GiftCloudSystemTray {
 
@@ -15,28 +17,19 @@ public class GiftCloudSystemTray {
     private MenuItem showItem;
     private MenuItem importItem;
 
-    GiftCloudSystemTray(final GiftCloudUploaderController controller, final boolean isVisible) throws IOException {
+    private GiftCloudSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) throws AWTException, IOException {
         this.controller = controller;
 
-        if (!SystemTray.isSupported()) {
-            System.out.println("SystemTray is not supported");
-            return;
-        }
-
-        Image image = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));
-        trayIcon = new TrayIcon(image, "GIFT-Cloud Uploader");
+        Image iconImage = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));;
+        trayIcon = new TrayIcon(iconImage, resourceBundle.getString("systemTrayIconText"));
         tray = SystemTray.getSystemTray();
-        trayIcon.setToolTip("GIFT-Cloud Uploader");
+        trayIcon.setToolTip(resourceBundle.getString("systemTrayIconToolTip"));
 
-        try {
-            tray.add(trayIcon);
-        } catch (AWTException e) {
-            System.out.println("TrayIcon could not be added.");
-        }
+        tray.add(trayIcon);
 
         final PopupMenu popup = new PopupMenu();
 
-        MenuItem aboutItem = new MenuItem("About");
+        MenuItem aboutItem = new MenuItem(resourceBundle.getString("systemTrayAbout"));
         popup.add(aboutItem);
         aboutItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -46,7 +39,7 @@ public class GiftCloudSystemTray {
 
         popup.addSeparator();
 
-        importItem = new MenuItem("Import");
+        importItem = new MenuItem(resourceBundle.getString("systemTrayImport"));
         popup.add(importItem);
         importItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -56,7 +49,7 @@ public class GiftCloudSystemTray {
 
         popup.addSeparator();
 
-        hideItem = new MenuItem("Hide");
+        hideItem = new MenuItem(resourceBundle.getString("systemTrayHide"));
         popup.add(hideItem);
         hideItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -64,7 +57,7 @@ public class GiftCloudSystemTray {
             }
         });
 
-        showItem = new MenuItem("Show");
+        showItem = new MenuItem(resourceBundle.getString("systemTrayShow"));
         popup.add(showItem);
         showItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -73,7 +66,7 @@ public class GiftCloudSystemTray {
         });
 
         popup.addSeparator();
-        MenuItem configItem = new MenuItem("Settings");
+        MenuItem configItem = new MenuItem(resourceBundle.getString("systemTraySettings"));
         popup.add(configItem);
         configItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -92,7 +85,7 @@ public class GiftCloudSystemTray {
         });
 
         popup.addSeparator();
-        MenuItem exitItem = new MenuItem("Exit");
+        MenuItem exitItem = new MenuItem(resourceBundle.getString("systemTrayExit"));
         popup.add(exitItem);
         exitItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -103,17 +96,29 @@ public class GiftCloudSystemTray {
 
         trayIcon.setPopupMenu(popup);
 
-        updateMenu(true);
+        updateMenu(GiftCloudMainFrame.MainWindowVisibility.HIDDEN);
     }
 
-    void updateMenu(final boolean isVisible) {
+    static Optional<GiftCloudSystemTray> safeCreateSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporter reporter) {
+        if (!SystemTray.isSupported()) {
+            reporter.silentError("SystemTray is not supported on this system.", null);
+            return Optional.empty();
+        } else {
+            try {
+                return Optional.of(new GiftCloudSystemTray(controller, resourceBundle));
+            } catch (Throwable t) {
+                reporter.silentError("The system tray icon could not be created due to the following error: " + t.getLocalizedMessage(), t);
+                return Optional.empty();
+            }
+        }
+    }
+
+    void updateMenu(final GiftCloudMainFrame.MainWindowVisibility mainWindowVisibility) {
         if (tray == null) {
             return;
         }
 
-        hideItem.setEnabled(isVisible);
-        showItem.setEnabled(!isVisible);
-
+        hideItem.setEnabled(mainWindowVisibility.isVisible());
+        showItem.setEnabled(!mainWindowVisibility.isVisible());
     }
-
 }
