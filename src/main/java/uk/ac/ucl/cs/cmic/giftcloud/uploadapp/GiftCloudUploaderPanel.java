@@ -39,33 +39,32 @@ import java.util.List;
  */
 public class GiftCloudUploaderPanel extends JPanel {
 
-    protected static int textFieldLengthForQueryPatientName = 16;
-    protected static int textFieldLengthForQueryPatientID = 10;
-    protected static int textFieldLengthForQueryStudyDate = 8;
-    protected static int textFieldLengthForQueryAccessionNumber = 10;
-    protected static int textFieldLengthForGiftCloudServerUrl = 32;
+    private static int textFieldLengthForQueryPatientName = 16;
+    private static int textFieldLengthForQueryPatientID = 10;
+    private static int textFieldLengthForQueryStudyDate = 8;
+    private static int textFieldLengthForQueryAccessionNumber = 10;
+    private static int textFieldLengthForGiftCloudServerUrl = 32;
 
     // User interface components
     private final StatusPanel statusPanel;
-    private JComboBox<String> projectList;
-    protected JPanel srcDatabasePanel;
-    protected JPanel remoteQueryRetrievePanel;
-    protected JTextField giftCloudServerText;
-    protected JTextField queryFilterPatientNameTextField;
-    protected JTextField queryFilterPatientIDTextField;
-    protected JTextField queryFilterStudyDateTextField;
-    protected JTextField queryFilterAccessionNumberTextField;
+    private final JComboBox<String> projectList;
+    private final JPanel srcDatabasePanel;
+    private final JPanel remoteQueryRetrievePanel;
+    private final JTextField giftCloudServerText;
+    private final JTextField queryFilterPatientNameTextField;
+    private final JTextField queryFilterPatientIDTextField;
+    private final JTextField queryFilterStudyDateTextField;
+    private final JTextField queryFilterAccessionNumberTextField;
 
     // Callback to the controller for invoking actions
-    private GiftCloudUploaderController controller;
+    private final GiftCloudUploaderController controller;
 
     // Models for data selections by the user
     private List<QuerySelection> currentRemoteQuerySelectionList;
-    protected DatabaseTreeRecord[] currentSourceDatabaseSelections;
-    protected Vector<String> currentSourceFilePathSelections;
+    private Vector<String> currentSourceFilePathSelections;
 
     // Error reporting interface
-    private GiftCloudReporter reporter;
+    private final GiftCloudReporter reporter;
 
     public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final ComboBoxModel<String> projectListModel, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromBridge giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final String buildDate, final JLabel statusBar, final GiftCloudReporter reporter) throws DicomException, IOException {
         super();
@@ -314,7 +313,6 @@ public class GiftCloudUploaderPanel extends JPanel {
         }
 
         protected boolean doSomethingWithSelections(DatabaseTreeRecord[] selections) {
-            currentSourceDatabaseSelections = selections;
             return false;	// still want to call doSomethingWithSelectedFiles()
         }
 
