@@ -8,6 +8,13 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+/**
+ *  Creates an icon and menu in the system tray, allowing the user to execute actions and monitor progress from the GIFT-Cloud uploader while the main window is hidden
+ *
+ * <p>This class is part of the GIFT-Cloud Uploader
+ *
+ * @author  Tom Doel
+ */
 public class GiftCloudSystemTray {
 
     private GiftCloudUploaderController controller;
@@ -17,6 +24,16 @@ public class GiftCloudSystemTray {
     private MenuItem showItem;
     private MenuItem importItem;
 
+    /**
+     * Private constructor for creating a new menu and icon for the system tray
+     *
+     *
+     * @param controller        the controller used to perform menu actions
+     * @param resourceBundle    the application resources used to choose menu text
+     *
+     * @throws AWTException     if the desktop system tray is missing
+     * @throws IOException      if an error occured while attempting to read the icon file
+     */
     private GiftCloudSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) throws AWTException, IOException {
         this.controller = controller;
 
@@ -99,6 +116,16 @@ public class GiftCloudSystemTray {
         updateMenu(GiftCloudMainFrame.MainWindowVisibility.HIDDEN);
     }
 
+    /**
+     * Static factory method for creating the GIFT-Cloud Uploader menu and icon for the system tray.
+     *
+     * <p>Does not throw any exceptions. If the menu cannot be created or an error occurs, an empty Optional is returned.
+     *
+     * @param controller        the controller used to perform menu actions
+     * @param resourceBundle    the application resources used to choose menu text
+     * @param reporter          the reporter object used to record errors
+     * @return                  an (@link Optional) containing the (@link GiftCloudSystemTray) object or an empty (@link Optional) if the SystemTray is not supported, or an error occurred, e.g. in attempting to load the icon
+     */
     static Optional<GiftCloudSystemTray> safeCreateSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporter reporter) {
         if (!SystemTray.isSupported()) {
             reporter.silentError("SystemTray is not supported on this system.", null);
@@ -113,6 +140,11 @@ public class GiftCloudSystemTray {
         }
     }
 
+    /**
+     * Updates the system tray meny according to enable/disable the show/hide menu items according to the visibility of the main window
+     *
+     * @param mainWindowVisibility  whether the main window is currently hidden or visible
+     */
     void updateMenu(final GiftCloudMainFrame.MainWindowVisibility mainWindowVisibility) {
         if (tray == null) {
             return;
