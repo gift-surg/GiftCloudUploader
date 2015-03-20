@@ -83,11 +83,6 @@ public class DicomNode extends Observable {
         }
     }
 
-
-            String getOurCalledAETitle() {
-        return ourCalledAETitle;
-    }
-
     public void shutdownStorageSCP() {
         if (storageSOPClassSCPDispatcher != null) {
             storageSOPClassSCPDispatcher.shutdown();
@@ -120,10 +115,6 @@ public class DicomNode extends Observable {
 
     public boolean isNetworkApplicationInformationValid() {
         return (networkApplicationInformation != null);
-    }
-
-    public Set getListOfLocalNamesOfApplicationEntities() {
-        return networkApplicationInformation.getListOfLocalNamesOfApplicationEntities();
     }
 
     public NetworkApplicationInformation getNetworkApplicationInformation() {

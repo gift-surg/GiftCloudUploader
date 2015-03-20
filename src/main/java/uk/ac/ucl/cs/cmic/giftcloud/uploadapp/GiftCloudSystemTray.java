@@ -141,7 +141,7 @@ public class GiftCloudSystemTray {
     }
 
     /**
-     * Updates the system tray meny according to enable/disable the show/hide menu items according to the visibility of the main window
+     * Updates the system tray menu according to enable/disable the show/hide menu items according to the visibility of the main window
      *
      * @param mainWindowVisibility  whether the main window is currently hidden or visible
      */

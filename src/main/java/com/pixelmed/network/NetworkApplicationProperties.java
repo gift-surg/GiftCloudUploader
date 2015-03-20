@@ -2,7 +2,6 @@
 
 package com.pixelmed.network;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
@@ -236,27 +235,7 @@ public class NetworkApplicationProperties {
 	 */
 	public String getPrimaryDeviceType() { return primaryDeviceType; }
 	
-	/**
-	 * <p>Set the primary device type.</p>
-	 *
-	 * param	primaryDeviceType	the primary device type
-	 */
-	public void setPrimaryDeviceType(String primaryDeviceType) { this.primaryDeviceType = primaryDeviceType; }
-	
-	/**
-	 * <p>Return the storage SCU compression level.</p>
-	 *
-	 * @return	the storage SCU compression level
-	 */
-	public int getStorageSCUCompressionLevel() { return storageSCUCompressionLevel; }
-	
-	/**
-	 * <p>Return the storage SCU debug level.</p>
-	 *
-	 * @return	the storage SCU debug level
-	 */
-	public int getStorageSCUDebugLevel() { return storageSCUDebugLevel; }
-	
+
 	/**
 	 * <p>Return the storage SCP debug level.</p>
 	 *
@@ -330,30 +309,6 @@ public class NetworkApplicationProperties {
 		return str.toString();
 	}
 
-	/**
-	 * <p>Test the parsing of network properties from the specified file, by reading them and converting into LDIF format.</p>
-	 *
-	 * <p>Can be used, for example, to convert information previously statically configured by properties on each
-	 * device, to assemble LDIF files to be loaded into an LDAP server for use via the DICOM Network Configuration
-	 * Management service.</p>
-	 *
-	 * @param	arg	two arguments, a single file name that is the properties file, then the root distinguished name for LDAP
-	 */
-	public static void main(String arg[]) {
-		String propertiesFileName = arg[0];
-		try {
-			FileInputStream in = new FileInputStream(propertiesFileName);
-			Properties properties = new Properties(/*defaultProperties*/);
-			properties.load(in);
-			in.close();
-//System.err.println("properties="+properties);
-			System.out.print(new NetworkApplicationProperties(properties).getNetworkApplicationInformation().getLDIFRepresentation(arg[1]));
-		}
-		catch (Exception e) {
-			System.err.println(e);
-		}
 
-
-	}
 }
 

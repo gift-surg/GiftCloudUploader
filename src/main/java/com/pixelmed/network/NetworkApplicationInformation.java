@@ -326,85 +326,8 @@ public class NetworkApplicationInformation {
 	 * @return		the local name, or null if none
 	 */
 	public String getLocalNameFromApplicationEntityTitle(String aet) { return (String)(applicationEntityTitleToLocalNameMap.get(aet)); }
-	
-	/**
-	 * <p>Make an LDAP LDIF representation of the network information.</p>
-	 *
-	 * @param	rootDN	the root distinguished name to attach the DICOM configuration information below
-	 * @return		a String containing the text of the LDIF representation, suitable for feeding into a utility like <code>ldapadd</code>
-	 */
-	public String getLDIFRepresentation(String rootDN) {
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);
-		
-		printWriter.println("version: 1");
-		printWriter.println("");
-		printWriter.println("dn: cn=DICOM Configuration,"+rootDN);
-		printWriter.println("objectClass: dicomConfigurationRoot");
-		printWriter.println("cn: DICOM Configuration");
-		printWriter.println("");
-		printWriter.println("dn: cn=Devices,cn=DICOM Configuration,"+rootDN);
-		printWriter.println("objectClass: dicomDevicesRoot");
-		printWriter.println("cn: Devices");
-		printWriter.println("");
-		printWriter.println("dn: cn=Unique AE Titles Registry,cn=DICOM Configuration,"+rootDN);
-		printWriter.println("objectClass: dicomUniqueAETitlesRegistryRoot");
-		printWriter.println("cn: Unique AE Titles Registry");
-		printWriter.println("");
-		
-		ApplicationEntityMap applicationEntityMap = getApplicationEntityMap();
 
-		if (localNameToApplicationEntityTitleMap != null) {
-			Iterator i = getListOfLocalNamesOfApplicationEntities().iterator();
-			while (i.hasNext()) {
-				String dicomDeviceName = (String)i.next();	// use local name as dicomDeviceName
-				printWriter.println("dn: dicomDeviceName="+dicomDeviceName+",cn=Devices,cn=DICOM Configuration,"+rootDN);
-				printWriter.println("objectClass: dicomDevice");
-				printWriter.println("dicomDeviceName: "+dicomDeviceName);
-				printWriter.println("dicomInstalled: TRUE");
-				printWriter.println("");
-								
-				String applicationEntityTitle = getApplicationEntityTitleFromLocalName(dicomDeviceName);
-				PresentationAddress presentationAddress = applicationEntityMap.getPresentationAddress(applicationEntityTitle);
-				String hostname = presentationAddress.getHostname();
-				int port = presentationAddress.getPort();
-				String dicomAssociationAcceptor = "TRUE";	// we do not really know this
-				String dicomAssociationInitiator = "TRUE";	// we do not really know this
-				
-				// add two children for each device, the dicomNetworkConnection and the dicomAETitle
-				
-				//String cnForDicomNetworkConnection = hostname + "_" + port;
-				String cnForDicomNetworkConnection = dicomDeviceName;	// use local name here as well, since 1:1 correspondence in our internal model
-				String dnForDicomNetworkConnection = "cn="+cnForDicomNetworkConnection +",dicomDeviceName="+dicomDeviceName+",cn=Devices,cn=DICOM Configuration,"+rootDN;
-
-				printWriter.println("dn: "+dnForDicomNetworkConnection);
-				printWriter.println("objectClass: dicomNetworkConnection");
-				printWriter.println("cn: "+cnForDicomNetworkConnection);
-				printWriter.println("dicomHostname: "+hostname);
-				printWriter.println("dicomPort: "+port);
-				printWriter.println("");
-				printWriter.println("dn: dicomAETitle="+applicationEntityTitle+",dicomDeviceName="+dicomDeviceName+",cn=Devices,cn=DICOM Configuration,"+rootDN);
-				printWriter.println("objectClass: dicomNetworkAE");
-				printWriter.println("dicomAETitle: "+applicationEntityTitle);
-				//printWriter.println("dicomNetworkConnectionReference: "+cnForDicomNetworkConnection);
-				printWriter.println("dicomNetworkConnectionReference: "+dnForDicomNetworkConnection);
-				printWriter.println("dicomAssociationAcceptor: TRUE");
-				printWriter.println("dicomAssociationInitiator: TRUE");
-				printWriter.println("");
-				
-				// also add AE to Unique AE Titles Registry
-				printWriter.println("dn: dicomAETitle="+applicationEntityTitle+",cn=Unique AE Titles Registry,cn=DICOM Configuration,"+rootDN);
-				printWriter.println("objectClass: dicomUniqueAETitle");
-				printWriter.println("dicomAETitle: "+applicationEntityTitle);
-				printWriter.println("");
-			}
-		}
-				
-		printWriter.close();
-		return stringWriter.toString();
-	}
-	
-	/**
+    /**
 	 */
 	public String toString() {
 		StringWriter stringWriter = new StringWriter();

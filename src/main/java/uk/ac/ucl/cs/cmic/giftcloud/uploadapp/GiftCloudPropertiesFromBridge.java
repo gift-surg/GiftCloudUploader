@@ -14,8 +14,6 @@ import java.util.Properties;
 
 public class GiftCloudPropertiesFromBridge extends Observable implements GiftCloudProperties {
 
-
-    protected static String propertyName_DicomCurrentlySelectedStorageTargetAE = "Dicom.CurrentlySelectedStorageTargetAE";
     protected static String propertyName_DicomCurrentlySelectedQueryTargetAE = "Dicom.CurrentlySelectedQueryTargetAE";
 
     private Properties properties;
@@ -178,10 +176,6 @@ public class GiftCloudPropertiesFromBridge extends Observable implements GiftClo
 
     public String getCurrentlySelectedQueryTargetAE() {
         return properties.getProperty(propertyName_DicomCurrentlySelectedQueryTargetAE);
-    }
-
-    public String getPropertyCurrentlySelectedStorageTargetAE() {
-        return properties.getProperty(propertyName_DicomCurrentlySelectedStorageTargetAE);
     }
 
     public void setCurrentlySelectedQueryTargetAE(String ae) {
