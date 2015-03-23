@@ -29,52 +29,57 @@ public class XnatModalitityParams {
 
 
     public enum XnatScanType {
-        MR("mrScanData"),
-        PET("petScanData"),
-        CT("ctScanData"),
-        EPS("epsScanData"),
-        HD("hdScanData"),
-        ECG("ecgScanData"),
-        US("usScanData"),
-        IO("ioScanData"),
-        MG("mgScanData"),
-        DX("dxScanData"),
-        CR("crScanData"),
-        GMV("gmvScanData"),
-        GM("gmScanData"),
-        ESV("esvScanData"),
-        ES("esScanData"),
-        NM("nmScanData"),
-        SR("srScanData"),
-        DX3DCraniofacial("dx3DCraniofacialScanData"),
-        XA3D("xa3DScanData"),
-        RF("rfScanData"),
-        XA("xaScanData"),
-        SM("smScanData"),
-        XC("xcScanData"),
-        XCV("xcvScanData"),
-        OP("opScanData"),
-        OPT("optScanData"),
-        RTImage("rtImageScanData"),
-        SC("scScanData"),
-        Seg("segScanData"),
-        MRS("mrsScanData"),
-        VoiceAudio("voiceAudioScanData"),
-        OtherDicom("otherDicomScanData"),
-        MEG("megScanData"),
-        EEG("eegScanData"),
-        Unknown(null);
+        MR("mrScanData", "mrSessionData"),
+        PET("petScanData", "petSessionData"),
+        CT("ctScanData", "ctSessionData"),
+        EPS("epsScanData", "epsSessionData"),
+        HD("hdScanData", "hdSessionData"),
+        ECG("ecgScanData", "ecgSessionData"),
+        US("usScanData", "usSessionData"),
+        IO("ioScanData", "ioSessionData"),
+        MG("mgScanData", "mgSessionData"),
+        DX("dxScanData", "dxSessionData"),
+        CR("crScanData", "crSessionData"),
+        GMV("gmvScanData", "gmvSessionData"),
+        GM("gmScanData", "gmSessionData"),
+        ESV("esvScanData", "esvSessionData"),
+        ES("esScanData", "esSessionData"),
+        NM("nmScanData", "nmSessionData"),
+        SR("srScanData", "srSessionData"),
+        DX3DCraniofacial("dx3DCraniofacialScanData", "dx3DCraniofacialSessionData"),
+        XA3D("xa3DScanData", "xa3DSessionData"),
+        RF("rfScanData", "rfSessionData"),
+        XA("xaScanData", "xaSessionData"),
+        SM("smScanData", "smSessionData"),
+        XC("xcScanData", "xcSessionData"),
+        XCV("xcvScanData", "xcvSessionData"),
+        OP("opScanData", "opSessionData"),
+        OPT("optScanData", "optSessionData"),
+        RTImage("rtImageScanData", "rtSessionData"),
+        SC("scScanData", null),
+        Seg("segScanData", null),
+        MRS("mrsScanData", null),
+        VoiceAudio("voiceAudioScanData", null),
+        OtherDicom("otherDicomScanData", "otherDicomSessionData"),
+        MEG("megScanData", "megSessionData"),
+        EEG("eegScanData", "eegSessionData"),
+        Unknown("otherDicomScanData", "otherDicomSessionData");
 
         private final String xnatScanType;
+        private final String xnatSessionType;
 
         String getXnatScanType() {
             return xnatScanType;
         }
 
-        private XnatScanType(final String xnatScanType) {
+        private XnatScanType(final String xnatScanType, final String xnatSessionType) {
             this.xnatScanType = xnatScanType;
+            this.xnatSessionType = xnatSessionType;
         }
 
+        public String getXnatSessionType() {
+            return xnatSessionType;
+        }
     }
 
     /**
