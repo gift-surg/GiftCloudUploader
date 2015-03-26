@@ -1,15 +1,52 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 public class XnatModalitityParams {
 
-    private final Optional<DicomModality> dicomModality;
+    private String xnatSessionTag = XnatScanType.Unknown.getXnatSessionType();
+    private String xnatScanTag = XnatScanType.Unknown.getXnatScanType();
+    private String formatString;
+    private String collectionString;
 
-    public XnatModalitityParams(final Set<String> modalities) {
+    private XnatModalitityParams(final XnatScanType xnatScanType, final ImageFileFormat imageFileFormat) {
+        {
+            this.formatString = imageFileFormat.getFormatString();
+            this.collectionString = imageFileFormat.getCollectionString();
+
+            final String xnatSessionTagFromScanType = xnatScanType.getXnatSessionType();
+            if (StringUtils.isNotBlank(xnatSessionTagFromScanType)) {
+                xnatSessionTag = xnatSessionTagFromScanType;
+
+                // ToDo: we should set the datatype correctly (e.g. ?xnat:mrSessionData/date=01/02/07)
+//                final String newSessionParams = "?xnat:mrSessionData/date=01/02/07";
+
+            }
+        }
+
+        {
+            final String xnatScanTagFromScanType = xnatScanType.getXnatSessionType();
+            if (StringUtils.isNotBlank(xnatScanTagFromScanType)) {
+                xnatScanTag = xnatScanTagFromScanType;
+
+                // ToDo: set subtype
+
+//            ToDo: we should set the scan datatype correctly (e.g. ?xsiType=xnat:mrScanData&xnat:mrScanData/type=T1")
+//                final String newScanParams = "?xsiType=xnat:mrScanData&xnat:mrScanData/type=T1"; //ToDo: set data type based on Dicom modality
+            }
+        }
+
+        // ToDo: we should set the additional scan collection parameters correctly (e.g. ?format=DICOM&content=T1_RAW)
+
+
+    }
+
+
+    static XnatModalitityParams createFromDicomModalities(final Set<String> modalities) {
         Set<DicomModality> modalitySet = new HashSet<DicomModality>();
 
         for (final String modality : modalities) {
@@ -17,16 +54,48 @@ public class XnatModalitityParams {
         }
 
         if (modalitySet.size() == 1) {
-            dicomModality = Optional.of(modalitySet.iterator().next());
+            DicomModality dicomModality = modalitySet.iterator().next();
+            return new XnatModalitityParams(dicomModality.getXnatScanType(), ImageFileFormat.DICOM);
         } else {
-            dicomModality = Optional.empty();
+            return new XnatModalitityParams(XnatScanType.Unknown, ImageFileFormat.DICOM);
         }
     }
 
-    public Optional<DicomModality> getModality() {
-        return dicomModality;
+    public String getXnatSessionTag() {
+        return xnatSessionTag;
     }
 
+    public String getXnatScanTag() {
+        return xnatScanTag;
+    }
+
+    public String getFormatString() {
+        return formatString;
+    }
+
+    public String getCollectionString() {
+        return collectionString;
+    }
+
+    public enum ImageFileFormat {
+        DICOM("DICOM", "DICOM");
+
+        private final String formatString;
+        private final String collectionString;
+
+        ImageFileFormat(final String formatString, final String collectionString) {
+            this.formatString = formatString;
+            this.collectionString = collectionString;
+        }
+
+        public String getFormatString() {
+            return formatString;
+        }
+
+        public String getCollectionString() {
+            return collectionString;
+        }
+    }
 
     public enum XnatScanType {
         MR("mrScanData", "mrSessionData"),
@@ -69,7 +138,7 @@ public class XnatModalitityParams {
         private final String xnatSessionType;
 
         String getXnatScanType() {
-            return xnatScanType;
+            return xnatScanType == null ? null : "xnat:" + xnatScanType;
         }
 
         private XnatScanType(final String xnatScanType, final String xnatSessionType) {
@@ -78,7 +147,7 @@ public class XnatModalitityParams {
         }
 
         public String getXnatSessionType() {
-            return xnatSessionType;
+            return xnatSessionType == null ? null : "xnat:" + xnatSessionType;
         }
     }
 
@@ -166,7 +235,7 @@ public class XnatModalitityParams {
             return dicomTag;
         }
 
-        XnatScanType getxnatScanType() {
+        XnatScanType getXnatScanType() {
             return xnatScanType;
         }
 

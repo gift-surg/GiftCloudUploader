@@ -425,50 +425,29 @@ public class RestServerHelper {
         createSubjectIfNotExisting(projectLabel, subjectLabel);
 
 
-        XnatModalitityParams xnatModalitityParams = new XnatModalitityParams(modalities);
-        final Optional<XnatModalitityParams.DicomModality> modality = xnatModalitityParams.getModality();
+        final XnatModalitityParams xnatModalitityParams = XnatModalitityParams.createFromDicomModalities(modalities);
 
-        XnatModalitityParams.XnatScanType scanType;
-        if (modality.isPresent()) {
-            scanType = modality.get().getxnatScanType();
-        } else {
-            scanType = XnatModalitityParams.XnatScanType.Unknown;
+        {
+            final String sessionCreateParams = "?" + xnatModalitityParams.getXnatSessionTag();
+            createSessionIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionCreateParams);
         }
 
         {
-            String xnatSessionTag = scanType.getXnatSessionType();
-            if (StringUtils.isBlank(xnatSessionTag)) {
-                xnatSessionTag = XnatModalitityParams.XnatScanType.Unknown.getXnatSessionType();
-            }
-            xnatSessionTag = "?xnat:" + xnatSessionTag;
-
-            // ToDo: we should set the datatype correctly (e.g. ?xnat:mrSessionData/date=01/02/07)
-            final String newSessionParams = "?xnat:mrSessionData/date=01/02/07";
-            createSessionIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), xnatSessionTag);
+            final String scanCreateParams = "?xsiType=" + xnatModalitityParams.getXnatScanTag();
+            createScanIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionParameters.getScanLabel(), scanCreateParams);
         }
+
+        final String collectionLabel = xnatModalitityParams.getCollectionString();
 
         {
-            String xnatScanTag = "";
-            if (StringUtils.isBlank(xnatScanTag)) {
-                xnatScanTag = XnatModalitityParams.XnatScanType.Unknown.getXnatScanType();
-            }
-            xnatScanTag = "?xsiType=xnat:" + xnatScanTag;
-            // ToDo: set subtype
-
-//            ToDo: we should set the scan datatype correctly (e.g. ?xsiType=xnat:mrScanData&xnat:mrScanData/type=T1")
-            final String newScanParams = "?xsiType=xnat:mrScanData&xnat:mrScanData/type=T1"; //ToDo: set data type based on Dicom modality
-            createScanIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionParameters.getScanLabel(), xnatScanTag);
+            final String scanCollectionCreateParams = "?format=" + xnatModalitityParams.getFormatString() + "&xsi:type=" + xnatModalitityParams.getXnatScanTag();
+            createScanCollectionIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionParameters.getScanLabel(), collectionLabel, scanCollectionCreateParams);
         }
-
-
-        // ToDo: we should set the additional scan collection parameters correctly (e.g. ?format=DICOM&content=T1_RAW)
-        final String newScanCollectionParams = "?format=DICOM&xsi:type=xnat:mrScanData";
-        createScanCollectionIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionParameters.getScanLabel(), "DICOM", newScanCollectionParams);
 
         final Collection<File> files = fileCollection.getFiles();
         final File firstFile = files.iterator().next();
         final String uriParams = "?extract=true";
-        final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getSessionLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" + "DICOM" + "/files/" + firstFile.getName() + ".zip" + uriParams;
+        final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getSessionLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" + collectionLabel + "/files/" + firstFile.getName() + ".zip" + uriParams;
 
         return restServer.uploadSingleFileAsZip(uri, useFixedSizeStreaming, fileCollection, applicators, progress);
     }
