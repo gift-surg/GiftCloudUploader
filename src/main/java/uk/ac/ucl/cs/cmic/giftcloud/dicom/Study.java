@@ -22,17 +22,18 @@ import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.nrg.dcm.edit.DicomUtils;
 import org.nrg.dcm.edit.ScriptApplicator;
 import org.nrg.dcm.edit.Variable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
 
 import java.io.File;
 import java.io.IOException;
@@ -273,10 +274,10 @@ public class Study extends MapEntity implements Entity, Session {
             return false;
         }
 
-        final Set<String> modalities = getModalities();
+        final XnatModalityParams xnatModalityParams = getXnatModalityParams();
 
         final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-        return restServerHelper.uploadToStudy(fileCollections, modalities, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+        return restServerHelper.uploadToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
     }
 
     /*
@@ -292,10 +293,10 @@ public class Study extends MapEntity implements Entity, Session {
             return false;
         }
 
-        final Set<String> modalities = getModalities();
+        final XnatModalityParams xnatModalityParams = getXnatModalityParams();
 
         final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-        return restServerHelper.appendToStudy(fileCollections, modalities, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+        return restServerHelper.appendToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
     }
 
     public List<FileCollection> getFiles() {
@@ -340,5 +341,15 @@ public class Study extends MapEntity implements Entity, Session {
             vs.add(DicomSessionVariable.getSessionVariable(dv, o));
         }
         return vs;
+    }
+
+    public XnatModalityParams getXnatModalityParams() {
+        final Set<XnatModalityParams> xnatModalityParams = Sets.newLinkedHashSet();
+        for (final Series s : series) {
+            xnatModalityParams.add(s.getModalityParams());
+        }
+
+        // ToDo: we are only returning one modality param
+        return xnatModalityParams.iterator().next();
     }
 }

@@ -151,9 +151,9 @@ public class RestServerHelper {
         return restServer.getStringFromStream(uri, xmlStream);
     }
 
-    public boolean uploadToStudy(final List<FileCollection> uploads, final Set<String> modalities, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final MultiUploadReporter logger) {
+    public boolean uploadToStudy(final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final MultiUploadReporter logger) {
 
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploads, modalities, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger, this, new ZipSeriesUploader.ZipSeriesUploaderFactory());
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploads, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger, this, new ZipSeriesUploader.ZipSeriesUploaderFactory());
 
         if (!uploader.run(progress, logger)) {
             return false;
@@ -172,9 +172,9 @@ public class RestServerHelper {
             return closeSession(uri, sessionParameters, progress, uploader.getFailures(), windowName, jsContext, timeZone);
     }
 
-    public boolean appendToStudy(final List<FileCollection> uploads, final Set<String> modalities, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final MultiUploadReporter logger) {
+    public boolean appendToStudy(final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final MultiUploadReporter logger) {
 
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploads, modalities, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger, this, new ZipSeriesAppendUploader.ZipSeriesAppendUploaderFactory());
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploads, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger, this, new ZipSeriesAppendUploader.ZipSeriesAppendUploaderFactory());
 
         if (!uploader.run(progress, logger)) {
             return false;
@@ -420,27 +420,24 @@ public class RestServerHelper {
         }
     }
 
-    public Set<String> appendZipFileToExistingScan(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final Set<String> modalities, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
+    public Set<String> appendZipFileToExistingScan(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
 
         createSubjectIfNotExisting(projectLabel, subjectLabel);
 
-
-        final XnatModalitityParams xnatModalitityParams = XnatModalitityParams.createFromDicomModalities(modalities);
-
         {
-            final String sessionCreateParams = "?" + xnatModalitityParams.getXnatSessionTag();
+            final String sessionCreateParams = "?" + xnatModalityParams.getXnatSessionTag();
             createSessionIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionCreateParams);
         }
 
         {
-            final String scanCreateParams = "?xsiType=" + xnatModalitityParams.getXnatScanTag();
+            final String scanCreateParams = "?xsiType=" + xnatModalityParams.getXnatScanTag();
             createScanIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionParameters.getScanLabel(), scanCreateParams);
         }
 
-        final String collectionLabel = xnatModalitityParams.getCollectionString();
+        final String collectionLabel = xnatModalityParams.getCollectionString();
 
         {
-            final String scanCollectionCreateParams = "?format=" + xnatModalitityParams.getFormatString() + "&xsi:type=" + xnatModalitityParams.getXnatScanTag();
+            final String scanCollectionCreateParams = "?format=" + xnatModalityParams.getFormatString() + "&xsi:type=" + xnatModalityParams.getXnatScanTag();
             createScanCollectionIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionParameters.getScanLabel(), collectionLabel, scanCollectionCreateParams);
         }
 

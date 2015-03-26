@@ -17,6 +17,7 @@ import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.nrg.dcm.DicomUtils;
 import org.nrg.dcm.SOPModel;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 
 import java.io.File;
 import java.util.*;
@@ -33,19 +34,23 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
     }});
 
     private final Study study;
+    private final String sopClassUid;
     private final Multimap<String,String> sopToTS = LinkedHashMultimap.create();
     private final Set<String> modalities = Sets.newTreeSet();
     private final Set<File> files = Sets.newLinkedHashSet();
     private DicomObject sampleObject = null;
     private boolean uploadAllowed = true;
+    private XnatModalityParams modalityParams;
 
     Series(final Study study,
-            final String uid, final int number, final String modality, final String description) {
+            final String uid, final int number, final String modality, final String description, final String sopClassUid) {
         this.study = study;
+        this.sopClassUid = sopClassUid;
         put(Tag.SeriesInstanceUID, uid);
         put(Tag.SeriesNumber, number);
         put(Tag.SeriesDescription, description);
         modalities.add(modality);
+        modalityParams = XnatModalityParams.createFromDicom(modality, sopClassUid);
     }
 
     Series(final Study study, final DicomObject o) {
@@ -53,7 +58,8 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
                 o.getString(Tag.SeriesInstanceUID),
                 o.getInt(Tag.SeriesNumber),
                 o.getString(Tag.Modality),
-                o.getString(Tag.SeriesDescription));
+                o.getString(Tag.SeriesDescription),
+                o.getString(Tag.SOPClassUID));
         if (null == sampleObject) {
             sampleObject = o;
         }
@@ -207,5 +213,9 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
 
     public boolean isUploadAllowed() {
         return uploadAllowed;
+    }
+
+    public XnatModalityParams getModalityParams() {
+        return modalityParams;
     }
 }

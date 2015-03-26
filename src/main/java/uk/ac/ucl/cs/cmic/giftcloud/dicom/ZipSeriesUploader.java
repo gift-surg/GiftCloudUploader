@@ -16,10 +16,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadStatisticsReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 
 import java.util.Set;
 
@@ -29,13 +26,13 @@ public class ZipSeriesUploader extends CallableUploader {
             final String projectLabel,
             final String subjectLabel,
             final SessionParameters sessionParameters,
-            final Set<String> modalities,
+            final XnatModalityParams xnatModalityParams,
             final boolean useFixedSizeStreaming,
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
             final UploadStatisticsReporter progress,
             final RestServerHelper restServerHelper) {
-        super(projectLabel, subjectLabel, sessionParameters, modalities, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
+        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
     }
 
     @Override
@@ -48,13 +45,13 @@ public class ZipSeriesUploader extends CallableUploader {
                 final String projectLabel,
                 final String subjectLabel,
                 final SessionParameters sessionParameters,
-                final Set<String> modalities,
+                final XnatModalityParams xnatModalityParams,
                 final boolean useFixedSizeStreaming,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final UploadStatisticsReporter progress,
                 final RestServerHelper restServerHelper) {
-            return new ZipSeriesUploader(projectLabel, subjectLabel, sessionParameters, modalities, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
+            return new ZipSeriesUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
         }
     }
 }

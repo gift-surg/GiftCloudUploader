@@ -6,14 +6,14 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
-public class XnatModalitityParams {
+public class XnatModalityParams {
 
     private String xnatSessionTag = XnatScanType.Unknown.getXnatSessionType();
     private String xnatScanTag = XnatScanType.Unknown.getXnatScanType();
     private String formatString;
     private String collectionString;
 
-    private XnatModalitityParams(final XnatScanType xnatScanType, final ImageFileFormat imageFileFormat) {
+    private XnatModalityParams(final XnatScanType xnatScanType, final ImageFileFormat imageFileFormat) {
         {
             this.formatString = imageFileFormat.getFormatString();
             this.collectionString = imageFileFormat.getCollectionString();
@@ -29,22 +29,18 @@ public class XnatModalitityParams {
             }
         }
     }
+    
+    public static XnatModalityParams createFromDicom(final String dicomModalityString, final String sopClassUId) {
+        final DicomSopClass dicomSopClass = DicomSopClass.getModalityFromDicomTag(sopClassUId);
 
-
-    static XnatModalitityParams createFromDicomModalities(final Set<String> modalities) {
-        Set<DicomModality> modalitySet = new HashSet<DicomModality>();
-
-        for (final String modality : modalities) {
-            modalitySet.add(DicomModality.getModalityFromDicomTag(modality));
-        }
-
-        if (modalitySet.size() == 1) {
-            DicomModality dicomModality = modalitySet.iterator().next();
-            return new XnatModalitityParams(dicomModality.getXnatScanType(), ImageFileFormat.DICOM);
+        if (dicomSopClass.equals(DicomSopClass.Unknown)) {
+            final DicomModality dicomModality = DicomModality.getModalityFromDicomTag(dicomModalityString);
+            return new XnatModalityParams(dicomModality.getXnatScanType(), ImageFileFormat.DICOM);
         } else {
-            return new XnatModalitityParams(XnatScanType.Unknown, ImageFileFormat.DICOM);
+            return new XnatModalityParams(dicomSopClass.getXnatScanType(), ImageFileFormat.DICOM);
         }
     }
+
 
     public String getXnatSessionTag() {
         return xnatSessionTag;
