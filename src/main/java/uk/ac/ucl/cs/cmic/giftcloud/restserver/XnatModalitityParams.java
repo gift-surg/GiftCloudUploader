@@ -21,26 +21,13 @@ public class XnatModalitityParams {
             final String xnatSessionTagFromScanType = xnatScanType.getXnatSessionType();
             if (StringUtils.isNotBlank(xnatSessionTagFromScanType)) {
                 xnatSessionTag = xnatSessionTagFromScanType;
-
-                // ToDo: we should set the datatype correctly (e.g. ?xnat:mrSessionData/date=01/02/07)
-//                final String newSessionParams = "?xnat:mrSessionData/date=01/02/07";
-
             }
-            
+
             final String xnatScanTagFromScanType = xnatScanType.getXnatSessionType();
             if (StringUtils.isNotBlank(xnatScanTagFromScanType)) {
                 xnatScanTag = xnatScanTagFromScanType;
-
-                // ToDo: set subtype
-
-//            ToDo: we should set the scan datatype correctly (e.g. ?xsiType=xnat:mrScanData&xnat:mrScanData/type=T1")
-//                final String newScanParams = "?xsiType=xnat:mrScanData&xnat:mrScanData/type=T1"; //ToDo: set data type based on Dicom modality
             }
         }
-
-        // ToDo: we should set the additional scan collection parameters correctly (e.g. ?format=DICOM&content=T1_RAW)
-
-
     }
 
 
