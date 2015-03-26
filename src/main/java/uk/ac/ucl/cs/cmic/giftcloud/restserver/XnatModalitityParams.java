@@ -26,9 +26,7 @@ public class XnatModalitityParams {
 //                final String newSessionParams = "?xnat:mrSessionData/date=01/02/07";
 
             }
-        }
-
-        {
+            
             final String xnatScanTagFromScanType = xnatScanType.getXnatSessionType();
             if (StringUtils.isNotBlank(xnatScanTagFromScanType)) {
                 xnatScanTag = xnatScanTagFromScanType;
