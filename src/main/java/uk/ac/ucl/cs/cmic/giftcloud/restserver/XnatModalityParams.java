@@ -3,8 +3,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
 
 public class XnatModalityParams {
 
@@ -23,13 +21,13 @@ public class XnatModalityParams {
                 xnatSessionTag = xnatSessionTagFromScanType;
             }
 
-            final String xnatScanTagFromScanType = xnatScanType.getXnatSessionType();
+            final String xnatScanTagFromScanType = xnatScanType.getXnatScanType();
             if (StringUtils.isNotBlank(xnatScanTagFromScanType)) {
                 xnatScanTag = xnatScanTagFromScanType;
             }
         }
     }
-    
+
     public static XnatModalityParams createFromDicom(final String dicomModalityString, final String sopClassUId) {
         final DicomSopClass dicomSopClass = DicomSopClass.getModalityFromDicomTag(sopClassUId);
 
@@ -255,6 +253,7 @@ public class XnatModalityParams {
         PositronEmissionTomographyImageStorage("1.2.840.10008.5.1.4.1.1.128", XnatScanType.PET),
         EnhancedPETImageStorage("1.2.840.10008.5.1.4.1.1.130", XnatScanType.PET),
 
+        UltrasoundImageStorageRetired("1.2.840.10008.5.1.4.1.1.6", XnatScanType.US),
         UltrasoundMultiframeImageStorage("1.2.840.10008.5.1.4.1.1.3.1", XnatScanType.US),
         UltrasoundImageStorage("1.2.840.10008.5.1.4.1.1.6.1", XnatScanType.US),
         EnhancedUSVolumeStorage ("1.2.840.10008.5.1.4.1.1.6.2", XnatScanType.US),
