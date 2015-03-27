@@ -35,12 +35,24 @@ class HttpConnectionFactory implements ConnectionFactory {
         return baseUrl;
     }
 
+    /** Combine the base URL with a relative path, while ensuring there is exactly one / character between them
+     * @param relativePath the location relative to the base URI
+     * @return the full URI string
+     */
     private String getFullUrl(final String relativePath) {
         final StringBuilder sb = new StringBuilder(baseUrl.toString());
+
+        // Remove any trailing '/' characters from the base URL
+        while (sb.length() > 0 && sb.charAt(sb.length() - 1) == '/') {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+
+        // Now add a single '/' only if one isn't already present in the appended relative path
         if ('/' != relativePath.charAt(0)) {
             sb.append('/');
         }
         sb.append(relativePath);
+
         return sb.toString();
     }
 }
