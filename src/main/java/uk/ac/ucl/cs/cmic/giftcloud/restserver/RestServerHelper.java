@@ -425,7 +425,7 @@ public class RestServerHelper {
         createSubjectIfNotExisting(projectLabel, subjectLabel);
 
         {
-            final String sessionCreateParams = "?" + xnatModalityParams.getXnatSessionTag();
+            final String sessionCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag();
             createSessionIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionCreateParams);
         }
 
