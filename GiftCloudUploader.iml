@@ -79,5 +79,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="Maven: org.antlr:antlr-runtime:3.2" level="project" />
   </component>
 </module>
