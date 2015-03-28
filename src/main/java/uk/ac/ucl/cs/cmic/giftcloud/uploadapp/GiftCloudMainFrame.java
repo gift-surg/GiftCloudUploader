@@ -27,23 +27,6 @@ class GiftCloudMainFrame implements MainFrame {
         }
     }
 
-    public enum ConnectionType {
-        GET("GET"),
-        POST("POST"),
-        PUT("PUT");
-
-        private final String methodString;
-
-        ConnectionType(final String methodString) {
-            this.methodString = methodString;
-        }
-
-        String getMethodString() {
-            return methodString;
-        }
-    }
-
-
     GiftCloudMainFrame(final String applicationTitle, final GiftCloudUploaderController controller) {
         this.controller = controller;
         container = new JDialog();
