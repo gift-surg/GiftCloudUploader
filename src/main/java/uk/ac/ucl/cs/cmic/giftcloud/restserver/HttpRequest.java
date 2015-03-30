@@ -163,8 +163,15 @@ abstract class HttpRequest<T> {
                     }
                     throw new AuthorisationFailureException(responseCode, new URL(urlString));
 
-                case HTTP_CONFLICT:
+                case HTTP_BAD_REQUEST:
                     StringBuilder sb = new StringBuilder("<h3>Session data conflict</h3>");
+                    sb.append("<p>The server ");
+                    appendServer(sb, url);
+                    sb.append(" does not recognise the request or does not support the requested features.</p>");
+                    throw new GiftCloudHttpException(responseCode, "Unsupported", MultiUploaderUtils.getErrorEntity(connection.getErrorStream()), sb.toString());
+
+                case HTTP_CONFLICT:
+                    sb = new StringBuilder("<h3>Session data conflict</h3>");
                     sb.append("<p>The server ");
                     appendServer(sb, url);
                     sb.append(" reports a conflict between the uploaded data and a session in the archive.</p>");
