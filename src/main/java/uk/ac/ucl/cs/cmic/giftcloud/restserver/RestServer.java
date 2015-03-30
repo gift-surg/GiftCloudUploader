@@ -43,6 +43,8 @@ public interface RestServer {
 
     String getString(String path) throws Exception;
 
+    Optional<String> getOptionalString(String path) throws IOException;
+
     Set<String> getStringList(String path) throws Exception;
 
     <ApplicatorT> ApplicatorT getApplicator(String path, ScriptApplicatorFactory<ApplicatorT> factory) throws Exception;

@@ -72,24 +72,34 @@ public class RestServerHelper {
         return new Vector<Object>(restServer.getValues(uri, "id"));
     }
 
-    public Map<String,String> getListOfSubjects(final String projectName) throws IOException, JSONException {
+    public Map<String, String> getListOfSubjects(final String projectName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/subjects?format=json&columns=DEFAULT"; // Note: &columns=DEFAULT is for 1.4rc3 compatibility
         return restServer.getAliases(uri, "label", "ID");
     }
 
-    public Map<String,String> getListOfSessions(final String projectName) throws IOException, JSONException {
+    public Map<String, String> getListOfSessions(final String projectName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/experiments?format=json";
         return restServer.getAliases(uri, "label", "ID");
     }
 
-    public Map<String,String> getListOfScans(final String projectName, final String subjectName, final String sessionName) throws IOException, JSONException {
+    public Map<String, String> getListOfScans(final String projectName, final String subjectName, final String sessionName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/" + sessionName + "/scans?format=json";
         return restServer.getAliases(uri, "label", "ID");
     }
 
-    public Map<String,String> getListOfResources(final String projectName, final String subjectName, final String sessionName, final String scanName) throws IOException, JSONException {
+    public Map<String, String> getListOfPseudonyms(final String projectName) throws IOException, JSONException {
+        final String uri = "/REST/projects/" + projectName + "/pseudonyms?format=json";
+        return restServer.getAliases(uri, "label", "ID");
+    }
+
+    public Map<String, String> getListOfResources(final String projectName, final String subjectName, final String sessionName, final String scanName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/" + sessionName + "/scans/" + scanName + "/resources?format=json";
         return restServer.getAliases(uri, "label", "ID");
+    }
+
+    public Optional<String> getSubjectPseudonym(final String projectName, final String ppid) throws IOException {
+        final String uri = "/REST/projects/" + projectName + "/pseudonyms/" + ppid;
+        return restServer.getOptionalString(uri);
     }
 
     public Collection<?> getScriptStatus(final String projectName) throws IOException {
@@ -417,6 +427,13 @@ public class RestServerHelper {
 
         if (!resources.containsKey(resourceName)) {
             restServer.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + "/scans/" + scanLabel + "/resources/" + resourceName + params);
+        }
+    }
+
+    public void createPseudonymIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
+        final Optional<String> pseuodynym = getSubjectPseudonym(projectLabel, subjectLabel);
+        if (!pseuodynym.isPresent()) {
+            restServer.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/pseudonyms/" + pseudonym);
         }
     }
 
