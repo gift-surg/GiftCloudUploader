@@ -8,10 +8,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerXnat;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingProgressMonitor;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
@@ -35,21 +32,23 @@ public class GiftCloudAutoUploader {
     private final String giftCloudServerUrl;
 
     // Create a map of subjects and sessions we have already uploaded
-    final Map<String, String> subjectsAlreadyUploaded = new HashMap<String, String>();
-    final Map<String, String> sessionsAlreadyUploaded = new HashMap<String, String>();
-    final Map<String, String> scansAlreadyUploaded = new HashMap<String, String>();
+    private final Map<String, String> subjectsAlreadyUploaded = new HashMap<String, String>();
+    private final Map<String, String> sessionsAlreadyUploaded = new HashMap<String, String>();
+    private final Map<String, String> scansAlreadyUploaded = new HashMap<String, String>();
 
 
 
 
-    final String temporarySubjectNamePrefix = "AutoUploadSubject";
-    long temporarySubjectNameNum = 0;
+    private final String temporarySubjectNamePrefix = "AutoUploadSubject";
+    private long temporarySubjectNameNum = 0;
 
-    final String temporarySessionNamePrefix = "AutoUploadSession";
-    long temporarySessionNameNum = 0;
+    private final String temporarySessionNamePrefix = "AutoUploadSession";
+    private long temporarySessionNameNum = 0;
 
-    final String temporaryScanNamePrefix = "AutoUploadScan";
-    long temporaryScanNameNum = 0;
+    private final String temporaryScanNamePrefix = "AutoUploadScan";
+    private long temporaryScanNameNum = 0;
+
+    private final SubjectAliasMap subjectAliasMap;
 
     public GiftCloudAutoUploader(final Container container, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws IOException {
         this.reporter = reporter;
@@ -62,6 +61,7 @@ public class GiftCloudAutoUploader {
 
         final RestServerXnat restServerXnat = new RestServerXnat(giftCloudProperties, giftCloudServerUrl, reporter);
         restServerHelper = new RestServerHelper(restServerXnat, reporter);
+        subjectAliasMap = new SubjectAliasMap(restServerHelper);
     }
 
     public void tryAuthentication() {
@@ -294,6 +294,8 @@ public class GiftCloudAutoUploader {
     }
 
     private String getSubjectName(final String patientId, final Map<String, String> serverSubjectMap) {
+
+
 
         if (StringUtils.isNotBlank(patientId) && subjectsAlreadyUploaded.containsKey(patientId)) {
             return subjectsAlreadyUploaded.get(patientId);
