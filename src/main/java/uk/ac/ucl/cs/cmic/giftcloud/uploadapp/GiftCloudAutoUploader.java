@@ -1,6 +1,5 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.fasterxml.uuid.Generators;
 import com.google.common.collect.Lists;
 import com.pixelmed.display.EmptyProgress;
 import netscape.javascript.JSObject;
@@ -15,12 +14,12 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerXnat;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingProgressMonitor;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
+import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -301,7 +300,7 @@ public class GiftCloudAutoUploader {
         }
 
         if (StringUtils.isNotBlank(patientId)) {
-            return hashUid(patientId);
+            return OneWayHash.hashUid(patientId);
         }
 
         String candidateName;
@@ -326,7 +325,7 @@ public class GiftCloudAutoUploader {
         }
 
         if (StringUtils.isNotBlank(studyUid)) {
-            return hashUid(studyUid);
+            return OneWayHash.hashUid(studyUid);
         }
 
         String candidateSessionName;
@@ -350,7 +349,7 @@ public class GiftCloudAutoUploader {
         }
 
         if (StringUtils.isNotBlank(seriesUid)) {
-            return hashUid(seriesUid);
+            return OneWayHash.hashUid(seriesUid);
         }
 
         String candidateScanName;
@@ -365,51 +364,4 @@ public class GiftCloudAutoUploader {
         return candidateScanName;
     }
 
-
-    /**
-     * UID root for UUIDs (Universally Unique Identifiers) generated as per Rec. ITU-T X.667 | ISO/IEC 9834-8.
-     * @see <a href="http://www.oid-info.com/get/2.25">OID repository {joint-iso-itu-t(2) uuid(25)}</a>
-     */
-    public static final String UUID_ROOT = "2.25";
-
-
-
-    private String hashUid(final String inputUid) {
-        if (StringUtils.isBlank(inputUid)) {
-            return null;
-        } else {
-            String hashedUid = toUID(toUUID(inputUid));
-            return hashedUid.replace('.', '_');
-        }
-    }
-
-    /* (non-Javadoc)
- * @see org.dcm4che2.util.UIDUtils#doCreateUID(java.util.String)
- * @param uuid
- * @return UID derived from the provided UUID
- */
-    private static String toUID(final UUID uuid) {
-        final byte[] b17 = new byte[17];
-        fill(b17, 1, uuid.getMostSignificantBits());
-        fill(b17, 9, uuid.getLeastSignificantBits());
-        return new StringBuilder(64).append(UUID_ROOT).append('.')
-                .append(new BigInteger(b17)).toString();
-    }
-
-    /* (non-Javadoc)
-     * @see org.dcm4che2.util.UIDUtils#fill(byte[], int, long)
-     */
-    private static void fill(byte[] bb, int off, long val) {
-        for (int i = off, shift = 56; shift >= 0; i++, shift -= 8)
-            bb[i] = (byte) (val >>> shift);
-    }
-
-    /**
-     * Generates a Version 5 UUID from the provided string
-     * @param s source string
-     * @return Version 5 UUID
-     */
-    private static UUID toUUID(final String s) {
-        return Generators.nameBasedGenerator().generate(s.getBytes());
-    }
 }
