@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public class XnatModalityParamsTest extends TestCase {
+public class XnatModalityParamsTest {
 
     private String dicomTag;
     private String sopClassUid;
@@ -58,9 +58,9 @@ public class XnatModalityParamsTest extends TestCase {
     @Test
     public void testCreateFromDicom() {
         final XnatModalityParams xnatModalityParams = XnatModalityParams.createFromDicom(dicomTag, sopClassUid);
-        assertEquals(sessionTag, xnatModalityParams.getXnatSessionTag());
-        assertEquals(scanTag, xnatModalityParams.getXnatScanTag());
-        assertEquals(formatString, xnatModalityParams.getFormatString());
-        assertEquals(collectionString, xnatModalityParams.getCollectionString());
+        Assert.assertEquals(sessionTag, xnatModalityParams.getXnatSessionTag());
+        Assert.assertEquals(scanTag, xnatModalityParams.getXnatScanTag());
+        Assert.assertEquals(formatString, xnatModalityParams.getFormatString());
+        Assert.assertEquals(collectionString, xnatModalityParams.getCollectionString());
     }
 }
