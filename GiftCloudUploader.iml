@@ -80,5 +80,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="Maven: org.antlr:antlr-runtime:3.2" level="project" />
+    <orderEntry type="library" name="org.mockito:mockito-core:1.9.5" level="project" />
   </component>
 </module>
