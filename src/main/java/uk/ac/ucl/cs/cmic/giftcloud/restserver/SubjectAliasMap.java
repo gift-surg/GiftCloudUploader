@@ -16,12 +16,10 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
  */
 public class SubjectAliasMap {
 
-    private String projectName;
     private final RestServerHelper restServerHelper;
-    private final Map<String, String> hashedIdToSubjectMap = new HashMap<String, String>();
+    private final Map<String, Map<String, String>> projectMap = new HashMap<String, Map<String, String>>();
 
-    public SubjectAliasMap(final String projectName, final RestServerHelper restServerHelper) {
-        this.projectName = projectName;
+    public SubjectAliasMap(final RestServerHelper restServerHelper) {
         this.restServerHelper = restServerHelper;
     }
 
@@ -31,7 +29,10 @@ public class SubjectAliasMap {
      * ID does not already exist, or if it does not exist locally and the XNAT server does not support pseudonymisations
      * @throws IOException if communication with the server failed
      */
-    public Optional<String> getSubjectAlias(final String patientId) throws IOException {
+    public Optional<String> getSubjectAlias(final String projectName, final String patientId) throws IOException {
+
+        // Get the map for this project
+        final Map<String, String> hashedIdToSubjectMap = getMapForProject(projectName);
 
         // First hash the patient ID
         final String hashedPatientId = OneWayHash.hashUid(patientId);
@@ -67,7 +68,10 @@ public class SubjectAliasMap {
      * @param subjectName the new XNAT subject identifier to be mapped to this patient ID
      * @throws IOException if communication with the XNAT server failed
      */
-    public void addSubjectAlias(final String patientId, final String subjectName) throws IOException {
+    public void addSubjectAlias(final String projectName, final String patientId, final String subjectName) throws IOException {
+
+        // Get the map for this project
+        final Map<String, String> hashedIdToSubjectMap = getMapForProject(projectName);
 
         // Hash the patient ID
         final String hashedPatientId = OneWayHash.hashUid(patientId);
@@ -87,5 +91,12 @@ public class SubjectAliasMap {
 
         // Cache in our local map
         hashedIdToSubjectMap.put(hashedPatientId, subjectName);
+    }
+
+    private Map<String, String> getMapForProject(final String projectName) {
+        if (!projectMap.containsKey(projectName)) {
+            projectMap.put(projectName, new HashMap<String, String>());
+        }
+        return projectMap.get(projectName);
     }
 }
