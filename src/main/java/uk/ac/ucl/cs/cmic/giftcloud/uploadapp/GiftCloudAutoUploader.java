@@ -39,16 +39,21 @@ public class GiftCloudAutoUploader {
 
 
 
-    private final String temporarySubjectNamePrefix = "AutoUploadSubject";
-    private long temporarySubjectNameNum = 0;
+    private final String autoSubjectNamePrefix = "AutoUploadSubject";
+    private final long autoSubjectNameStartNumber = 0;
 
-    private final String temporarySessionNamePrefix = "AutoUploadSession";
-    private long temporarySessionNameNum = 0;
+    private final String autoSessionNamePrefix = "AutoUploadSession";
+    private long autoSessionNameStartNumber = 0;
 
-    private final String temporaryScanNamePrefix = "AutoUploadScan";
-    private long temporaryScanNameNum = 0;
+    private final String autoScanNamePrefix = "AutoUploadScan";
+    private long autoScanNameStartNumber = 0;
+
+    private final NameGenerator subjectNameGenerator = new NameGenerator(autoSubjectNamePrefix, autoSubjectNameStartNumber);
+    private final NameGenerator sessionNameGenerator = new NameGenerator(autoSessionNamePrefix, autoSessionNameStartNumber);
+    private final NameGenerator scanNameGenerator = new NameGenerator(autoScanNamePrefix, autoScanNameStartNumber);
 
     private final SubjectAliasMap subjectAliasMap;
+
 
     public GiftCloudAutoUploader(final Container container, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws IOException {
         this.reporter = reporter;
@@ -132,7 +137,13 @@ public class GiftCloudAutoUploader {
             final String studyUid = session.getStudyUid();
             final String seriesUid = session.getSeriesUid();
 
-            final String subjectName = getSubjectName(patientId, subjectMapFromServer);
+            String subjectName;
+            final Optional<String> subjectAlias = subjectAliasMap.getSubjectAlias(projectName, patientId);
+            if (subjectAlias.isPresent()) {
+                subjectName = subjectAlias.get();
+            } else {
+                subjectName = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
+            }
             final String sessionName = getSessionName(studyUid, sessionMapFromServer);
             final String scanName = getScanName(seriesUid, sessionMapFromServer);
 
@@ -155,10 +166,12 @@ public class GiftCloudAutoUploader {
             final Optional<String> windowTitle = Optional.empty();
             final Optional<JSObject> jsContext = Optional.empty();
 
+            final String finalSubjectName = subjectName;
+
             Future<Boolean> upload = executorService.submit(new Callable<Boolean>() {
                 public Boolean call() {
                     try {
-                        Boolean returnValue = session.uploadTo(projectName, subjectName, restServerHelper, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
+                        Boolean returnValue = session.uploadTo(projectName, finalSubjectName, restServerHelper, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
                         return returnValue;
                     } catch (CancellationException exception) {
                         // Cancellation is the only type of exception for which we don't attempt to upload any more files
@@ -295,75 +308,102 @@ public class GiftCloudAutoUploader {
 
     private String getSubjectName(final String patientId, final Map<String, String> serverSubjectMap) {
 
-
-
         if (StringUtils.isNotBlank(patientId) && subjectsAlreadyUploaded.containsKey(patientId)) {
             return subjectsAlreadyUploaded.get(patientId);
         }
 
         if (StringUtils.isNotBlank(patientId)) {
-            return OneWayHash.hashUid(patientId);
+            final String subjectName = OneWayHash.hashUid(patientId);
+            subjectsAlreadyUploaded.put(patientId, subjectName);
+            return subjectName;
         }
 
-        String candidateName;
-
-        do {
-            temporarySubjectNameNum++;
-            candidateName = temporarySubjectNamePrefix + Long.toString(temporarySubjectNameNum);
-
-        } while (serverSubjectMap.containsKey(candidateName) || subjectsAlreadyUploaded.containsKey(candidateName));
-
-        subjectsAlreadyUploaded.put(patientId, candidateName);
-        return candidateName;
+        final String newName = subjectNameGenerator.getNewName(serverSubjectMap.keySet());
+        if (StringUtils.isNotBlank(patientId)) {
+            subjectsAlreadyUploaded.put(patientId, newName);
+        }
+        return newName;
     }
 
-
     private String getSessionName(final String studyUid, final Map<String, String> serverSessionMap) {
-
-        // We can't upload more than one set of files to the same session using session.uploadTo, so we force a new session to be created
 
         if (StringUtils.isNotBlank(studyUid) && sessionsAlreadyUploaded.containsKey(studyUid)) {
             return sessionsAlreadyUploaded.get(studyUid);
         }
 
         if (StringUtils.isNotBlank(studyUid)) {
-            return OneWayHash.hashUid(studyUid);
+            final String sessionName = OneWayHash.hashUid(studyUid);
+            sessionsAlreadyUploaded.put(studyUid, sessionName);
+            return sessionName;
         }
 
-        String candidateSessionName;
-
-        do {
-            temporarySessionNameNum++;
-            candidateSessionName = temporarySessionNamePrefix + Long.toString(temporarySessionNameNum);
-
-        } while (serverSessionMap.containsKey(candidateSessionName) || sessionsAlreadyUploaded.containsKey(candidateSessionName));
-
-        sessionsAlreadyUploaded.put(studyUid, candidateSessionName);
-        return candidateSessionName;
+        final String sessionName = sessionNameGenerator.getNewName(serverSessionMap.keySet());
+        if (StringUtils.isNotBlank(studyUid)) {
+            sessionsAlreadyUploaded.put(studyUid, sessionName);
+        }
+        return sessionName;
     }
 
     private String getScanName(final String seriesUid, final Map<String, String> serverScanMap) {
-
-        // We can't upload more than one set of files to the same scan using session.uploadTo, so we force a new session to be created
 
         if (StringUtils.isNotBlank(seriesUid) && scansAlreadyUploaded.containsKey(seriesUid)) {
             return scansAlreadyUploaded.get(seriesUid);
         }
 
         if (StringUtils.isNotBlank(seriesUid)) {
-            return OneWayHash.hashUid(seriesUid);
+            final String scanName = OneWayHash.hashUid(seriesUid);
+            scansAlreadyUploaded.put(seriesUid, scanName);
+            return scanName;
         }
 
-        String candidateScanName;
-
-        do {
-            temporaryScanNameNum++;
-            candidateScanName = temporaryScanNamePrefix + Long.toString(temporaryScanNameNum);
-
-        } while (serverScanMap.containsKey(candidateScanName) || scansAlreadyUploaded.containsKey(candidateScanName));
-
-        scansAlreadyUploaded.put(seriesUid, candidateScanName);
-        return candidateScanName;
+        final String scanName = scanNameGenerator.getNewName(serverScanMap.keySet());
+        if (StringUtils.isNotBlank(seriesUid)) {
+            sessionsAlreadyUploaded.put(seriesUid, scanName);
+        }
+        return scanName;
     }
 
+    /**
+     * Threadsafe class to generate unique names
+     */
+    private class NameGenerator {
+        private long nameNumber;
+        private final String prefix;
+
+        /** Creates a new NameGenerator which will create names starting with the given prefix, and incrementing a suffix number starting at startNumber
+         * @param prefix the string prefix for each generated name
+         * @param startNumber the number used for the suffix of the first name, which will be incremented after each name generation
+         */
+        NameGenerator(final String prefix, final long startNumber) {
+            this.prefix = prefix;
+            this.nameNumber = startNumber;
+        }
+
+        /** Returns a unique name that is not part of the given list of known names
+         * @param knownNames a list of known names. The returned name will not be one of these
+         * @return a new name
+         */
+        private String getNewName(final Set<String> knownNames) {
+            String candidateName;
+
+            do {
+                candidateName = getNextName();
+
+            } while (knownNames.contains(candidateName));
+
+            return candidateName;
+        }
+
+        /** Returns a name that has not been returned before by this object
+         * @return a new name
+         */
+        String getNextName() {
+            long nextNameNumber = getNextNameNumber();
+            return prefix + Long.toString(nextNameNumber);
+        }
+
+        private synchronized long getNextNameNumber() {
+            return nameNumber++;
+        }
+    }
 }
