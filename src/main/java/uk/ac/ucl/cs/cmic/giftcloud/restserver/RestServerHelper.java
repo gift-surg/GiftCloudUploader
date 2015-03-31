@@ -47,8 +47,10 @@ import java.util.*;
 
 public class RestServerHelper {
 
-    private RestServer restServer;
-    private MultiUploadReporter reporter;
+    private final RestServer restServer;
+    private final MultiUploadReporter reporter;
+
+    // Access to these members is through a synchronized method to ensure thread safety
     private Optional<String> siteWideAnonScript = Optional.empty();
     private boolean siteWideAnonScriptHasBeenRetrieved = false;
 
@@ -112,7 +114,7 @@ public class RestServerHelper {
         return restServer.getValues(uri, "script");
     }
 
-    public Optional<String> getSiteWideAnonScript() throws IOException {
+    public synchronized Optional<String> getSiteWideAnonScript() throws IOException {
         if (!siteWideAnonScriptHasBeenRetrieved) {
             final Optional<String> result = restServer.getUsingJsonExtractor("/data/config/anon/script?format=json");
             if (result.isPresent() && StringUtils.isNotBlank(result.get())) {

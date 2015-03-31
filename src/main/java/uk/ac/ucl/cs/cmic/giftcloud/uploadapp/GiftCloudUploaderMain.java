@@ -227,6 +227,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         @Override
         public void update(Observable o, Object arg) {
+
+            // ToDo: if user hasn't logged in yet, there is no panel...
+
+
             final String newFileName = (String)arg;
             giftCloudUploaderPanel.rebuildFileList(dicomNode.getSrcDatabase());
             appendListener.filesChanged(newFileName);
