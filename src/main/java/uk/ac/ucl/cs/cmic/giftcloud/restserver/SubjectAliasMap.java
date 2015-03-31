@@ -1,5 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
 import java.io.IOException;
@@ -24,12 +25,16 @@ public class SubjectAliasMap {
     }
 
     /** Returns the pseudonymised XNAT subject name for the given patient ID
-     * @param patientId the DICOM patient ID
+     * @param patientId a string containing the unique patient identifier, typically the DICOM patient ID. Must not be blank.
      * @return An optional containing the XNAT subject ID if it already exists. Returns an empty Optional if a subject
      * ID does not already exist, or if it does not exist locally and the XNAT server does not support pseudonymisations
      * @throws IOException if communication with the server failed
      */
     public Optional<String> getSubjectAlias(final String projectName, final String patientId) throws IOException {
+
+        if (StringUtils.isBlank(projectName)) {
+            throw new IllegalArgumentException("A project name must be specified.");
+        }
 
         // Get the map for this project
         final Map<String, String> hashedIdToSubjectMap = getMapForProject(projectName);
@@ -64,11 +69,15 @@ public class SubjectAliasMap {
     }
 
     /** Create a new mapping between patient ID and XNAT subject name
-     * @param patientId the DICOM patient ID
+     * @param patientId the DICOM patient ID. Must not be blank or null.
      * @param subjectName the new XNAT subject identifier to be mapped to this patient ID
      * @throws IOException if communication with the XNAT server failed
      */
     public void addSubjectAlias(final String projectName, final String patientId, final String subjectName) throws IOException {
+
+        if (StringUtils.isBlank(projectName)) {
+            throw new IllegalArgumentException("A project name must be specified.");
+        }
 
         // Get the map for this project
         final Map<String, String> hashedIdToSubjectMap = getMapForProject(projectName);

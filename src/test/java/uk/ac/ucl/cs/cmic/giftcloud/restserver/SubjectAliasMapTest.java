@@ -2,7 +2,9 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import junit.framework.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -55,6 +57,33 @@ public class SubjectAliasMapTest {
             final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(projectName1, patientId1);
             Assert.assertFalse(subjectIdOptional.isPresent());
         }
+    }
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
+    @Test
+    public void testAddSubjectAliasNullProject() throws IOException {
+        exception.expect(IllegalArgumentException.class);
+        subjectAliasMap.addSubjectAlias(null, patientId1, xnatSubjectName1);
+    }
+
+    @Test
+    public void testAddSubjectAliasEmptyProject() throws IOException {
+        exception.expect(IllegalArgumentException.class);
+        subjectAliasMap.addSubjectAlias("", patientId1, xnatSubjectName1);
+    }
+
+    @Test
+    public void testGetSubjectAliasNullProject() throws IOException {
+        exception.expect(IllegalArgumentException.class);
+        subjectAliasMap.getSubjectAlias(null, patientId1);
+    }
+
+    @Test
+    public void testGetSubjectAliasEmptyProject() throws IOException {
+        exception.expect(IllegalArgumentException.class);
+        subjectAliasMap.getSubjectAlias("", patientId1);
     }
 
     @Test
