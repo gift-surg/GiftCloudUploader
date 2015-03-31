@@ -75,6 +75,30 @@ public class SubjectAliasMapTest {
     }
 
     @Test
+    public void testAddSubjectAliasNullSubject() throws IOException {
+        exception.expect(IllegalArgumentException.class);
+        subjectAliasMap.addSubjectAlias(projectName1, patientId1, null);
+    }
+
+    @Test
+    public void testAddSubjectAliasEmptySubject() throws IOException {
+        exception.expect(IllegalArgumentException.class);
+        subjectAliasMap.addSubjectAlias(projectName1, patientId1, "");
+    }
+
+    @Test
+    public void testAddSubjectAliasNullPatientId() throws IOException {
+        exception.expect(IllegalArgumentException.class);
+        subjectAliasMap.addSubjectAlias(projectName1, null, xnatSubjectName1);
+    }
+
+    @Test
+    public void testAddSubjectAliasEmptyPatientId() throws IOException {
+        exception.expect(IllegalArgumentException.class);
+        subjectAliasMap.addSubjectAlias(projectName1, "", xnatSubjectName1);
+    }
+
+    @Test
     public void testGetSubjectAliasNullProject() throws IOException {
         exception.expect(IllegalArgumentException.class);
         subjectAliasMap.getSubjectAlias(null, patientId1);
@@ -84,6 +108,18 @@ public class SubjectAliasMapTest {
     public void testGetSubjectAliasEmptyProject() throws IOException {
         exception.expect(IllegalArgumentException.class);
         subjectAliasMap.getSubjectAlias("", patientId1);
+    }
+
+    @Test
+    public void testGetSubjectAliasNullPatientId() throws IOException {
+        Optional<String> subjectName = subjectAliasMap.getSubjectAlias(projectName1, null);
+        Assert.assertFalse(subjectName.isPresent());
+    }
+
+    @Test
+    public void testGetSubjectAliasEmptyPatientId() throws IOException {
+        Optional<String> subjectName = subjectAliasMap.getSubjectAlias(projectName1, "");
+        Assert.assertFalse(subjectName.isPresent());
     }
 
     @Test

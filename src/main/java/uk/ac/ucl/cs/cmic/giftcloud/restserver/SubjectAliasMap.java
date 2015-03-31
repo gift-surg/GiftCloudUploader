@@ -36,6 +36,10 @@ public class SubjectAliasMap {
             throw new IllegalArgumentException("A project name must be specified.");
         }
 
+        if (StringUtils.isBlank(patientId)) {
+            return Optional.empty();
+        }
+
         // Get the map for this project
         final Map<String, String> hashedIdToSubjectMap = getMapForProject(projectName);
 
@@ -77,6 +81,14 @@ public class SubjectAliasMap {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
+        }
+
+        if (StringUtils.isBlank(patientId)) {
+            throw new IllegalArgumentException("A patient ID must be specified.");
+        }
+
+        if (StringUtils.isBlank(subjectName)) {
+            throw new IllegalArgumentException("A subject name must be specified.");
         }
 
         // Get the map for this project
