@@ -98,8 +98,8 @@ public class RestServerHelper {
     }
 
     public Optional<String> getSubjectPseudonym(final String projectName, final String ppid) throws IOException {
-        final String uri = "/REST/projects/" + projectName + "/pseudonyms/" + ppid;
-        return restServer.getOptionalString(uri);
+        final String uri = "/REST/projects/" + projectName + "/pseudonyms/" + ppid + "?format=json&columns=DEFAULT";
+        return restServer.getPpidAlias(uri, "label", "ID");
     }
 
     public Collection<?> getScriptStatus(final String projectName) throws IOException {
@@ -433,7 +433,8 @@ public class RestServerHelper {
     public void createPseudonymIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
         final Optional<String> pseuodynym = getSubjectPseudonym(projectLabel, subjectLabel);
         if (!pseuodynym.isPresent()) {
-            restServer.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/pseudonyms/" + pseudonym);
+            createSubjectIfNotExisting(projectLabel, subjectLabel);
+            restServer.createPostResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/pseudonyms/" + pseudonym);
         }
     }
 

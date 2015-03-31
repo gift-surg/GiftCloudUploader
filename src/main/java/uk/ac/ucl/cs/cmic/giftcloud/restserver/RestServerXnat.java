@@ -58,6 +58,22 @@ public class RestServerXnat implements RestServer {
     }
 
     @Override
+    public Optional<String> getPpidAlias(final String path, final String aliasKey, final String idKey) throws IOException, JSONException {
+        try {
+            final String result = giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpJsonPpidResponseProcessor(new JSONAliasesExtractor(aliasKey, idKey))));
+            return Optional.of(result);
+        } catch (GiftCloudHttpException exception) {
+
+            // 404 indicates the PPID doesn't exist
+            if (exception.getResponseCode() == 404) {
+                return Optional.empty();
+            } else {
+                throw exception;
+            }
+        }
+    }
+
+    @Override
     public <T> Optional<T> getUsingJsonExtractor(final String query) throws IOException {
         try {
             return giftCloudSession.request(new HttpRequestWithoutOutput<Optional<T>>(HttpConnectionWrapper.ConnectionType.GET, query, new HttpJsonResponseProcessor(new JSONConfigurationExtractor())));
@@ -149,5 +165,10 @@ public class RestServerXnat implements RestServer {
     @Override
     public void createResource(final String relativeUrl) throws IOException {
         giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.PUT, relativeUrl, new HttpStringResponseProcessor()));
+    }
+
+    @Override
+    public void createPostResource(final String relativeUrl) throws IOException {
+        giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.POST, relativeUrl, new HttpStringResponseProcessor()));
     }
 }

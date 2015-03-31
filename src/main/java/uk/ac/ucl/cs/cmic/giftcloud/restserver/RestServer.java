@@ -49,6 +49,8 @@ public interface RestServer {
 
     <ApplicatorT> ApplicatorT getApplicator(String path, ScriptApplicatorFactory<ApplicatorT> factory) throws Exception;
 
+    Optional<String> getPpidAlias(String path, String aliasKey, String idKey) throws IOException, JSONException;
+
     <T> Optional<T> getUsingJsonExtractor(final String query) throws IOException;
 
     void uploadEcat(String path, String projectName, String sessionId, String subjectLabel, ResultProgressHandle progress, File file) throws Exception;
@@ -69,4 +71,6 @@ public interface RestServer {
     void resetCancellation();
 
     void createResource(final String relativeUrl) throws IOException;
+
+    void createPostResource(final String relativeUrl) throws IOException;
 }

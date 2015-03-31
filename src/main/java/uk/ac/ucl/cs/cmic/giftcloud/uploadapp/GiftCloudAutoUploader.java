@@ -32,7 +32,6 @@ public class GiftCloudAutoUploader {
     private final String giftCloudServerUrl;
 
     // Create a map of subjects and sessions we have already uploaded
-    private final Map<String, String> subjectsAlreadyUploaded = new HashMap<String, String>();
     private final Map<String, String> sessionsAlreadyUploaded = new HashMap<String, String>();
     private final Map<String, String> scansAlreadyUploaded = new HashMap<String, String>();
 
@@ -137,13 +136,7 @@ public class GiftCloudAutoUploader {
             final String studyUid = session.getStudyUid();
             final String seriesUid = session.getSeriesUid();
 
-            String subjectName;
-            final Optional<String> subjectAlias = subjectAliasMap.getSubjectAlias(projectName, patientId);
-            if (subjectAlias.isPresent()) {
-                subjectName = subjectAlias.get();
-            } else {
-                subjectName = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
-            }
+            final String subjectName = getSubjectName(projectName, subjectMapFromServer, patientId);
             final String sessionName = getSessionName(studyUid, sessionMapFromServer);
             final String scanName = getScanName(seriesUid, sessionMapFromServer);
 
@@ -200,7 +193,6 @@ public class GiftCloudAutoUploader {
 
 
 
-
     public boolean appendToGiftCloud(Vector<String> paths, final String projectName) throws IOException {
 
 
@@ -249,7 +241,7 @@ public class GiftCloudAutoUploader {
             final String studyUid = session.getStudyUid();
             final String seriesUid = session.getSeriesUid();
 
-            final String subjectName = getSubjectName(patientId, subjectMapFromServer);
+            final String subjectName = getSubjectName(projectName, subjectMapFromServer, patientId);
             final String sessionName = getSessionName(studyUid, sessionMapFromServer);
             final String scanName = getScanName(seriesUid, sessionMapFromServer);
 
@@ -306,23 +298,15 @@ public class GiftCloudAutoUploader {
         restServerHelper.resetCancellation();
     }
 
-    private String getSubjectName(final String patientId, final Map<String, String> serverSubjectMap) {
-
-        if (StringUtils.isNotBlank(patientId) && subjectsAlreadyUploaded.containsKey(patientId)) {
-            return subjectsAlreadyUploaded.get(patientId);
-        }
-
-        if (StringUtils.isNotBlank(patientId)) {
-            final String subjectName = OneWayHash.hashUid(patientId);
-            subjectsAlreadyUploaded.put(patientId, subjectName);
+    private String getSubjectName(final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {
+        final Optional<String> subjectAlias = subjectAliasMap.getSubjectAlias(projectName, patientId);
+        if (subjectAlias.isPresent()) {
+            return subjectAlias.get();
+        } else {
+            final String subjectName = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
+            subjectAliasMap.addSubjectAlias(projectName, patientId, subjectName);
             return subjectName;
         }
-
-        final String newName = subjectNameGenerator.getNewName(serverSubjectMap.keySet());
-        if (StringUtils.isNotBlank(patientId)) {
-            subjectsAlreadyUploaded.put(patientId, newName);
-        }
-        return newName;
     }
 
     private String getSessionName(final String studyUid, final Map<String, String> serverSessionMap) {
