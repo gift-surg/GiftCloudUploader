@@ -404,11 +404,11 @@ public class RestServerHelper {
         return restServer.uploadZipFile(dataPostURL, useFixedSizeStreaming, fileCollection, applicators, progress);
     }
 
-    private void createSubjectIfNotExisting(final String projectLabel, final String subjectLabel) throws IOException {
+    private synchronized void createSubjectIfNotExisting(final String projectLabel, final String subjectLabel) throws IOException {
         restServer.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel);
     }
 
-    private void createSessionIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final String params) throws IOException {
+    private synchronized void createSessionIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final String params) throws IOException {
         Map<String, String> sessions = getListOfSessions(projectLabel);
 
         if (!sessions.containsKey(sessions)) {
@@ -416,7 +416,7 @@ public class RestServerHelper {
         }
     }
 
-    private void createScanIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final String scanLabel, final String params) throws IOException {
+    private synchronized void createScanIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final String scanLabel, final String params) throws IOException {
         Map<String,String> scans = getListOfScans(projectLabel, subjectLabel, sessionLabel);
 
         if (!scans.containsKey(scanLabel)) {
@@ -424,7 +424,7 @@ public class RestServerHelper {
         }
     }
 
-    private void createScanCollectionIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final String scanLabel, final String resourceName, final String params) throws IOException {
+    private synchronized void createScanCollectionIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final String scanLabel, final String resourceName, final String params) throws IOException {
         Map<String,String> resources = getListOfResources(projectLabel, subjectLabel, sessionLabel, scanLabel);
 
         if (!resources.containsKey(resourceName)) {
@@ -432,7 +432,7 @@ public class RestServerHelper {
         }
     }
 
-    public void createPseudonymIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
+    public synchronized void createPseudonymIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
         final Optional<String> pseuodynym = getSubjectPseudonym(projectLabel, subjectLabel);
         if (!pseuodynym.isPresent()) {
             createSubjectIfNotExisting(projectLabel, subjectLabel);

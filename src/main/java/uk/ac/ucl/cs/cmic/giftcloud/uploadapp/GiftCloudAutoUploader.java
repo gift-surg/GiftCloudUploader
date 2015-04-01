@@ -298,7 +298,7 @@ public class GiftCloudAutoUploader {
         restServerHelper.resetCancellation();
     }
 
-    private String getSubjectName(final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {
+    private synchronized String getSubjectName(final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {
         final Optional<String> subjectAlias = subjectAliasMap.getSubjectAlias(projectName, patientId);
         if (subjectAlias.isPresent()) {
             return subjectAlias.get();
