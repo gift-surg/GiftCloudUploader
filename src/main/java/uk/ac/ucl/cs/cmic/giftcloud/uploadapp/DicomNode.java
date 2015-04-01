@@ -122,8 +122,6 @@ public class DicomNode extends Observable {
     }
 
     public void importFileIntoDatabase(String dicomFileName,String fileReferenceType) throws FileNotFoundException, IOException, DicomException {
-
-        System.out.println(">>>> DICOM FILE IMPORTING: " + dicomFileName);
         ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Importing: "+dicomFileName));
         FileInputStream fis = new FileInputStream(dicomFileName);
         DicomInputStream i = new DicomInputStream(new BufferedInputStream(fis));

@@ -28,8 +28,6 @@ class HttpConnectionWrapper {
 
     HttpConnectionWrapper(final String urlString) throws IOException {
         this.urlString = urlString;
-
-        System.out.println("connecting to: " + urlString);
         final URL url = new URL(urlString);
         connection = (HttpURLConnection) url.openConnection();
     }
@@ -44,10 +42,6 @@ class HttpConnectionWrapper {
 
     public OutputStream getOutputStream() throws IOException {
         return connection.getOutputStream();
-    }
-
-    public boolean getDoInput() {
-        return connection.getDoInput();
     }
 
     public void setRequestMethod(String method) throws ProtocolException {
@@ -66,16 +60,8 @@ class HttpConnectionWrapper {
         connection.setDoInput(doinput);
     }
 
-    public boolean getUseCaches() {
-        return connection.getUseCaches();
-    }
-
     public long getDate() {
         return connection.getDate();
-    }
-
-    public Map<String, List<String>> getRequestProperties() {
-        return connection.getRequestProperties();
     }
 
     public String getResponseMessage() throws IOException {
@@ -92,10 +78,6 @@ class HttpConnectionWrapper {
 
     public Object getContent() throws IOException {
         return connection.getContent();
-    }
-
-    public String getContentType() {
-        return connection.getContentType();
     }
 
     public int getResponseCode() throws IOException {
@@ -124,10 +106,6 @@ class HttpConnectionWrapper {
 
     public void setChunkedStreamingMode(int chunklen) {
         connection.setChunkedStreamingMode(chunklen);
-    }
-
-    public boolean getDoOutput() {
-        return connection.getDoOutput();
     }
 
     public URL getURL() {
