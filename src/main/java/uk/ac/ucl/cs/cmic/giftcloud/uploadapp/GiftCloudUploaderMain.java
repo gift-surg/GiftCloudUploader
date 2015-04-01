@@ -238,23 +238,28 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
 
-    protected class GiftCloudAppendUploadActionListener {
+    protected class GiftCloudAppendUploadActionListener implements FileUploadSuccessCallback {
 
         private Vector<String> filesAlreadyUploaded = new Vector<String>();
+        private Vector<String> failedUploads = new Vector<String>();
 
+
+        @Override
+        public void addFailedUpload(final String fileName) {
+            failedUploads.add(fileName);
+        }
 
         public void filesChanged(final String fileName) {
             try {
-                if (filesAlreadyUploaded.contains(fileName)) {
-                    System.out.println("File " + fileName + " has already been uploaded.");
+                if (filesAlreadyUploaded.contains(fileName) && !failedUploads.contains(fileName)) {
+                    // Do not upload, because file has already been uploaded
                 } else {
-                    System.out.println("File " + fileName + " not uploaded. Adding to list");
                     Vector<String> filesToUpload = new Vector<String>();
                     filesToUpload.add(fileName);
 
                     // ToDo: this is not threadsafe!
                     // ToDo: giftCloudBridge might be null!
-                    Thread activeThread = new Thread(new GiftCloudAppendUploadWorker(filesToUpload, giftCloudBridge, reporter));
+                    Thread activeThread = new Thread(new GiftCloudAppendUploadWorker(filesToUpload, giftCloudBridge, this, reporter));
                     activeThread.start();
                     filesAlreadyUploaded.add(fileName);
                 }

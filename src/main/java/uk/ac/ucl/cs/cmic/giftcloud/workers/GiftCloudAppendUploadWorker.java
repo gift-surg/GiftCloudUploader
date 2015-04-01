@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.workers;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudHttpException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.FileUploadSuccessCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudBridge;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
 
@@ -9,11 +10,13 @@ import java.util.Vector;
 public class GiftCloudAppendUploadWorker implements Runnable {
     private final Vector<String> sourceFilePathSelections;
     private GiftCloudBridge giftCloudBridge;
+    private FileUploadSuccessCallback uploadSuccessCallback;
     private GiftCloudReporter reporter;
 
-    public GiftCloudAppendUploadWorker(Vector<String> sourceFilePathSelections, final GiftCloudBridge giftCloudBridge, final GiftCloudReporter reporter) {
+    public GiftCloudAppendUploadWorker(Vector<String> sourceFilePathSelections, final GiftCloudBridge giftCloudBridge, final FileUploadSuccessCallback uploadSuccessCallback, final GiftCloudReporter reporter) {
         this.sourceFilePathSelections = sourceFilePathSelections;
         this.giftCloudBridge = giftCloudBridge;
+        this.uploadSuccessCallback = uploadSuccessCallback;
         this.reporter = reporter;
     }
 
@@ -42,6 +45,7 @@ public class GiftCloudAppendUploadWorker implements Runnable {
                         reporter.updateProgress("GIFT-Cloud upload complete");
                     } else {
                         reporter.updateProgress("Partial failure in GIFT-Cloud upload");
+                        uploadSuccessCallback.addFailedUpload(fileName);
                     }
                 } catch (GiftCloudHttpException e) {
                     reporter.updateProgress("Partial failure in GIFT-Cloud upload, due to the following error: " + e.getHtmlText());
