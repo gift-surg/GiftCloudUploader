@@ -401,7 +401,8 @@ public class RestServerHelper {
         }
         dataPostURL = buffer.toString();
 
-        return restServer.uploadZipFile(dataPostURL, useFixedSizeStreaming, fileCollection, applicators, progress);
+        ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
+        return restServer.uploadSeriesUsingZipUpload(dataPostURL, zipStreaming, fileCollection, applicators, progress);
     }
 
     private synchronized void createSubjectIfNotExisting(final String projectLabel, final String subjectLabel) throws IOException {
@@ -467,7 +468,7 @@ public class RestServerHelper {
         final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getSessionLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" + collectionLabel + "/files/" + firstFile.getName() + ".zip" + uriParams;
 
         ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
-        return restServer.uploadSingleFileAsZip(uri, zipStreaming, fileCollection, applicators, progress);
+        return restServer.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators, progress);
     }
 
     public void uploadEcat(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final String timestamp, final String timeZoneId, final ResultProgressHandle progress, final File file, final int fileNumber) throws Exception {

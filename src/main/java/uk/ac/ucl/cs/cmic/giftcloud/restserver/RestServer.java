@@ -86,21 +86,14 @@ public class RestServer {
         return giftCloudSession.request(new JSONRequestConnectionProcessor(sessionParameters, path));
     }
 
-    public Set<String> uploadSingleFileAsZip(final String relativeUrl, final ZipSeriesRequestFactory.ZipStreaming zipStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
-        return giftCloudSession.request(ZipSeriesRequestFactory.build(zipStreaming, relativeUrl, fileCollection, applicators, progress));
+    public Set<String> appendFileUsingZipUpload(final String relativeUrl, final ZipSeriesRequestFactory.ZipStreaming zipStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws IOException {
+        return giftCloudSession.request(ZipSeriesRequestFactory.build(HttpConnectionWrapper.ConnectionType.PUT, zipStreaming, relativeUrl, fileCollection, applicators, progress, new HttpEmptyResponseProcessor()));
     }
 
-    public Set<String> uploadZipFile(final String relativeUrl, final boolean useFixedSizeStreaming, final FileCollection fileCollection,
-                                     final Iterable<ScriptApplicator> applicators,
-                                     final UploadStatisticsReporter progress) throws IOException {
-        if (useFixedSizeStreaming) {
-            return giftCloudSession.request(new ZipSeriesRequestFixedSize(HttpConnectionWrapper.ConnectionType.POST, relativeUrl, fileCollection, applicators, progress, new HttpSetResponseProcessor()));
-        } else {
-            return giftCloudSession.request(new ZipSeriesRequestChunked(HttpConnectionWrapper.ConnectionType.POST, relativeUrl, fileCollection, applicators, progress, new HttpSetResponseProcessor()));
-        }
+    public Set<String> uploadSeriesUsingZipUpload(final String relativeUrl, final ZipSeriesRequestFactory.ZipStreaming zipStreaming, final FileCollection fileCollection, final Iterable<ScriptApplicator> applicators, final UploadStatisticsReporter progress) throws IOException {
+        return giftCloudSession.request(ZipSeriesRequestFactory.build(HttpConnectionWrapper.ConnectionType.POST, zipStreaming, relativeUrl, fileCollection, applicators, progress, new HttpSetResponseProcessor()));
     }
 
-    // In the event that the user cancels authentication
     public void resetCancellation() {
         giftCloudSession.resetCancellation();
     }
