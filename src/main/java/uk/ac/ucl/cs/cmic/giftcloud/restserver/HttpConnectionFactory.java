@@ -16,14 +16,17 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 class HttpConnectionFactory implements ConnectionFactory {
 
-    private final String baseUrl;
+    private final String baseUrlString;
+    private final URL baseUrl;
 
-    HttpConnectionFactory(final String baseUrl) {
-        this.baseUrl = baseUrl;
-
+    HttpConnectionFactory(final String baseUrlString) throws MalformedURLException {
+        this.baseUrlString = baseUrlString;
+        this.baseUrl = new URL(baseUrlString);
 
         HttpURLConnection.setFollowRedirects(false);
     }
@@ -35,7 +38,7 @@ class HttpConnectionFactory implements ConnectionFactory {
         return connectionBuilder.buildHttpURLConnection(new HttpConnectionWrapper(urlString));
     }
 
-    public String getBaseUrl() {
+    public URL getBaseUrl() {
         return baseUrl;
     }
 
@@ -44,7 +47,7 @@ class HttpConnectionFactory implements ConnectionFactory {
      * @return the full URI string
      */
     private String getFullUrl(final String relativePath) {
-        final StringBuilder sb = new StringBuilder(baseUrl.toString());
+        final StringBuilder sb = new StringBuilder(baseUrlString);
 
         // Remove any trailing '/' characters from the base URL
         while (sb.length() > 0 && sb.charAt(sb.length() - 1) == '/') {

@@ -15,7 +15,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import java.io.IOException;
-import java.net.*;
 import java.util.Optional;
 
 class GiftCloudSession {
@@ -23,31 +22,27 @@ class GiftCloudSession {
     private final GiftCloudAuthentication giftCloudAuthentication;
 
 
-    GiftCloudSession(final GiftCloudProperties giftCloudProperties, final HttpConnectionFactory connectionFactory, final MultiUploadReporter reporter) throws MalformedURLException {
+    GiftCloudSession(final GiftCloudProperties giftCloudProperties, final HttpConnectionFactory connectionFactory, final MultiUploadReporter reporter) {
         giftCloudAuthentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, reporter);
     }
 
     <T> T request(final HttpRequest request) throws IOException {
+        // First, set up an authenticated session if one has not already been established.
+        // This will attempt to connect using the existing cookieWrapper and user credentials.
+        // If these do not exist or fail, then the user will be prompted for a user name and password, up to the number of times set in MAX_NUM_LOGIN_ATTEMPTS
+        giftCloudAuthentication.tryAuthentication();
 
-        synchronized (giftCloudAuthentication.synchronizationLock) {
+        try {
+            return (T) request.getResponse(giftCloudAuthentication.getAuthenticatedConnectionFactory());
 
-            // First, set up an authenticated session if one has not already been established.
-            // This will attempt to connect using the existing cookieWrapper and user credentials.
-            // If these do not exist or fail, then the user will be prompted for a user name and password, up to the number of times set in MAX_NUM_LOGIN_ATTEMPTS
-            giftCloudAuthentication.tryAuthentication();
+        } catch (AuthorisationFailureException exception) {
 
-            try {
-                return (T) request.getResponse(giftCloudAuthentication.getAuthenticatedConnectionFactory());
+            // In the event of an authorisation failure, give the user another opportunity to enter a username and password (multiple times) to establish a new session
+            giftCloudAuthentication.forceAuthentication();
 
-            } catch (AuthorisationFailureException exception) {
+            // Then try and connect again. We allow any further AuthorisationFailureException to fall through
+            return (T) request.getResponse(giftCloudAuthentication.getAuthenticatedConnectionFactory());
 
-                // In the event of an authorisation failure, give the user another opportunity to enter a username and password (multiple times) to establish a new session
-                giftCloudAuthentication.forceAuthentication();
-
-                // Then try and connect again. We allow any further AuthorisationFailureException to fall through
-                return (T) request.getResponse(giftCloudAuthentication.getAuthenticatedConnectionFactory());
-
-            }
         }
     }
 

@@ -54,7 +54,7 @@ public class GiftCloudAutoUploader {
     private final SubjectAliasMap subjectAliasMap;
 
 
-    public GiftCloudAutoUploader(final Container container, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws IOException {
+    public GiftCloudAutoUploader(final Container container, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
         this.reporter = reporter;
         this.container = container;
         giftCloudServerUrl = giftCloudProperties.getGiftCloudUrl().get();

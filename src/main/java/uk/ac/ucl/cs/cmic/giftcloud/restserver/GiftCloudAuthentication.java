@@ -2,26 +2,42 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import java.io.IOException;
 import java.net.Authenticator;
-import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
-public class GiftCloudAuthentication {
-    private HttpConnectionFactory connectionFactory;
-    final JSessionIdCookieWrapper cookieWrapper;
+/**
+ * This class manages authentication with the XNAT server, which is performed automatically where necessary before a rest server call.
+ * Authentication details can be provided in several ways:
+ *   - a JSessionID from the properties (for example, this will be provided to the uploading applet via parameters)
+ *   - a username and password from the properties (for example, the previous login on this computer)
+ *   - a username and password specified as part of the URL of the GIFT-Cloud server
+ *   - a dialog displayed to the user to request username and password should the other authentication methods be unavailable or fail
+ *
+ * This class is typically instantiated once for a given server URL.
+ * This class should be threadsafe, provided that the instances provided to the constructor are themselves threadsafe
+ */
+class GiftCloudAuthentication {
+    private static final int MAX_NUM_LOGIN_ATTEMPTS = 3;
+    private final HttpConnectionFactory connectionFactory;
+    private final JSessionIdCookieWrapper cookieWrapper;
     private final URL baseUrl;
-    boolean successfulAuthentication = false;
-    static final int MAX_NUM_LOGIN_ATTEMPTS = 3;
-    final PasswordAuthenticationWrapper passwordAuthenticationWrapper = new PasswordAuthenticationWrapper();
-    boolean userCancelled = false;
-    Object synchronizationLock = new Object();
+    private boolean successfulAuthentication = false;
+    private final PasswordAuthenticationWrapper passwordAuthenticationWrapper = new PasswordAuthenticationWrapper();
+    private boolean userCancelled = false;
 
-    public GiftCloudAuthentication(final HttpConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) throws MalformedURLException {
+    /**
+     * Creates a new instance of this class bound to the provided HttpConnectionFactory (and thus URL)
+     *
+     * @param connectionFactory used to create HttpConnectionWrapper objects for making server rest calls
+     * @param giftCloudProperties used to get the session cookie and to get and set the username and password for the last successful login
+     * @param reporter used to get the container for the user login dialog
+     */
+    GiftCloudAuthentication(final HttpConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
         this.connectionFactory = connectionFactory;
         this.cookieWrapper = new JSessionIdCookieWrapper(giftCloudProperties.getSessionCookie());
-        baseUrl = new URL(connectionFactory.getBaseUrl());
+        baseUrl = connectionFactory.getBaseUrl();
 
         Optional<PasswordAuthentication> passwordAuthenticationFromUrl = PasswordAuthenticationWrapper.getPasswordAuthenticationFromURL(baseUrl);
 
@@ -40,19 +56,26 @@ public class GiftCloudAuthentication {
 
         // We set the authenticator that will be used to request login to a dialog
         Authenticator.setDefault(new GiftCloudLoginAuthenticator(reporter.getContainer(), giftCloudProperties));
-
     }
 
-    void tryAuthentication() throws IOException {
-        synchronized (synchronizationLock) {
-            if (!successfulAuthentication) {
-                forceAuthentication();
-                successfulAuthentication = true;
-            }
+    /**
+     * Authenticates with the GIFT-Cloud server, unless authentication has successfully been performed
+     *
+     * @throws IOException if a communications error occurred, or if the user exceeded the maximum number of incorrect login attempts
+     */
+    synchronized void tryAuthentication() throws IOException {
+        if (!successfulAuthentication) {
+            forceAuthentication();
+            successfulAuthentication = true;
         }
     }
 
-    void forceAuthentication() throws IOException {
+    /**
+     * Authenticates with the GIFT-Cloud server, unless authentication has successfully been performed
+     *
+     * @throws IOException if a communications error occurred, or if the user exceeded the maximum number of incorrect login attempts
+     */
+    synchronized void forceAuthentication() throws IOException {
 
         Optional<String> cookieString = Optional.empty();
 
@@ -97,7 +120,25 @@ public class GiftCloudAuthentication {
         cookieWrapper.replaceCookie(cookieString.get());
     }
 
-    static Optional<String> tryAuthenticatedLogin(final ConnectionFactory connectionFactory, final int attemptNumber) throws IOException {
+    /**
+     * Disable automatic cancellation of user login dialogs.
+     * When a user cancels a login attempt, future login dialogs are cancelled automatically. If this were not the case,
+     * the user would be presented with a login dialog for every thread.
+     * We need to reset this automatic cancellation when the user initiates a new action
+     */
+    synchronized void resetCancellation() {
+        userCancelled = false;
+    }
+
+    /**
+     * Returns a connection factory that will automatically add the session cookie to the connection it creates
+     * @return ConnectionFactoryWithCookie
+     */
+    synchronized ConnectionFactory getAuthenticatedConnectionFactory() {
+        return new ConnectionFactoryWithCookie(connectionFactory, cookieWrapper);
+    }
+
+    private static Optional<String> tryAuthenticatedLogin(final ConnectionFactory connectionFactory, final int attemptNumber) throws IOException {
         try {
             return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor()).getResponse(connectionFactory));
         } catch (AuthorisationFailureException e) {
@@ -107,16 +148,5 @@ public class GiftCloudAuthentication {
                 return Optional.empty();
             }
         }
-    }
-
-    // In the event that the user cancels authentication
-    void resetCancellation() {
-        synchronized (synchronizationLock) {
-            userCancelled = false;
-        }
-    }
-
-    ConnectionFactoryWithCookie getAuthenticatedConnectionFactory() {
-        return new ConnectionFactoryWithCookie(connectionFactory, cookieWrapper);
     }
 }

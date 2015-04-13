@@ -28,6 +28,7 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -37,7 +38,7 @@ public class RestServer {
 
     private final GiftCloudSession giftCloudSession;
 
-    public RestServer(final GiftCloudProperties giftCloudProperties, final String baseUrl, final MultiUploadReporter reporter) throws IOException {
+    public RestServer(final GiftCloudProperties giftCloudProperties, final String baseUrl, final MultiUploadReporter reporter) throws MalformedURLException {
 
         giftCloudSession = new GiftCloudSession(giftCloudProperties, new HttpConnectionFactory(baseUrl), reporter);
     }
