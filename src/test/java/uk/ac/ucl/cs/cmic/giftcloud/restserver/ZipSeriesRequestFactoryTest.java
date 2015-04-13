@@ -18,12 +18,12 @@ public class ZipSeriesRequestFactoryTest {
         final Iterable<ScriptApplicator> applicators = new ArrayList<ScriptApplicator>();
         final UploadStatisticsReporter progress = mock(UploadStatisticsReporter.class);
         {
-            final HttpRequestWithOutput requestFixedSize = ZipSeriesRequestFactory.build(ZipSeriesRequestFactory.ZipStreaming.FixedSize, url, fileCollection, applicators, progress);
+            final HttpRequestWithOutput requestFixedSize = ZipSeriesRequestFactory.build(HttpConnectionWrapper.ConnectionType.POST, ZipSeriesRequestFactory.ZipStreaming.FixedSize, url, fileCollection, applicators, progress, new HttpEmptyResponseProcessor());
             Assert.assertTrue(requestFixedSize instanceof ZipSeriesRequestFixedSize);
         }
 
         {
-            final HttpRequestWithOutput requestChunked = ZipSeriesRequestFactory.build(ZipSeriesRequestFactory.ZipStreaming.Chunked, url, fileCollection, applicators, progress);
+            final HttpRequestWithOutput requestChunked = ZipSeriesRequestFactory.build(HttpConnectionWrapper.ConnectionType.POST, ZipSeriesRequestFactory.ZipStreaming.Chunked, url, fileCollection, applicators, progress, new HttpEmptyResponseProcessor());
             Assert.assertTrue(requestChunked instanceof ZipSeriesRequestChunked);
         }
     }
