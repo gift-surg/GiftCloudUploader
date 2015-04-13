@@ -21,17 +21,17 @@ import java.io.OutputStream;
 import java.util.Set;
 import java.util.zip.ZipOutputStream;
 
-class ZipSeriesPostRequestChunked extends HttpRequestWithOutput<Set<String>> {
+class ZipSeriesRequestChunked extends HttpRequestWithOutput<Set<String>> {
     private final FileCollection fileCollection;
     private final SeriesZipper zipper;
     private final UploadStatisticsReporter progress;
 
-    ZipSeriesPostRequestChunked(final HttpConnectionWrapper.ConnectionType connectionType,
-                                final String url,
-                                final FileCollection fileCollection,
-                                final Iterable<ScriptApplicator> applicators,
-                                final UploadStatisticsReporter progress,
-                                final HttpResponseProcessor responseProcessor) {
+    ZipSeriesRequestChunked(final HttpConnectionWrapper.ConnectionType connectionType,
+                            final String url,
+                            final FileCollection fileCollection,
+                            final Iterable<ScriptApplicator> applicators,
+                            final UploadStatisticsReporter progress,
+                            final HttpResponseProcessor responseProcessor) {
         super(connectionType, url, responseProcessor);
         this.fileCollection = fileCollection;
         this.zipper = new SeriesZipper(applicators);

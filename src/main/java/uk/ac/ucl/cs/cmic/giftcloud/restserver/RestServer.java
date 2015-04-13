@@ -86,12 +86,8 @@ public class RestServer {
         return giftCloudSession.request(new JSONRequestConnectionProcessor(sessionParameters, path));
     }
 
-    public Set<String> uploadSingleFileAsZip(String relativeUrl, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
-        if (useFixedSizeStreaming) {
-            return giftCloudSession.request(new ZipSeriesRequestFixedSize(HttpConnectionWrapper.ConnectionType.PUT, relativeUrl, fileCollection, applicators, progress, new HttpEmptyResponseProcessor()));
-        } else {
-            return giftCloudSession.request(new ZipSeriesPostRequestChunked(HttpConnectionWrapper.ConnectionType.PUT, relativeUrl, fileCollection, applicators, progress, new HttpEmptyResponseProcessor()));
-        }
+    public Set<String> uploadSingleFileAsZip(final String relativeUrl, final ZipSeriesRequestFactory.ZipStreaming zipStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
+        return giftCloudSession.request(ZipSeriesRequestFactory.build(zipStreaming, relativeUrl, fileCollection, applicators, progress));
     }
 
     public Set<String> uploadZipFile(final String relativeUrl, final boolean useFixedSizeStreaming, final FileCollection fileCollection,
@@ -100,7 +96,7 @@ public class RestServer {
         if (useFixedSizeStreaming) {
             return giftCloudSession.request(new ZipSeriesRequestFixedSize(HttpConnectionWrapper.ConnectionType.POST, relativeUrl, fileCollection, applicators, progress, new HttpSetResponseProcessor()));
         } else {
-            return giftCloudSession.request(new ZipSeriesPostRequestChunked(HttpConnectionWrapper.ConnectionType.POST, relativeUrl, fileCollection, applicators, progress, new HttpSetResponseProcessor()));
+            return giftCloudSession.request(new ZipSeriesRequestChunked(HttpConnectionWrapper.ConnectionType.POST, relativeUrl, fileCollection, applicators, progress, new HttpSetResponseProcessor()));
         }
     }
 

@@ -466,7 +466,8 @@ public class RestServerHelper {
         final String uriParams = "?extract=true";
         final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getSessionLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" + collectionLabel + "/files/" + firstFile.getName() + ".zip" + uriParams;
 
-        return restServer.uploadSingleFileAsZip(uri, useFixedSizeStreaming, fileCollection, applicators, progress);
+        ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
+        return restServer.uploadSingleFileAsZip(uri, zipStreaming, fileCollection, applicators, progress);
     }
 
     public void uploadEcat(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final String timestamp, final String timeZoneId, final ResultProgressHandle progress, final File file, final int fileNumber) throws Exception {
