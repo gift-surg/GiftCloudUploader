@@ -15,13 +15,17 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 class HttpConnectionFactory implements ConnectionFactory {
 
-    private String baseUrl;
+    private final String baseUrl;
 
     HttpConnectionFactory(final String baseUrl) {
         this.baseUrl = baseUrl;
+
+
+        HttpURLConnection.setFollowRedirects(false);
     }
 
     @Override
