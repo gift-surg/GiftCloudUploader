@@ -88,22 +88,6 @@ public class RestServer {
         return giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpStringResponseProcessor()));
     }
 
-    public Optional<String> getOptionalString(final String path) throws IOException {
-        try {
-            final String outputString = giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpStringResponseProcessor()));
-            return Optional.of(outputString);
-
-        } catch (GiftCloudHttpException exception) {
-
-            // 404 indicates the resource does not exist.
-            if (exception.getResponseCode() == 404) {
-                return Optional.empty();
-            } else {
-                throw exception;
-            }
-        }
-    }
-
     public Set<String> getStringList(final String path) throws IOException {
         return giftCloudSession.request(new HttpRequestWithoutOutput<Set<String>>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpStringListResponseProcessor()));
     }
