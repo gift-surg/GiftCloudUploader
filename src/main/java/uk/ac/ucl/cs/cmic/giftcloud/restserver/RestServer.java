@@ -55,33 +55,11 @@ public class RestServer {
     }
 
     public Optional<String> getPpidAlias(final String path, final String aliasKey, final String idKey) throws IOException, JSONException {
-        try {
-            final String result = giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpJsonPpidResponseProcessor(new JSONAliasesExtractor(aliasKey, idKey))));
-            return Optional.of(result);
-        } catch (GiftCloudHttpException exception) {
-
-            // 404 indicates the PPID doesn't exist
-            if (exception.getResponseCode() == 404) {
-                return Optional.empty();
-            } else {
-                throw exception;
-            }
-        }
+        return giftCloudSession.requestOptional(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpJsonPpidResponseProcessor(new JSONAliasesExtractor(aliasKey, idKey))));
     }
 
     public <T> Optional<T> getUsingJsonExtractor(final String query) throws IOException {
-        try {
-            return giftCloudSession.request(new HttpRequestWithoutOutput<Optional<T>>(HttpConnectionWrapper.ConnectionType.GET, query, new HttpJsonResponseProcessor(new JSONConfigurationExtractor())));
-
-        } catch (GiftCloudHttpException exception) {
-
-            // If it's a 404, that's OK, it can not exist.
-            if (exception.getResponseCode() == 404) {
-                return Optional.empty();
-            } else {
-                throw exception;
-            }
-        }
+        return giftCloudSession.requestOptional(new HttpRequestWithoutOutput<Optional<T>>(HttpConnectionWrapper.ConnectionType.GET, query, new HttpJsonResponseProcessor(new JSONConfigurationExtractor())));
     }
 
     public String getString(final String path) throws IOException {

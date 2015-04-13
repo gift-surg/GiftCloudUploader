@@ -86,6 +86,21 @@ class GiftCloudSession {
         }
     }
 
+    <T> Optional<T> requestOptional(final HttpRequest request) throws IOException {
+        try {
+            final T result = request(request);
+            return Optional.of(result);
+        } catch (GiftCloudHttpException exception) {
+
+            // 404 indicates the requested resource doesn't exist
+            if (exception.getResponseCode() == 404) {
+                return Optional.empty();
+            } else {
+                throw exception;
+            }
+        }
+    }
+
     void tryAuthentication() throws IOException {
         synchronized (synchronizationLock) {
             if (!successfulAuthentication) {
