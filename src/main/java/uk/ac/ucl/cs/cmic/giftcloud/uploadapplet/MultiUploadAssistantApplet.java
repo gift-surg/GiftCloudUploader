@@ -21,7 +21,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerXnat;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,8 +54,8 @@ public class MultiUploadAssistantApplet extends JApplet {
 
             GiftCloudPropertiesFromWizard giftCloudPropertiesFromWizard = new GiftCloudPropertiesFromWizard(multiUploadParameters.get());
 
-            final RestServerXnat restServerXnat = new RestServerXnat(giftCloudPropertiesFromWizard, multiUploadParameters.get().getStrippedXnatUrl().get(), reporter.get());
-            restServerHelper = Optional.of(new RestServerHelper(restServerXnat, reporter.get()));
+            final RestServer restServer = new RestServer(giftCloudPropertiesFromWizard, multiUploadParameters.get().getStrippedXnatUrl().get(), reporter.get());
+            restServerHelper = Optional.of(new RestServerHelper(restServer, reporter.get()));
             restServerHelper.get().tryAuthentication();
         } catch (Throwable t) {
             reporter.get().errorBox("Applet initialisation failed", t);

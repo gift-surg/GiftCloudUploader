@@ -63,8 +63,8 @@ public class GiftCloudAutoUploader {
             throw new MalformedURLException("Please set the URL for the GIFT-Cloud server.");
         }
 
-        final RestServerXnat restServerXnat = new RestServerXnat(giftCloudProperties, giftCloudServerUrl, reporter);
-        restServerHelper = new RestServerHelper(restServerXnat, reporter);
+        final RestServer restServer = new RestServer(giftCloudProperties, giftCloudServerUrl, reporter);
+        restServerHelper = new RestServerHelper(restServer, reporter);
         subjectAliasMap = new SubjectAliasMap(restServerHelper);
     }
 

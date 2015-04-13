@@ -33,44 +33,125 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+public class RestServer {
 
-public interface RestServer {
-    void tryAuthentication() throws IOException;
+    private final GiftCloudSession giftCloudSession;
 
-    Collection<Object> getValues(String path, String key) throws IOException, JSONException;
+    public RestServer(final GiftCloudProperties giftCloudProperties, final String baseUrl, final MultiUploadReporter reporter) throws IOException {
 
-    Map<String, String> getAliases(String path, String aliasKey, String idKey) throws IOException, JSONException;
+        giftCloudSession = new GiftCloudSession(giftCloudProperties, new HttpConnectionFactory(baseUrl), reporter);
+    }
 
-    String getString(String path) throws Exception;
+    public void tryAuthentication() throws IOException {
+        giftCloudSession.tryAuthentication();
+    }
 
-    Optional<String> getOptionalString(String path) throws IOException;
+    public Collection<Object> getValues(final String path, final String key) throws IOException, JSONException {
+        return giftCloudSession.request(new HttpRequestWithoutOutput<Collection<Object>>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpJsonResponseProcessor(new JSONValuesExtractor(key))));
+    }
 
-    Set<String> getStringList(String path) throws Exception;
+    public Map<String, String> getAliases(final String path, final String aliasKey, final String idKey) throws IOException, JSONException {
+        return giftCloudSession.request(new HttpRequestWithoutOutput<Map<String, String>>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpJsonResponseProcessor(new JSONAliasesExtractor(aliasKey, idKey))));
+    }
 
-    <ApplicatorT> ApplicatorT getApplicator(String path, ScriptApplicatorFactory<ApplicatorT> factory) throws Exception;
+    public Optional<String> getPpidAlias(final String path, final String aliasKey, final String idKey) throws IOException, JSONException {
+        try {
+            final String result = giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpJsonPpidResponseProcessor(new JSONAliasesExtractor(aliasKey, idKey))));
+            return Optional.of(result);
+        } catch (GiftCloudHttpException exception) {
 
-    Optional<String> getPpidAlias(String path, String aliasKey, String idKey) throws IOException, JSONException;
+            // 404 indicates the PPID doesn't exist
+            if (exception.getResponseCode() == 404) {
+                return Optional.empty();
+            } else {
+                throw exception;
+            }
+        }
+    }
 
-    <T> Optional<T> getUsingJsonExtractor(final String query) throws IOException;
+    public <T> Optional<T> getUsingJsonExtractor(final String query) throws IOException {
+        try {
+            return giftCloudSession.request(new HttpRequestWithoutOutput<Optional<T>>(HttpConnectionWrapper.ConnectionType.GET, query, new HttpJsonResponseProcessor(new JSONConfigurationExtractor())));
 
-    void uploadEcat(String path, String projectName, String sessionId, String subjectLabel, ResultProgressHandle progress, File file) throws Exception;
+        } catch (GiftCloudHttpException exception) {
 
-    String getStringFromStream(String path, InputStream xmlStream) throws Exception;
+            // If it's a 404, that's OK, it can not exist.
+            if (exception.getResponseCode() == 404) {
+                return Optional.empty();
+            } else {
+                throw exception;
+            }
+        }
+    }
 
-    String sendSessionVariables(String path, final SessionParameters sessionParameters) throws Exception;
+    public String getString(final String path) throws IOException {
+        return giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpStringResponseProcessor()));
+    }
 
-    Set<String> uploadSingleFileAsZip(String relativeUrl, boolean useFixedSizeStreaming, final FileCollection fileCollection,
-                              Iterable<ScriptApplicator> applicators,
-                              UploadStatisticsReporter progress) throws Exception;
+    public Optional<String> getOptionalString(final String path) throws IOException {
+        try {
+            final String outputString = giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpStringResponseProcessor()));
+            return Optional.of(outputString);
 
-    Set<String> uploadZipFile(String relativeUrl, boolean useFixedSizeStreaming, final FileCollection fileCollection,
-                              Iterable<ScriptApplicator> applicators,
-                              UploadStatisticsReporter progress) throws Exception;
+        } catch (GiftCloudHttpException exception) {
+
+            // 404 indicates the resource does not exist.
+            if (exception.getResponseCode() == 404) {
+                return Optional.empty();
+            } else {
+                throw exception;
+            }
+        }
+    }
+
+    public Set<String> getStringList(final String path) throws IOException {
+        return giftCloudSession.request(new HttpRequestWithoutOutput<Set<String>>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpStringListResponseProcessor()));
+    }
+
+    public <ApplicatorT> ApplicatorT getApplicator(final String path, final ScriptApplicatorFactory<ApplicatorT> factory) throws IOException {
+        return giftCloudSession.request(new HttpRequestWithoutOutput<ApplicatorT>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpApplicatorResponseProcessor(factory)));
+    }
+
+    public void uploadEcat(final String path, final String projectName, final String sessionId, final String subjectLabel, final ResultProgressHandle progress, final File file) throws IOException {
+        giftCloudSession.request(new EcatUploadPostRequest(path, file, progress, projectName, subjectLabel, sessionId));
+    }
+
+    public String getStringFromStream(final String path, final InputStream xmlStream) throws IOException {
+        return giftCloudSession.request(new XmlStreamPostRequestWithStringResponse(path, xmlStream));
+    }
+
+    public String sendSessionVariables(final String path, final SessionParameters sessionParameters) throws IOException {
+        return giftCloudSession.request(new JSONRequestConnectionProcessor(sessionParameters, path));
+    }
+
+    public Set<String> uploadSingleFileAsZip(String relativeUrl, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
+        if (useFixedSizeStreaming) {
+            return giftCloudSession.request(new ZipSeriesRequestFixedSize(HttpConnectionWrapper.ConnectionType.PUT, relativeUrl, fileCollection, applicators, progress, new HttpEmptyResponseProcessor()));
+        } else {
+            return giftCloudSession.request(new ZipSeriesPostRequestChunked(HttpConnectionWrapper.ConnectionType.PUT, relativeUrl, fileCollection, applicators, progress, new HttpEmptyResponseProcessor()));
+        }
+    }
+
+    public Set<String> uploadZipFile(final String relativeUrl, final boolean useFixedSizeStreaming, final FileCollection fileCollection,
+                                     final Iterable<ScriptApplicator> applicators,
+                                     final UploadStatisticsReporter progress) throws IOException {
+        if (useFixedSizeStreaming) {
+            return giftCloudSession.request(new ZipSeriesRequestFixedSize(HttpConnectionWrapper.ConnectionType.POST, relativeUrl, fileCollection, applicators, progress, new HttpSetResponseProcessor()));
+        } else {
+            return giftCloudSession.request(new ZipSeriesPostRequestChunked(HttpConnectionWrapper.ConnectionType.POST, relativeUrl, fileCollection, applicators, progress, new HttpSetResponseProcessor()));
+        }
+    }
 
     // In the event that the user cancels authentication
-    void resetCancellation();
+    public void resetCancellation() {
+        giftCloudSession.resetCancellation();
+    }
 
-    void createResource(final String relativeUrl) throws IOException;
+    public void createResource(final String relativeUrl) throws IOException {
+        giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.PUT, relativeUrl, new HttpStringResponseProcessor()));
+    }
 
-    void createPostResource(final String relativeUrl) throws IOException;
+    public void createPostResource(final String relativeUrl) throws IOException {
+        giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.POST, relativeUrl, new HttpStringResponseProcessor()));
+    }
 }
