@@ -21,6 +21,7 @@ import java.util.concurrent.CancellationException;
 class GiftCloudAuthentication {
     private static final int MAX_NUM_LOGIN_ATTEMPTS = 3;
     private final HttpConnectionFactory connectionFactory;
+    private MultiUploadReporter reporter;
     private final JSessionIdCookieWrapper cookieWrapper;
     private final URL baseUrl;
     private boolean successfulAuthentication = false;
@@ -36,6 +37,7 @@ class GiftCloudAuthentication {
      */
     GiftCloudAuthentication(final HttpConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final Authenticator authenticator, final MultiUploadReporter reporter) {
         this.connectionFactory = connectionFactory;
+        this.reporter = reporter;
         this.cookieWrapper = new JSessionIdCookieWrapper(giftCloudProperties.getSessionCookie());
         baseUrl = connectionFactory.getBaseUrl();
 
@@ -138,9 +140,9 @@ class GiftCloudAuthentication {
         return new ConnectionFactoryWithCookie(connectionFactory, cookieWrapper);
     }
 
-    private static Optional<String> tryAuthenticatedLogin(final ConnectionFactory connectionFactory, final int attemptNumber) throws IOException {
+    private Optional<String> tryAuthenticatedLogin(final ConnectionFactory connectionFactory, final int attemptNumber) throws IOException {
         try {
-            return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor()).getResponse(connectionFactory));
+            return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor(), reporter).getResponse(connectionFactory));
         } catch (AuthorisationFailureException e) {
             if (attemptNumber >= MAX_NUM_LOGIN_ATTEMPTS) {
                 throw e;

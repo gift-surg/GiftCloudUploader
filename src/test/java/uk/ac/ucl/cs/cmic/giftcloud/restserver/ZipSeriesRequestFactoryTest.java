@@ -15,15 +15,16 @@ public class ZipSeriesRequestFactoryTest {
     public void testBuild() throws Exception {
         final String url = "testUrl";
         final FileCollection fileCollection = mock(FileCollection.class);
+        final MultiUploadReporter reporter = mock(MultiUploadReporter.class);
         final Iterable<ScriptApplicator> applicators = new ArrayList<ScriptApplicator>();
         final UploadStatisticsReporter progress = mock(UploadStatisticsReporter.class);
         {
-            final HttpRequestWithOutput requestFixedSize = ZipSeriesRequestFactory.build(HttpConnectionWrapper.ConnectionType.POST, ZipSeriesRequestFactory.ZipStreaming.FixedSize, url, fileCollection, applicators, progress, new HttpEmptyResponseProcessor());
+            final HttpRequestWithOutput requestFixedSize = ZipSeriesRequestFactory.build(HttpConnectionWrapper.ConnectionType.POST, ZipSeriesRequestFactory.ZipStreaming.FixedSize, url, fileCollection, applicators, progress, new HttpEmptyResponseProcessor(), reporter);
             Assert.assertTrue(requestFixedSize instanceof ZipSeriesRequestFixedSize);
         }
 
         {
-            final HttpRequestWithOutput requestChunked = ZipSeriesRequestFactory.build(HttpConnectionWrapper.ConnectionType.POST, ZipSeriesRequestFactory.ZipStreaming.Chunked, url, fileCollection, applicators, progress, new HttpEmptyResponseProcessor());
+            final HttpRequestWithOutput requestChunked = ZipSeriesRequestFactory.build(HttpConnectionWrapper.ConnectionType.POST, ZipSeriesRequestFactory.ZipStreaming.Chunked, url, fileCollection, applicators, progress, new HttpEmptyResponseProcessor(), reporter);
             Assert.assertTrue(requestChunked instanceof ZipSeriesRequestChunked);
         }
     }

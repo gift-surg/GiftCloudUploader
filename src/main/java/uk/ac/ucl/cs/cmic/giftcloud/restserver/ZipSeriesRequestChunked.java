@@ -8,10 +8,10 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import org.nrg.dcm.edit.AttributeException;
 import org.nrg.dcm.edit.ScriptApplicator;
 import org.nrg.dcm.edit.ScriptEvaluationException;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
 
@@ -31,8 +31,9 @@ class ZipSeriesRequestChunked extends HttpRequestWithOutput<Set<String>> {
                             final FileCollection fileCollection,
                             final Iterable<ScriptApplicator> applicators,
                             final UploadStatisticsReporter progress,
-                            final HttpResponseProcessor responseProcessor) {
-        super(connectionType, url, responseProcessor);
+                            final HttpResponseProcessor responseProcessor,
+                            final MultiUploadReporter reporter) {
+        super(connectionType, url, responseProcessor, reporter);
         this.fileCollection = fileCollection;
         this.zipper = new SeriesZipper(applicators);
         this.progress = progress;

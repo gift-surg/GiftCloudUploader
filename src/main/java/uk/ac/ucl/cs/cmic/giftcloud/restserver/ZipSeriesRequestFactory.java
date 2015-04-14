@@ -46,12 +46,13 @@ class ZipSeriesRequestFactory {
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
             final UploadStatisticsReporter progress,
-            final HttpResponseProcessor responseProcessor) {
+            final HttpResponseProcessor responseProcessor,
+            final MultiUploadReporter reporter) {
         switch (zipStreaming) {
             case Chunked:
-                return new ZipSeriesRequestChunked(connectionType, url, fileCollection, applicators, progress, responseProcessor);
+                return new ZipSeriesRequestChunked(connectionType, url, fileCollection, applicators, progress, responseProcessor, reporter);
             case FixedSize:
-                return new ZipSeriesRequestFixedSize(connectionType, url, fileCollection, applicators, progress, responseProcessor);
+                return new ZipSeriesRequestFixedSize(connectionType, url, fileCollection, applicators, progress, responseProcessor, reporter);
             default:
                 throw new RuntimeException("Unknown enum value");
         }

@@ -13,12 +13,13 @@
 =============================================================================*/
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+
 import java.io.IOException;
 
 class HttpRequestWithoutOutput<T> extends HttpRequest<T> {
 
-    HttpRequestWithoutOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor) {
-        super(connectionType, urlString, responseProcessor);
+    HttpRequestWithoutOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final MultiUploadReporter reporter) {
+        super(connectionType, urlString, responseProcessor, reporter);
     }
 
     protected void prepareConnection(final HttpConnectionBuilder connectionBuilder) throws IOException {

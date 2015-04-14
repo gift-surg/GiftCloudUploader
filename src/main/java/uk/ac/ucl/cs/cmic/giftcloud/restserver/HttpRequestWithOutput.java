@@ -19,8 +19,8 @@ import java.io.OutputStream;
 
 abstract class HttpRequestWithOutput<T> extends HttpRequest<T> {
 
-    HttpRequestWithOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor) {
-        super(connectionType, urlString, responseProcessor);
+    HttpRequestWithOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final MultiUploadReporter reporter) {
+        super(connectionType, urlString, responseProcessor, reporter);
     }
 
     protected void prepareConnection(final HttpConnectionBuilder connectionBuilder) throws IOException {

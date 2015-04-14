@@ -15,6 +15,7 @@ import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.nrg.ecat.HeaderModification;
 import org.nrg.ecat.MatrixData;
 import org.nrg.ecat.var.Variable;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.ResultProgressListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +50,9 @@ public class EcatUploadPostRequest extends HttpRequestWithOutput<Void> {
 	 *
 	 */
 	public EcatUploadPostRequest(final String urlString, final File f, final ResultProgressHandle progress,
-                                 final String project, final String subject, final String session)
+                                 final String project, final String subject, final String session, final MultiUploadReporter reporter)
 	throws IOException {
-		super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpEmptyResponseProcessor());
+		super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpEmptyResponseProcessor(), reporter);
 
         this.f = f;
 		size = (int)f.length();
