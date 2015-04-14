@@ -34,7 +34,7 @@ class GiftCloudAuthentication {
      * @param giftCloudProperties used to get the session cookie and to get and set the username and password for the last successful login
      * @param reporter used to get the container for the user login dialog
      */
-    GiftCloudAuthentication(final HttpConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+    GiftCloudAuthentication(final HttpConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final Authenticator authenticator, final MultiUploadReporter reporter) {
         this.connectionFactory = connectionFactory;
         this.cookieWrapper = new JSessionIdCookieWrapper(giftCloudProperties.getSessionCookie());
         baseUrl = connectionFactory.getBaseUrl();
@@ -54,8 +54,8 @@ class GiftCloudAuthentication {
             }
         }
 
-        // We set the authenticator that will be used to request login to a dialog
-        Authenticator.setDefault(new GiftCloudLoginAuthenticator(reporter.getContainer(), giftCloudProperties));
+        // We set the authenticator that will be used to request login details from the user
+        Authenticator.setDefault(authenticator);
     }
 
     /**

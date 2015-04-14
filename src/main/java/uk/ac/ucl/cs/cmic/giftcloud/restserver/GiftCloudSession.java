@@ -23,7 +23,7 @@ class GiftCloudSession {
 
 
     GiftCloudSession(final GiftCloudProperties giftCloudProperties, final HttpConnectionFactory connectionFactory, final MultiUploadReporter reporter) {
-        giftCloudAuthentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, reporter);
+        giftCloudAuthentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, new GiftCloudLoginAuthenticator(reporter.getContainer(), giftCloudProperties), reporter);
     }
 
     <T> T request(final HttpRequest request) throws IOException {

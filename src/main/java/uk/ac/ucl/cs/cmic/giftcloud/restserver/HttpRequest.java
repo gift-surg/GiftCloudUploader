@@ -19,7 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 import static java.net.HttpURLConnection.*;
 
@@ -161,7 +164,7 @@ abstract class HttpRequest<T> {
                         }
                         logger.debug("Will request credentials for {}", urlString);
                     }
-                    throw new AuthorisationFailureException(responseCode, new URL(urlString));
+                    throw new AuthorisationFailureException(responseCode, url);
 
                 case HTTP_BAD_REQUEST:
                     StringBuilder sb = new StringBuilder("<h3>Session data conflict</h3>");

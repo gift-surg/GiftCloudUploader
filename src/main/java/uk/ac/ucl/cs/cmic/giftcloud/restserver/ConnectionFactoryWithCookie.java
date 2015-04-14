@@ -19,7 +19,7 @@ import java.io.IOException;
 class ConnectionFactoryWithCookie implements ConnectionFactory {
 
     private final JSessionIdCookieWrapper cookie;
-    private HttpConnectionFactory connectionFactory;
+    private final HttpConnectionFactory connectionFactory;
 
     ConnectionFactoryWithCookie(final HttpConnectionFactory connectionFactory, final JSessionIdCookieWrapper cookie) {
         this.connectionFactory = connectionFactory;
