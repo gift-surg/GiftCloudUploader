@@ -190,6 +190,16 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
         return (JOptionPane.NO_OPTION != n);
     }
 
+    @Override
+    public void silentWarning(final String warning) {
+        logger.info(warning);
+    }
+
+    @Override
+    public void silentLogException(final Throwable throwable, final String errorMessage) {
+        logger.info(errorMessage + ":" + throwable.getLocalizedMessage());
+    }
+
     /**
      * Loads logging resources, including loading logging properties from custom URLs specified by the
      * LOG4J_PROPS_URL applet parameter.

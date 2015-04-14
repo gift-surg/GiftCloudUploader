@@ -57,4 +57,21 @@ public interface MultiUploadReporter {
     boolean isDebugEnabled();
 
     boolean askRetry(Component parentComponent, String title, String message);
+
+
+
+    // The following methods are the new "preferred" methods for error and warning reporting
+
+
+    /**
+     * Indicates a warning that should not be reported to the user, but should be recorded in the log
+     * @param warning the text of the warning
+     */
+    void silentWarning(final String warning);
+
+    /**
+     * Indicates that we wish to log an exception because it may be swallowed
+     * @param error the text of the error
+     */
+    void silentLogException(final Throwable throwable, final String errorMessage);
 }

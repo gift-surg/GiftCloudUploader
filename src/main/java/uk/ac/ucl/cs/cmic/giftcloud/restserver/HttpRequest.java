@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -121,9 +119,7 @@ abstract class HttpRequest<T> {
                 }
 
             } catch (IOException e) {
-                // ToDo: Handle error
-//                e.printStackTrace();
-
+                reporter.silentLogException(e, "An error occurred while processing request " + connection.getUrlString());
                 throwIfBadResponse(connection);
                 throw e;
             }
@@ -149,8 +145,7 @@ abstract class HttpRequest<T> {
             case HTTP_RESET:
             case HTTP_PARTIAL:
             case HTTP_MOVED_PERM:
-
-                logger.trace(connection.getRequestMethod() + " to {} returned " + responseCode + " ({})", urlString, connection.getResponseMessage());
+                reporter.silentWarning(errorDetails.getTitle() + ":" + errorDetails.getHtmlText() + " Details: request method " + connection.getRequestMethod() + " to URL " + urlString + " returned " + responseCode + " with message " + connection.getResponseMessage());
                 return;
 
             case HTTP_OK:
@@ -161,13 +156,7 @@ abstract class HttpRequest<T> {
             // so assume that's what's happened when we see a redirect at this point.
             case HTTP_MOVED_TEMP:
             case HTTP_UNAUTHORIZED:
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Received status code " + (responseCode == HTTP_MOVED_TEMP ? "302 (Redirect)" : "401 (Unauthorized)"));
-                    for (final Map.Entry<String, List<String>> me : connection.getHeaderFields().entrySet()) {
-                        logger.trace("Header {} : {}", me.getKey(), me.getValue());
-                    }
-                    logger.debug("Will request credentials for {}", urlString);
-                }
+                reporter.silentWarning(errorDetails.getTitle() + ":" + errorDetails.getHtmlText() + " Details: request method " + connection.getRequestMethod() + " to URL " + urlString + " returned " + responseCode + " with message " + connection.getResponseMessage());
                 throw new AuthorisationFailureException(responseCode, url);
 
             case HTTP_BAD_REQUEST:
