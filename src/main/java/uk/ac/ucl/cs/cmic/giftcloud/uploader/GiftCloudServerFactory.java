@@ -27,20 +27,22 @@ public class GiftCloudServerFactory {
 
     public GiftCloudServer getGiftCloudServer() throws IOException {
 
-        final Optional<String> giftCloudUrl = properties.getGiftCloudUrl();
+        final Optional<String> optionalGiftCloudUrl = properties.getGiftCloudUrl();
 
         // Check for an URL which is either not present or empty
-        if (!giftCloudUrl.isPresent() || StringUtils.isBlank(giftCloudUrl.get())) {
+        if (!optionalGiftCloudUrl.isPresent() || StringUtils.isBlank(optionalGiftCloudUrl.get())) {
             throw new MalformedURLException("Please set the URL for the GIFT-Cloud server.");
         }
 
+        final String giftCloudUrl = optionalGiftCloudUrl.get();
+
         // We need to create new GiftCloudAutoUploader if one does not exist, or if the URL has changed
-        if (!(giftCloudServer.isPresent() && giftCloudServer.get().getUrl().equals(giftCloudUrl.get()))) {
+        if (!(giftCloudServer.isPresent() && giftCloudServer.get().matchesServer(giftCloudUrl))) {
 
             // The project list is no longer valid. We will update it after creating a new GiftCloudAutoUploader, but if that throws an exception, we want to leave the project list model in an invalid state
             projectListModel.invalidate();
 
-            giftCloudServer = Optional.of(new GiftCloudServer(container, properties, reporter));
+            giftCloudServer = Optional.of(new GiftCloudServer(giftCloudUrl, container, properties, reporter));
 
             // Now update the project list
             projectListModel.setItems(giftCloudServer.get().getListOfProjects());
