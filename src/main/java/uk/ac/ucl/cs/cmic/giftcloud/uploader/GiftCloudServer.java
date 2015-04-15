@@ -2,10 +2,10 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,13 +18,15 @@ import java.util.concurrent.CancellationException;
 
 public class GiftCloudServer {
 
-    private GiftCloudReporter reporter;
-    private RestServerHelper restServerHelper;
-    private Container container;
+    private final String giftCloudServerUrl;
+    private final MultiUploadReporter reporter;
+    private final RestServerHelper restServerHelper;
+    private final Container container;
     private final GiftCloudAutoUploader autoUploader;
-    final URI giftCloudUri;
+    private final URI giftCloudUri;
 
-    public GiftCloudServer(final String giftCloudServerUrl, final Container container, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
+    public GiftCloudServer(final String giftCloudServerUrl, final Container container, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) throws MalformedURLException {
+        this.giftCloudServerUrl = giftCloudServerUrl;
         this.reporter = reporter;
         this.container = container;
 
@@ -43,14 +45,18 @@ public class GiftCloudServer {
         autoUploader = new GiftCloudAutoUploader(restServerHelper, giftCloudServerUrl, container, reporter);
     }
 
-    public void tryAuthentication() {
+    public boolean tryAuthentication() {
         try {
             restServerHelper.tryAuthentication();
+            return true;
+
         } catch (CancellationException e) {
+            return false;
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(container, "Could not log into GIFT-Cloud due to the following error: " + e.getMessage(), "Error", JOptionPane.DEFAULT_OPTION);
-            // ToDo: log error here
+            reporter.silentLogException(e, "An error occurred when attempting to connect to the GIFT-Cloud server at " + giftCloudServerUrl + ": " + e.getMessage());
+            return false;
         }
     }
 
@@ -77,5 +83,13 @@ public class GiftCloudServer {
         } catch (URISyntaxException e) {
             throw new MalformedURLException("The GIFT-Cloud server name " + giftCloudUrl + " is not a valid URL.");
         }
+    }
+
+    public RestServerHelper getRestServerHelper() {
+        return restServerHelper;
+    }
+
+    public String getGiftCloudServerUrl() {
+        return giftCloudServerUrl;
     }
 }

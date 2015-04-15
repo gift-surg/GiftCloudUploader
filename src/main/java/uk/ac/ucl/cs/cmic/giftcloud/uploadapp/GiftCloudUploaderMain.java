@@ -57,6 +57,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Initialise GIFT-Cloud
         try {
             giftCloudBridge = new GiftCloudBridge(reporter, giftCloudMainFrame.getContainer(), giftCloudProperties);
+            giftCloudBridge.tryAuthentication();
 
         } catch (Throwable t) {
             System.out.println("Failed to initialise the GIFT-Cloud component:" + t.getMessage());

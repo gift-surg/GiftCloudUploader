@@ -8,6 +8,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SubjectAliasMap;
@@ -25,7 +26,7 @@ import java.util.concurrent.*;
 
 public class GiftCloudAutoUploader {
 
-    private final GiftCloudReporter reporter;
+    private final MultiUploadReporter reporter;
     private final RestServerHelper restServerHelper;
     private final Container container;
 
@@ -62,7 +63,7 @@ public class GiftCloudAutoUploader {
      * @param container
      * @param reporter
      */
-    public GiftCloudAutoUploader(final RestServerHelper restServerHelper, final String giftCloudServerUrl, final Container container, final GiftCloudReporter reporter) {
+    public GiftCloudAutoUploader(final RestServerHelper restServerHelper, final String giftCloudServerUrl, final Container container, final MultiUploadReporter reporter) {
         this.restServerHelper = restServerHelper;
         this.reporter = reporter;
         this.container = container;

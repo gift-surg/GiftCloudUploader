@@ -18,8 +18,6 @@ public class GiftCloudBridge {
     private Container container;
 
     private final ProjectListModel projectListModel;
-
-
     private final GiftCloudServerFactory serverFactory;
 
     public GiftCloudBridge(final GiftCloudReporter reporter, final Container container, final GiftCloudPropertiesFromBridge giftCloudProperties) throws IOException {
@@ -34,8 +32,17 @@ public class GiftCloudBridge {
             return;
         }
 
+
+    }
+
+    public void tryAuthentication() {
         // We attempt to connect to the GIFT-Cloud server, in order to authenticate and to set the project list, but we allow the connection to fail gracefully
         try {
+            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
+
+            // Allow user to log in again if they have previously cancelled a login dialog
+            giftCloudServer.resetCancellation();
+
             serverFactory.getGiftCloudServer().tryAuthentication();
 
         } catch (CancellationException e) {
@@ -50,7 +57,6 @@ public class GiftCloudBridge {
             JOptionPane.showMessageDialog(container, "Could not connect to the GIFT-Cloud server due to the following error: " + e.getMessage(), "Error", JOptionPane.DEFAULT_OPTION);
             // ToDo: log error here
         }
-
     }
 
     public ComboBoxModel<String> getProjectListModel() {
