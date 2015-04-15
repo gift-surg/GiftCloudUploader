@@ -74,4 +74,16 @@ public class GiftCloudPropertiesFromWizard implements GiftCloudProperties {
         return multiUploadParameters.getJsessionId();
     }
 
+    @Override
+    public Optional<String> getLastProject() {
+
+        // ToDo: decide what we should return here
+        return Optional.empty();
+    }
+
+    @Override
+    public void setLastProject(String lastProjectName) {
+        // ToDo
+    }
+
 }

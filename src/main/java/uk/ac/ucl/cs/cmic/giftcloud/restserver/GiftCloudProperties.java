@@ -22,4 +22,7 @@ public interface GiftCloudProperties {
 
     Optional<String> getSessionCookie();
 
+    Optional<String> getLastProject();
+
+    void setLastProject(final String lastProjectName);
 }

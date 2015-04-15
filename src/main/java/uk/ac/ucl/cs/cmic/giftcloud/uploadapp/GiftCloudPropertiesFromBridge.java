@@ -82,6 +82,7 @@ public class GiftCloudPropertiesFromBridge extends Observable implements GiftClo
         }
     }
 
+    @Override
     public Optional<String> getLastProject() {
         final String lastProject = properties.getProperty(propertyName_GiftCloudLastProject);
         if (StringUtils.isNotBlank(lastProject)) {
@@ -91,6 +92,7 @@ public class GiftCloudPropertiesFromBridge extends Observable implements GiftClo
         }
     }
 
+    @Override
     public void setLastProject(final String lastProjectName) {
         if (!lastProjectName.equals(getLastProject())) {
             properties.setProperty(propertyName_GiftCloudLastProject, lastProjectName);
