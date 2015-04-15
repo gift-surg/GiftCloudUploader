@@ -15,14 +15,14 @@ public class DicomNode extends Observable {
 
     private StorageSOPClassSCPDispatcher storageSOPClassSCPDispatcher;
     private String ourCalledAETitle;		// set when reading network properties; used not just in StorageSCP, but also when creating exported meta information headers
-    private GiftCloudPropertiesFromBridge giftCloudProperties;
+    private GiftCloudPropertiesFromApplication giftCloudProperties;
     private File savedImagesFolder;
     private NetworkApplicationInformation networkApplicationInformation;
     private DatabaseInformationModel srcDatabase;
     protected Map<String,Date> earliestDatesIndexedBySourceFilePath = new HashMap<String,Date>();
 
 
-    public DicomNode(final GiftCloudPropertiesFromBridge giftCloudProperties, final String databaseRootTitle) throws DicomException {
+    public DicomNode(final GiftCloudPropertiesFromApplication giftCloudProperties, final String databaseRootTitle) throws DicomException {
         this.giftCloudProperties = giftCloudProperties;
         savedImagesFolder = new File(System.getProperty("java.io.tmpdir"));
 

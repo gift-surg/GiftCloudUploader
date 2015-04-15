@@ -7,14 +7,12 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Vector;
-import java.util.concurrent.CancellationException;
 
 public class GiftCloudServer {
 
@@ -45,19 +43,8 @@ public class GiftCloudServer {
         autoUploader = new GiftCloudAutoUploader(restServerHelper, giftCloudServerUrl, container, reporter);
     }
 
-    public boolean tryAuthentication() {
-        try {
-            restServerHelper.tryAuthentication();
-            return true;
-
-        } catch (CancellationException e) {
-            return false;
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(container, "Could not log into GIFT-Cloud due to the following error: " + e.getMessage(), "Error", JOptionPane.DEFAULT_OPTION);
-            reporter.silentLogException(e, "An error occurred when attempting to connect to the GIFT-Cloud server at " + giftCloudServerUrl + ": " + e.getMessage());
-            return false;
-        }
+    public void tryAuthentication() throws IOException {
+        restServerHelper.tryAuthentication();
     }
 
     public Vector<Object> getListOfProjects() throws IOException {

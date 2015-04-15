@@ -24,7 +24,7 @@ public class NetworkApplicationConfigurationDialog {
 //	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/network/NetworkApplicationConfigurationDialog.java,v 1.3 2011/02/21 17:27:35 dclunie Exp $";
 
 	protected NetworkApplicationInformation networkApplicationInformation;
-	protected GiftCloudPropertiesFromBridge networkApplicationProperties;
+	protected GiftCloudPropertiesFromApplication networkApplicationProperties;
 	
 	protected JTextField calledAETitleField;
 	protected JTextField callingAETitleField;
@@ -187,7 +187,7 @@ public class NetworkApplicationConfigurationDialog {
 	 * @param	networkApplicationInformation	the current information whose contents are to be replaced with updated information
 	 * @param	networkApplicationProperties	the static properties that are to be edited
 	 */
-	public NetworkApplicationConfigurationDialog(Component parent,NetworkApplicationInformation networkApplicationInformation, GiftCloudPropertiesFromBridge networkApplicationProperties, GiftCloudDialogs giftCloudDialogs) throws DicomNetworkException {
+	public NetworkApplicationConfigurationDialog(Component parent,NetworkApplicationInformation networkApplicationInformation, GiftCloudPropertiesFromApplication networkApplicationProperties, GiftCloudDialogs giftCloudDialogs) throws DicomNetworkException {
 		this.networkApplicationInformation = networkApplicationInformation;
 		this.networkApplicationProperties = networkApplicationProperties;
 		

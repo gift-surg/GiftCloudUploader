@@ -20,22 +20,21 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 
 import java.util.Optional;
 
-public class GiftCloudPropertiesFromWizard implements GiftCloudProperties {
+public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
 
     private static final String DEV_USER = "dev-user";
     private static final String DEV_PASS = "dev-pass";
 
-    private Optional<String> giftCloudUrl = Optional.empty();
     private MultiUploadParameters multiUploadParameters;
 
-    public GiftCloudPropertiesFromWizard(MultiUploadParameters multiUploadParameters) {
+    public GiftCloudPropertiesFromApplet(MultiUploadParameters multiUploadParameters) {
 
         this.multiUploadParameters = multiUploadParameters;
     }
 
     @Override
     public Optional<String> getGiftCloudUrl() {
-        return giftCloudUrl;
+        return multiUploadParameters.getStrippedXnatUrl();
     }
 
     @Override

@@ -10,6 +10,7 @@ import com.pixelmed.network.PresentationAddress;
 import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.StudyRootQueryInformationModel;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.*;
 
 import javax.swing.*;
@@ -21,11 +22,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
 	private static String propertiesFileName  = ".com.pixelmed.display.GiftCloudUploader.properties";
 	private final ResourceBundle resourceBundle;
-    private final GiftCloudPropertiesFromBridge giftCloudProperties;
+    private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final GiftCloudMainFrame giftCloudMainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
     private final DicomNode dicomNode;
-    private GiftCloudBridge giftCloudBridge = null;
+    private GiftCloudUploader giftCloudUploader = null;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
     private final GiftCloudReporter reporter;
     private final Optional<GiftCloudSystemTray> giftCloudSystemTray;
@@ -42,7 +43,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         final String buildDate = applicationBase.getBuildDateFromApplicationBase();
         JLabel statusBar = applicationBase.getStatusBarFromApplicationBase();
 
-        giftCloudProperties = new GiftCloudPropertiesFromBridge(applicationBase);
+        giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase);
 
         dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"));
         dicomNode.addObserver(new DicomNodeListener());
@@ -54,17 +55,13 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         reporter = new GiftCloudReporter(giftCloudMainFrame.getContainer(), giftCloudDialogs);
 
-        // Initialise GIFT-Cloud
-        try {
-            giftCloudBridge = new GiftCloudBridge(reporter, giftCloudMainFrame.getContainer(), giftCloudProperties);
-            giftCloudBridge.tryAuthentication();
+        // Initialise the main GIFT-Cloud class
+        giftCloudUploader = new GiftCloudUploader(giftCloudProperties, giftCloudMainFrame.getContainer(), reporter);
 
-        } catch (Throwable t) {
-            System.out.println("Failed to initialise the GIFT-Cloud component:" + t.getMessage());
-        }
+        // Attempt to authenticate
+        giftCloudUploader.tryAuthentication();
 
-        // ToDo: if giftCloudBridge creation failed we need to deal with this
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, giftCloudBridge.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, giftCloudDialogs, buildDate, statusBar, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, giftCloudUploader.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, giftCloudDialogs, buildDate, statusBar, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
 
@@ -117,7 +114,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void upload(Vector<String> filePaths) {
         try {
-            Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudBridge, reporter));
+            Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudUploader, reporter));
             activeThread.start();
         } catch (Exception e) {
             reporter.updateProgress("GIFT-Cloud upload failed: " + e);
@@ -259,8 +256,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     filesToUpload.add(fileName);
 
                     // ToDo: this is not threadsafe!
-                    // ToDo: giftCloudBridge might be null!
-                    Thread activeThread = new Thread(new GiftCloudAppendUploadWorker(filesToUpload, giftCloudBridge, this, reporter));
+                    // ToDo: giftCloudUploader might be null!
+                    Thread activeThread = new Thread(new GiftCloudAppendUploadWorker(filesToUpload, giftCloudUploader, this, reporter));
                     activeThread.start();
                     filesAlreadyUploaded.add(fileName);
                 }

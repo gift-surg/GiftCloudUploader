@@ -20,8 +20,7 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,7 +30,7 @@ public class MultiUploadAssistantApplet extends JApplet {
 
     private Optional<MultiUploadAppletReporter> reporter = Optional.empty();
     private Optional<MultiUploadAppletParameters> multiUploadParameters = Optional.empty();
-    private Optional<RestServerHelper> restServerHelper = Optional.empty();
+    private Optional<GiftCloudUploader> giftCloudUploader = Optional.empty();
 
     /**
      * Default constructor.
@@ -52,11 +51,10 @@ public class MultiUploadAssistantApplet extends JApplet {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             multiUploadParameters = Optional.of(new MultiUploadAppletParameters(this, reporter.get()));
 
-            GiftCloudPropertiesFromWizard giftCloudPropertiesFromWizard = new GiftCloudPropertiesFromWizard(multiUploadParameters.get());
+            GiftCloudPropertiesFromApplet giftCloudPropertiesFromApplet = new GiftCloudPropertiesFromApplet(multiUploadParameters.get());
 
-            final RestServer restServer = new RestServer(giftCloudPropertiesFromWizard, multiUploadParameters.get().getStrippedXnatUrl().get(), reporter.get());
-            restServerHelper = Optional.of(new RestServerHelper(restServer, reporter.get()));
-            restServerHelper.get().tryAuthentication();
+            giftCloudUploader = Optional.of(new GiftCloudUploader(giftCloudPropertiesFromApplet, this, reporter.get()));
+
         } catch (Throwable t) {
             reporter.get().errorBox("Applet initialisation failed", t);
             throw new RuntimeException(t);
@@ -71,8 +69,9 @@ public class MultiUploadAssistantApplet extends JApplet {
     @Override
     public void start() {
         try {
-            final Dimension windowSize = new Dimension(300, 300);
-            new MultiUploadWizard(restServerHelper.get(), windowSize, multiUploadParameters.get(), reporter.get());
+            giftCloudUploader.get().tryAuthentication();
+            giftCloudUploader.get().runWizard(multiUploadParameters.get());
+
         } catch (Throwable t) {
             reporter.get().errorBox("Applet startup failed", t);
             throw new RuntimeException(t);

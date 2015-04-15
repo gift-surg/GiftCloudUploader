@@ -12,7 +12,7 @@ import java.util.Observer;
 import java.util.Optional;
 import java.util.Properties;
 
-public class GiftCloudPropertiesFromBridge extends Observable implements GiftCloudProperties {
+public class GiftCloudPropertiesFromApplication extends Observable implements GiftCloudProperties {
 
     protected static String propertyName_DicomCurrentlySelectedQueryTargetAE = "Dicom.CurrentlySelectedQueryTargetAE";
 
@@ -26,7 +26,7 @@ public class GiftCloudPropertiesFromBridge extends Observable implements GiftClo
     private NetworkApplicationProperties networkApplicationProperties;
 
 
-    public GiftCloudPropertiesFromBridge(final GiftCloudUploaderApplicationBase applicationBase) {
+    public GiftCloudPropertiesFromApplication(final GiftCloudUploaderApplicationBase applicationBase) {
         this.applicationBase = applicationBase;
         this.properties = applicationBase.getPropertiesFromApplicationBase();
 

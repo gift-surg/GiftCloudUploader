@@ -121,7 +121,7 @@ public class NetworkApplicationInformationFederated extends NetworkApplicationIn
 	 *
 	 * @param	properties	the pre-configured DICOM network properties, including information about other sources and self to register
 	 */
-	public void startupAllKnownSourcesAndRegister(GiftCloudPropertiesFromBridge properties) {
+	public void startupAllKnownSourcesAndRegister(GiftCloudPropertiesFromApplication properties) {
 		startupAllKnownSourcesAndRegister(properties, null);
 	}
 	
@@ -131,7 +131,7 @@ public class NetworkApplicationInformationFederated extends NetworkApplicationIn
 	 * @param	networkApplicationProperties	the pre-configured DICOM network properties, including information about other sources and self to register
 	 * @param	webServerApplicationProperties	the pre-configured web server network properties
 	 */
-	public void startupAllKnownSourcesAndRegister(GiftCloudPropertiesFromBridge networkApplicationProperties,WebServerApplicationProperties webServerApplicationProperties) {
+	public void startupAllKnownSourcesAndRegister(GiftCloudPropertiesFromApplication networkApplicationProperties,WebServerApplicationProperties webServerApplicationProperties) {
 		int debugLevel = 0;
 		if (networkApplicationProperties != null) {
 			debugLevel = networkApplicationProperties.getNetworkDynamicConfigurationDebugLevel();

@@ -1,24 +1,24 @@
 package uk.ac.ucl.cs.cmic.giftcloud.workers;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudHttpException;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudBridge;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 
 import java.util.Vector;
 
 public class GiftCloudUploadWorker implements Runnable {
     Vector<String> sourceFilePathSelections;
     private GiftCloudReporter reporter;
-    private GiftCloudBridge giftCloudBridge;
+    private GiftCloudUploader giftCloudUploader;
 
-    public GiftCloudUploadWorker(Vector<String> sourceFilePathSelections, final GiftCloudBridge giftCloudBridge, final GiftCloudReporter reporter) {
+    public GiftCloudUploadWorker(Vector<String> sourceFilePathSelections, final GiftCloudUploader giftCloudUploader, final GiftCloudReporter reporter) {
         this.sourceFilePathSelections = sourceFilePathSelections;
         this.reporter = reporter;
-        this.giftCloudBridge = giftCloudBridge;
+        this.giftCloudUploader = giftCloudUploader;
     }
 
     public void run() {
-        if (giftCloudBridge == null) {
+        if (giftCloudUploader == null) {
             reporter.showError("An error occurred which prevents the uploader from connecting to the server. Please restart GIFT-Cloud uploader.");
             return;
         }
@@ -32,7 +32,7 @@ public class GiftCloudUploadWorker implements Runnable {
             reporter.sendLn("GIFT-Cloud upload started");
             reporter.startProgressBar();
             try {
-                if (giftCloudBridge.uploadToGiftCloud(sourceFilePathSelections)) {
+                if (giftCloudUploader.uploadToGiftCloud(sourceFilePathSelections)) {
                     reporter.updateProgress("GIFT-Cloud upload complete");
                 } else {
                     reporter.updateProgress("GIFT-Cloud upload failed");

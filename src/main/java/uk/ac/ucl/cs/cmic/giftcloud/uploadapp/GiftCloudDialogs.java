@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Vector;
 
 public class GiftCloudDialogs {
 
@@ -84,7 +85,20 @@ public class GiftCloudDialogs {
         } else {
             return Optional.empty();
         }
+    }
 
+    public static String showInputDialogToSelectProject(final Vector<Object> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
+        final String lastProjectName = lastProject.isPresent() ? lastProject.get() : "";
+
+        if (projectMap.size() < 1) {
+            return null;
+        }
+
+        String[] projectStringArray = projectMap.toArray(new String[0]);
+
+        final String defaultSelection = projectMap.contains(lastProjectName) ? lastProjectName : null;
+
+        return (String)JOptionPane.showInputDialog(component, "Please select a project to which data will be uploaded.", "GIFT-Cloud", JOptionPane.QUESTION_MESSAGE, null, projectStringArray, defaultSelection);
     }
 
     class SelectedPathAndFile {
