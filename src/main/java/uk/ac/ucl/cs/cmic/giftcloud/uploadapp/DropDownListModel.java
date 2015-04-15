@@ -25,7 +25,7 @@ abstract class DropDownListModel extends DefaultComboBoxModel implements ListDat
     // We prevent changing of the default value until the model has been populated
     private boolean preventSettingLastUsedValue = true;
 
-    DropDownListModel() {
+    public DropDownListModel() {
         addListDataListener(this);
     }
 
@@ -33,12 +33,12 @@ abstract class DropDownListModel extends DefaultComboBoxModel implements ListDat
     abstract Optional<String> getLastUsedValue();
 
     /* Indicates that the items in the model are no longer valid, but we don't yet have replacement values. So clear the items, and prevent any further actions until new items have been set */
-    final void invalidate() {
+    final public void invalidate() {
         preventSettingLastUsedValue = true;
         removeAllElements();
     }
 
-    final void setItems(final Vector<Object> objectList) {
+    final public void setItems(final Vector<Object> objectList) {
 
         preventSettingLastUsedValue = true;
 
