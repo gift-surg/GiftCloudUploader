@@ -37,13 +37,13 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class MultiUploadWizard implements WizardResultReceiver {
-    private MultiUploadParameters multiUploadParameters;
     private MultiUploadReporter reporter;
+    private String giftCloudUrl;
 
-    public MultiUploadWizard(final RestServerHelper restServerHelper, final Dimension dimension, final MultiUploadParameters multiUploadParameters, final MultiUploadReporter reporter) throws InvocationTargetException, InterruptedException, ExecutionException {
+    public MultiUploadWizard(final RestServerHelper restServerHelper, final Dimension dimension, final MultiUploadParameters multiUploadParameters, final String giftCloudUrl, final MultiUploadReporter reporter) throws InvocationTargetException, InterruptedException, ExecutionException {
+        this.giftCloudUrl = giftCloudUrl;
         final UploadSelector uploadSelector = new UploadSelector(restServerHelper, multiUploadParameters, reporter);
 
-        this.multiUploadParameters = multiUploadParameters;
         this.reporter = reporter;
         final Optional<String> projectName = multiUploadParameters.getProjectName();
         final SessionParams params = SessionParams.fromRestServer(multiUploadParameters, uploadSelector, reporter);
@@ -80,7 +80,7 @@ public class MultiUploadWizard implements WizardResultReceiver {
     private transient final ActionListener closeHandler = new ActionListener() {
         public void actionPerformed(final ActionEvent e) {
             try {
-                reporter.loadWebPage(multiUploadParameters.getXnatUrl().get());
+                reporter.loadWebPage(giftCloudUrl);
             } catch (MalformedURLException mue) {
                 reporter.exit();
             }
@@ -95,7 +95,7 @@ public class MultiUploadWizard implements WizardResultReceiver {
     @Override
     public void cancelled(@SuppressWarnings("rawtypes") Map arg0) {
         try {
-            reporter.loadWebPage(multiUploadParameters.getXnatUrl().get());
+            reporter.loadWebPage(giftCloudUrl);
         } catch (MalformedURLException mue) {
             reporter.exit();
         }
