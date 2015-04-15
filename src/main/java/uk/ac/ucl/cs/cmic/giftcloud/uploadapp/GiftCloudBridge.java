@@ -147,17 +147,4 @@ public class GiftCloudBridge {
         return (String)JOptionPane.showInputDialog(component, "Please select a project to which data will be uploaded.", "GIFT-Cloud", JOptionPane.QUESTION_MESSAGE, null, projectStringArray, defaultSelection);
     }
 
-    class ProjectListModel extends DropDownListModel {
-
-        @Override
-        void setLastUsedValue(String newValue) {
-            giftCloudProperties.setLastProject(newValue);
-        }
-
-        @Override
-        Optional<String> getLastUsedValue() {
-            return giftCloudProperties.getLastProject();
-        }
-    }
-
 }
