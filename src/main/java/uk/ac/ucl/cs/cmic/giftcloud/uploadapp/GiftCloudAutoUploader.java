@@ -13,7 +13,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingProgressMonitor;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -66,22 +65,6 @@ public class GiftCloudAutoUploader {
         final RestServer restServer = new RestServer(giftCloudProperties, giftCloudServerUrl, reporter);
         restServerHelper = new RestServerHelper(restServer, reporter);
         subjectAliasMap = new SubjectAliasMap(restServerHelper);
-    }
-
-    public void tryAuthentication() {
-        try {
-            restServerHelper.tryAuthentication();
-        } catch (CancellationException e) {
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(container, "Could not log into GIFT-Cloud due to the following error: " + e.getMessage(), "Error", JOptionPane.DEFAULT_OPTION);
-            // ToDo: log error here
-        }
-
-    }
-
-    public Vector<Object> getListOfProjects() throws IOException {
-        return restServerHelper.getListOfProjects();
     }
 
     public String getUrl() {
@@ -292,10 +275,6 @@ public class GiftCloudAutoUploader {
         }
 
         return true;
-    }
-
-    public void resetCancellation() {
-        restServerHelper.resetCancellation();
     }
 
     private synchronized String getSubjectName(final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {

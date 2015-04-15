@@ -1,13 +1,13 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServerFactory;
 
 import javax.security.sasl.AuthenticationException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.Optional;
 import java.util.Vector;
 import java.util.concurrent.CancellationException;
 
@@ -17,14 +17,17 @@ public class GiftCloudBridge {
     private GiftCloudPropertiesFromBridge giftCloudProperties;
     private Container container;
 
-    private ProjectListModel projectListModel = new ProjectListModel();
+    private final ProjectListModel projectListModel;
 
-    Optional<GiftCloudAutoUploader> giftCloudAutoUploader = Optional.empty();
+
+    private final GiftCloudServerFactory serverFactory;
 
     public GiftCloudBridge(final GiftCloudReporter reporter, final Container container, final GiftCloudPropertiesFromBridge giftCloudProperties) throws IOException {
         this.container = container;
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
+        projectListModel = new ProjectListModel(giftCloudProperties);
+        serverFactory = new GiftCloudServerFactory(giftCloudProperties, projectListModel, container, reporter);
 
         if (!giftCloudProperties.getGiftCloudUrl().isPresent()) {
             JOptionPane.showMessageDialog(container, "Please set an URL for the GIFT-Cloud server.", "Error", JOptionPane.DEFAULT_OPTION);
@@ -33,7 +36,7 @@ public class GiftCloudBridge {
 
         // We attempt to connect to the GIFT-Cloud server, in order to authenticate and to set the project list, but we allow the connection to fail gracefully
         try {
-            getGiftCloudAutoUploader().tryAuthentication();
+            serverFactory.getGiftCloudServer().tryAuthentication();
 
         } catch (CancellationException e) {
             // Do nothing here
@@ -57,15 +60,15 @@ public class GiftCloudBridge {
     public boolean uploadToGiftCloud(Vector<String> paths) throws IOException {
 
         try {
-            final GiftCloudAutoUploader giftCloudAutoUploader = getGiftCloudAutoUploader();
+            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
 
             // Allow user to log in again if they have previously cancelled a login dialog
-            giftCloudAutoUploader.resetCancellation();
+            giftCloudServer.resetCancellation();
 
             String selectedProjectName = (String) projectListModel.getSelectedItem();
             if (StringUtils.isEmpty(selectedProjectName)) {
                 try {
-                    selectedProjectName = showInputDialogToSelectProject(giftCloudAutoUploader.getListOfProjects(), container);
+                    selectedProjectName = showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container);
                 } catch (IOException e) {
                     throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
                 }
@@ -73,7 +76,7 @@ public class GiftCloudBridge {
 
             final String projectName = selectedProjectName;
 
-            return getGiftCloudAutoUploader().uploadToGiftCloud(paths, projectName);
+            return giftCloudServer.uploadToGiftCloud(paths, projectName);
 
         } catch (Throwable throwable) {
 
@@ -84,15 +87,15 @@ public class GiftCloudBridge {
     public boolean appendToGiftCloud(Vector<String> paths) throws IOException {
 
         try {
-            final GiftCloudAutoUploader giftCloudAutoUploader = getGiftCloudAutoUploader();
+            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
 
             // Allow user to log in again if they have previously cancelled a login dialog
-            giftCloudAutoUploader.resetCancellation();
+            giftCloudServer.resetCancellation();
 
             String selectedProjectName = (String) projectListModel.getSelectedItem();
             if (StringUtils.isEmpty(selectedProjectName)) {
                 try {
-                    selectedProjectName = showInputDialogToSelectProject(giftCloudAutoUploader.getListOfProjects(), container);
+                    selectedProjectName = showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container);
                 } catch (IOException e) {
                     throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
                 }
@@ -100,7 +103,7 @@ public class GiftCloudBridge {
 
             final String projectName = selectedProjectName;
 
-            return getGiftCloudAutoUploader().appendToGiftCloud(paths, projectName);
+            return giftCloudServer.appendToGiftCloud(paths, projectName);
 
         } catch (Throwable throwable) {
 
@@ -108,29 +111,6 @@ public class GiftCloudBridge {
         }
     }
 
-    private GiftCloudAutoUploader getGiftCloudAutoUploader() throws IOException {
-
-        final Optional<String> giftCloudUrl = giftCloudProperties.getGiftCloudUrl();
-
-        // Check for an URL which is either not present or empty
-        if (!giftCloudUrl.isPresent() || StringUtils.isBlank(giftCloudUrl.get())) {
-            throw new MalformedURLException("Please set the URL for the GIFT-Cloud server.");
-        }
-
-        // We need to create new GiftCloudAutoUploader if one does not exist, or if the URL has changed
-        if (!(giftCloudAutoUploader.isPresent() && giftCloudAutoUploader.get().getUrl().equals(giftCloudUrl.get()))) {
-
-            // The project list is no longer valid. We will update it after creating a new GiftCloudAutoUploader, but if that throws an exception, we want to leave the project list model in an invalid state
-            projectListModel.invalidate();
-
-            giftCloudAutoUploader = Optional.of(new GiftCloudAutoUploader(container, giftCloudProperties, reporter));
-
-            // Now update the project list
-            projectListModel.setItems(giftCloudAutoUploader.get().getListOfProjects());
-        }
-
-        return giftCloudAutoUploader.get();
-    }
 
 
     private String showInputDialogToSelectProject(final Vector<Object> projectMap, final Component component) throws IOException {
