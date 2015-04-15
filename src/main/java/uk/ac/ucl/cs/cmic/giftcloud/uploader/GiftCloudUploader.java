@@ -114,16 +114,7 @@ public class GiftCloudUploader {
             // Allow user to log in again if they have previously cancelled a login dialog
             giftCloudServer.resetCancellation();
 
-            String selectedProjectName = (String) projectListModel.getSelectedItem();
-            if (StringUtils.isEmpty(selectedProjectName)) {
-                try {
-                    selectedProjectName = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, giftCloudProperties.getLastProject());
-                } catch (IOException e) {
-                    throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
-                }
-            }
-
-            final String projectName = selectedProjectName;
+            final String projectName = getProjectName(giftCloudServer);
 
             return giftCloudServer.uploadToGiftCloud(paths, projectName);
 
@@ -141,17 +132,7 @@ public class GiftCloudUploader {
             // Allow user to log in again if they have previously cancelled a login dialog
             giftCloudServer.resetCancellation();
 
-            String selectedProjectName = (String) projectListModel.getSelectedItem();
-            if (StringUtils.isEmpty(selectedProjectName)) {
-                try {
-                    selectedProjectName = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, giftCloudProperties.getLastProject());
-
-                } catch (IOException e) {
-                    throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
-                }
-            }
-
-            final String projectName = selectedProjectName;
+            final String projectName = getProjectName(giftCloudServer);
 
             return giftCloudServer.appendToGiftCloud(paths, projectName);
 
@@ -159,6 +140,18 @@ public class GiftCloudUploader {
 
             return false;
         }
+    }
+
+    private String getProjectName(final GiftCloudServer giftCloudServer) throws IOException {
+        String selectedProjectName = (String) projectListModel.getSelectedItem();
+        if (StringUtils.isEmpty(selectedProjectName)) {
+            try {
+                selectedProjectName = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, giftCloudProperties.getLastProject());
+            } catch (IOException e) {
+                throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
+            }
+        }
+        return selectedProjectName;
     }
 
 }
