@@ -193,14 +193,7 @@ public class MultiUploaderUtils {
 
         final File uploadCacheFolder = new File(appFolder, GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME);
 
-        boolean success;
-        try {
-            success = uploadCacheFolder.mkdirs();
-        } catch (SecurityException e) {
-            success = false;
-        }
-
-        if (success) {
+        if (createDirectoryIfNotExisting(uploadCacheFolder)) {
             return uploadCacheFolder;
         } else {
             throw new RuntimeException("Unable to create an upload folder at " + uploadCacheFolder.getAbsolutePath());
@@ -218,27 +211,34 @@ public class MultiUploaderUtils {
 
         File appFolder = new File(System.getProperty("user.home"), GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME);
 
-        boolean success;
-        try {
-            success = appFolder.mkdirs();
-        } catch (SecurityException e) {
-            success = false;
-        }
-
-        if (!success) {
+        if (!createDirectoryIfNotExisting(appFolder)) {
             reporter.silentWarning("Could not create an upload folder in the user folder at "  + appFolder.getAbsolutePath() + ". Using system temporary folder instead.");
             appFolder = new File(System.getProperty("java.io.tmpdir"), GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME);
-            try {
-                success = appFolder.mkdirs();
-            } catch (SecurityException e) {
-                success = false;
-            }
-            if (!success) {
+
+            if (!createDirectoryIfNotExisting(appFolder)) {
                 throw new RuntimeException("Could not create an upload folder in the user folder or in the system temporary folder at " + appFolder.getAbsolutePath());
             }
         }
 
         return appFolder;
+    }
+
+    /**
+     * Creates a directory if it does not already exist
+     *
+     * @param directory a File object referencing the directory
+     * @return true if the directory already exists or has been successfully created
+     */
+    public static boolean createDirectoryIfNotExisting(final File directory) {
+        if (directory.exists()) {
+            return true;
+        } else {
+            try {
+                return directory.mkdirs();
+            } catch (SecurityException e) {
+                return false;
+            }
+        }
     }
 
 }

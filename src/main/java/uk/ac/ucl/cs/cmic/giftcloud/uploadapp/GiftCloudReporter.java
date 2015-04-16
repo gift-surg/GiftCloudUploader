@@ -27,6 +27,7 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.utils.MessageLogger;
 import netscape.javascript.JSObject;
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
@@ -39,13 +40,13 @@ import java.net.MalformedURLException;
 
 public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Progress {
 
-    private Container container;
-    private GiftCloudDialogs giftCloudDialogs;
+    private final Container container;
+    private final GiftCloudDialogs giftCloudDialogs;
 
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(GiftCloudReporter.class);
 
-    protected SafeCursorChanger cursorChanger;
-    protected MessageLogger messageLogger;
+    protected final SafeCursorChanger cursorChanger;
+    protected final MessageLogger messageLogger;
 
     private final ProgressModel progressModel = new ProgressModel();
 
@@ -201,10 +202,10 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
     }
 
     /**
-     * Loads logging resources, including loading logging properties from custom URLs specified by the
-     * LOG4J_PROPS_URL applet parameter.
+     * Loads logging resources
      */
     private void configureLogging() {
+        PropertyConfigurator.configure(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/log4j.properties"));
     }
 
     public void setWaitCursor() {
@@ -281,4 +282,6 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
     public void warnUser(final String warningMessage) {
         giftCloudDialogs.showMessage(warningMessage);
     }
+
+
 }
