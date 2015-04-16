@@ -35,15 +35,21 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     public GiftCloudUploaderMain(ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
 
-        final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
-
         giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"), this);
         giftCloudDialogs = new GiftCloudDialogs(giftCloudMainFrame);
+        reporter = new GiftCloudReporter(giftCloudMainFrame.getContainer(), giftCloudDialogs);
+
+        final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
+
+        // Initialise application properties
+        giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase);
+
+        // Initialise the main GIFT-Cloud class
+        giftCloudUploader = new GiftCloudUploader(giftCloudProperties, giftCloudMainFrame.getContainer(), reporter);
 
         final String buildDate = applicationBase.getBuildDateFromApplicationBase();
         JLabel statusBar = applicationBase.getStatusBarFromApplicationBase();
 
-        giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase);
 
         dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"));
         dicomNode.addObserver(new DicomNodeListener());
@@ -53,10 +59,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
         }
 
-        reporter = new GiftCloudReporter(giftCloudMainFrame.getContainer(), giftCloudDialogs);
-
-        // Initialise the main GIFT-Cloud class
-        giftCloudUploader = new GiftCloudUploader(giftCloudProperties, giftCloudMainFrame.getContainer(), reporter);
 
         // Attempt to authenticate
         giftCloudUploader.tryAuthentication();
@@ -225,10 +227,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         @Override
         public void update(Observable o, Object arg) {
-
-            // ToDo: if user hasn't logged in yet, there is no panel...
-
-
             final String newFileName = (String)arg;
             giftCloudUploaderPanel.rebuildFileList(dicomNode.getSrcDatabase());
             appendListener.filesChanged(newFileName);
@@ -256,7 +254,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     filesToUpload.add(fileName);
 
                     // ToDo: this is not threadsafe!
-                    // ToDo: giftCloudUploader might be null!
                     Thread activeThread = new Thread(new GiftCloudAppendUploadWorker(filesToUpload, giftCloudUploader, this, reporter));
                     activeThread.start();
                     filesAlreadyUploaded.add(fileName);
