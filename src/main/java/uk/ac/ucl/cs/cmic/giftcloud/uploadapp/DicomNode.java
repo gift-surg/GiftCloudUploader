@@ -23,9 +23,9 @@ public class DicomNode extends Observable {
     protected Map<String,Date> earliestDatesIndexedBySourceFilePath = new HashMap<String,Date>();
 
 
-    public DicomNode(final GiftCloudPropertiesFromApplication giftCloudProperties, final String databaseRootTitle) throws DicomException {
+    public DicomNode(final GiftCloudPropertiesFromApplication giftCloudProperties, final String databaseRootTitle, final MultiUploadReporter reporter) throws DicomException {
         this.giftCloudProperties = giftCloudProperties;
-        savedImagesFolder = new File(System.getProperty("java.io.tmpdir"));
+        savedImagesFolder = giftCloudProperties.getUploadFolder(reporter);
 
         {
             NetworkApplicationInformationFederated federatedNetworkApplicationInformation = new NetworkApplicationInformationFederated();

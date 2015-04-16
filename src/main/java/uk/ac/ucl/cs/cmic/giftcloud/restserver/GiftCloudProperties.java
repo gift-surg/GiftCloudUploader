@@ -1,15 +1,18 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+
+import java.io.File;
 import java.util.Optional;
 
 public interface GiftCloudProperties {
 
-    static final String propertyName_GiftCloudServerUrl = "GiftCloud_ServerUrl";
-    static final String propertyName_GiftCloudLastUsername = "GiftCloud_LastUsername";
-    static final String propertyName_GiftCloudLastProject = "GiftCloud_LastUploadProject";
-    static final String propertyName_LastImportDirectory = "LastImportDirectory";
-    static final String propertyName_LastExportDirectory = "LastExportDirectory";
+    String propertyName_GiftCloudServerUrl = "GiftCloud_ServerUrl";
+    String propertyName_GiftCloudLastUsername = "GiftCloud_LastUsername";
+    String propertyName_GiftCloudLastProject = "GiftCloud_LastUploadProject";
+    String propertyName_GiftCloudLocalUploadFolder = "GiftCloud_LocalUploadFolder";
+    String propertyName_LastImportDirectory = "LastImportDirectory";
+    String propertyName_LastExportDirectory = "LastExportDirectory";
 
     Optional<String> getGiftCloudUrl();
 
@@ -26,4 +29,6 @@ public interface GiftCloudProperties {
     Optional<String> getLastProject();
 
     void setLastProject(final String lastProjectName);
+
+    File getUploadFolder(final MultiUploadReporter reporter);
 }

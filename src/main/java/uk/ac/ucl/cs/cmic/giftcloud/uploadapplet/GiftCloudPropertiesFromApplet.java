@@ -88,4 +88,10 @@ public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
         // ToDo
     }
 
+    @Override
+    public File getUploadFolder(MultiUploadReporter reporter) {
+        // ToDo: the uploader folder is not currently an applet parameter, so we always use the default
+        return MultiUploaderUtils.createOrGetLocalUploadCacheDirectory(reporter);
+    }
+
 }

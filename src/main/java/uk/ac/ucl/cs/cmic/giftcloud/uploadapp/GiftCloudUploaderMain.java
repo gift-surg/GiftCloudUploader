@@ -34,12 +34,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     public GiftCloudUploaderMain(ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
+        final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
 
         giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"), this);
         giftCloudDialogs = new GiftCloudDialogs(giftCloudMainFrame);
         reporter = new GiftCloudReporter(giftCloudMainFrame.getContainer(), giftCloudDialogs);
-
-        final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
 
         // Initialise application properties
         giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase);
@@ -51,7 +50,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         JLabel statusBar = applicationBase.getStatusBarFromApplicationBase();
 
 
-        dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"));
+        dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"), reporter);
         dicomNode.addObserver(new DicomNodeListener());
         try {
             dicomNode.activateStorageSCP();

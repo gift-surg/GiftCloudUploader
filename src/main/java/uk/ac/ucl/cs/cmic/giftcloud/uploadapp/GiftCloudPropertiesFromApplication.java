@@ -105,6 +105,16 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     @Override
+    public File getUploadFolder(final MultiUploadReporter reporter) {
+        final String uploadFolderString = properties.getProperty(propertyName_GiftCloudLocalUploadFolder);
+        if (StringUtils.isNotBlank(uploadFolderString)) {
+            return new File(uploadFolderString);
+        } else {
+            return MultiUploaderUtils.createOrGetLocalUploadCacheDirectory(reporter);
+        }
+    }
+
+    @Override
     public Optional<char[]> getLastPassword() {
         return lastPassword;
     }
