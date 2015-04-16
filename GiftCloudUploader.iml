@@ -83,5 +83,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="Maven: org.nrg:ecat-io:0.1.0" level="application" />
+    <orderEntry type="library" name="commons-io:commons-io:2.4" level="project" />
   </component>
 </module>
