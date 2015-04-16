@@ -22,7 +22,7 @@ import org.nrg.ecat.edit.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.*;
 

@@ -14,6 +14,7 @@ import org.nrg.dcm.edit.ScriptEvaluationException;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.io.File;
 import java.io.IOException;

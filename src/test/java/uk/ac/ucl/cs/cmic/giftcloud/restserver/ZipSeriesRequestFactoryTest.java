@@ -4,6 +4,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.util.ArrayList;
 

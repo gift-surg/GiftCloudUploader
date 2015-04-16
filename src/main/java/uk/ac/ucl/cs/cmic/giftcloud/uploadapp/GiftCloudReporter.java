@@ -29,7 +29,7 @@ import com.pixelmed.utils.MessageLogger;
 import netscape.javascript.JSObject;
 import org.slf4j.Logger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import javax.swing.*;
 import java.awt.*;

@@ -12,7 +12,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import org.json.JSONException;
 import org.netbeans.spi.wizard.WizardPage;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Subject;

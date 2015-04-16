@@ -17,7 +17,10 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
+import java.io.File;
 import java.util.Optional;
 
 public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {

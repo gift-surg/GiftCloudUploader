@@ -15,11 +15,11 @@ import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.nrg.ecat.HeaderModification;
 import org.nrg.ecat.MatrixData;
 import org.nrg.ecat.var.Variable;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.ResultProgressListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -7,6 +7,7 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.*;
 import com.pixelmed.utils.CapabilitiesAvailable;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.io.*;
 import java.util.*;

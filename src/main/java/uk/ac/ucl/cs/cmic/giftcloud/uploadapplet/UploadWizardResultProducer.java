@@ -13,7 +13,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 import org.netbeans.spi.wizard.DeferredWizardResult;
 import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.netbeans.spi.wizard.WizardPage.WizardResultProducer;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import org.slf4j.Logger;

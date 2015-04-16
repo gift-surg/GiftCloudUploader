@@ -16,6 +16,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

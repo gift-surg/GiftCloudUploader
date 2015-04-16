@@ -18,7 +18,7 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
@@ -30,9 +30,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.nrg.IOUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import org.nrg.util.Base64;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Utils;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpUploadException;
 
 import java.io.*;
 import java.net.PasswordAuthentication;
@@ -41,6 +41,11 @@ import java.text.*;
 import java.util.*;
 
 public class MultiUploaderUtils {
+
+    final static String GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME = "GiftCloudUploader";
+    final static String GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME = "WaitingForUpload";
+
+
     static final String AUTHORIZATION_HEADER = "Authorization";
 
     private static final DateFormat PARSER_SQL = new SimpleDateFormat("yyyy-MM-dd");
@@ -173,6 +178,67 @@ public class MultiUploaderUtils {
             sb.append("</p><br>");
         }
         return sb;
+    }
+
+    /**
+     * Returns the folder for storing GiftCloud images waiting to be uploaded, creating the folder if it does not already exist.
+     * Will attempt to create a folder in the user directory, but if this is not permitted, will create a folder in the system temporary directory
+     *
+     * @param reporter for logging warnings
+     * @return File object referencing the existing or newly created folder
+     */
+    public static File createOrGetLocalUploadCacheDirectory(final MultiUploadReporter reporter) {
+
+        final File appFolder = createOrGetGiftCloudFolder(reporter);
+
+        final File uploadCacheFolder = new File(appFolder, GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME);
+
+        boolean success;
+        try {
+            success = uploadCacheFolder.mkdirs();
+        } catch (SecurityException e) {
+            success = false;
+        }
+
+        if (success) {
+            return uploadCacheFolder;
+        } else {
+            throw new RuntimeException("Unable to create an upload folder at " + uploadCacheFolder.getAbsolutePath());
+        }
+    }
+
+    /**
+     * Returns the folder for storing GiftCloud data, creating if it does not already exist.
+     * Will attempt to create a folder in the user directory, but if this is not permitted, will create a folder in the system temporary directory
+     *
+     * @param reporter for logging warnings
+     * @return File object referencing the existing or newly created folder
+     */
+    public static File createOrGetGiftCloudFolder(final MultiUploadReporter reporter) {
+
+        File appFolder = new File(System.getProperty("user.home"), GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME);
+
+        boolean success;
+        try {
+            success = appFolder.mkdirs();
+        } catch (SecurityException e) {
+            success = false;
+        }
+
+        if (!success) {
+            reporter.silentWarning("Could not create an upload folder in the user folder at "  + appFolder.getAbsolutePath() + ". Using system temporary folder instead.");
+            appFolder = new File(System.getProperty("java.io.tmpdir"), GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME);
+            try {
+                success = appFolder.mkdirs();
+            } catch (SecurityException e) {
+                success = false;
+            }
+            if (!success) {
+                throw new RuntimeException("Could not create an upload folder in the user folder or in the system temporary folder at " + appFolder.getAbsolutePath());
+            }
+        }
+
+        return appFolder;
     }
 
 }

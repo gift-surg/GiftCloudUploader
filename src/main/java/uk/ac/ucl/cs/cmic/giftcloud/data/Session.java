@@ -13,7 +13,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.data;
 import netscape.javascript.JSObject;
 import org.netbeans.spi.wizard.ResultProgressHandle;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 
 import java.io.IOException;

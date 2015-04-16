@@ -15,6 +15,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.json.JSONObject;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

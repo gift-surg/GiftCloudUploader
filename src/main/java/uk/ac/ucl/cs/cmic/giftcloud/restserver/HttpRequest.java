@@ -16,6 +16,8 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.IOException;
 import java.net.URL;

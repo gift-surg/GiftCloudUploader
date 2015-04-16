@@ -21,8 +21,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import org.json.JSONException;
 import org.netbeans.spi.wizard.WizardPage;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.UploadSelector;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

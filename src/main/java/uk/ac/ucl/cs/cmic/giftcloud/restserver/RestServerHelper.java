@@ -37,6 +37,8 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesAppendUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.UploadResultPanel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
 import java.io.IOException;

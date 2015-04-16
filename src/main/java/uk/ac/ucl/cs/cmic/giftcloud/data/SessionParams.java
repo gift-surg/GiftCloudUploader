@@ -2,7 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.data;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.UploadSelector;
 

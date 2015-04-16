@@ -18,7 +18,7 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 import netscape.javascript.JSObject;
 

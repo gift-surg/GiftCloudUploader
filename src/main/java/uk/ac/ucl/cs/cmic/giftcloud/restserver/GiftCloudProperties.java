@@ -1,5 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import java.util.Optional;
 
 public interface GiftCloudProperties {

@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.netbeans.spi.wizard.ResultProgressHandle;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import org.nrg.dcm.edit.ScriptApplicator;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.io.File;
 import java.io.IOException;

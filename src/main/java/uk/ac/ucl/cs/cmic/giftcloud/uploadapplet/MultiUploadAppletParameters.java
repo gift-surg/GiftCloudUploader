@@ -22,7 +22,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.applet.Applet;
 import java.io.IOException;

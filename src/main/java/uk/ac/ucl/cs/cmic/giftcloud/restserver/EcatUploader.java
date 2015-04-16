@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 import org.netbeans.spi.wizard.ResultProgressHandle;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

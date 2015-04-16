@@ -7,6 +7,8 @@ import org.netbeans.spi.wizard.ResultProgressHandle;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadAbortedException;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.util.List;
 import java.util.Map;
