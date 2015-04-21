@@ -1,11 +1,12 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import com.pixelmed.display.EmptyProgress;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.awt.*;
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class GiftCloudServer {
     private final RestServerHelper restServerHelper;
     private final Container container;
     private final GiftCloudAutoUploader autoUploader;
+    private final BackgroundUploader backgroundUploader;
     private final URI giftCloudUri;
 
     public GiftCloudServer(final String giftCloudServerUrl, final Container container, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) throws MalformedURLException {
@@ -41,6 +43,10 @@ public class GiftCloudServer {
         final RestServer restServer = new RestServer(giftCloudProperties, giftCloudServerUrl, reporter);
         restServerHelper = new RestServerHelper(restServer, reporter);
         autoUploader = new GiftCloudAutoUploader(restServerHelper, giftCloudServerUrl, container, reporter);
+
+        final EmptyProgress emptyProgress = new EmptyProgress();
+
+        backgroundUploader = new BackgroundUploader(new BackgroundUploadersInProgressList(), restServerHelper, emptyProgress, reporter);
     }
 
     public void tryAuthentication() throws IOException {
@@ -78,5 +84,8 @@ public class GiftCloudServer {
 
     public String getGiftCloudServerUrl() {
         return giftCloudServerUrl;
+    }
+
+    public void addFileInstanceToUploadQueue(String dicomFileName, String projectName) {
     }
 }

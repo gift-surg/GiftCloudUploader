@@ -11,7 +11,7 @@ import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.StudyRootQueryInformationModel;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingFileList;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadList;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.*;
 
 import javax.swing.*;
@@ -32,7 +32,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final GiftCloudReporter reporter;
     private final Optional<GiftCloudSystemTray> giftCloudSystemTray;
     private QueryInformationModel currentRemoteQueryInformationModel;
-    private final PendingFileList pendingFileList;
+    private final PendingUploadList pendingUploadList;
 
     public GiftCloudUploaderMain(ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
@@ -45,15 +45,17 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Initialise application properties
         giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase);
 
+        pendingUploadList = new PendingUploadList(giftCloudProperties, reporter);
+        pendingUploadList.addExistingFiles();
+
         // Initialise the main GIFT-Cloud class
-        giftCloudUploader = new GiftCloudUploader(giftCloudProperties, giftCloudMainFrame.getContainer(), reporter);
+        giftCloudUploader = new GiftCloudUploader(giftCloudProperties, giftCloudMainFrame.getContainer(), pendingUploadList, reporter);
 
         final String buildDate = applicationBase.getBuildDateFromApplicationBase();
         JLabel statusBar = applicationBase.getStatusBarFromApplicationBase();
 
-        pendingFileList = new PendingFileList(giftCloudProperties, reporter);
 
-        dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"), pendingFileList, pendingFileList.getPendingUploadFolder(), reporter);
+        dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"), giftCloudUploader, pendingUploadList.getPendingUploadFolder(), reporter);
         dicomNode.addObserver(new DicomNodeListener());
         try {
             dicomNode.activateStorageSCP();
@@ -168,7 +170,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     @Override
     public void runImport(String filePath, final Progress progress) {
-        new Thread(new ImportWorker(dicomNode, filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), pendingFileList, reporter)).start();
+        new Thread(new ImportWorker(dicomNode, filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), pendingUploadList, giftCloudUploader, reporter)).start();
     }
 
     @Override

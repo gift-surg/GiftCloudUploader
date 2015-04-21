@@ -7,7 +7,7 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.*;
 import com.pixelmed.utils.CapabilitiesAvailable;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingFileList;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.io.*;
@@ -22,12 +22,12 @@ public class DicomNode extends Observable {
     private NetworkApplicationInformation networkApplicationInformation;
     private DatabaseInformationModel srcDatabase;
     protected Map<String,Date> earliestDatesIndexedBySourceFilePath = new HashMap<String,Date>();
-    private PendingFileList pendingFileList;
+    private final GiftCloudUploader giftCloudUploader;
 
 
-    public DicomNode(final GiftCloudPropertiesFromApplication giftCloudProperties, final String databaseRootTitle, final PendingFileList pendingFileList, final File uploadFolder, final MultiUploadReporter reporter) throws DicomException {
+    public DicomNode(final GiftCloudPropertiesFromApplication giftCloudProperties, final String databaseRootTitle, final GiftCloudUploader giftCloudUploader, final File uploadFolder, final MultiUploadReporter reporter) throws DicomException {
         this.giftCloudProperties = giftCloudProperties;
-        this.pendingFileList = pendingFileList;
+        this.giftCloudUploader = giftCloudUploader;
         savedImagesFolder = uploadFolder;
 
         {
@@ -170,13 +170,13 @@ public class DicomNode extends Observable {
 //                giftCloudUploaderPanel.logger.sendLn("Received "+dicomFileName+" from "+localName+" ("+callingAETitle+")");
                 try {
                     importFileIntoDatabase(dicomFileName, DatabaseInformationModel.FILE_COPIED);
-                    pendingFileList.addFileInstance(dicomFileName);
+                    giftCloudUploader.addFileInstance(dicomFileName);
 //                    giftCloudUploaderPanel.srcDatabasePanel.removeAll();
 //                    new GiftCloudUploaderPanel.OurSourceDatabaseTreeBrowser(srcDatabase, giftCloudUploaderPanel.srcDatabasePanel);
 //                    giftCloudUploaderPanel.srcDatabasePanel.validate();
 
 
-                    
+
                     // ToDo: Remove this line so the file doesn't get deleted on exit
                     new File(dicomFileName).deleteOnExit();
                 } catch (Exception e) {

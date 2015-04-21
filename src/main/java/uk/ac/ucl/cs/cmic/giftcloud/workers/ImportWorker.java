@@ -9,21 +9,24 @@ import com.pixelmed.utils.MessageLogger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingFileList;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadList;
 
 public class ImportWorker implements Runnable {
     private DicomNode dicomNode;
+    private GiftCloudUploader giftCloudUploader;
     private GiftCloudReporter reporter;
     private MediaImporter importer;
     private String pathName;
     private Progress progress;
-    private PendingFileList pendingFileList;
+    private PendingUploadList pendingUploadList;
 
-    public ImportWorker(final DicomNode dicomNode, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final PendingFileList pendingFileList, final GiftCloudReporter reporter) {
+    public ImportWorker(final DicomNode dicomNode, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final PendingUploadList pendingUploadList, final GiftCloudUploader giftCloudUploader, final GiftCloudReporter reporter) {
         this.dicomNode = dicomNode;
+        this.giftCloudUploader = giftCloudUploader;
         this.reporter = reporter;
         this.progress = progress;
-        this.pendingFileList = pendingFileList;
+        this.pendingUploadList = pendingUploadList;
         importer = new OurMediaImporter(reporter, acceptAnyTransferSyntax);
         this.pathName=pathName;
     }
@@ -67,7 +70,7 @@ public class ImportWorker implements Runnable {
             try {
                 logger.sendLn("Importing DICOM file: "+mediaFileName);
                 dicomNode.importFileIntoDatabase(mediaFileName, DatabaseInformationModel.FILE_REFERENCED);
-                pendingFileList.addFileReference(mediaFileName);
+                giftCloudUploader.addFileReference(mediaFileName);
             }
             catch (Exception e) {
                 e.printStackTrace(System.err);

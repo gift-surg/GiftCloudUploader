@@ -2,32 +2,37 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadWizard;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import javax.security.sasl.AuthenticationException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Vector;
 import java.util.concurrent.CancellationException;
 
 public class GiftCloudUploader {
     private final GiftCloudProperties giftCloudProperties;
     private final Container container;
+    private PendingUploadList pendingUploadList;
     private final MultiUploadReporter reporter;
     private final ProjectListModel projectListModel;
     private final GiftCloudServerFactory serverFactory;
+    private final BackgroundAddToUploaderService backgroundAddToUploaderService;
 
-    public GiftCloudUploader(final GiftCloudProperties giftCloudProperties, final Container container, final MultiUploadReporter reporter) {
+    public GiftCloudUploader(final GiftCloudProperties giftCloudProperties, final Container container, final PendingUploadList pendingUploadList, final MultiUploadReporter reporter) {
         this.giftCloudProperties = giftCloudProperties;
         this.container = container;
+        this.pendingUploadList = pendingUploadList;
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
         serverFactory = new GiftCloudServerFactory(giftCloudProperties, projectListModel, reporter.getContainer(), reporter);
+        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, reporter);
     }
 
     /**
@@ -142,7 +147,7 @@ public class GiftCloudUploader {
         }
     }
 
-    private String getProjectName(final GiftCloudServer giftCloudServer) throws IOException {
+    String getProjectName(final GiftCloudServer giftCloudServer) throws IOException {
         String selectedProjectName = (String) projectListModel.getSelectedItem();
         if (StringUtils.isEmpty(selectedProjectName)) {
             try {
@@ -154,4 +159,32 @@ public class GiftCloudUploader {
         return selectedProjectName;
     }
 
+    public void addFileReference(final String mediaFileName) {
+        try {
+            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
+
+            // Allow user to log in again if they have previously cancelled a login dialog
+            giftCloudServer.resetCancellation();
+
+            final String projectName = getProjectName(giftCloudServer);
+            pendingUploadList.addFileReference(mediaFileName, Optional.of(projectName));
+
+        } catch (Throwable throwable) {
+            // ToDo
+        }
+    }
+
+    public void addFileInstance(final String dicomFileName) {
+        try {
+            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
+
+            // Allow user to log in again if they have previously cancelled a login dialog
+            giftCloudServer.resetCancellation();
+
+            final String projectName = getProjectName(giftCloudServer);
+            pendingUploadList.addFileInstance(dicomFileName, Optional.of(projectName));
+
+        } catch (Throwable throwable) {
+            // ToDo
+        }    }
 }
