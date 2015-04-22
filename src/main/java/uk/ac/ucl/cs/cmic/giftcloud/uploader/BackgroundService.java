@@ -2,13 +2,13 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
-public abstract class BackgroundService<T_taskType, T_taskListType extends BackgroundServiceTaskList<T_taskType, T_resultType>, T_resultType> implements Runnable {
+public abstract class BackgroundService<T_taskType, T_resultType> implements Runnable {
 
-    private final T_taskListType backgroundServicePendingList;
+    private final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList;
     protected final MultiUploadReporter reporter;
     private Thread serviceThread = null;
 
-    public BackgroundService(final T_taskListType backgroundServicePendingList, final MultiUploadReporter reporter) {
+    public BackgroundService(final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList, final MultiUploadReporter reporter) {
         this.backgroundServicePendingList = backgroundServicePendingList;
         this.reporter = reporter;
     }

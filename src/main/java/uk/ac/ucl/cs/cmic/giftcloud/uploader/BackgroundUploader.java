@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-public class BackgroundUploader extends BackgroundService<Callable<Set<String>>, BackgroundCompletionServiceTaskList<Set<String>>, Future<Set<String>>> {
+public class BackgroundUploader extends BackgroundService<Callable<Set<String>>, Future<Set<String>>> {
 
     private final RestServerHelper restServerHelper;
     private final ResultProgressHandle progress;

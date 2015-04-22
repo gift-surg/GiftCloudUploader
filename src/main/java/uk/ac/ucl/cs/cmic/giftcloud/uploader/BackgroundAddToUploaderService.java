@@ -4,7 +4,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.util.Optional;
 
-public class BackgroundAddToUploaderService extends BackgroundService<PendingUploadTask, PendingUploadTaskList, PendingUploadTask> {
+public class BackgroundAddToUploaderService extends BackgroundService<PendingUploadTask, PendingUploadTask> {
 
     private final GiftCloudServerFactory serverFactory;
     private final GiftCloudUploader uploader;
