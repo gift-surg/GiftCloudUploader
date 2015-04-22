@@ -11,7 +11,7 @@ import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.StudyRootQueryInformationModel;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadList;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadTaskList;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.*;
 
 import javax.swing.*;
@@ -32,7 +32,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final GiftCloudReporter reporter;
     private final Optional<GiftCloudSystemTray> giftCloudSystemTray;
     private QueryInformationModel currentRemoteQueryInformationModel;
-    private final PendingUploadList pendingUploadList;
+    private final PendingUploadTaskList pendingUploadList;
 
     public GiftCloudUploaderMain(ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
@@ -45,7 +45,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Initialise application properties
         giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase);
 
-        pendingUploadList = new PendingUploadList(giftCloudProperties, reporter);
+        pendingUploadList = new PendingUploadTaskList(giftCloudProperties, reporter);
         pendingUploadList.addExistingFiles();
 
         // Initialise the main GIFT-Cloud class

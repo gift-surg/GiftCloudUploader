@@ -46,7 +46,9 @@ public class GiftCloudServer {
 
         final EmptyProgress emptyProgress = new EmptyProgress();
 
-        backgroundUploader = new BackgroundUploader(new BackgroundUploadersTaskList(), restServerHelper, emptyProgress, reporter);
+        final int numThreads = 1;
+
+        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList(numThreads), restServerHelper, emptyProgress, reporter);
     }
 
     public void tryAuthentication() throws IOException {
