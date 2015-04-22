@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BackgroundServicePendingList<TItemType extends BackgroundServicePendingItem, TReturnType, TResultType extends BackgroundServiceResult> {
+public abstract class BackgroundServicePendingList<TItemType, TResultType extends BackgroundServiceResult<TItemType>> {
     private final List<FailureRecord> uploadFailures = new ArrayList<FailureRecord>();
 
     public abstract void add(final TItemType pendingItem, final BackgroundServiceErrorRecord errorRecord);
@@ -17,7 +17,7 @@ public abstract class BackgroundServicePendingList<TItemType extends BackgroundS
         add(pendingItem, new BackgroundServiceErrorRecord());
     }
 
-    public final void retry(final BackgroundServiceResult<TItemType, TReturnType> result) {
+    public final void retry(final BackgroundServiceResult<TItemType> result) {
         if (result.shouldRetry()) {
             add(result.getPendingItem(), result.getErrorRecord());
         } else {

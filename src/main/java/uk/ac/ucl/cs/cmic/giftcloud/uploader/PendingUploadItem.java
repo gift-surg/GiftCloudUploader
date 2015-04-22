@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import java.util.Optional;
 import java.util.Vector;
 
-public class PendingUploadItem extends BackgroundServicePendingItem {
+public class PendingUploadItem {
 
     private final Vector<String> paths;
     private final boolean append;

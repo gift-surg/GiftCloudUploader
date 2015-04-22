@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-public class BackgroundUploader extends BackgroundService<BackgroundUploaderItem, BackgroundUploadersInProgressList, BackgroundUploadersInProgressList.BackgroundUploaderResult, Future<Set<String>>> {
+public class BackgroundUploader extends BackgroundService<CallableUploader, BackgroundUploadersInProgressList, BackgroundUploadersInProgressList.BackgroundUploaderResult> {
 
     private final RestServerHelper restServerHelper;
     private final ResultProgressHandle progress;
@@ -40,7 +40,7 @@ public class BackgroundUploader extends BackgroundService<BackgroundUploaderItem
 
     @Override
     protected void processItem(BackgroundUploadersInProgressList.BackgroundUploaderResult pendingUploadItem) throws Exception {
-        final Future<Set<String>> future = pendingUploadItem.getResult();
+        final Future<Set<String>> future = pendingUploadItem.getFutureResult();
         final Set<String> result = future.get();
     }
 }

@@ -2,7 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
-public abstract class BackgroundService<TItemType extends BackgroundServicePendingItem, TListType extends BackgroundServicePendingList<TItemType, TReturnType, TResultType>, TResultType extends BackgroundServiceResult<TItemType, TReturnType>, TReturnType> implements Runnable {
+public abstract class BackgroundService<TItemType, TListType extends BackgroundServicePendingList<TItemType, TResultType>, TResultType extends BackgroundServiceResult<TItemType>> implements Runnable {
 
     private final TListType backgroundServicePendingList;
     protected final MultiUploadReporter reporter;

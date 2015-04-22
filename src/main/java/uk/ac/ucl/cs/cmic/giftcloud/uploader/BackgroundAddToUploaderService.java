@@ -3,9 +3,8 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.util.Optional;
-import java.util.Vector;
 
-public class BackgroundAddToUploaderService extends BackgroundService<PendingUploadItem, PendingUploadList, PendingUploadResult, Vector<String>> {
+public class BackgroundAddToUploaderService extends BackgroundService<PendingUploadItem, PendingUploadList, PendingUploadResult> {
 
     private final GiftCloudServerFactory serverFactory;
     private final GiftCloudUploader uploader;

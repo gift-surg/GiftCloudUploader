@@ -7,14 +7,13 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import java.io.File;
 import java.util.Iterator;
 import java.util.Optional;
-import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Maintains lists of files that are waiting to be uploaded
  */
-public class PendingUploadList extends BackgroundServicePendingList<PendingUploadItem, Vector<String>, PendingUploadResult> {
+public class PendingUploadList extends BackgroundServicePendingList<PendingUploadItem, PendingUploadResult> {
     private final BlockingQueue<PendingUploadResult> pendingUploadItemList = new LinkedBlockingQueue<PendingUploadResult>();
     private final File pendingUploadFolder;
 
