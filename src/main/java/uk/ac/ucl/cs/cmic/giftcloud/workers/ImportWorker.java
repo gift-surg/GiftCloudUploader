@@ -10,7 +10,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadList;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadTaskList;
 
 public class ImportWorker implements Runnable {
     private DicomNode dicomNode;
@@ -19,9 +19,9 @@ public class ImportWorker implements Runnable {
     private MediaImporter importer;
     private String pathName;
     private Progress progress;
-    private PendingUploadList pendingUploadList;
+    private PendingUploadTaskList pendingUploadList;
 
-    public ImportWorker(final DicomNode dicomNode, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final PendingUploadList pendingUploadList, final GiftCloudUploader giftCloudUploader, final GiftCloudReporter reporter) {
+    public ImportWorker(final DicomNode dicomNode, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final PendingUploadTaskList pendingUploadList, final GiftCloudUploader giftCloudUploader, final GiftCloudReporter reporter) {
         this.dicomNode = dicomNode;
         this.giftCloudUploader = giftCloudUploader;
         this.reporter = reporter;

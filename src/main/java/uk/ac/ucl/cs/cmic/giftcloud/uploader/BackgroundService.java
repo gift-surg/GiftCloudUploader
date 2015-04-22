@@ -2,13 +2,13 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
-public abstract class BackgroundService<TItemType, TListType extends BackgroundServicePendingList<TItemType, TResultType>, TResultType extends BackgroundServiceResult<TItemType>> implements Runnable {
+public abstract class BackgroundService<T_taskType, T_taskListType extends BackgroundServiceTaskList<T_taskType, T_resultType>, T_resultType> implements Runnable {
 
-    private final TListType backgroundServicePendingList;
+    private final T_taskListType backgroundServicePendingList;
     protected final MultiUploadReporter reporter;
     private Thread serviceThread = null;
 
-    public BackgroundService(final TListType backgroundServicePendingList, final MultiUploadReporter reporter) {
+    public BackgroundService(final T_taskListType backgroundServicePendingList, final MultiUploadReporter reporter) {
         this.backgroundServicePendingList = backgroundServicePendingList;
         this.reporter = reporter;
     }
@@ -38,9 +38,9 @@ public abstract class BackgroundService<TItemType, TListType extends BackgroundS
         // Therefore we must check both for the interrupted flag and for the exception in order to correctly process an interruption.
         while (!serviceThread.isInterrupted()) {
             try {
-                final TResultType backgroundServiceResult = backgroundServicePendingList.take();
+                final BackgroundServiceTaskWrapper<T_taskType, T_resultType> backgroundServiceResult = backgroundServicePendingList.take();
                 try {
-                    processItem(backgroundServiceResult);
+                    processItem(backgroundServiceResult.getResult());
                 } catch (Exception e) {
                     reporter.silentLogException(e, "Service failed with the following error:" + e.getLocalizedMessage());
                     backgroundServiceResult.addError(e);
@@ -56,5 +56,5 @@ public abstract class BackgroundService<TItemType, TListType extends BackgroundS
         // We leave all remaining items on the queue so they can be processed if the thread is restarted
     }
 
-    abstract protected void processItem(final TResultType pendingUploadItem) throws Exception;
+    abstract protected void processItem(final T_resultType backgroundServiceResult) throws Exception;
 }

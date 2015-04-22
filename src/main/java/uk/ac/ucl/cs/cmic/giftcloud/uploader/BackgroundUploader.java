@@ -10,19 +10,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-public class BackgroundUploader extends BackgroundService<CallableUploader, BackgroundUploadersInProgressList, BackgroundUploadersInProgressList.BackgroundUploaderResult> {
+public class BackgroundUploader extends BackgroundService<CallableUploader, BackgroundUploadersTaskList, Future<Set<String>>> {
 
     private final RestServerHelper restServerHelper;
     private final ResultProgressHandle progress;
     private final boolean useFixedSize = true;
-    final BackgroundUploadersInProgressList backgroundUploadersInProgressList;
+    final BackgroundUploadersTaskList backgroundUploadersTaskList;
 
 
-    public BackgroundUploader(final BackgroundUploadersInProgressList backgroundUploadersInProgressList, final RestServerHelper restServerHelper, final ResultProgressHandle progress, final MultiUploadReporter reporter) {
-        super(backgroundUploadersInProgressList, reporter);
+    public BackgroundUploader(final BackgroundUploadersTaskList backgroundUploadersTaskList, final RestServerHelper restServerHelper, final ResultProgressHandle progress, final MultiUploadReporter reporter) {
+        super(backgroundUploadersTaskList, reporter);
         this.restServerHelper = restServerHelper;
         this.progress = progress;
-        this.backgroundUploadersInProgressList = backgroundUploadersInProgressList;
+        this.backgroundUploadersTaskList = backgroundUploadersTaskList;
     }
 
 
@@ -34,13 +34,12 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Back
 
     private void addFile(XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, UploadStatisticsReporter stats, FileCollection fileCollection) {
         final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, fileCollection, applicators, stats, restServerHelper);
-        backgroundUploadersInProgressList.add(uploader);
+        backgroundUploadersTaskList.add(uploader);
     }
 
 
     @Override
-    protected void processItem(BackgroundUploadersInProgressList.BackgroundUploaderResult pendingUploadItem) throws Exception {
-        final Future<Set<String>> future = pendingUploadItem.getFutureResult();
-        final Set<String> result = future.get();
+    protected void processItem(Future<Set<String>> futureResult) throws Exception {
+        final Set<String> result = futureResult.get();
     }
 }

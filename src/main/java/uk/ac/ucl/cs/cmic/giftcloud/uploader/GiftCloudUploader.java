@@ -19,13 +19,13 @@ import java.util.concurrent.CancellationException;
 public class GiftCloudUploader {
     private final GiftCloudProperties giftCloudProperties;
     private final Container container;
-    private PendingUploadList pendingUploadList;
+    private final PendingUploadTaskList pendingUploadList;
     private final MultiUploadReporter reporter;
     private final ProjectListModel projectListModel;
     private final GiftCloudServerFactory serverFactory;
     private final BackgroundAddToUploaderService backgroundAddToUploaderService;
 
-    public GiftCloudUploader(final GiftCloudProperties giftCloudProperties, final Container container, final PendingUploadList pendingUploadList, final MultiUploadReporter reporter) {
+    public GiftCloudUploader(final GiftCloudProperties giftCloudProperties, final Container container, final PendingUploadTaskList pendingUploadList, final MultiUploadReporter reporter) {
         this.giftCloudProperties = giftCloudProperties;
         this.container = container;
         this.pendingUploadList = pendingUploadList;
@@ -33,6 +33,14 @@ public class GiftCloudUploader {
         projectListModel = new ProjectListModel(giftCloudProperties);
         serverFactory = new GiftCloudServerFactory(giftCloudProperties, projectListModel, reporter.getContainer(), reporter);
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, reporter);
+    }
+
+    public void setUploadServiceRunningState(final boolean start) {
+        if (start) {
+            backgroundAddToUploaderService.start();
+        } else {
+            backgroundAddToUploaderService.stop();
+        }
     }
 
     /**

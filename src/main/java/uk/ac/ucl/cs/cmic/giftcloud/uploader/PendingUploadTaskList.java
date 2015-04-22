@@ -13,11 +13,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Maintains lists of files that are waiting to be uploaded
  */
-public class PendingUploadList extends BackgroundServicePendingList<PendingUploadItem, PendingUploadResult> {
-    private final BlockingQueue<PendingUploadResult> pendingUploadItemList = new LinkedBlockingQueue<PendingUploadResult>();
+public class PendingUploadTaskList extends BackgroundServiceTaskList<PendingUploadTask, PendingUploadTask> {
+    private final BlockingQueue<BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask>> pendingUploadItemList = new LinkedBlockingQueue<BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask>>();
     private final File pendingUploadFolder;
 
-    public PendingUploadList(final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+    public PendingUploadTaskList(final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
         pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
     }
 
@@ -34,20 +34,20 @@ public class PendingUploadList extends BackgroundServicePendingList<PendingUploa
     }
 
     public void addFileReference(final String fileReference, final Optional<String> projectName) {
-        add(new PendingUploadItemReference(fileReference, projectName));
+        add(new PendingUploadTaskReference(fileReference, projectName));
     }
 
     public void addFileInstance(final String fileInstance, final Optional<String> projectName) {
-        add(new PendingUploadItemInstance(fileInstance, projectName));
+        add(new PendingUploadTaskInstance(fileInstance, projectName));
     }
 
     @Override
-    public void add(PendingUploadItem pendingItem, BackgroundServiceErrorRecord errorRecord) {
-        pendingUploadItemList.add(new PendingUploadResult(pendingItem, pendingItem.getPaths(), errorRecord));
+    public void add(PendingUploadTask pendingItem, BackgroundServiceErrorRecord errorRecord) {
+        pendingUploadItemList.add(new BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask>(pendingItem, pendingItem, errorRecord));
     }
 
     @Override
-    public PendingUploadResult take() throws InterruptedException {
+    public BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask> take() throws InterruptedException {
         return pendingUploadItemList.take();
     }
 
@@ -55,14 +55,14 @@ public class PendingUploadList extends BackgroundServicePendingList<PendingUploa
         return pendingUploadFolder;
     }
 
-    private class PendingUploadItemReference extends PendingUploadItem {
-        PendingUploadItemReference(final String fileReference, final Optional<String> projectName) {
+    private class PendingUploadTaskReference extends PendingUploadTask {
+        PendingUploadTaskReference(final String fileReference, final Optional<String> projectName) {
             super(fileReference, projectName, true);
         }
     }
 
-    private class PendingUploadItemInstance extends PendingUploadItem {
-        PendingUploadItemInstance(final String fileInstance, final Optional<String> projectName) {
+    private class PendingUploadTaskInstance extends PendingUploadTask {
+        PendingUploadTaskInstance(final String fileInstance, final Optional<String> projectName) {
             super(fileInstance, projectName, true);
         }
     }

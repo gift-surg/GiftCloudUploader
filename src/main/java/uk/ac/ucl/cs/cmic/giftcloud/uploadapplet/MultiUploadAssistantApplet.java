@@ -21,7 +21,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadList;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadTaskList;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,7 +54,7 @@ public class MultiUploadAssistantApplet extends JApplet {
 
             GiftCloudPropertiesFromApplet giftCloudPropertiesFromApplet = new GiftCloudPropertiesFromApplet(multiUploadParameters.get());
 
-            final PendingUploadList pendingUploadList = new PendingUploadList(giftCloudPropertiesFromApplet, reporter.get());
+            final PendingUploadTaskList pendingUploadList = new PendingUploadTaskList(giftCloudPropertiesFromApplet, reporter.get());
             giftCloudUploader = Optional.of(new GiftCloudUploader(giftCloudPropertiesFromApplet, this, pendingUploadList, reporter.get()));
 
         } catch (Throwable t) {
