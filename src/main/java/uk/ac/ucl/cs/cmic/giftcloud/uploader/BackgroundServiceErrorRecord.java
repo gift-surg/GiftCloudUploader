@@ -11,8 +11,12 @@ class BackgroundServiceErrorRecord {
         errorList.add(new ErrorRecordItem(exception));
     }
 
-    public boolean shouldRetry() {
+    boolean shouldRetry() {
         return (errorList.size() < 3);
+    }
+
+    List<ErrorRecordItem> getErrorList() {
+        return errorList;
     }
 
     class ErrorRecordItem {
@@ -22,5 +26,8 @@ class BackgroundServiceErrorRecord {
             this.exception = exception;
         }
 
+        Exception getException() {
+            return exception;
+        }
     }
 }
