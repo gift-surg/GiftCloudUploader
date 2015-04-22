@@ -25,13 +25,25 @@ public abstract class BackgroundServiceTaskList<T_taskType, T_resultType> {
         }
     }
 
+    public final List<FailureRecord> getFailures() {
+        return uploadFailures;
+    }
+
     class FailureRecord {
-        private T_taskType pendingItem;
+        private T_taskType task;
         private BackgroundServiceErrorRecord errorRecord;
 
-        FailureRecord(final T_taskType pendingItem, final BackgroundServiceErrorRecord errorRecord) {
-            this.pendingItem = pendingItem;
+        FailureRecord(final T_taskType task, final BackgroundServiceErrorRecord errorRecord) {
+            this.task = task;
             this.errorRecord = errorRecord;
+        }
+
+        public T_taskType getTask() {
+            return task;
+        }
+
+        public BackgroundServiceErrorRecord getErrorRecord() {
+            return errorRecord;
         }
     }
 
