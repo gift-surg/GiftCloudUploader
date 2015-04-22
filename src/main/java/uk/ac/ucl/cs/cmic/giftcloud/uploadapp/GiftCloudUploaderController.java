@@ -2,7 +2,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
@@ -14,6 +13,9 @@ public interface GiftCloudUploaderController {
     void hide();
 
     void show();
+
+    void startUploading();
+    void pauseUploading();
 
     void upload(Vector<String> filePaths);
 

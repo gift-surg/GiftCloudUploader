@@ -118,6 +118,16 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
+    public void startUploading() {
+        giftCloudUploader.setUploadServiceRunningState(true);
+    }
+
+    @Override
+    public void pauseUploading() {
+        giftCloudUploader.setUploadServiceRunningState(false);
+    }
+
+    @Override
     public void upload(Vector<String> filePaths) {
         try {
             Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudUploader, reporter));
