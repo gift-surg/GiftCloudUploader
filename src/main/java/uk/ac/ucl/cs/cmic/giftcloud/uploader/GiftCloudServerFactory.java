@@ -16,12 +16,14 @@ public class GiftCloudServerFactory {
     private GiftCloudProperties properties;
     private ProjectListModel projectListModel;
     private Container container;
+    private PendingUploadTaskList pendingUploadTaskList;
     private MultiUploadReporter reporter;
 
-    public GiftCloudServerFactory(final GiftCloudProperties properties, final ProjectListModel projectListModel, final Container container, final MultiUploadReporter reporter) {
+    public GiftCloudServerFactory(final GiftCloudProperties properties, final ProjectListModel projectListModel, final Container container, final PendingUploadTaskList pendingUploadTaskList, final MultiUploadReporter reporter) {
         this.properties = properties;
         this.projectListModel = projectListModel;
         this.container = container;
+        this.pendingUploadTaskList = pendingUploadTaskList;
         this.reporter = reporter;
     }
 
@@ -42,7 +44,7 @@ public class GiftCloudServerFactory {
             // The project list is no longer valid. We will update it after creating a new GiftCloudAutoUploader, but if that throws an exception, we want to leave the project list model in an invalid state
             projectListModel.invalidate();
 
-            giftCloudServer = Optional.of(new GiftCloudServer(giftCloudUrl, container, properties, reporter));
+            giftCloudServer = Optional.of(new GiftCloudServer(giftCloudUrl, container, properties, pendingUploadTaskList, reporter));
 
             // Now update the project list
             projectListModel.setItems(giftCloudServer.get().getListOfProjects());

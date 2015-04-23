@@ -41,10 +41,13 @@ public abstract class BackgroundService<T_taskType, T_resultType> implements Run
                 final BackgroundServiceTaskWrapper<T_taskType, T_resultType> backgroundServiceResult = backgroundServicePendingList.take();
                 try {
                     processItem(backgroundServiceResult.getResult());
-                } catch (Exception e) {
+                    notifySuccess(backgroundServiceResult);
+                } catch (Throwable e) {
                     reporter.silentLogException(e, "Service failed with the following error:" + e.getLocalizedMessage());
                     backgroundServiceResult.addError(e);
-                    backgroundServicePendingList.retry(backgroundServiceResult);
+                    if (!backgroundServicePendingList.retry(backgroundServiceResult)) {
+                        notifyFailure(backgroundServiceResult);
+                    }
                 }
 
             } catch (InterruptedException e) {
@@ -57,4 +60,7 @@ public abstract class BackgroundService<T_taskType, T_resultType> implements Run
     }
 
     abstract protected void processItem(final T_resultType backgroundServiceResult) throws Exception;
+
+    abstract protected void notifySuccess(final BackgroundServiceTaskWrapper<T_taskType, T_resultType> taskWrapper);
+    abstract protected void notifyFailure(final BackgroundServiceTaskWrapper<T_taskType, T_resultType> taskWrapper);
 }

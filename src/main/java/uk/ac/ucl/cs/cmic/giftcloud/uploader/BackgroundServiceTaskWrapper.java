@@ -19,7 +19,7 @@ class BackgroundServiceTaskWrapper<T_taskType, T_resultType> {
         return errorRecord;
     }
 
-    void addError(final Exception e) {
+    void addError(final Throwable e) {
         errorRecord.addException(e);
     }
 

@@ -94,11 +94,11 @@ public class BackgroundServiceTaskListTest {
         Assert.assertNotNull(backgroundServiceTaskList.taskList.get(0).errorRecord);
     }
 
-    class BackgroundServiceTaskListFake extends BackgroundServiceTaskList {
+    class BackgroundServiceTaskListFake extends BackgroundServiceTaskList<String, String> {
         final List<TaskError> taskList = new ArrayList<TaskError>();
 
         @Override
-        public void add(Object task, BackgroundServiceErrorRecord errorRecord) {
+        public void add(String task, BackgroundServiceErrorRecord errorRecord) {
             taskList.add(new TaskError(task, errorRecord));
         }
 

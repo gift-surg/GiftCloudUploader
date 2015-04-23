@@ -25,8 +25,8 @@ import java.util.concurrent.Callable;
 
 
 public abstract class CallableUploader implements Callable<Set<String>> {
-    protected String projectLabel;
-    protected String subjectLabel;
+    protected final String projectLabel;
+    protected final String subjectLabel;
     protected final SessionParameters sessionParameters;
     protected final XnatModalityParams xnatModalityParams;
     protected final FileCollection fileCollection;

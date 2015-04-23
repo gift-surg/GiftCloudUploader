@@ -10,7 +10,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
     private final GiftCloudUploader uploader;
 
     public BackgroundAddToUploaderService(final PendingUploadTaskList pendingUploadList, final GiftCloudServerFactory serverFactory, final GiftCloudUploader uploader, final MultiUploadReporter reporter) {
-        super(pendingUploadList, reporter);
+        super(pendingUploadList.getList(), reporter);
         this.serverFactory = serverFactory;
         this.uploader = uploader;
     }
@@ -35,5 +35,15 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
         } else {
             giftCloudServer.uploadToGiftCloud(pendingUploadTask.getPaths(), projectName);
         }
+    }
+
+    @Override
+    protected void notifySuccess(BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask> taskWrapper) {
+
+    }
+
+    @Override
+    protected void notifyFailure(BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask> taskWrapper) {
+
     }
 }

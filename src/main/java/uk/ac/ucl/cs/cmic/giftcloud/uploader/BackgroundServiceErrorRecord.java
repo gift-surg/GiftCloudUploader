@@ -7,7 +7,7 @@ class BackgroundServiceErrorRecord {
 
     private final List<ErrorRecordItem> errorList = new ArrayList<ErrorRecordItem>();
 
-    void addException(final Exception exception) {
+    void addException(final Throwable exception) {
         errorList.add(new ErrorRecordItem(exception));
     }
 
@@ -20,13 +20,13 @@ class BackgroundServiceErrorRecord {
     }
 
     class ErrorRecordItem {
-        private final Exception exception;
+        private final Throwable exception;
 
-        ErrorRecordItem(final Exception exception) {
+        ErrorRecordItem(final Throwable exception) {
             this.exception = exception;
         }
 
-        Exception getException() {
+        Throwable getException() {
             return exception;
         }
     }

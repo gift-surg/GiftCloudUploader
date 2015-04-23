@@ -13,11 +13,14 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 
 public class GiftCloudServer {
 
     private final String giftCloudServerUrl;
+    private PendingUploadTaskList pendingUploadTaskList;
     private final MultiUploadReporter reporter;
     private final RestServerHelper restServerHelper;
     private final Container container;
@@ -25,8 +28,9 @@ public class GiftCloudServer {
     private final BackgroundUploader backgroundUploader;
     private final URI giftCloudUri;
 
-    public GiftCloudServer(final String giftCloudServerUrl, final Container container, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) throws MalformedURLException {
+    public GiftCloudServer(final String giftCloudServerUrl, final Container container, final GiftCloudProperties giftCloudProperties, final PendingUploadTaskList pendingUploadTaskList, final MultiUploadReporter reporter) throws MalformedURLException {
         this.giftCloudServerUrl = giftCloudServerUrl;
+        this.pendingUploadTaskList = pendingUploadTaskList;
         this.reporter = reporter;
         this.container = container;
 
@@ -48,7 +52,7 @@ public class GiftCloudServer {
 
         final int numThreads = 1;
 
-        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList(numThreads), restServerHelper, emptyProgress, reporter);
+        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads), restServerHelper, emptyProgress, reporter);
     }
 
     public void tryAuthentication() throws IOException {
@@ -90,4 +94,5 @@ public class GiftCloudServer {
 
     public void addFileInstanceToUploadQueue(String dicomFileName, String projectName) {
     }
+
 }

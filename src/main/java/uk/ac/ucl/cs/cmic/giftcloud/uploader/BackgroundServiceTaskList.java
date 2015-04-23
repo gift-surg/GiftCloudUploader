@@ -9,7 +9,7 @@ public abstract class BackgroundServiceTaskList<T_taskType, T_resultType> {
     public abstract void add(final T_taskType task, final BackgroundServiceErrorRecord errorRecord);
     public abstract BackgroundServiceTaskWrapper<T_taskType, T_resultType> take() throws InterruptedException;
 
-    public void addFailure(final T_taskType task, final BackgroundServiceErrorRecord errorRecord) {
+    public final void addFailure(final T_taskType task, final BackgroundServiceErrorRecord errorRecord) {
         uploadFailures.add(new FailureRecord(task, errorRecord));
     }
 
@@ -17,11 +17,13 @@ public abstract class BackgroundServiceTaskList<T_taskType, T_resultType> {
         add(task, new BackgroundServiceErrorRecord());
     }
 
-    public final void retry(final BackgroundServiceTaskWrapper<T_taskType, T_resultType> result) {
+    public final boolean retry(final BackgroundServiceTaskWrapper<T_taskType, T_resultType> result) {
         if (result.shouldRetry()) {
             add(result.getTask(), result.getErrorRecord());
+            return true;
         } else {
             addFailure(result.getTask(), result.getErrorRecord());
+            return false;
         }
     }
 
@@ -29,7 +31,7 @@ public abstract class BackgroundServiceTaskList<T_taskType, T_resultType> {
         return uploadFailures;
     }
 
-    class FailureRecord {
+    class FailureRecord<T_taskType> {
         private T_taskType task;
         private BackgroundServiceErrorRecord errorRecord;
 

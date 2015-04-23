@@ -31,7 +31,7 @@ public class GiftCloudUploader {
         this.pendingUploadList = pendingUploadList;
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
-        serverFactory = new GiftCloudServerFactory(giftCloudProperties, projectListModel, reporter.getContainer(), reporter);
+        serverFactory = new GiftCloudServerFactory(giftCloudProperties, projectListModel, reporter.getContainer(), pendingUploadList, reporter);
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, reporter);
     }
 

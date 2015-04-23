@@ -8,10 +8,9 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-public class BackgroundUploader extends BackgroundService<Callable<Set<String>>, Future<Set<String>>> {
+public class BackgroundUploader extends BackgroundService<CallableUploader, Future<Set<String>>> {
 
     private final RestServerHelper restServerHelper;
     private final ResultProgressHandle progress;
@@ -21,6 +20,7 @@ public class BackgroundUploader extends BackgroundService<Callable<Set<String>>,
 
     public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final RestServerHelper restServerHelper, final ResultProgressHandle progress, final MultiUploadReporter reporter) {
         super(backgroundCompletionServiceTaskList, reporter);
+
         this.restServerHelper = restServerHelper;
         this.progress = progress;
         this.backgroundCompletionServiceTaskList = backgroundCompletionServiceTaskList;
@@ -40,8 +40,17 @@ public class BackgroundUploader extends BackgroundService<Callable<Set<String>>,
 
 
     @Override
-    protected void processItem(Future<Set<String>> futureResult) throws Exception {
+    protected void processItem(final Future<Set<String>> futureResult) throws Exception {
         final Set<String> result = futureResult.get();
     }
 
+    @Override
+    protected void notifySuccess(BackgroundServiceTaskWrapper<CallableUploader, Future<Set<String>>> taskWrapper) {
+        final FileCollection fileCollection = taskWrapper.getTask().getFileCollection();
+    }
+
+    @Override
+    protected void notifyFailure(BackgroundServiceTaskWrapper<CallableUploader, Future<Set<String>>> taskWrapper) {
+        final FileCollection fileCollection = taskWrapper.getTask().getFileCollection();
+    }
 }
