@@ -71,6 +71,8 @@ public class BackgroundServiceTest {
         final String task2 = "task2";
         final String task3 = "task3";
 
+        backgroundService.setNumberOfTasksToWaitFor(3);
+
         backgroundService.start();
         backgroundService.stop();
         backgroundService.start();
@@ -79,7 +81,6 @@ public class BackgroundServiceTest {
         backgroundServicePendingList.add(task2);
         backgroundServicePendingList.add(task3);
 
-        backgroundService.setNumberOfTasksToWaitFor(3);
         backgroundService.waitForCompletion();
         Assert.assertEquals(backgroundService.processed.size(), 3);
     }
