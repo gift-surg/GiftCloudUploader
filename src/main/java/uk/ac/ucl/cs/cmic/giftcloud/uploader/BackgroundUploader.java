@@ -16,14 +16,16 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
     private final ResultProgressHandle progress;
     private final boolean useFixedSize = true;
     final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList;
+    private BackgroundUploadOutcomeCallback outcomeCallback;
 
 
-    public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final RestServerHelper restServerHelper, final ResultProgressHandle progress, final MultiUploadReporter reporter) {
+    public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final RestServerHelper restServerHelper, final ResultProgressHandle progress, final BackgroundUploadOutcomeCallback outcomeCallback, final MultiUploadReporter reporter) {
         super(backgroundCompletionServiceTaskList, reporter);
 
         this.restServerHelper = restServerHelper;
         this.progress = progress;
         this.backgroundCompletionServiceTaskList = backgroundCompletionServiceTaskList;
+        this.outcomeCallback = outcomeCallback;
     }
 
 
@@ -47,10 +49,18 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
     @Override
     protected void notifySuccess(BackgroundServiceTaskWrapper<CallableUploader, Future<Set<String>>> taskWrapper) {
         final FileCollection fileCollection = taskWrapper.getTask().getFileCollection();
+        outcomeCallback.notifySuccess(fileCollection);
     }
 
     @Override
     protected void notifyFailure(BackgroundServiceTaskWrapper<CallableUploader, Future<Set<String>>> taskWrapper) {
         final FileCollection fileCollection = taskWrapper.getTask().getFileCollection();
+        outcomeCallback.notifyFailure(fileCollection);
+    }
+
+    interface BackgroundUploadOutcomeCallback {
+        void notifySuccess(final FileCollection fileCollection);
+        void notifyFailure(final FileCollection fileCollection);
+
     }
 }

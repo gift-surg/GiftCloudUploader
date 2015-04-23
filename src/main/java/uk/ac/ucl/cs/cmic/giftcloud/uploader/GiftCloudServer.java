@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.pixelmed.display.EmptyProgress;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
@@ -17,10 +18,10 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-public class GiftCloudServer {
+public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutcomeCallback {
 
     private final String giftCloudServerUrl;
-    private PendingUploadTaskList pendingUploadTaskList;
+    private final PendingUploadTaskList pendingUploadTaskList;
     private final MultiUploadReporter reporter;
     private final RestServerHelper restServerHelper;
     private final Container container;
@@ -52,7 +53,7 @@ public class GiftCloudServer {
 
         final int numThreads = 1;
 
-        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads), restServerHelper, emptyProgress, reporter);
+        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads), restServerHelper, emptyProgress, this, reporter);
     }
 
     public void tryAuthentication() throws IOException {
@@ -95,4 +96,13 @@ public class GiftCloudServer {
     public void addFileInstanceToUploadQueue(String dicomFileName, String projectName) {
     }
 
+    @Override
+    public void notifySuccess(final FileCollection fileCollection) {
+        pendingUploadTaskList.notifySuccess(fileCollection);
+    }
+
+    @Override
+    public void notifyFailure(final FileCollection fileCollection) {
+        pendingUploadTaskList.notifyFailure(fileCollection);
+    }
 }
