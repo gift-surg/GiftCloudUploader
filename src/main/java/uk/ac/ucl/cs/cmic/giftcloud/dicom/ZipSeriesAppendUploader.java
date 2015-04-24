@@ -16,6 +16,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
 import java.util.Set;
 
@@ -27,12 +28,12 @@ public class ZipSeriesAppendUploader extends CallableUploader {
                                    final FileCollection fileCollection,
                                    final Iterable<ScriptApplicator> applicators,
                                    final UploadStatisticsReporter progress,
-                                   final RestServerHelper restServerHelper) {
-        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
+                                   final GiftCloudServer server) {
+        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, server);
     }
 
     public Set<String> call() throws Exception {
-        return restServerHelper.appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress);
+        return server.getRestServerHelper().appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress);
     }
 
 
@@ -46,8 +47,8 @@ public class ZipSeriesAppendUploader extends CallableUploader {
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final UploadStatisticsReporter progress,
-                final RestServerHelper restServerHelper) {
-            return new ZipSeriesAppendUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
+                final GiftCloudServer server) {
+            return new ZipSeriesAppendUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, server);
         }
     }
 }

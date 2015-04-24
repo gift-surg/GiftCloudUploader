@@ -17,6 +17,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
 import java.util.Set;
 
@@ -31,13 +32,13 @@ public class ZipSeriesUploader extends CallableUploader {
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
             final UploadStatisticsReporter progress,
-            final RestServerHelper restServerHelper) {
-        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
+            final GiftCloudServer server) {
+        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, server);
     }
 
     @Override
     public Set<String> call() throws Exception {
-        return restServerHelper.uploadZipFile(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators, progress);
+        return server.getRestServerHelper().uploadZipFile(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators, progress);
     }
 
     public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {
@@ -50,8 +51,8 @@ public class ZipSeriesUploader extends CallableUploader {
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final UploadStatisticsReporter progress,
-                final RestServerHelper restServerHelper) {
-            return new ZipSeriesUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, restServerHelper);
+                final GiftCloudServer server) {
+            return new ZipSeriesUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, server);
         }
     }
 }

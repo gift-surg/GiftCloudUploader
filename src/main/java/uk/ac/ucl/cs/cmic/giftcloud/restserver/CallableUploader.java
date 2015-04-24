@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import org.dcm4che2.data.Tag;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
 import java.util.Collections;
 import java.util.Set;
@@ -32,7 +33,7 @@ public abstract class CallableUploader implements Callable<Set<String>> {
     protected final FileCollection fileCollection;
     protected final UploadStatisticsReporter progress;
     protected final boolean useFixedSizeStreaming;
-    protected final RestServerHelper restServerHelper;
+    protected final GiftCloudServer server;
     protected final Iterable<ScriptApplicator> applicators;
 
     public static int MAX_TAG = Collections.max(ImmutableList.of(Tag.SOPInstanceUID,
@@ -47,7 +48,7 @@ public abstract class CallableUploader implements Callable<Set<String>> {
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
             final UploadStatisticsReporter progress,
-            final RestServerHelper restServerHelper) {
+            final GiftCloudServer server) {
         this.projectLabel = projectLabel;
         this.subjectLabel = subjectLabel;
         this.sessionParameters = sessionParameters;
@@ -55,7 +56,7 @@ public abstract class CallableUploader implements Callable<Set<String>> {
         this.useFixedSizeStreaming = useFixedSizeStreaming;
         this.fileCollection = fileCollection;
         this.progress = progress;
-        this.restServerHelper = restServerHelper;
+        this.server = server;
         this.applicators = applicators;
     }
 
@@ -74,6 +75,6 @@ public abstract class CallableUploader implements Callable<Set<String>> {
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final UploadStatisticsReporter progress,
-                final RestServerHelper restServerHelper);
+                final GiftCloudServer server);
     }
 }

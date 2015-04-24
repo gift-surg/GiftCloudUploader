@@ -33,8 +33,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.Study;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesAppendUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.UploadResultPanel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
@@ -165,48 +163,6 @@ public class RestServerHelper {
         return restServer.getStringFromStream(uri, xmlStream);
     }
 
-    public boolean uploadToStudy(final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final MultiUploadReporter logger) {
-
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploads, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger, this, new ZipSeriesUploader.ZipSeriesUploaderFactory());
-
-        if (!uploader.run(progress, logger)) {
-            return false;
-        }
-
-        Set<String> uris = uploader.getUris();
-
-        if (1 != uris.size()) {
-            logger.error("Server reports unexpected sessionLabel count:" + uris.size() + " : " + uris);
-            progress.failed("<p>The XNAT server reported receiving an unexpected number of sessions: (" + uris.size() + ")</p>" + "<p>Please contact the system manager for help.</p>", false);
-            return false;
-        }
-
-        final String uri = uris.iterator().next();
-            final Optional<TimeZone> timeZone = Optional.empty();
-            return closeSession(uri, sessionParameters, progress, uploader.getFailures(), windowName, jsContext, timeZone);
-    }
-
-    public boolean appendToStudy(final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final MultiUploadReporter logger) {
-
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploads, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger, this, new ZipSeriesAppendUploader.ZipSeriesAppendUploaderFactory());
-
-        if (!uploader.run(progress, logger)) {
-            return false;
-        }
-
-        Set<String> uris = uploader.getUris();
-
-        if (1 != uris.size()) {
-            logger.error("Server reports unexpected sessionLabel count:" + uris.size() + " : " + uris);
-            progress.failed("<p>The XNAT server reported receiving an unexpected number of sessions: (" + uris.size() + ")</p>" + "<p>Please contact the system manager for help.</p>", false);
-            return false;
-        }
-
-        final String uri = uris.iterator().next();
-        final Optional<TimeZone> timeZone = Optional.empty();
-        return closeSession(uri, sessionParameters, progress, uploader.getFailures(), windowName, jsContext, timeZone);
-    }
-
     public boolean uploadToEcat(final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final TimeZone timeZone, final MultiUploadReporter logger) {
 
 
@@ -236,7 +192,7 @@ public class RestServerHelper {
 
 
 
-    private boolean closeSession(final String uri, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Map<FileCollection, Throwable> failures, final Optional<String> windowName, final Optional<JSObject> jsContext, final Optional<TimeZone> timeZone) {
+    public boolean closeSession(final String uri, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Map<FileCollection, Throwable> failures, final Optional<String> windowName, final Optional<JSObject> jsContext, final Optional<TimeZone> timeZone) {
         final String adminEmail = sessionParameters.getAdminEmail();
         final String session = sessionParameters.getSessionLabel();
         final String fullUrlString = sessionParameters.getBaseURL() + uri;

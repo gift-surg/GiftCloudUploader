@@ -1,6 +1,8 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import com.pixelmed.display.EmptyProgress;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
@@ -14,10 +16,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 
-public class GiftCloudUploader {
+public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
     private final GiftCloudProperties giftCloudProperties;
     private final Container container;
     private final PendingUploadTaskList pendingUploadList;
@@ -26,6 +30,7 @@ public class GiftCloudUploader {
     private final GiftCloudServerFactory serverFactory;
     private final BackgroundAddToUploaderService backgroundAddToUploaderService;
     private final GiftCloudAutoUploader autoUploader;
+    private final BackgroundUploader backgroundUploader;
 
 
     public GiftCloudUploader(final GiftCloudProperties giftCloudProperties, final Container container, final PendingUploadTaskList pendingUploadList, final MultiUploadReporter reporter) {
@@ -37,6 +42,10 @@ public class GiftCloudUploader {
         serverFactory = new GiftCloudServerFactory(giftCloudProperties, projectListModel, reporter.getContainer(), pendingUploadList, reporter);
         autoUploader = new GiftCloudAutoUploader(serverFactory, reporter);
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
+
+        final int numThreads = 1;
+        final EmptyProgress emptyProgress = new EmptyProgress();
+        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads), emptyProgress, this, reporter);
     }
 
     public void setUploadServiceRunningState(final boolean start) {
@@ -198,5 +207,16 @@ public class GiftCloudUploader {
 
         } catch (Throwable throwable) {
             // ToDo
-        }    }
+        }
+    }
+
+    @Override
+    public void notifySuccess(final FileCollection fileCollection) {
+//        pendingUploadTaskList.notifySuccess(fileCollection);
+    }
+
+    @Override
+    public void notifyFailure(final FileCollection fileCollection) {
+//        pendingUploadTaskList.notifyFailure(fileCollection);
+    }
 }

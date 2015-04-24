@@ -12,31 +12,29 @@ import java.util.concurrent.Future;
 
 public class BackgroundUploader extends BackgroundService<CallableUploader, Future<Set<String>>> {
 
-    private final RestServerHelper restServerHelper;
     private final ResultProgressHandle progress;
     private final boolean useFixedSize = true;
     final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList;
     private BackgroundUploadOutcomeCallback outcomeCallback;
 
 
-    public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final RestServerHelper restServerHelper, final ResultProgressHandle progress, final BackgroundUploadOutcomeCallback outcomeCallback, final MultiUploadReporter reporter) {
+    public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final ResultProgressHandle progress, final BackgroundUploadOutcomeCallback outcomeCallback, final MultiUploadReporter reporter) {
         super(backgroundCompletionServiceTaskList, reporter);
 
-        this.restServerHelper = restServerHelper;
         this.progress = progress;
         this.backgroundCompletionServiceTaskList = backgroundCompletionServiceTaskList;
         this.outcomeCallback = outcomeCallback;
     }
 
 
-    private void addFiles(List<FileCollection> uploads, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, UploadStatisticsReporter stats) {
+    private void addFiles(final GiftCloudServer server, List<FileCollection> uploads, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, UploadStatisticsReporter stats) {
         for (final FileCollection fileCollection : uploads) {
-            addFile(xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, callableUploaderFactory, stats, fileCollection);
+            addFile(server, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, callableUploaderFactory, stats, fileCollection);
         }
     }
 
-    private void addFile(XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, UploadStatisticsReporter stats, FileCollection fileCollection) {
-        final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, fileCollection, applicators, stats, restServerHelper);
+    private void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, UploadStatisticsReporter stats, FileCollection fileCollection) {
+        final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, fileCollection, applicators, stats, server);
         backgroundCompletionServiceTaskList.add(uploader);
     }
 

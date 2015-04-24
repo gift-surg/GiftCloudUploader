@@ -1,11 +1,12 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import com.pixelmed.display.EmptyProgress;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
 import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesAppendUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
@@ -14,18 +15,16 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.List;
 
-public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutcomeCallback {
+public class GiftCloudServer {
 
     private final String giftCloudServerUrl;
     private final PendingUploadTaskList pendingUploadTaskList;
     private final MultiUploadReporter reporter;
     private final RestServerHelper restServerHelper;
     private final Container container;
-    private final BackgroundUploader backgroundUploader;
     private final URI giftCloudUri;
 
     public GiftCloudServer(final String giftCloudServerUrl, final Container container, final GiftCloudProperties giftCloudProperties, final PendingUploadTaskList pendingUploadTaskList, final MultiUploadReporter reporter) throws MalformedURLException {
@@ -47,11 +46,7 @@ public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutco
         final RestServer restServer = new RestServer(giftCloudProperties, giftCloudServerUrl, reporter);
         restServerHelper = new RestServerHelper(restServer, reporter);
 
-        final EmptyProgress emptyProgress = new EmptyProgress();
 
-        final int numThreads = 1;
-
-        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads), restServerHelper, emptyProgress, this, reporter);
     }
 
     public void tryAuthentication() throws IOException {
@@ -83,16 +78,6 @@ public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutco
         return giftCloudServerUrl;
     }
 
-    @Override
-    public void notifySuccess(final FileCollection fileCollection) {
-        pendingUploadTaskList.notifySuccess(fileCollection);
-    }
-
-    @Override
-    public void notifyFailure(final FileCollection fileCollection) {
-        pendingUploadTaskList.notifyFailure(fileCollection);
-    }
-
     public Map<String,String> getListOfSubjects(final String projectName) throws IOException {
         return restServerHelper.getListOfSubjects(projectName);
     }
@@ -110,11 +95,43 @@ public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutco
     }
 
     public boolean uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, ResultProgressHandle progress, Optional<String> windowName, Optional<JSObject> jsContext, MultiUploadReporter logger) {
-        return restServerHelper.uploadToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger, this, new ZipSeriesUploader.ZipSeriesUploaderFactory());
+
+        if (!uploader.run(progress, logger)) {
+            return false;
+        }
+
+        Set<String> uris = uploader.getUris();
+
+        if (1 != uris.size()) {
+            logger.error("Server reports unexpected sessionLabel count:" + uris.size() + " : " + uris);
+            progress.failed("<p>The XNAT server reported receiving an unexpected number of sessions: (" + uris.size() + ")</p>" + "<p>Please contact the system manager for help.</p>", false);
+            return false;
+        }
+
+        final String uri = uris.iterator().next();
+        final Optional<TimeZone> timeZone = Optional.empty();
+        return restServerHelper.closeSession(uri, sessionParameters, progress, uploader.getFailures(), windowName, jsContext, timeZone);
     }
 
     public boolean appendToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, ResultProgressHandle progress, Optional<String> windowName, Optional<JSObject> jsContext, MultiUploadReporter logger) {
-        return restServerHelper.appendToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger, this, new ZipSeriesAppendUploader.ZipSeriesAppendUploaderFactory());
+
+        if (!uploader.run(progress, logger)) {
+            return false;
+        }
+
+        Set<String> uris = uploader.getUris();
+
+        if (1 != uris.size()) {
+            logger.error("Server reports unexpected sessionLabel count:" + uris.size() + " : " + uris);
+            progress.failed("<p>The XNAT server reported receiving an unexpected number of sessions: (" + uris.size() + ")</p>" + "<p>Please contact the system manager for help.</p>", false);
+            return false;
+        }
+
+        final String uri = uris.iterator().next();
+        final Optional<TimeZone> timeZone = Optional.empty();
+        return restServerHelper.closeSession(uri, sessionParameters, progress, uploader.getFailures(), windowName, jsContext, timeZone);
     }
 
     public void createPseudonymIfNotExisting(final String projectName, final String subjectName, final String hashedPatientId) throws IOException {
