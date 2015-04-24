@@ -9,7 +9,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
 
     private final GiftCloudServerFactory serverFactory;
     private final GiftCloudUploader uploader;
-    private GiftCloudAutoUploader autoUploader;
+    private final GiftCloudAutoUploader autoUploader;
 
     public BackgroundAddToUploaderService(final PendingUploadTaskList pendingUploadList, final GiftCloudServerFactory serverFactory, final GiftCloudUploader uploader, final GiftCloudAutoUploader autoUploader, final MultiUploadReporter reporter) {
         super(pendingUploadList.getList(), reporter);
@@ -33,7 +33,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
             projectName = uploader.getProjectName(giftCloudServer);
         }
 
-        if (pendingUploadTask.getAppend()) {
+        if (pendingUploadTask.shouldAppend()) {
             autoUploader.appendToGiftCloud(giftCloudServer, pendingUploadTask.getPaths(), projectName);
         } else {
             autoUploader.uploadToGiftCloud(giftCloudServer, pendingUploadTask.getPaths(), projectName);

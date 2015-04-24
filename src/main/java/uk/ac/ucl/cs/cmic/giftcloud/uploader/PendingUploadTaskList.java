@@ -17,6 +17,7 @@ public class PendingUploadTaskList {
     private final File pendingUploadFolder;
     private final UniqueFileMap<PendingUploadTask> fileMap = new UniqueFileMap<PendingUploadTask>();
     private MultiUploadReporter reporter;
+    private final List<FileCollection> failures = new ArrayList<FileCollection>();
 
     public PendingUploadTaskList(final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
         this.reporter = reporter;
@@ -63,40 +64,45 @@ public class PendingUploadTaskList {
 
     public void notifySuccess(final FileCollection fileCollection) {
         for (final File file : fileCollection.getFiles()) {
-            try {
-                Optional<PendingUploadTask> task = fileMap.get(file);
-                if (task.isPresent()) {
-                    PendingUploadTask pendingTask = task.get();
-                    if (pendingTask instanceof PendingUploadTaskInstance) {
-                        // Delete file
-                    } else if (pendingTask instanceof PendingUploadTaskReference) {
+            notifySuccess(file);
+        }
+    }
 
-                    } else {
-                        throw new RuntimeException("Unknown file type"); // probably change this to enum
-                    }
-                    fileMap.safeRemove(file);
+    public void notifySuccess(final File file) {
+        try {
+            Optional<PendingUploadTask> task = fileMap.get(file);
+            if (task.isPresent()) {
+                PendingUploadTask pendingTask = task.get();
+                switch (pendingTask.getDeleteAfterUpload()) {
+                    case DELETE_AFTER_UPLOAD:
+                        try {
+                            if (!file.delete()) {
+                                reporter.silentWarning("The file " + file.getAbsolutePath() + " reported a successful upload, but could not be deleted");
+                            }
+                        } catch (Throwable t) {
+                            reporter.silentLogException(t, "The file " + file.getAbsolutePath() + " reported a successful upload, but could not be deleted due to the following error: " + t.getLocalizedMessage());
+                        }
                 }
-            } catch (IOException e) {
-                // ToDo: log error
-                e.printStackTrace();
-                reporter.silentLogException(e, "The file " + file.getAbsolutePath() + " reported a successful upload, but could not be removed from the pending upload list because the canonical file name could not be determined.");
+                fileMap.safeRemove(file);
             }
+        } catch (IOException e) {
+            reporter.silentLogException(e, "The file " + file.getAbsolutePath() + " reported a successful upload, but could not be removed from the pending upload list because the canonical file name could not be determined. Error:" + e.getLocalizedMessage());
         }
     }
 
     public void notifyFailure(final FileCollection fileCollection) {
-        // ToDo: add to failure list
+        failures.add(fileCollection);
     }
 
     private class PendingUploadTaskReference extends PendingUploadTask {
         PendingUploadTaskReference(final String fileReference, final Optional<String> projectName) {
-            super(fileReference, projectName, true);
+            super(fileReference, projectName, Append.APPEND, DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD);
         }
     }
 
     private class PendingUploadTaskInstance extends PendingUploadTask {
         PendingUploadTaskInstance(final String fileInstance, final Optional<String> projectName) {
-            super(fileInstance, projectName, true);
+            super(fileInstance, projectName, Append.APPEND, DeleteAfterUpload.DELETE_AFTER_UPLOAD);
         }
     }
 }
