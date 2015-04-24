@@ -39,7 +39,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         this.pendingUploadList = pendingUploadList;
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
-        serverFactory = new GiftCloudServerFactory(giftCloudProperties, projectListModel, reporter.getContainer(), pendingUploadList, reporter);
+        serverFactory = new GiftCloudServerFactory(giftCloudProperties, projectListModel, reporter);
         autoUploader = new GiftCloudAutoUploader(serverFactory, reporter);
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
 

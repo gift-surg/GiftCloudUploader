@@ -2,10 +2,9 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
-import java.awt.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Optional;
@@ -15,15 +14,11 @@ public class GiftCloudServerFactory {
     private Optional<GiftCloudServer> giftCloudServer = Optional.empty();
     private GiftCloudProperties properties;
     private ProjectListModel projectListModel;
-    private Container container;
-    private PendingUploadTaskList pendingUploadTaskList;
     private MultiUploadReporter reporter;
 
-    public GiftCloudServerFactory(final GiftCloudProperties properties, final ProjectListModel projectListModel, final Container container, final PendingUploadTaskList pendingUploadTaskList, final MultiUploadReporter reporter) {
+    public GiftCloudServerFactory(final GiftCloudProperties properties, final ProjectListModel projectListModel, final MultiUploadReporter reporter) {
         this.properties = properties;
         this.projectListModel = projectListModel;
-        this.container = container;
-        this.pendingUploadTaskList = pendingUploadTaskList;
         this.reporter = reporter;
     }
 
