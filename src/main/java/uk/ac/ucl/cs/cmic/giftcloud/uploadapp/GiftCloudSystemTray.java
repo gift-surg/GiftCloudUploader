@@ -23,6 +23,8 @@ public class GiftCloudSystemTray {
     private MenuItem hideItem;
     private MenuItem showItem;
     private MenuItem importItem;
+    private MenuItem startUploaderItem;
+    private MenuItem pauseUploaderItem;
 
     /**
      * Private constructor for creating a new menu and icon for the system tray
@@ -83,6 +85,25 @@ public class GiftCloudSystemTray {
         });
 
         popup.addSeparator();
+
+        startUploaderItem = new MenuItem(resourceBundle.getString("systemTrayStartUploader"));
+        popup.add(startUploaderItem);
+        startUploaderItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                controller.startUploading();
+            }
+        });
+
+        pauseUploaderItem = new MenuItem(resourceBundle.getString("systemTrayPauseUploader"));
+        popup.add(pauseUploaderItem);
+        pauseUploaderItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                controller.pauseUploading();
+            }
+        });
+
+        popup.addSeparator();
+
         MenuItem configItem = new MenuItem(resourceBundle.getString("systemTraySettings"));
         popup.add(configItem);
         configItem.addActionListener(new ActionListener() {
