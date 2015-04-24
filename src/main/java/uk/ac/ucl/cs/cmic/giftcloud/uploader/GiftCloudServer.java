@@ -10,28 +10,22 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
-import java.awt.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.List;
 
 public class GiftCloudServer {
 
     private final String giftCloudServerUrl;
-    private final PendingUploadTaskList pendingUploadTaskList;
     private final MultiUploadReporter reporter;
     private final RestServerHelper restServerHelper;
-    private final Container container;
     private final URI giftCloudUri;
 
-    public GiftCloudServer(final String giftCloudServerUrl, final Container container, final GiftCloudProperties giftCloudProperties, final PendingUploadTaskList pendingUploadTaskList, final MultiUploadReporter reporter) throws MalformedURLException {
+    public GiftCloudServer(final String giftCloudServerUrl, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) throws MalformedURLException {
         this.giftCloudServerUrl = giftCloudServerUrl;
-        this.pendingUploadTaskList = pendingUploadTaskList;
         this.reporter = reporter;
-        this.container = container;
 
         if (StringUtils.isBlank(giftCloudServerUrl)) {
             throw new MalformedURLException("Please set the URL for the GIFT-Cloud server.");
