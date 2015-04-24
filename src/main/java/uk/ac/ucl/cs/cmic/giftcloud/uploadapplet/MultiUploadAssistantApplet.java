@@ -21,13 +21,15 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadTaskList;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class MultiUploadAssistantApplet extends JApplet {
+
+    protected static String resourceBundleName  = "uk.ac.ucl.cs.cmic.giftcloud.GiftCloudUploader";
 
     private Optional<MultiUploadAppletReporter> reporter = Optional.empty();
     private Optional<MultiUploadAppletParameters> multiUploadParameters = Optional.empty();
@@ -38,7 +40,7 @@ public class MultiUploadAssistantApplet extends JApplet {
      */
     public MultiUploadAssistantApplet() {
         setLayout(new BorderLayout());
-        reporter = Optional.of(new MultiUploadAppletReporter(this));
+
     }
 
     /**
@@ -49,16 +51,19 @@ public class MultiUploadAssistantApplet extends JApplet {
     @Override
     public void init() {
         try {
+            reporter = Optional.of(new MultiUploadAppletReporter(this));
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             multiUploadParameters = Optional.of(new MultiUploadAppletParameters(this, reporter.get()));
 
             GiftCloudPropertiesFromApplet giftCloudPropertiesFromApplet = new GiftCloudPropertiesFromApplet(multiUploadParameters.get());
 
-            final PendingUploadTaskList pendingUploadList = new PendingUploadTaskList(giftCloudPropertiesFromApplet, reporter.get());
-            giftCloudUploader = Optional.of(new GiftCloudUploader(giftCloudPropertiesFromApplet, this, pendingUploadList, reporter.get()));
+            final ResourceBundle resourceBundle = ResourceBundle.getBundle(resourceBundleName);
+            giftCloudUploader = Optional.of(new GiftCloudUploader(giftCloudPropertiesFromApplet, reporter.get()));
 
         } catch (Throwable t) {
-            reporter.get().errorBox("Applet initialisation failed", t);
+            if (reporter.isPresent()) {
+                reporter.get().errorBox("Applet initialisation failed", t);
+            }
             throw new RuntimeException(t);
         }
     }

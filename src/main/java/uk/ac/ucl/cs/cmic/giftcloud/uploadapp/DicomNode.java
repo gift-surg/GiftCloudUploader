@@ -18,17 +18,17 @@ public class DicomNode extends Observable {
     private StorageSOPClassSCPDispatcher storageSOPClassSCPDispatcher;
     private String ourCalledAETitle;		// set when reading network properties; used not just in StorageSCP, but also when creating exported meta information headers
     private GiftCloudPropertiesFromApplication giftCloudProperties;
-    private File savedImagesFolder;
+    private MultiUploadReporter reporter;
     private NetworkApplicationInformation networkApplicationInformation;
     private DatabaseInformationModel srcDatabase;
     protected Map<String,Date> earliestDatesIndexedBySourceFilePath = new HashMap<String,Date>();
     private final GiftCloudUploader giftCloudUploader;
 
 
-    public DicomNode(final GiftCloudPropertiesFromApplication giftCloudProperties, final String databaseRootTitle, final GiftCloudUploader giftCloudUploader, final File uploadFolder, final MultiUploadReporter reporter) throws DicomException {
+    public DicomNode(final GiftCloudPropertiesFromApplication giftCloudProperties, final String databaseRootTitle, final GiftCloudUploader giftCloudUploader, final MultiUploadReporter reporter) throws DicomException {
         this.giftCloudProperties = giftCloudProperties;
         this.giftCloudUploader = giftCloudUploader;
-        savedImagesFolder = uploadFolder;
+        this.reporter = reporter;
 
         {
             NetworkApplicationInformationFederated federatedNetworkApplicationInformation = new NetworkApplicationInformationFederated();
@@ -36,9 +36,8 @@ public class DicomNode extends Observable {
             networkApplicationInformation = federatedNetworkApplicationInformation;
         }
 
-        // Start database for the "source" instances. This will not persist when the application is closed, so only
-        // in-memory databases are used, and instances live in the temporary filesystem.
-        srcDatabase = new PatientStudySeriesConcatenationInstanceModel("mem:src",null, databaseRootTitle);
+        // Start database for the "source" instances.
+        srcDatabase = new PatientStudySeriesConcatenationInstanceModel("mem:src", null, databaseRootTitle);
 
         // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -58,11 +57,13 @@ public class DicomNode extends Observable {
      */
     public void activateStorageSCP() throws DicomNodeStartException {
         try {
+            final File savedImagesFolder = giftCloudProperties.getUploadFolder(reporter);
+
             // Start up DICOM association listener in background for receiving images and responding to echoes ...
             if (giftCloudProperties.areNetworkPropertiesValid()) {
                 {
                     int port = giftCloudProperties.getListeningPort();
-                    ourCalledAETitle = giftCloudProperties.getCalledAETitle();
+                    final String ourCalledAETitle = giftCloudProperties.getCalledAETitle();
                     ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port + " AET " + ourCalledAETitle));
                     int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
                     int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();

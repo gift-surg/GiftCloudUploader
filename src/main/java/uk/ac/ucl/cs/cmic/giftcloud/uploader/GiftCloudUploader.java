@@ -32,15 +32,14 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
-
-    public GiftCloudUploader(final GiftCloudProperties giftCloudProperties, final Container container, final PendingUploadTaskList pendingUploadList, final MultiUploadReporter reporter) {
+    public GiftCloudUploader(final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
         this.giftCloudProperties = giftCloudProperties;
-        this.container = container;
-        this.pendingUploadList = pendingUploadList;
+        this.container = reporter.getContainer();
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
         serverFactory = new GiftCloudServerFactory(giftCloudProperties, projectListModel, reporter);
         autoUploader = new GiftCloudAutoUploader(serverFactory, reporter);
+        pendingUploadList = new PendingUploadTaskList(giftCloudProperties, reporter);
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
 
         final int numThreads = 1;
@@ -218,5 +217,9 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     @Override
     public void notifyFailure(final FileCollection fileCollection) {
 //        pendingUploadTaskList.notifyFailure(fileCollection);
+    }
+
+    public void addExistingFilesToUploadQueue() {
+        pendingUploadList.addExistingFiles();
     }
 }

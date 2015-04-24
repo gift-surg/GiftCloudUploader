@@ -5,7 +5,6 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.QueryTreeRecord;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.QuerySelection;
 
@@ -14,13 +13,11 @@ import java.util.List;
 
 public class RetrieveWorker implements Runnable {
     private QueryInformationModel currentRemoteQueryInformationModel;
-    private DicomNode dicomNode;
     private GiftCloudReporter reporter;
     private List<QuerySelection> currentRemoteQuerySelectionList;
 
-    public RetrieveWorker(final List<QuerySelection> currentRemoteQuerySelectionList, final QueryInformationModel currentRemoteQueryInformationModel, final DicomNode dicomNode, final GiftCloudReporter reporter) {
+    public RetrieveWorker(final List<QuerySelection> currentRemoteQuerySelectionList, final QueryInformationModel currentRemoteQueryInformationModel, final GiftCloudReporter reporter) {
         this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
-        this.dicomNode = dicomNode;
         this.reporter = reporter;
         this.currentRemoteQuerySelectionList = currentRemoteQuerySelectionList;
     }
@@ -37,11 +34,10 @@ public class RetrieveWorker implements Runnable {
     }
 
     private void retrieve(final QuerySelection currentQuerySelection) {
-        final String localName = dicomNode.getLocalNameFromApplicationEntityTitle(currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
         if (currentQuerySelection.getCurrentRemoteQuerySelectionLevel() == null) {	// they have selected the root of the tree
             QueryTreeRecord parent = currentQuerySelection.getCurrentRemoteQuerySelectionQueryTreeRecord();
             if (parent != null) {
-                reporter.updateProgress("Retrieving everything from "+localName+" (" + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE() + ")");
+                reporter.updateProgress("Retrieving everything from " + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
                 Enumeration children = parent.children();
                 if (children != null) {
                     int nChildren = parent.getChildCount();
@@ -51,7 +47,7 @@ public class RetrieveWorker implements Runnable {
                         QueryTreeRecord r = (QueryTreeRecord)(children.nextElement());
                         if (r != null) {
                             QuerySelection currentRemoteQuerySelection = new QuerySelection(r, currentRemoteQueryInformationModel);
-                            reporter.updateProgress("Retrieving " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel() + " " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString() + " from " + localName + " (" + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE() + ")");
+                            reporter.updateProgress("Retrieving " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel() + " " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString() + " from " + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
                             performRetrieve(currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKeys(), currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel(), currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
                             reporter.updateProgressBar(++doneCount);
                         }
@@ -62,7 +58,7 @@ public class RetrieveWorker implements Runnable {
             }
         }
         else {
-            reporter.updateProgress("Retrieving "+currentQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName);
+//            reporter.updateProgress("Retrieving "+currentQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName);
 //                reporter.sendLn("Request retrieval of "+currentQuerySelection.getCurrentRemoteQuerySelectionLevel()+" "+currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString()+" from "+localName+" ("+currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE()+")");
             reporter.startProgressBar(1);
             performRetrieve(currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKeys(), currentQuerySelection.getCurrentRemoteQuerySelectionLevel(), currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
