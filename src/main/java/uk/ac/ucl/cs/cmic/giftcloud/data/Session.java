@@ -13,6 +13,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.data;
 import netscape.javascript.JSObject;
 import org.netbeans.spi.wizard.ResultProgressHandle;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 
@@ -43,8 +44,8 @@ public interface Session {
 	/*
 	List<SessionVariable> unify(Iterable<? extends SessionVariable> vars);
 	*/
-    boolean uploadTo(final String projectLabel, final String subjectLabel, final RestServerHelper restServerHelper, final SessionParameters sessionParameters, final Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException;
-    boolean appendTo(final String projectLabel, final String subjectLabel, final RestServerHelper restServerHelper, final SessionParameters sessionParameters, final Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException;
+    boolean uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException;
+    boolean appendTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException;
 
 	TimeZone getTimeZone();
 }

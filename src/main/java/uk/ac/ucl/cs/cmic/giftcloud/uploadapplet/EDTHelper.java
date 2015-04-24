@@ -22,14 +22,16 @@ import org.netbeans.api.wizard.WizardDisplayer;
 import org.netbeans.api.wizard.WizardResultReceiver;
 import org.netbeans.spi.wizard.Wizard;
 import org.netbeans.spi.wizard.WizardPage;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 
 public class EDTHelper {
@@ -84,7 +86,7 @@ public class EDTHelper {
         return returner.getValue();
     }
 
-    public static SelectSessionPage createSelectSessionPage(final RestServerHelper restServerHelper, final Optional<String> projectName, final FileSelector fileSelector, final UploadSelector uploadSelector) throws InvocationTargetException, InterruptedException {
+    public static SelectSessionPage createSelectSessionPage(final GiftCloudServer giftCloudServer, final Optional<String> projectName, final FileSelector fileSelector, final UploadSelector uploadSelector) throws InvocationTargetException, InterruptedException {
 
         final RunnableReturner<SelectSessionPage> returner =
                 new RunnableReturner<SelectSessionPage>() {
@@ -92,7 +94,7 @@ public class EDTHelper {
 
                     public void run() {
                         try {
-                            result = new SelectSessionPage(restServerHelper, projectName, fileSelector, uploadSelector);
+                            result = new SelectSessionPage(giftCloudServer, projectName, fileSelector, uploadSelector);
                         } catch (IOException e) {
                             e.printStackTrace();
                             throw new RuntimeException(e);
@@ -186,14 +188,14 @@ public class EDTHelper {
         return returner.getValue();
     }
 
-    public static WizardDisplayer createAndInstallWizard(final RestServerHelper restServerHelper, final java.util.List<WizardPage> pages, final Container container, final Map<String, Object> params, final WizardResultReceiver receiver, final MultiUploadReporter reporter) throws InvocationTargetException, InterruptedException {
+    public static WizardDisplayer createAndInstallWizard(final GiftCloudServer server, final java.util.List<WizardPage> pages, final Container container, final Map<String, Object> params, final WizardResultReceiver receiver, final MultiUploadReporter reporter) throws InvocationTargetException, InterruptedException {
 
         final RunnableReturner<WizardDisplayer> returner =
                 new RunnableReturner<WizardDisplayer>() {
                     private WizardDisplayer result;
 
                     public void run() {
-                        final Wizard wizard = WizardPage.createWizard(pages.toArray(new WizardPage[pages.size()]), new UploadWizardResultProducer(restServerHelper, Executors.newCachedThreadPool(), reporter));
+                        final Wizard wizard = WizardPage.createWizard(pages.toArray(new WizardPage[pages.size()]), new UploadWizardResultProducer(server, Executors.newCachedThreadPool(), reporter));
                         result = WizardDisplayer.installInContainer(container, null, wizard, null, params, receiver);
                     }
 

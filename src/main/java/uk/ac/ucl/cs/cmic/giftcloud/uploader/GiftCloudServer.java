@@ -1,12 +1,12 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.pixelmed.display.EmptyProgress;
+import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
+import org.netbeans.spi.wizard.ResultProgressHandle;
+import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.awt.*;
@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Set;
-import java.util.Vector;
+import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutcomeCallback {
@@ -25,7 +25,6 @@ public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutco
     private final MultiUploadReporter reporter;
     private final RestServerHelper restServerHelper;
     private final Container container;
-    private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
     private final URI giftCloudUri;
 
@@ -47,7 +46,6 @@ public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutco
 
         final RestServer restServer = new RestServer(giftCloudProperties, giftCloudServerUrl, reporter);
         restServerHelper = new RestServerHelper(restServer, reporter);
-        autoUploader = new GiftCloudAutoUploader(restServerHelper, giftCloudServerUrl, container, reporter);
 
         final EmptyProgress emptyProgress = new EmptyProgress();
 
@@ -62,14 +60,6 @@ public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutco
 
     public Vector<Object> getListOfProjects() throws IOException {
         return restServerHelper.getListOfProjects();
-    }
-
-    public boolean uploadToGiftCloud(Vector<String> paths, final String projectName) throws IOException {
-        return autoUploader.uploadToGiftCloud(paths, projectName);
-    }
-
-    public boolean appendToGiftCloud(Vector<String> paths, final String projectName) throws IOException {
-        return autoUploader.appendToGiftCloud(paths, projectName);
     }
 
     public void resetCancellation() {
@@ -93,9 +83,6 @@ public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutco
         return giftCloudServerUrl;
     }
 
-    public void addFileInstanceToUploadQueue(String dicomFileName, String projectName) {
-    }
-
     @Override
     public void notifySuccess(final FileCollection fileCollection) {
         pendingUploadTaskList.notifySuccess(fileCollection);
@@ -104,5 +91,37 @@ public class GiftCloudServer implements BackgroundUploader.BackgroundUploadOutco
     @Override
     public void notifyFailure(final FileCollection fileCollection) {
         pendingUploadTaskList.notifyFailure(fileCollection);
+    }
+
+    public Map<String,String> getListOfSubjects(final String projectName) throws IOException {
+        return restServerHelper.getListOfSubjects(projectName);
+    }
+
+    public Map<String, String> getListOfSessions(final String projectName) throws IOException {
+        return restServerHelper.getListOfSessions(projectName);
+    }
+
+    public Optional<Map<String, String>> getSitewideSeriesImportFilter() throws IOException {
+        return restServerHelper.getSitewideSeriesImportFilter();
+    }
+
+    public Optional<Map<String, String>> getProjectSeriesImportFilter(final String projectName) throws IOException {
+        return restServerHelper.getProjectSeriesImportFilter(projectName);
+    }
+
+    public boolean uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, ResultProgressHandle progress, Optional<String> windowName, Optional<JSObject> jsContext, MultiUploadReporter logger) {
+        return restServerHelper.uploadToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+    }
+
+    public boolean appendToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, ResultProgressHandle progress, Optional<String> windowName, Optional<JSObject> jsContext, MultiUploadReporter logger) {
+        return restServerHelper.appendToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+    }
+
+    public void createPseudonymIfNotExisting(final String projectName, final String subjectName, final String hashedPatientId) throws IOException {
+        restServerHelper.createPseudonymIfNotExisting(projectName, subjectName, hashedPatientId);
+    }
+
+    public Optional<String> getSubjectPseudonym(final String projectName, final String hashedPatientId) throws IOException {
+        return restServerHelper.getSubjectPseudonym(projectName, hashedPatientId);
     }
 }

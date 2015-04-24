@@ -13,12 +13,12 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 import org.netbeans.spi.wizard.DeferredWizardResult;
 import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.netbeans.spi.wizard.WizardPage.WizardResultProducer;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.io.IOException;
 import java.util.Map;
@@ -29,8 +29,12 @@ import java.util.concurrent.Future;
 
 public class UploadWizardResultProducer implements WizardResultProducer {
 
-    public UploadWizardResultProducer(final RestServerHelper restServerHelper, final ExecutorService executorService, final MultiUploadReporter reporter) {
-        this.restServerHelper = restServerHelper;
+    private GiftCloudServer giftCloudServer;
+    private final ExecutorService _executorService;
+    private MultiUploadReporter reporter;
+
+    public UploadWizardResultProducer(final GiftCloudServer giftCloudServer, final ExecutorService executorService, final MultiUploadReporter reporter) {
+        this.giftCloudServer = giftCloudServer;
         _executorService = executorService;
         this.reporter = reporter;
     }
@@ -74,7 +78,7 @@ public class UploadWizardResultProducer implements WizardResultProducer {
                 upload = _executorService.submit(new Callable<Boolean>() {
                     public Boolean call() {
                         try {
-                            return session.uploadTo(uploadSelector.getProject().toString(), uploadSelector.getSubject().getLabel(), restServerHelper, sessionParameters, uploadSelector.getProject(), progress, uploadSelector.getWindowName(), uploadSelector.getJSContext(), new SwingUploadFailureHandler(), reporter);
+                            return session.uploadTo(uploadSelector.getProject().toString(), uploadSelector.getSubject().getLabel(), giftCloudServer, sessionParameters, uploadSelector.getProject(), progress, uploadSelector.getWindowName(), uploadSelector.getJSContext(), new SwingUploadFailureHandler(), reporter);
                         } catch (IOException e) {
                             e.printStackTrace();
                             return false; // ToDo
@@ -106,7 +110,4 @@ public class UploadWizardResultProducer implements WizardResultProducer {
         }
     }
 
-    private RestServerHelper restServerHelper;
-    private final ExecutorService _executorService;
-    private MultiUploadReporter reporter;
 }

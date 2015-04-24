@@ -8,6 +8,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.*;
 public class SubjectAliasMapTest {
 
     @Mock
-    private RestServerHelper restServerHelper;
+    private GiftCloudServer giftCloudServer;
 
     private SubjectAliasMap subjectAliasMap;
     private Optional<String> emptyString = Optional.empty();
@@ -46,15 +47,15 @@ public class SubjectAliasMapTest {
 
     @Before
     public void setup() {
-        subjectAliasMap = new SubjectAliasMap(restServerHelper);
+        subjectAliasMap = new SubjectAliasMap();
     }
 
     @Test
     public void testNoId() throws IOException {
         {
             // Check there is no existing ID
-            when(restServerHelper.getSubjectPseudonym(projectName1, hashedPatientId1)).thenReturn(emptyString);
-            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(projectName1, patientId1);
+            when(giftCloudServer.getSubjectPseudonym(projectName1, hashedPatientId1)).thenReturn(emptyString);
+            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId1);
             Assert.assertFalse(subjectIdOptional.isPresent());
         }
     }
@@ -65,60 +66,60 @@ public class SubjectAliasMapTest {
     @Test
     public void testAddSubjectAliasNullProject() throws IOException {
         exception.expect(IllegalArgumentException.class);
-        subjectAliasMap.addSubjectAlias(null, patientId1, xnatSubjectName1);
+        subjectAliasMap.addSubjectAlias(giftCloudServer, null, patientId1, xnatSubjectName1);
     }
 
     @Test
     public void testAddSubjectAliasEmptyProject() throws IOException {
         exception.expect(IllegalArgumentException.class);
-        subjectAliasMap.addSubjectAlias("", patientId1, xnatSubjectName1);
+        subjectAliasMap.addSubjectAlias(giftCloudServer, "", patientId1, xnatSubjectName1);
     }
 
     @Test
     public void testAddSubjectAliasNullSubject() throws IOException {
         exception.expect(IllegalArgumentException.class);
-        subjectAliasMap.addSubjectAlias(projectName1, patientId1, null);
+        subjectAliasMap.addSubjectAlias(giftCloudServer, projectName1, patientId1, null);
     }
 
     @Test
     public void testAddSubjectAliasEmptySubject() throws IOException {
         exception.expect(IllegalArgumentException.class);
-        subjectAliasMap.addSubjectAlias(projectName1, patientId1, "");
+        subjectAliasMap.addSubjectAlias(giftCloudServer, projectName1, patientId1, "");
     }
 
     @Test
     public void testAddSubjectAliasNullPatientId() throws IOException {
         exception.expect(IllegalArgumentException.class);
-        subjectAliasMap.addSubjectAlias(projectName1, null, xnatSubjectName1);
+        subjectAliasMap.addSubjectAlias(giftCloudServer, projectName1, null, xnatSubjectName1);
     }
 
     @Test
     public void testAddSubjectAliasEmptyPatientId() throws IOException {
         exception.expect(IllegalArgumentException.class);
-        subjectAliasMap.addSubjectAlias(projectName1, "", xnatSubjectName1);
+        subjectAliasMap.addSubjectAlias(giftCloudServer, projectName1, "", xnatSubjectName1);
     }
 
     @Test
     public void testGetSubjectAliasNullProject() throws IOException {
         exception.expect(IllegalArgumentException.class);
-        subjectAliasMap.getSubjectAlias(null, patientId1);
+        subjectAliasMap.getSubjectAlias(giftCloudServer, null, patientId1);
     }
 
     @Test
     public void testGetSubjectAliasEmptyProject() throws IOException {
         exception.expect(IllegalArgumentException.class);
-        subjectAliasMap.getSubjectAlias("", patientId1);
+        subjectAliasMap.getSubjectAlias(giftCloudServer, "", patientId1);
     }
 
     @Test
     public void testGetSubjectAliasNullPatientId() throws IOException {
-        Optional<String> subjectName = subjectAliasMap.getSubjectAlias(projectName1, null);
+        Optional<String> subjectName = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, null);
         Assert.assertFalse(subjectName.isPresent());
     }
 
     @Test
     public void testGetSubjectAliasEmptyPatientId() throws IOException {
-        Optional<String> subjectName = subjectAliasMap.getSubjectAlias(projectName1, "");
+        Optional<String> subjectName = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, "");
         Assert.assertFalse(subjectName.isPresent());
     }
 
@@ -126,28 +127,28 @@ public class SubjectAliasMapTest {
     public void testAddSubjectAlias() throws IOException {
         {
             // Add a pseudo ID
-            subjectAliasMap.addSubjectAlias(projectName1, patientId1, xnatSubjectName1);
-            verify(restServerHelper, times(1)).createPseudonymIfNotExisting(projectName1, xnatSubjectName1, hashedPatientId1);
+            subjectAliasMap.addSubjectAlias(giftCloudServer, projectName1, patientId1, xnatSubjectName1);
+            verify(giftCloudServer, times(1)).createPseudonymIfNotExisting(projectName1, xnatSubjectName1, hashedPatientId1);
         }
 
         {
             // Check a different ID is not found
-            when(restServerHelper.getSubjectPseudonym(projectName1, hashedPatientId2)).thenReturn(emptyString);
-            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(projectName1, patientId2);
+            when(giftCloudServer.getSubjectPseudonym(projectName1, hashedPatientId2)).thenReturn(emptyString);
+            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId2);
             Assert.assertFalse(subjectIdOptional.isPresent());
         }
 
         {
             // Check the newly added pseudo ID has been found, with no server call required
-            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(projectName1, patientId1);
+            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId1);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName1);
         }
 
         {
             // Check the ID is not found for a different project
-            when(restServerHelper.getSubjectPseudonym(projectName2, hashedPatientId1)).thenReturn(emptyString);
-            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(projectName2, patientId1);
+            when(giftCloudServer.getSubjectPseudonym(projectName2, hashedPatientId1)).thenReturn(emptyString);
+            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId1);
             Assert.assertFalse(subjectIdOptional.isPresent());
         }
     }
@@ -155,60 +156,60 @@ public class SubjectAliasMapTest {
     @Test
     public void testGettingNameFromServer() throws IOException {
         // Set up server to return a pseudonym for id1 but not id2 (for project 1)
-        when(restServerHelper.getSubjectPseudonym(projectName1, hashedPatientId1)).thenReturn(Optional.of(xnatSubjectName1));
-        when(restServerHelper.getSubjectPseudonym(projectName1, hashedPatientId2)).thenReturn(Optional.of(xnatSubjectName2));
-        when(restServerHelper.getSubjectPseudonym(projectName1, hashedPatientId3)).thenReturn(emptyString);
+        when(giftCloudServer.getSubjectPseudonym(projectName1, hashedPatientId1)).thenReturn(Optional.of(xnatSubjectName1));
+        when(giftCloudServer.getSubjectPseudonym(projectName1, hashedPatientId2)).thenReturn(Optional.of(xnatSubjectName2));
+        when(giftCloudServer.getSubjectPseudonym(projectName1, hashedPatientId3)).thenReturn(emptyString);
 
         // And a different sequence for project 2
-        when(restServerHelper.getSubjectPseudonym(projectName2, hashedPatientId1)).thenReturn(emptyString);
-        when(restServerHelper.getSubjectPseudonym(projectName2, hashedPatientId2)).thenReturn(Optional.of(xnatSubjectName2));
-        when(restServerHelper.getSubjectPseudonym(projectName2, hashedPatientId3)).thenReturn(Optional.of(xnatSubjectName3));
-        when(restServerHelper.getSubjectPseudonym(projectName2, hashedPatientId4)).thenReturn(emptyString);
+        when(giftCloudServer.getSubjectPseudonym(projectName2, hashedPatientId1)).thenReturn(emptyString);
+        when(giftCloudServer.getSubjectPseudonym(projectName2, hashedPatientId2)).thenReturn(Optional.of(xnatSubjectName2));
+        when(giftCloudServer.getSubjectPseudonym(projectName2, hashedPatientId3)).thenReturn(Optional.of(xnatSubjectName3));
+        when(giftCloudServer.getSubjectPseudonym(projectName2, hashedPatientId4)).thenReturn(emptyString);
 
         // Project 1
         {
             // Check id1 returns a subject
-            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(projectName1, patientId1);
+            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId1);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName1);
         }
 
         {
             // Check id2 returns a subject
-            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(projectName1, patientId2);
+            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId2);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName2);
         }
 
         {
             // Check id3 does not return a subject
-            Assert.assertFalse(subjectAliasMap.getSubjectAlias(projectName1, patientId3).isPresent());
+            Assert.assertFalse(subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId3).isPresent());
         }
 
         // Project 2
         {
             // Check id1 does not return a subject
-            Assert.assertFalse(subjectAliasMap.getSubjectAlias(projectName2, patientId1).isPresent());
+            Assert.assertFalse(subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId1).isPresent());
         }
         {
-            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(projectName2, patientId2);
+            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId2);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName2);
         }
 
         {
-            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(projectName2, patientId3);
+            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId3);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName3);
         }
 
         {
-            Assert.assertFalse(subjectAliasMap.getSubjectAlias(projectName2, patientId4).isPresent());
+            Assert.assertFalse(subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId4).isPresent());
         }
         {
             // Now set the server response for id 3 and check this works
-            when(restServerHelper.getSubjectPseudonym(projectName1, hashedPatientId3)).thenReturn(Optional.of(xnatSubjectName3));
-            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(projectName1, patientId3);
+            when(giftCloudServer.getSubjectPseudonym(projectName1, hashedPatientId3)).thenReturn(Optional.of(xnatSubjectName3));
+            final Optional<String> subjectIdOptional = subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId3);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName3);
         }
@@ -218,50 +219,50 @@ public class SubjectAliasMapTest {
     public void testCachingOfServerValues() throws IOException {
 
         // Set up server to return a pseudonym for id1 and id2 but not id3, and a different sequence for project 2
-        when(restServerHelper.getSubjectPseudonym(projectName1, hashedPatientId1)).thenReturn(Optional.of(xnatSubjectName1));
-        when(restServerHelper.getSubjectPseudonym(projectName1, hashedPatientId2)).thenReturn(Optional.of(xnatSubjectName2));
-        when(restServerHelper.getSubjectPseudonym(projectName1, hashedPatientId3)).thenReturn(emptyString);
+        when(giftCloudServer.getSubjectPseudonym(projectName1, hashedPatientId1)).thenReturn(Optional.of(xnatSubjectName1));
+        when(giftCloudServer.getSubjectPseudonym(projectName1, hashedPatientId2)).thenReturn(Optional.of(xnatSubjectName2));
+        when(giftCloudServer.getSubjectPseudonym(projectName1, hashedPatientId3)).thenReturn(emptyString);
 
-        when(restServerHelper.getSubjectPseudonym(projectName2, hashedPatientId1)).thenReturn(emptyString);
-        when(restServerHelper.getSubjectPseudonym(projectName2, hashedPatientId2)).thenReturn(Optional.of(xnatSubjectName2));
-        when(restServerHelper.getSubjectPseudonym(projectName2, hashedPatientId3)).thenReturn(Optional.of(xnatSubjectName3));
+        when(giftCloudServer.getSubjectPseudonym(projectName2, hashedPatientId1)).thenReturn(emptyString);
+        when(giftCloudServer.getSubjectPseudonym(projectName2, hashedPatientId2)).thenReturn(Optional.of(xnatSubjectName2));
+        when(giftCloudServer.getSubjectPseudonym(projectName2, hashedPatientId3)).thenReturn(Optional.of(xnatSubjectName3));
 
         {
             // Trigger caching of ids 1 and 2, while id 3 should not cache as it has not been set
-            subjectAliasMap.getSubjectAlias(projectName1, patientId1);
-            subjectAliasMap.getSubjectAlias(projectName1, patientId2);
-            subjectAliasMap.getSubjectAlias(projectName1, patientId3);
-            subjectAliasMap.getSubjectAlias(projectName2, patientId1);
-            subjectAliasMap.getSubjectAlias(projectName2, patientId2);
-            subjectAliasMap.getSubjectAlias(projectName2, patientId3);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId1);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId2);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId3);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId1);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId2);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId3);
 
             // Get all ids again. Where ids have been cached, this should not result in any further server calls
-            subjectAliasMap.getSubjectAlias(projectName1, patientId1);
-            subjectAliasMap.getSubjectAlias(projectName1, patientId2);
-            subjectAliasMap.getSubjectAlias(projectName1, patientId3);
-            subjectAliasMap.getSubjectAlias(projectName2, patientId1);
-            subjectAliasMap.getSubjectAlias(projectName2, patientId2);
-            subjectAliasMap.getSubjectAlias(projectName2, patientId3);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId1);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId2);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId3);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId1);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId2);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId3);
 
             // Verify that the server has only been called once for the ids that were set
-            verify(restServerHelper, times(1)).getSubjectPseudonym(projectName1, hashedPatientId1);
-            verify(restServerHelper, times(1)).getSubjectPseudonym(projectName1, hashedPatientId2);
-            verify(restServerHelper, times(1)).getSubjectPseudonym(projectName2, hashedPatientId2);
-            verify(restServerHelper, times(1)).getSubjectPseudonym(projectName2, hashedPatientId3);
+            verify(giftCloudServer, times(1)).getSubjectPseudonym(projectName1, hashedPatientId1);
+            verify(giftCloudServer, times(1)).getSubjectPseudonym(projectName1, hashedPatientId2);
+            verify(giftCloudServer, times(1)).getSubjectPseudonym(projectName2, hashedPatientId2);
+            verify(giftCloudServer, times(1)).getSubjectPseudonym(projectName2, hashedPatientId3);
 
             // Verify that the server was called both times for the unset ids
-            verify(restServerHelper, times(2)).getSubjectPseudonym(projectName1, hashedPatientId3);
-            verify(restServerHelper, times(2)).getSubjectPseudonym(projectName2, hashedPatientId1);
+            verify(giftCloudServer, times(2)).getSubjectPseudonym(projectName1, hashedPatientId3);
+            verify(giftCloudServer, times(2)).getSubjectPseudonym(projectName2, hashedPatientId1);
 
             // Now set the response for the previously unset ids and query them. This should trigger one extra call to the server, during which the result it cached.
-            when(restServerHelper.getSubjectPseudonym(projectName1, hashedPatientId3)).thenReturn(Optional.of(xnatSubjectName3));
-            when(restServerHelper.getSubjectPseudonym(projectName2, hashedPatientId1)).thenReturn(Optional.of(xnatSubjectName1));
-            subjectAliasMap.getSubjectAlias(projectName1, patientId3);
-            subjectAliasMap.getSubjectAlias(projectName1, patientId3);
-            subjectAliasMap.getSubjectAlias(projectName2, patientId1);
-            subjectAliasMap.getSubjectAlias(projectName2, patientId1);
-            verify(restServerHelper, times(3)).getSubjectPseudonym(projectName1, hashedPatientId3);
-            verify(restServerHelper, times(3)).getSubjectPseudonym(projectName2, hashedPatientId1);
+            when(giftCloudServer.getSubjectPseudonym(projectName1, hashedPatientId3)).thenReturn(Optional.of(xnatSubjectName3));
+            when(giftCloudServer.getSubjectPseudonym(projectName2, hashedPatientId1)).thenReturn(Optional.of(xnatSubjectName1));
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId3);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName1, patientId3);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId1);
+            subjectAliasMap.getSubjectAlias(giftCloudServer, projectName2, patientId1);
+            verify(giftCloudServer, times(3)).getSubjectPseudonym(projectName1, hashedPatientId3);
+            verify(giftCloudServer, times(3)).getSubjectPseudonym(projectName2, hashedPatientId1);
         }
 
     }

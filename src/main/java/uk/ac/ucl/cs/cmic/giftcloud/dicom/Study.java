@@ -28,6 +28,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
@@ -265,7 +266,7 @@ public class Study extends MapEntity implements Entity, Session {
      * (non-Javadoc)
      * @see Session#uploadTo(java.util.Map, UploadFailureHandler, org.netbeans.spi.wizard.ResultProgressHandle)
      */
-    public boolean uploadTo(final String projectLabel, final String subjectLabel, final RestServerHelper restServerHelper, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException {
+    public boolean uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException {
 
         final List<FileCollection> fileCollections = getFiles();
 
@@ -277,14 +278,14 @@ public class Study extends MapEntity implements Entity, Session {
         final XnatModalityParams xnatModalityParams = getXnatModalityParams();
 
         final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-        return restServerHelper.uploadToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+        return server.uploadToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
     }
 
     /*
          * (non-Javadoc)
          * @see Session#uploadTo(java.util.Map, UploadFailureHandler, org.netbeans.spi.wizard.ResultProgressHandle)
          */
-    public boolean appendTo(final String projectLabel, final String subjectLabel, final RestServerHelper restServerHelper, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException {
+    public boolean appendTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException {
 
         final List<FileCollection> fileCollections = getFiles();
 
@@ -296,7 +297,7 @@ public class Study extends MapEntity implements Entity, Session {
         final XnatModalityParams xnatModalityParams = getXnatModalityParams();
 
         final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-        return restServerHelper.appendToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+        return server.appendToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
     }
 
     public List<FileCollection> getFiles() {

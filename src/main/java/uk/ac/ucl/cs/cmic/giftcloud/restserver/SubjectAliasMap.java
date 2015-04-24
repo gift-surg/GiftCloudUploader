@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
 import java.io.IOException;
@@ -19,15 +20,13 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
  */
 public class SubjectAliasMap {
 
-    private final RestServerHelper restServerHelper;
     private final Map<String, Map<String, String>> projectMap = new HashMap<String, Map<String, String>>();
 
     // Ensure synchronisation between adding and retrieving hashed patient IDs
     private Object synchronizationLock = new Object();
 
 
-    public SubjectAliasMap(final RestServerHelper restServerHelper) {
-        this.restServerHelper = restServerHelper;
+    public SubjectAliasMap() {
     }
 
     /** Returns the pseudonymised XNAT subject name for the given patient ID
@@ -36,7 +35,7 @@ public class SubjectAliasMap {
      * ID does not already exist, or if it does not exist locally and the XNAT server does not support pseudonymisations
      * @throws IOException if communication with the server failed
      */
-    public Optional<String> getSubjectAlias(final String projectName, final String patientId) throws IOException {
+    public Optional<String> getSubjectAlias(final GiftCloudServer server, final String projectName, final String patientId) throws IOException {
 
 
         if (StringUtils.isBlank(projectName)) {
@@ -63,7 +62,7 @@ public class SubjectAliasMap {
 
             try {
                 // Check if a mapping already exists on the XNAT server
-                final Optional<String> subjectAliasFromServer = restServerHelper.getSubjectPseudonym(projectName, hashedPatientId);
+                final Optional<String> subjectAliasFromServer = server.getSubjectPseudonym(projectName, hashedPatientId);
                 if (subjectAliasFromServer.isPresent()) {
                     hashedIdToSubjectMap.put(hashedPatientId, subjectAliasFromServer.get());
                     return Optional.of(subjectAliasFromServer.get());
@@ -87,7 +86,7 @@ public class SubjectAliasMap {
      * @param subjectName the new XNAT subject identifier to be mapped to this patient ID
      * @throws IOException if communication with the XNAT server failed
      */
-    public void addSubjectAlias(final String projectName, final String patientId, final String subjectName) throws IOException {
+    public void addSubjectAlias(final GiftCloudServer server, final String projectName, final String patientId, final String subjectName) throws IOException {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -112,7 +111,7 @@ public class SubjectAliasMap {
 
             // Add the hashed patient ID to the XNAT subject
             try {
-                restServerHelper.createPseudonymIfNotExisting(projectName, subjectName, hashedPatientId);
+                server.createPseudonymIfNotExisting(projectName, subjectName, hashedPatientId);
 
             } catch (GiftCloudHttpException exception) {
                 // 400 indicates the hashed patient ID request is not supported by the server.

@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
@@ -24,6 +25,8 @@ public class GiftCloudUploader {
     private final ProjectListModel projectListModel;
     private final GiftCloudServerFactory serverFactory;
     private final BackgroundAddToUploaderService backgroundAddToUploaderService;
+    private final GiftCloudAutoUploader autoUploader;
+
 
     public GiftCloudUploader(final GiftCloudProperties giftCloudProperties, final Container container, final PendingUploadTaskList pendingUploadList, final MultiUploadReporter reporter) {
         this.giftCloudProperties = giftCloudProperties;
@@ -32,7 +35,8 @@ public class GiftCloudUploader {
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
         serverFactory = new GiftCloudServerFactory(giftCloudProperties, projectListModel, reporter.getContainer(), pendingUploadList, reporter);
-        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, reporter);
+        autoUploader = new GiftCloudAutoUploader(serverFactory, reporter);
+        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
     }
 
     public void setUploadServiceRunningState(final boolean start) {
@@ -58,7 +62,7 @@ public class GiftCloudUploader {
             giftCloudServerUrl = giftCloudServer.getGiftCloudServerUrl();
 
             final Dimension windowSize = new Dimension(300, 300);
-            new MultiUploadWizard(giftCloudServer.getRestServerHelper(), windowSize, multiUploadParameters, giftCloudServer.getGiftCloudServerUrl(), reporter);
+            new MultiUploadWizard(giftCloudServer, giftCloudServer.getRestServerHelper(), windowSize, multiUploadParameters, giftCloudServer.getGiftCloudServerUrl(), reporter);
             return true;
 
         } catch (CancellationException e) {
@@ -129,7 +133,7 @@ public class GiftCloudUploader {
 
             final String projectName = getProjectName(giftCloudServer);
 
-            return giftCloudServer.uploadToGiftCloud(paths, projectName);
+            return autoUploader.uploadToGiftCloud(giftCloudServer, paths, projectName);
 
         } catch (Throwable throwable) {
 
@@ -147,7 +151,7 @@ public class GiftCloudUploader {
 
             final String projectName = getProjectName(giftCloudServer);
 
-            return giftCloudServer.appendToGiftCloud(paths, projectName);
+            return autoUploader.appendToGiftCloud(giftCloudServer, paths, projectName);
 
         } catch (Throwable throwable) {
 

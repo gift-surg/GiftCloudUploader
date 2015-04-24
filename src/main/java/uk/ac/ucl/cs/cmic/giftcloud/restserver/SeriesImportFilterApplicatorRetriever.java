@@ -12,6 +12,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,10 +27,10 @@ public final class SeriesImportFilterApplicatorRetriever {
     private final SeriesImportFilter _siteWideFilters;
     private final SeriesImportFilter _projectFilters;
 
-	public SeriesImportFilterApplicatorRetriever(final RestServerHelper restServerHelper, final Optional<String> projectName) throws IOException, JSONException {
-        _siteWideFilters = extractSitewideSeriesImportFilters(restServerHelper);
+	public SeriesImportFilterApplicatorRetriever(final GiftCloudServer server, final Optional<String> projectName) throws IOException, JSONException {
+        _siteWideFilters = extractSitewideSeriesImportFilters(server);
         if (projectName.isPresent() && StringUtils.isNotBlank(projectName.get())) {
-            _projectFilters = extractProjectSeriesImportFilters(restServerHelper, projectName.get());
+            _projectFilters = extractProjectSeriesImportFilters(server, projectName.get());
         } else {
             _projectFilters = null;
         }
@@ -39,8 +40,8 @@ public final class SeriesImportFilterApplicatorRetriever {
         return _siteWideFilters.allow(description) && (_projectFilters == null || _projectFilters.allow(description));
     }
 
-    private SeriesImportFilter extractSitewideSeriesImportFilters(final RestServerHelper restServerHelper) throws IOException, JSONException {
-        Optional<Map<String, String>> contents = restServerHelper.getSitewideSeriesImportFilter();
+    private SeriesImportFilter extractSitewideSeriesImportFilters(final GiftCloudServer server) throws IOException, JSONException {
+        Optional<Map<String, String>> contents = server.getSitewideSeriesImportFilter();
         if (contents.isPresent()) {
             return new SeriesImportFilter(contents);
         } else {
@@ -48,8 +49,8 @@ public final class SeriesImportFilterApplicatorRetriever {
         }
     }
 
-    private SeriesImportFilter extractProjectSeriesImportFilters(final RestServerHelper restServerHelper, String projectName) throws IOException, JSONException {
-        Optional<Map<String, String>> contents = restServerHelper.getProjectSeriesImportFilter(projectName);
+    private SeriesImportFilter extractProjectSeriesImportFilters(final GiftCloudServer server, String projectName) throws IOException, JSONException {
+        Optional<Map<String, String>> contents = server.getProjectSeriesImportFilter(projectName);
         if (contents.isPresent()) {
             return new SeriesImportFilter(contents);
         } else {

@@ -15,12 +15,12 @@ import org.json.JSONException;
 import org.netbeans.spi.wizard.Wizard;
 import org.netbeans.spi.wizard.WizardPage;
 import org.netbeans.spi.wizard.WizardPanelNavResult;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,7 +44,7 @@ public final class SelectSessionPage extends WizardPage implements SelectSession
     private static final String LONG_DESCRIPTION = "Review and verify selected session information";
 
     private SessionReviewPanel _current;
-    private RestServerHelper restServerHelper;
+    private GiftCloudServer giftCloudServer;
     private final FileSelector fileSelector;
     private final UploadSelector uploadSelector;
 
@@ -58,14 +58,14 @@ public final class SelectSessionPage extends WizardPage implements SelectSession
 
     private Future<List<Session>> sessionLister = null;
 
-    public SelectSessionPage(final RestServerHelper restServerHelper, final Optional<String> projectName, final FileSelector fileSelector, final UploadSelector uploadSelector) throws IOException, JSONException {
+    public SelectSessionPage(final GiftCloudServer giftCloudServer, final Optional<String> projectName, final FileSelector fileSelector, final UploadSelector uploadSelector) throws IOException, JSONException {
         setLayout(new BorderLayout());
         setLongDescription(LONG_DESCRIPTION);
-        this.restServerHelper = restServerHelper;
+        this.giftCloudServer = giftCloudServer;
         this.fileSelector = fileSelector;
         this.uploadSelector = uploadSelector;
         if (projectName.isPresent()) {
-            _filter = new SeriesImportFilterApplicatorRetriever(restServerHelper, projectName);
+            _filter = new SeriesImportFilterApplicatorRetriever(giftCloudServer, projectName);
         }
     }
 
@@ -131,9 +131,9 @@ public final class SelectSessionPage extends WizardPage implements SelectSession
                 try {
                     if (!uploadSelector.isProjectSet()) {
                         final Optional<String> emptyProject = Optional.empty();
-                        _filter = new SeriesImportFilterApplicatorRetriever(restServerHelper, emptyProject);
+                        _filter = new SeriesImportFilterApplicatorRetriever(giftCloudServer, emptyProject);
                     } else {
-                        _filter = new SeriesImportFilterApplicatorRetriever(restServerHelper, Optional.of(uploadSelector.getProject().toString()));
+                        _filter = new SeriesImportFilterApplicatorRetriever(giftCloudServer, Optional.of(uploadSelector.getProject().toString()));
                     }
                 } catch (Exception exception) {
                     throw new RuntimeException("Error encountered retrieving series import filters", exception);

@@ -16,15 +16,15 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.nrg.ecat.MatrixDataFile;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import org.nrg.ecat.edit.ScriptApplicator;
 import org.nrg.ecat.edit.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.*;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -294,13 +294,13 @@ public final class EcatSession implements Session {
     /* (non-Javadoc)
      * @see Session#uploadTo(java.util.Map, org.netbeans.spi.wizard.ResultProgressHandle)
      */
-    public boolean uploadTo(final String projectLabel, final String subjectLabel, final RestServerHelper restServerHelper, final SessionParameters sessionParameters, final Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) {
-        return restServerHelper.uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, failureHandler, timeZone, logger);
+    public boolean uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) {
+        return server.getRestServerHelper().uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, failureHandler, timeZone, logger);
     }
 
     @Override
-    public boolean appendTo(String projectLabel, String subjectLabel, RestServerHelper restServerHelper, SessionParameters sessionParameters, Project project, ResultProgressHandle progress, Optional<String> windowName, Optional<JSObject> jsContext, UploadFailureHandler failureHandler, MultiUploadReporter logger) throws IOException {
-        return restServerHelper.uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, failureHandler, timeZone, logger);
+    public boolean appendTo(String projectLabel, String subjectLabel, GiftCloudServer server, SessionParameters sessionParameters, Project project, ResultProgressHandle progress, Optional<String> windowName, Optional<JSObject> jsContext, UploadFailureHandler failureHandler, MultiUploadReporter logger) throws IOException {
+        return server.getRestServerHelper().uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, failureHandler, timeZone, logger);
     }
 
     public List<FileCollection> getFiles() {

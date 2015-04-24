@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.netbeans.api.wizard.WizardDisplayer;
 import org.netbeans.api.wizard.WizardResultReceiver;
 import org.netbeans.spi.wizard.WizardPage;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionParams;
@@ -40,7 +41,7 @@ public class MultiUploadWizard implements WizardResultReceiver {
     private MultiUploadReporter reporter;
     private String giftCloudUrl;
 
-    public MultiUploadWizard(final RestServerHelper restServerHelper, final Dimension dimension, final MultiUploadParameters multiUploadParameters, final String giftCloudUrl, final MultiUploadReporter reporter) throws InvocationTargetException, InterruptedException, ExecutionException {
+    public MultiUploadWizard(final GiftCloudServer server, final RestServerHelper restServerHelper, final Dimension dimension, final MultiUploadParameters multiUploadParameters, final String giftCloudUrl, final MultiUploadReporter reporter) throws InvocationTargetException, InterruptedException, ExecutionException {
         this.giftCloudUrl = giftCloudUrl;
         final UploadSelector uploadSelector = new UploadSelector(restServerHelper, multiUploadParameters, reporter);
 
@@ -65,12 +66,12 @@ public class MultiUploadWizard implements WizardResultReceiver {
         // Creation of a JFileChooser has to be done on the EDT
         final FileSelector fileSelector = EDTHelper.createFileSelectorUsingJFileChooser();
         pages.add(EDTHelper.createSelectFilesPage(fileSelector, uploadSelector));
-        pages.add(EDTHelper.createSelectSessionPage(restServerHelper, projectName, fileSelector, uploadSelector));
+        pages.add(EDTHelper.createSelectSessionPage(server, projectName, fileSelector, uploadSelector));
         pages.add(EDTHelper.createAssignSessionVariablesPage(uploadSelector));
 
         restServerHelper.resetCancellation();
 
-        final WizardDisplayer displayer = EDTHelper.createAndInstallWizard(restServerHelper, pages, reporter.getContainer(), params.getParams(), this, reporter);
+        final WizardDisplayer displayer = EDTHelper.createAndInstallWizard(server, pages, reporter.getContainer(), params.getParams(), this, reporter);
         displayer.setCloseHandler(closeHandler);
     }
 

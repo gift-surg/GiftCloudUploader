@@ -1,5 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.util.Optional;
@@ -8,11 +9,13 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
 
     private final GiftCloudServerFactory serverFactory;
     private final GiftCloudUploader uploader;
+    private GiftCloudAutoUploader autoUploader;
 
-    public BackgroundAddToUploaderService(final PendingUploadTaskList pendingUploadList, final GiftCloudServerFactory serverFactory, final GiftCloudUploader uploader, final MultiUploadReporter reporter) {
+    public BackgroundAddToUploaderService(final PendingUploadTaskList pendingUploadList, final GiftCloudServerFactory serverFactory, final GiftCloudUploader uploader, final GiftCloudAutoUploader autoUploader, final MultiUploadReporter reporter) {
         super(pendingUploadList.getList(), reporter);
         this.serverFactory = serverFactory;
         this.uploader = uploader;
+        this.autoUploader = autoUploader;
     }
 
     @Override
@@ -31,9 +34,9 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
         }
 
         if (pendingUploadTask.getAppend()) {
-            giftCloudServer.appendToGiftCloud(pendingUploadTask.getPaths(), projectName);
+            autoUploader.appendToGiftCloud(giftCloudServer, pendingUploadTask.getPaths(), projectName);
         } else {
-            giftCloudServer.uploadToGiftCloud(pendingUploadTask.getPaths(), projectName);
+            autoUploader.uploadToGiftCloud(giftCloudServer, pendingUploadTask.getPaths(), projectName);
         }
     }
 

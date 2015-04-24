@@ -8,36 +8,28 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SubjectAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingProgressMonitor;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.*;
 
 public class GiftCloudAutoUploader {
 
     private final MultiUploadReporter reporter;
-    private final RestServerHelper restServerHelper;
-    private final Container container;
-
-    private final String giftCloudServerUrl;
 
     // Create a map of subjects and sessions we have already uploaded
     private final Map<String, String> sessionsAlreadyUploaded = new HashMap<String, String>();
     private final Map<String, String> scansAlreadyUploaded = new HashMap<String, String>();
-
-
-
 
     private final String autoSubjectNamePrefix = "AutoUploadSubject";
     private final long autoSubjectNameStartNumber = 0;
@@ -53,47 +45,45 @@ public class GiftCloudAutoUploader {
     private final NameGenerator scanNameGenerator = new NameGenerator(autoScanNamePrefix, autoScanNameStartNumber);
 
     private final SubjectAliasMap subjectAliasMap;
+    private GiftCloudServerFactory serverFactory;
 
 
     /**
      * This class is used to automatically and asynchronously group and upload multiple files to a GIFT-Cloud server
      *
-     * @param restServerHelper
-     * @param giftCloudServerUrl the URL of the GIFT-Cloud server. Must be a valid URL and not null or blank
-     * @param container
+     * @para serverFactory
      * @param reporter
      */
-    public GiftCloudAutoUploader(final RestServerHelper restServerHelper, final String giftCloudServerUrl, final Container container, final MultiUploadReporter reporter) {
-        this.restServerHelper = restServerHelper;
+    public GiftCloudAutoUploader(final GiftCloudServerFactory serverFactory, final MultiUploadReporter reporter) {
+        this.serverFactory = serverFactory;
         this.reporter = reporter;
-        this.container = container;
-        this.giftCloudServerUrl = giftCloudServerUrl;
-        subjectAliasMap = new SubjectAliasMap(restServerHelper);
+        subjectAliasMap = new SubjectAliasMap();
     }
 
-    public boolean uploadToGiftCloud(Vector<String> paths, final String projectName) throws IOException {
-        return uploadOrAppend(paths, projectName, false);
+    public boolean uploadToGiftCloud(final GiftCloudServer server, final Vector<String> paths, final String projectName) throws IOException {
+        return uploadOrAppend(server, paths, projectName, false);
     }
 
-    public boolean appendToGiftCloud(Vector<String> paths, final String projectName) throws IOException {
-        return uploadOrAppend(paths, projectName, true);
+    public boolean appendToGiftCloud(final GiftCloudServer server, final Vector<String> paths, final String projectName) throws IOException {
+        return uploadOrAppend(server, paths, projectName, true);
     }
 
-    private boolean uploadOrAppend(Vector<String> paths, final String projectName, final boolean append) throws IOException {
+    private boolean uploadOrAppend(final GiftCloudServer server, final Vector<String> paths, final String projectName, final boolean append) throws IOException {
+
         SeriesImportFilterApplicatorRetriever filter;
         try {
             if (StringUtils.isEmpty(projectName)) {
                 final Optional<String> emptyProject = Optional.empty();
-                filter = new SeriesImportFilterApplicatorRetriever(restServerHelper, emptyProject);
+                filter = new SeriesImportFilterApplicatorRetriever(server, emptyProject);
             } else {
-                filter = new SeriesImportFilterApplicatorRetriever(restServerHelper, Optional.of(projectName));
+                filter = new SeriesImportFilterApplicatorRetriever(server, Optional.of(projectName));
             }
         } catch (Exception exception) {
             throw new IOException("Error encountered retrieving series import filters", exception);
         }
 
 
-        final SwingProgressMonitor progress = new SwingProgressMonitor(container, "Finding data files", "searching", 0, paths.size());
+        final SwingProgressMonitor progress = new SwingProgressMonitor(reporter.getContainer(), "Finding data files", "searching", 0, paths.size());
 
         final EmptyProgress emptyProgress = new EmptyProgress();
 
@@ -110,8 +100,8 @@ public class GiftCloudAutoUploader {
         Map<String, String> subjectMapFromServer;
         Map<String, String> sessionMapFromServer;
         try {
-            subjectMapFromServer = restServerHelper.getListOfSubjects(projectName);
-            sessionMapFromServer = restServerHelper.getListOfSessions(projectName);
+            subjectMapFromServer = server.getListOfSubjects(projectName);
+            sessionMapFromServer = server.getListOfSessions(projectName);
 
         } catch (IOException e) {
             throw new IOException("Uploading could not be performed. The subject and session map could not be obtained due to the following error: " + e.getMessage(), e);
@@ -126,8 +116,8 @@ public class GiftCloudAutoUploader {
             final String studyUid = session.getStudyUid();
             final String seriesUid = session.getSeriesUid();
 
-            final String subjectName = getSubjectName(projectName, subjectMapFromServer, patientId);
-            final String sessionName = getSessionName(studyUid, sessionMapFromServer);
+            final String subjectName = getSubjectName(server, projectName, subjectMapFromServer, patientId);
+            final String sessionName = getSessionName(server, studyUid, sessionMapFromServer);
             final String scanName = getScanName(seriesUid, sessionMapFromServer);
 
             final GiftCloudSessionParameters sessionParameters = new GiftCloudSessionParameters();
@@ -136,11 +126,11 @@ public class GiftCloudAutoUploader {
             sessionParameters.setProtocol("");
             sessionParameters.setVisit("");
             sessionParameters.setScan(scanName);
-            sessionParameters.setBaseUrl(new URL(giftCloudServerUrl));
+            sessionParameters.setBaseUrl(new URL(server.getGiftCloudServerUrl()));
             sessionParameters.setNumberOfThreads(1);
             sessionParameters.setUsedFixedSize(true);
 
-            final Project project = new Project(projectName, restServerHelper);
+            final Project project = new Project(projectName, server.getRestServerHelper());
 
             final LinkedList<SessionVariable> sessionVariables = Lists.newLinkedList(session.getVariables(project, session));
             sessionParameters.setSessionVariables(sessionVariables);
@@ -156,9 +146,9 @@ public class GiftCloudAutoUploader {
                     try {
                         Boolean returnValue;
                         if (append) {
-                            returnValue = session.appendTo(projectName, finalSubjectName, restServerHelper, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
+                            returnValue = session.appendTo(projectName, finalSubjectName, server, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
                         } else {
-                            returnValue = session.uploadTo(projectName, finalSubjectName, restServerHelper, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
+                            returnValue = session.uploadTo(projectName, finalSubjectName, server, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
                         }
                         return returnValue;
                     } catch (CancellationException exception) {
@@ -186,18 +176,18 @@ public class GiftCloudAutoUploader {
         return true;
     }
 
-    private synchronized String getSubjectName(final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {
-        final Optional<String> subjectAlias = subjectAliasMap.getSubjectAlias(projectName, patientId);
+    private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {
+        final Optional<String> subjectAlias = subjectAliasMap.getSubjectAlias(server, projectName, patientId);
         if (subjectAlias.isPresent()) {
             return subjectAlias.get();
         } else {
             final String subjectName = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
-            subjectAliasMap.addSubjectAlias(projectName, patientId, subjectName);
+            subjectAliasMap.addSubjectAlias(server, projectName, patientId, subjectName);
             return subjectName;
         }
     }
 
-    private String getSessionName(final String studyUid, final Map<String, String> serverSessionMap) {
+    private String getSessionName(final GiftCloudServer server, final String studyUid, final Map<String, String> serverSessionMap) {
 
         if (StringUtils.isNotBlank(studyUid) && sessionsAlreadyUploaded.containsKey(studyUid)) {
             return sessionsAlreadyUploaded.get(studyUid);
