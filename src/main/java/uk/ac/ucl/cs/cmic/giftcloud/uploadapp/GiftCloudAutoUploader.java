@@ -112,68 +112,73 @@ public class GiftCloudAutoUploader {
 
         for (final Session session : sessions) {
 
-            final String patientId = session.getPatientId();
-            final String studyUid = session.getStudyUid();
-            final String seriesUid = session.getSeriesUid();
-
-            final String subjectName = getSubjectName(server, projectName, subjectMapFromServer, patientId);
-            final String sessionName = getSessionName(server, studyUid, sessionMapFromServer);
-            final String scanName = getScanName(seriesUid, sessionMapFromServer);
-
-            final GiftCloudSessionParameters sessionParameters = new GiftCloudSessionParameters();
-            sessionParameters.setAdminEmail("null@null.com");
-            sessionParameters.setSessionLabel(sessionName);
-            sessionParameters.setProtocol("");
-            sessionParameters.setVisit("");
-            sessionParameters.setScan(scanName);
-            sessionParameters.setBaseUrl(new URL(server.getGiftCloudServerUrl()));
-            sessionParameters.setNumberOfThreads(1);
-            sessionParameters.setUsedFixedSize(true);
-
-            final Project project = new Project(projectName, server.getRestServerHelper());
-
-            final LinkedList<SessionVariable> sessionVariables = Lists.newLinkedList(session.getVariables(project, session));
-            sessionParameters.setSessionVariables(sessionVariables);
-
-
-            final Optional<String> windowTitle = Optional.empty();
-            final Optional<JSObject> jsContext = Optional.empty();
-
-            final String finalSubjectName = subjectName;
-
-            Future<Boolean> upload = executorService.submit(new Callable<Boolean>() {
-                public Boolean call() {
-                    try {
-                        Boolean returnValue;
-                        if (append) {
-                            returnValue = session.appendTo(projectName, finalSubjectName, server, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
-                        } else {
-                            returnValue = session.uploadTo(projectName, finalSubjectName, server, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
-                        }
-                        return returnValue;
-                    } catch (CancellationException exception) {
-                        // Cancellation is the only type of exception for which we don't attempt to upload any more files
-                        throw exception;
-                    } catch (Exception e) {
-                        // ToDo: We should pass back the exception and catch it lower down
-                        return false;
-                    }
-
-                }
-            });
-
-            try {
-                uploadSuccess = uploadSuccess && upload.get();
-            } catch (InterruptedException e) {
-                final Throwable cause = e.getCause();
-                throw new IOException("Uploading was interrupted due to the following error: " + cause.getMessage(), cause);
-            } catch (ExecutionException e) {
-                final Throwable cause = e.getCause();
-                throw new IOException("Uploading failed due to the following error: " + cause.getMessage(), cause);
-            }
+            uploadSuccess = addSessionToUploadList(server, projectName, append, emptyProgress, executorService, subjectMapFromServer, sessionMapFromServer, uploadSuccess, session);
         }
 
         return true;
+    }
+
+    private boolean addSessionToUploadList(final GiftCloudServer server, final String projectName, final boolean append, final EmptyProgress emptyProgress, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, boolean uploadSuccess, final Session session) throws IOException {
+        final String patientId = session.getPatientId();
+        final String studyUid = session.getStudyUid();
+        final String seriesUid = session.getSeriesUid();
+
+        final String subjectName = getSubjectName(server, projectName, subjectMapFromServer, patientId);
+        final String sessionName = getSessionName(server, studyUid, sessionMapFromServer);
+        final String scanName = getScanName(seriesUid, sessionMapFromServer);
+
+        final GiftCloudSessionParameters sessionParameters = new GiftCloudSessionParameters();
+        sessionParameters.setAdminEmail("null@null.com");
+        sessionParameters.setSessionLabel(sessionName);
+        sessionParameters.setProtocol("");
+        sessionParameters.setVisit("");
+        sessionParameters.setScan(scanName);
+        sessionParameters.setBaseUrl(new URL(server.getGiftCloudServerUrl()));
+        sessionParameters.setNumberOfThreads(1);
+        sessionParameters.setUsedFixedSize(true);
+
+        final Project project = new Project(projectName, server.getRestServerHelper());
+
+        final LinkedList<SessionVariable> sessionVariables = Lists.newLinkedList(session.getVariables(project, session));
+        sessionParameters.setSessionVariables(sessionVariables);
+
+
+        final Optional<String> windowTitle = Optional.empty();
+        final Optional<JSObject> jsContext = Optional.empty();
+
+        final String finalSubjectName = subjectName;
+
+        Future<Boolean> upload = executorService.submit(new Callable<Boolean>() {
+            public Boolean call() {
+                try {
+                    Boolean returnValue;
+                    if (append) {
+                        returnValue = session.appendTo(projectName, finalSubjectName, server, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
+                    } else {
+                        returnValue = session.uploadTo(projectName, finalSubjectName, server, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
+                    }
+                    return returnValue;
+                } catch (CancellationException exception) {
+                    // Cancellation is the only type of exception for which we don't attempt to upload any more files
+                    throw exception;
+                } catch (Exception e) {
+                    // ToDo: We should pass back the exception and catch it lower down
+                    return false;
+                }
+
+            }
+        });
+
+        try {
+            uploadSuccess = uploadSuccess && upload.get();
+        } catch (InterruptedException e) {
+            final Throwable cause = e.getCause();
+            throw new IOException("Uploading was interrupted due to the following error: " + cause.getMessage(), cause);
+        } catch (ExecutionException e) {
+            final Throwable cause = e.getCause();
+            throw new IOException("Uploading failed due to the following error: " + cause.getMessage(), cause);
+        }
+        return uploadSuccess;
     }
 
     private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {

@@ -71,7 +71,7 @@ public interface MultiUploadReporter {
 
     /**
      * Indicates that we wish to log an exception because it may be swallowed
-     * @param error the text of the error
+     * @param errorMessage the text of the error
      */
     void silentLogException(final Throwable throwable, final String errorMessage);
 }

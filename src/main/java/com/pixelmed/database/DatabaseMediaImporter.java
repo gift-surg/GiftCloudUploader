@@ -5,21 +5,13 @@ package com.pixelmed.database;
 //import java.util.Iterator;
 //import java.util.Vector;
 
-import java.io.File;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import com.pixelmed.dicom.Attribute;
-import com.pixelmed.dicom.AttributeList;
-import com.pixelmed.dicom.DicomException;
-import com.pixelmed.dicom.DicomInputStream;
-import com.pixelmed.dicom.MediaImporter;
-import com.pixelmed.dicom.StoredFilePathStrategy;
-import com.pixelmed.dicom.TagFromName;
-
+import com.pixelmed.dicom.*;
 import com.pixelmed.utils.CopyStream;
 import com.pixelmed.utils.MessageLogger;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 
 /**
  * @author	dclunie
@@ -58,7 +50,6 @@ public class DatabaseMediaImporter extends MediaImporter {
 	 * @param	mediaFileName	the fully qualified path name to a DICOM file
 	 */
 	protected void doSomethingWithDicomFileOnMedia(String mediaFileName) {
-//System.err.println("DatabaseMediaImporter:doSomethingWithDicomFile(): "+mediaFileName);
 		try {
 			DicomInputStream i = new DicomInputStream(new BufferedInputStream(new FileInputStream(mediaFileName)));
 			AttributeList list = new AttributeList();
@@ -70,12 +61,18 @@ public class DatabaseMediaImporter extends MediaImporter {
 				throw new DicomException("Cannot get SOP Instance UID to make file name for local copy when inserting into database");
 			}
 			String localCopyFileName=storedFilePathStrategy.makeReliableStoredFilePathWithFoldersCreated(savedInstancesFolder,sopInstanceUID).getPath();
-//System.err.println("DatabaseMediaImporter.doSomethingWithDicomFileOnMedia(): uid = "+sopInstanceUID+" path ="+localCopyFileName);
 			CopyStream.copy(mediaFileName,localCopyFileName);
 			databaseInformationModel.insertObject(list,localCopyFileName,DatabaseInformationModel.FILE_COPIED);
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
 		}
+	}
+
+	/**
+	 * Do nothing with unwanted files
+	 * @param    mediaFileName        the fully qualified path name to the file
+	 */
+	protected void doSomethingWithUnwantedFileOnMedia(String mediaFileName) {
 	}
 }
 

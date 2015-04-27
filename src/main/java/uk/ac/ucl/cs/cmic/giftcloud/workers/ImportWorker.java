@@ -74,6 +74,9 @@ public class ImportWorker implements Runnable {
             }
         }
 
+        protected void doSomethingWithUnwantedFileOnMedia(String mediaFileName) {
+        }
+
         protected boolean canUseBzip = CapabilitiesAvailable.haveBzip2Support();
 
         // override base class isOKToImport(), which rejects unsupported compressed transfer syntaxes

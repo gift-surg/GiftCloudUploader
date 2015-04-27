@@ -290,7 +290,7 @@ public class MediaImporter {
 	 * @param	sopClassUID			the SOP Class of the Data Set if a DICOM file, from the DICOMDIR or Meta Information Header
 	 */
 	protected void doSomethingWithUnwantedFileOnMedia(String mediaFileName,String transferSyntaxUID,String sopClassUID) {
-		logLn("Not a DICOM file, not a DICOM PS 3.10 file or not one that is wanted: "+mediaFileName);
+		doSomethingWithUnwantedFileOnMedia(mediaFileName);
 	}
 	
 	/**
@@ -328,9 +328,26 @@ public class MediaImporter {
 	 */
 	protected void doSomethingWithDicomFileOnMedia(String mediaFileName) {
 		//logLn("MediaImporter.doSomethingWithDicomFile(): "+mediaFileName);
-		logLn("Is a DICOM PS3.10 file that is wanted: "+mediaFileName);
+		logLn("Is a DICOM PS3.10 file that is wanted: " + mediaFileName);
 	}
-	
+
+	/**
+	 * <p>Do something with the unwanted (possibly DICOM file) that has been encountered.</p>
+	 *
+	 * <p>This method needs to be implemented in a sub-class to do anything useful.
+	 * The default method does nothing.</p>
+	 *
+	 * <p>"Unwanted" files are those that are not DICOM files or DICOM files for which {@link MediaImporter#isOKToImport(String,String) isOKToImport(String sopClassUID,String transferSyntaxUID)} returns false.</p>
+	 *
+	 * <p>This method does not define any exceptions and hence must handle any
+	 * errors locally.</p>
+	 *
+	 * @param	mediaFileName		the fully qualified path name to a DICOM file
+	 */
+	protected void doSomethingWithUnwantedFileOnMedia(String mediaFileName) {
+		logLn("Not a DICOM file, not a DICOM PS 3.10 file or not one that is wanted: "+mediaFileName);
+	}
+
 	/**
 	 * @return	the directory last used to perform an import
 	 */
