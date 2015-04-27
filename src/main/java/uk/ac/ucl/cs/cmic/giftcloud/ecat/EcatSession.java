@@ -26,7 +26,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import javax.swing.*;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -293,12 +292,7 @@ public final class EcatSession implements Session {
     /* (non-Javadoc)
      * @see Session#uploadTo(java.util.Map, org.netbeans.spi.wizard.ResultProgressHandle)
      */
-    public UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) {
-        return server.getRestServerHelper().uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, failureHandler, timeZone, reporter);
-    }
-
-    @Override
-    public UploadResult appendTo(String projectLabel, String subjectLabel, GiftCloudServer server, SessionParameters sessionParameters, Project project, UploadFailureHandler failureHandler, MultiUploadReporter reporter) throws IOException {
+    public UploadResult uploadTo(final boolean append, final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) {
         return server.getRestServerHelper().uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, failureHandler, timeZone, reporter);
     }
 

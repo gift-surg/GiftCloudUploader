@@ -5,6 +5,8 @@ import com.google.common.collect.Sets;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadAbortedException;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesAppendUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
@@ -26,8 +28,11 @@ public class MultiZipSeriesUploader {
     private final Map<Future<Set<String>>, CallableUploader> uploaders;
     private final MultiUploadReporter reporter;
 
-    public MultiZipSeriesUploader(final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final MultiUploadReporter reporter, final GiftCloudServer server, final CallableUploader.CallableUploaderFactory callableUploaderFactory) {
+    public MultiZipSeriesUploader(final boolean append, final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final MultiUploadReporter reporter, final GiftCloudServer server) {
         this.reporter = reporter;
+
+        final CallableUploader.CallableUploaderFactory callableUploaderFactory = getZipSeriesUploaderFactory(append);
+
         int fileCount = getFileCountFromFileCollection(uploads);
         reporter.startProgressBar(fileCount);
         reporter.updateStatusText("Building sessionLabel manifest");
@@ -49,6 +54,14 @@ public class MultiZipSeriesUploader {
         }
 
 
+    }
+
+    private static CallableUploader.CallableUploaderFactory getZipSeriesUploaderFactory(final boolean append) {
+        if (append) {
+            return new ZipSeriesAppendUploader.ZipSeriesAppendUploaderFactory();
+        } else {
+            return new ZipSeriesUploader.ZipSeriesUploaderFactory();
+        }
     }
 
     public Map<FileCollection, Throwable> getFailures() {

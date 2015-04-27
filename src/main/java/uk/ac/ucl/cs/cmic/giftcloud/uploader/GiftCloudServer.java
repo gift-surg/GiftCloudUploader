@@ -3,8 +3,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import org.apache.commons.lang.StringUtils;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesAppendUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
@@ -86,29 +84,8 @@ public class GiftCloudServer {
         return restServerHelper.getProjectSeriesImportFilter(projectName);
     }
 
-    public UploadResult uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, MultiUploadReporter logger) {
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this, new ZipSeriesUploader.ZipSeriesUploaderFactory());
-
-        final Optional<String> failureMessage = uploader.run(logger);
-        if (failureMessage.isPresent()) {
-            return new UploadResultsFailure(failureMessage.get());
-        }
-
-        Set<String> uris = uploader.getUris();
-
-        if (1 != uris.size()) {
-            logger.error("Server reports unexpected sessionLabel count:" + uris.size() + " : " + uris);
-            logger.updateStatusText("<p>The XNAT server reported receiving an unexpected number of sessions: (" + uris.size() + ")</p>" + "<p>Please contact the system manager for help.</p>");
-            return new UploadResultsFailure("<p>The XNAT server reported receiving an unexpected number of sessions: (" + uris.size() + ")</p>" + "<p>Please contact the system manager for help.</p>");
-        }
-
-        final String uri = uris.iterator().next();
-        final Optional<TimeZone> timeZone = Optional.empty();
-        return restServerHelper.closeSession(uri, sessionParameters, uploader.getFailures(), timeZone);
-    }
-
-    public UploadResult appendToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, MultiUploadReporter logger) {
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this, new ZipSeriesAppendUploader.ZipSeriesAppendUploaderFactory());
+    public UploadResult uploadToStudy(final boolean append, List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, MultiUploadReporter logger) {
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(append, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
 
         final Optional<String> failureMessage = uploader.run(logger);
         if (failureMessage.isPresent()) {

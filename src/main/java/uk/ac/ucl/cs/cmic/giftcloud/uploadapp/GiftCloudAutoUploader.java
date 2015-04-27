@@ -151,11 +151,7 @@ public class GiftCloudAutoUploader {
             public UploadResult call() throws IOException {
                 try {
                     UploadResult returnValue;
-                    if (append) {
-                        returnValue = session.appendTo(projectName, finalSubjectName, server, sessionParameters, project, new SwingUploadFailureHandler(), reporter);
-                    } else {
-                        returnValue = session.uploadTo(projectName, finalSubjectName, server, sessionParameters, project, new SwingUploadFailureHandler(), reporter);
-                    }
+                    returnValue = session.uploadTo(append, projectName, finalSubjectName, server, sessionParameters, project, new SwingUploadFailureHandler(), reporter);
                     return returnValue;
                 } catch (CancellationException exception) {
                     // Cancellation is the only type of exception for which we don't attempt to upload any more files

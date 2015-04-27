@@ -45,8 +45,7 @@ public interface Session {
 	/*
 	List<SessionVariable> unify(Iterable<? extends SessionVariable> vars);
 	*/
-	UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) throws IOException;
-	UploadResult appendTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) throws IOException;
+	UploadResult uploadTo(final boolean append, final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) throws IOException;
 
 	TimeZone getTimeZone();
 }
