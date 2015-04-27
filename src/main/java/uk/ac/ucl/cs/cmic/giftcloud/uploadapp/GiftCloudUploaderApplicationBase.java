@@ -1,9 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.pixelmed.dicom.VersionAndConstants;
 import com.pixelmed.display.ApplicationBase;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -20,14 +18,6 @@ public class GiftCloudUploaderApplicationBase extends ApplicationBase{
      */
     public GiftCloudUploaderApplicationBase(String applicationPropertyFileName) {
         super(applicationPropertyFileName);
-    }
-
-    static String getBuildDateFromApplicationBase() {
-        return VersionAndConstants.getBuildDate();
-    }
-
-    JLabel getStatusBarFromApplicationBase() {
-        return getStatusBar();
     }
 
     protected Properties getPropertiesFromApplicationBase() {

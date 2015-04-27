@@ -158,7 +158,7 @@ public class StorageSOPClassSCP extends SOPClass implements Runnable {
 				this.nCompleted = nCompleted;
 				this.nFailed = nFailed;
 				this.nWarning = nWarning;
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CMovePendingResponseSender.updateStatus(): Bulding C-MOVE pending response");
+if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CMovePendingResponseSender.updateStatusText(): Bulding C-MOVE pending response");
 				if (nRemaining > 0) {
 					try {
 						byte cMovePendingResponseCommandMessage[] = new CMoveResponseCommandMessage(
@@ -168,7 +168,7 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 							false,				// no dataset
 							nRemaining,nCompleted,nFailed,nWarning
 							).getBytes();
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CMovePendingResponseSender.updateStatus(): C-MOVE pending response = "+CompositeResponseHandler.dumpAttributeListFromCommandOrData(cMovePendingResponseCommandMessage,TransferSyntax.Default));
+if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CMovePendingResponseSender.updateStatusText(): C-MOVE pending response = "+CompositeResponseHandler.dumpAttributeListFromCommandOrData(cMovePendingResponseCommandMessage,TransferSyntax.Default));
 
 						byte presentationContextIDForResponse = association.getSuitablePresentationContextID(cmrq.getAffectedSOPClassUID());
 						association.send(presentationContextIDForResponse,cMovePendingResponseCommandMessage,null);
@@ -212,7 +212,7 @@ if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": Storag
 				this.nCompleted = nCompleted;
 				this.nFailed = nFailed;
 				this.nWarning = nWarning;
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CGetPendingResponseSender.updateStatus(): Bulding C-GET pending response");
+if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CGetPendingResponseSender.updateStatusText(): Bulding C-GET pending response");
 				if (nRemaining > 0) {
 					try {
 						byte cGetPendingResponseCommandMessage[] = new CGetResponseCommandMessage(
@@ -222,7 +222,7 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 							false,				// no dataset
 							nRemaining,nCompleted,nFailed,nWarning
 							).getBytes();
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CGetPendingResponseSender.updateStatus(): C-GET pending response = "+CompositeResponseHandler.dumpAttributeListFromCommandOrData(cGetPendingResponseCommandMessage,TransferSyntax.Default));
+if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CGetPendingResponseSender.updateStatusText(): C-GET pending response = "+CompositeResponseHandler.dumpAttributeListFromCommandOrData(cGetPendingResponseCommandMessage,TransferSyntax.Default));
 
 						byte presentationContextIDForResponse = association.getSuitablePresentationContextID(cgrq.getAffectedSOPClassUID());
 						association.send(presentationContextIDForResponse,cGetPendingResponseCommandMessage,null);

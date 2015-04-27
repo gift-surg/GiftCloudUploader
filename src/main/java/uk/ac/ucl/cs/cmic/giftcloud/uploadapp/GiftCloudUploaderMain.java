@@ -13,7 +13,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.*;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -47,10 +46,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudUploader = new GiftCloudUploader(giftCloudProperties, reporter);
         giftCloudUploader.addExistingFilesToUploadQueue();
 
-        final String buildDate = applicationBase.getBuildDateFromApplicationBase();
-        JLabel statusBar = applicationBase.getStatusBarFromApplicationBase();
-
-
         dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"), giftCloudUploader, reporter);
         dicomNode.addObserver(new DicomNodeListener());
         try {
@@ -63,7 +58,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Attempt to authenticate
         giftCloudUploader.tryAuthentication();
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, giftCloudUploader.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, giftCloudDialogs, buildDate, statusBar, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, giftCloudUploader.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
 

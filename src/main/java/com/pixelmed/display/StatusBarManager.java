@@ -2,18 +2,15 @@
 
 package com.pixelmed.display;
 
-import javax.swing.JLabel; 
-
+import com.pixelmed.display.event.StatusChangeEvent;
+import com.pixelmed.display.event.WindowCenterAndWidthChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
-import com.pixelmed.event.Event; 
+import com.pixelmed.event.Event;
 import com.pixelmed.event.SelfRegisteringListener;
 
-import com.pixelmed.display.event.StatusChangeEvent; 
-import com.pixelmed.display.event.WindowCenterAndWidthChangeEvent; 
+import javax.swing.*;
 
-import com.pixelmed.utils.ThreadUtilities;
-
-class StatusBarManager {
+public class StatusBarManager {
 	
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/display/StatusBarManager.java,v 1.6 2013/02/21 00:39:50 dclunie Exp $";
 

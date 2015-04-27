@@ -2,7 +2,6 @@
 
 package com.pixelmed.display;
 
-import com.pixelmed.dicom.VersionAndConstants;
 import com.pixelmed.utils.FileUtilities;
 
 import javax.swing.*;
@@ -27,38 +26,6 @@ import java.util.Properties;
 public class ApplicationBase {
 
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/display/ApplicationFrame.java,v 1.31 2014/09/09 20:34:09 dclunie Exp $";
-
-	/**
-	 * <p>Get the release string for this application.</p>
-	 *
-	 * @return	 the release string
-	 */
-	protected static String getReleaseString() {
-		return VersionAndConstants.releaseString;
-	}
-
-	/**
-	 * <p>Get the date the package was built.</p>
-	 *
-	 * @return	 the build date
-	 */
-	protected static String getBuildDate() {
-		return VersionAndConstants.getBuildDate();
-	}
-
-	protected StatusBarManager statusBarManager;		// maintain a strong reference else weak reference to listener gets nulled when garbage collected
-
-	/**
-	 * <p>Setup a StatusBarManager and return its StatusBar.</p>
-	 *
-	 * <p>The initial string in the StatusBar is composed of the build date and release string.</p>
-	 *
-	 * @return	 the StatusBar
-	 */
-	protected JLabel getStatusBar() {
-		statusBarManager = new StatusBarManager(getBuildDate()+" "+getReleaseString());		// maintain a strong reference else weak reference to listener gets nulled when garbage collected
-		return statusBarManager.getStatusBar();
-	}
 
 	/**
 	 * <p>Given a file name, such as the properties file name, make a path to it in the user's home directory.</p>
