@@ -1,9 +1,8 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import com.google.common.collect.Maps;
-import org.netbeans.spi.wizard.ResultProgressHandle;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
@@ -21,7 +20,6 @@ public class EcatUploader {
     private final String projectLabel;
     private final String subjectLabel;
     private final SessionParameters sessionParameters;
-    private final ResultProgressHandle progress;
     private final UploadFailureHandler failureHandler;
     private final TimeZone timeZone;
     private final MultiUploadReporter logger;
@@ -30,12 +28,11 @@ public class EcatUploader {
     final Map<File, Object> failures = Maps.newLinkedHashMap();
 
 
-    public EcatUploader(final RestServerHelper restServerHelper, final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final UploadFailureHandler failureHandler, final TimeZone timeZone, final MultiUploadReporter logger) {
+    public EcatUploader(final RestServerHelper restServerHelper, final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final MultiUploadReporter logger) {
         this.restServerHelper = restServerHelper;
         this.projectLabel = projectLabel;
         this.subjectLabel = subjectLabel;
         this.sessionParameters = sessionParameters;
-        this.progress = progress;
         this.failureHandler = failureHandler;
         this.timeZone = timeZone;
         this.logger = logger;
@@ -61,8 +58,9 @@ public class EcatUploader {
             File nextFile = fileStack.remove();
 
             try {
-                progress.setProgress(String.format("Uploading scan %d/%d", i, size), i - 1, size);
-                restServerHelper.uploadEcat(projectLabel, subjectLabel, sessionParameters, timestamp, timeZone.getID(), progress, nextFile, i);
+                logger.updateStatusText(String.format("Uploading scan %d/%d", i, size));
+                logger.updateProgressBar(i - 1, size);
+                restServerHelper.uploadEcat(projectLabel, subjectLabel, sessionParameters, timestamp, timeZone.getID(), nextFile, i);
                 break;
 
             } catch (CancellationException exception) {
@@ -77,7 +75,6 @@ public class EcatUploader {
                     final StringBuilder message = new StringBuilder("user canceled operation after errors:");
                     message.append(MultiUploaderUtils.LINE_SEPARATOR);
                     MultiUploaderUtils.buildEcatFailureMessage(message, failures);
-                    progress.failed(message.toString(), true);
 
                     // Add all other files to the failure list
                     while (!fileStack.isEmpty()) {

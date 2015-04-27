@@ -15,10 +15,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import netscape.javascript.JSObject;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
-import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.nrg.dcm.edit.DicomUtils;
 import org.nrg.dcm.edit.ScriptApplicator;
 import org.nrg.dcm.edit.Variable;
@@ -267,38 +265,38 @@ public class Study extends MapEntity implements Entity, Session {
      * (non-Javadoc)
      * @see Session#uploadTo(java.util.Map, UploadFailureHandler, org.netbeans.spi.wizard.ResultProgressHandle)
      */
-    public UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException {
+    public UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) throws IOException {
 
         final List<FileCollection> fileCollections = getFiles();
 
         if (fileCollections.isEmpty()) {
-            logger.updateStatusText("No files were selected for upload");
+            reporter.updateStatusText("No files were selected for upload");
             return new UploadResultsFailure("No files were selected for upload");
         }
 
         final XnatModalityParams xnatModalityParams = getXnatModalityParams();
 
         final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-        return server.uploadToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+        return server.uploadToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, reporter);
     }
 
     /*
          * (non-Javadoc)
          * @see Session#uploadTo(java.util.Map, UploadFailureHandler, org.netbeans.spi.wizard.ResultProgressHandle)
          */
-    public UploadResult appendTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException {
+    public UploadResult appendTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) throws IOException {
 
         final List<FileCollection> fileCollections = getFiles();
 
         if (fileCollections.isEmpty()) {
-            logger.updateStatusText("No files were selected for upload");
+            reporter.updateStatusText("No files were selected for upload");
             return new UploadResultsFailure("No files were selected for upload");
         }
 
         final XnatModalityParams xnatModalityParams = getXnatModalityParams();
 
         final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-        return server.appendToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, logger);
+        return server.appendToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, reporter);
     }
 
     public List<FileCollection> getFiles() {

@@ -21,9 +21,8 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.json.JSONException;
-import org.netbeans.spi.wizard.ResultProgressHandle;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import org.nrg.dcm.edit.ScriptApplicator;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.io.File;
@@ -78,8 +77,8 @@ public class RestServer {
         return giftCloudSession.request(new HttpRequestWithoutOutput<ApplicatorT>(HttpConnectionWrapper.ConnectionType.GET, path, new HttpApplicatorResponseProcessor(factory), reporter));
     }
 
-    public void uploadEcat(final String path, final String projectName, final String sessionId, final String subjectLabel, final ResultProgressHandle progress, final File file) throws IOException {
-        giftCloudSession.request(new EcatUploadPostRequest(path, file, progress, projectName, subjectLabel, sessionId, reporter));
+    public void uploadEcat(final String path, final String projectName, final String sessionId, final String subjectLabel, final File file) throws IOException {
+        giftCloudSession.request(new EcatUploadPostRequest(path, file, projectName, subjectLabel, sessionId, reporter));
     }
 
     public String getStringFromStream(final String path, final InputStream xmlStream) throws IOException {

@@ -1,8 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
-import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesAppendUploader;
@@ -88,7 +86,7 @@ public class GiftCloudServer {
         return restServerHelper.getProjectSeriesImportFilter(projectName);
     }
 
-    public UploadResult uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, ResultProgressHandle progress, Optional<String> windowName, Optional<JSObject> jsContext, MultiUploadReporter logger) {
+    public UploadResult uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, MultiUploadReporter logger) {
         MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this, new ZipSeriesUploader.ZipSeriesUploaderFactory());
 
         final Optional<String> failureMessage = uploader.run(logger);
@@ -106,10 +104,10 @@ public class GiftCloudServer {
 
         final String uri = uris.iterator().next();
         final Optional<TimeZone> timeZone = Optional.empty();
-        return restServerHelper.closeSession(uri, sessionParameters, progress, uploader.getFailures(), windowName, jsContext, timeZone);
+        return restServerHelper.closeSession(uri, sessionParameters, uploader.getFailures(), timeZone);
     }
 
-    public UploadResult appendToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, ResultProgressHandle progress, Optional<String> windowName, Optional<JSObject> jsContext, MultiUploadReporter logger) {
+    public UploadResult appendToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, MultiUploadReporter logger) {
         MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this, new ZipSeriesAppendUploader.ZipSeriesAppendUploaderFactory());
 
         final Optional<String> failureMessage = uploader.run(logger);
@@ -127,7 +125,7 @@ public class GiftCloudServer {
 
         final String uri = uris.iterator().next();
         final Optional<TimeZone> timeZone = Optional.empty();
-        return restServerHelper.closeSession(uri, sessionParameters, progress, uploader.getFailures(), windowName, jsContext, timeZone);
+        return restServerHelper.closeSession(uri, sessionParameters, uploader.getFailures(), timeZone);
     }
 
     public void createPseudonymIfNotExisting(final String projectName, final String subjectName, final String hashedPatientId) throws IOException {

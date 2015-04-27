@@ -11,10 +11,8 @@
 package uk.ac.ucl.cs.cmic.giftcloud.ecat;
 
 import com.google.common.collect.Lists;
-import netscape.javascript.JSObject;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.nrg.ecat.MatrixDataFile;
 import org.nrg.ecat.edit.ScriptApplicator;
 import org.nrg.ecat.edit.Variable;
@@ -295,13 +293,13 @@ public final class EcatSession implements Session {
     /* (non-Javadoc)
      * @see Session#uploadTo(java.util.Map, org.netbeans.spi.wizard.ResultProgressHandle)
      */
-    public UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) {
-        return server.getRestServerHelper().uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, failureHandler, timeZone, logger);
+    public UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) {
+        return server.getRestServerHelper().uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, failureHandler, timeZone, reporter);
     }
 
     @Override
-    public UploadResult appendTo(String projectLabel, String subjectLabel, GiftCloudServer server, SessionParameters sessionParameters, Project project, ResultProgressHandle progress, Optional<String> windowName, Optional<JSObject> jsContext, UploadFailureHandler failureHandler, MultiUploadReporter logger) throws IOException {
-        return server.getRestServerHelper().uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, progress, windowName, jsContext, failureHandler, timeZone, logger);
+    public UploadResult appendTo(String projectLabel, String subjectLabel, GiftCloudServer server, SessionParameters sessionParameters, Project project, UploadFailureHandler failureHandler, MultiUploadReporter reporter) throws IOException {
+        return server.getRestServerHelper().uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, failureHandler, timeZone, reporter);
     }
 
     public List<FileCollection> getFiles() {

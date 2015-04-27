@@ -22,10 +22,8 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
-import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.nrg.dcm.edit.ScriptApplicator;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
@@ -161,7 +159,7 @@ public class RestServerHelper {
         return restServer.getStringFromStream(uri, xmlStream);
     }
 
-    public UploadResult uploadToEcat(final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final TimeZone timeZone, final MultiUploadReporter logger) {
+    public UploadResult uploadToEcat(final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final MultiUploadReporter logger) {
 
 
         if (fileCollection.getFileCount() == 0) {
@@ -169,7 +167,7 @@ public class RestServerHelper {
             return new UploadResultsFailure("No ECAT files available to upload");
         }
 
-        final EcatUploader uploader = new EcatUploader(this, fileCollection, projectLabel, subjectLabel, sessionParameters, progress, failureHandler, timeZone, logger);
+        final EcatUploader uploader = new EcatUploader(this, fileCollection, projectLabel, subjectLabel, sessionParameters, failureHandler, timeZone, logger);
 
         final Optional<String> failureMessage = uploader.run();
         if (failureMessage.isPresent()) {
@@ -177,17 +175,17 @@ public class RestServerHelper {
         }
 
         final String sessionLabel = sessionParameters.getSessionLabel();
-        progress.setBusy("Creating session " + sessionLabel);
+        reporter.updateStatusText("Creating session " + sessionLabel);
 
         // No failures, since the upload terminates if a failure occurs.
         // Alternatively, we could obtain the failures from the uploader, but these are currently of a different type - irrelevant since there are none
         final Map<FileCollection, Throwable> failures = Maps.newHashMap();
 
-        return closeSession(uploader.getUri(), sessionParameters, progress, failures, windowName, jsContext, Optional.ofNullable(timeZone));
+        return closeSession(uploader.getUri(), sessionParameters, failures, Optional.ofNullable(timeZone));
     }
 
 
-    public UploadResult closeSession(final String uri, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Map<FileCollection, Throwable> failures, final Optional<String> windowName, final Optional<JSObject> jsContext, final Optional<TimeZone> timeZone) {
+    public UploadResult closeSession(final String uri, final SessionParameters sessionParameters, final Map<FileCollection, Throwable> failures, final Optional<TimeZone> timeZone) {
         final String adminEmail = sessionParameters.getAdminEmail();
         final String sessionLabel = sessionParameters.getSessionLabel();
 
@@ -228,7 +226,6 @@ public class RestServerHelper {
             sb.append(" Please contact your administrator ");
             sb.append("<").append(adminEmail).append(">");
             sb.append(" for help.</p>");
-            progress.failed(sb.toString(), false);
             return new UploadResultsFailure(sb.toString());
         }
     }
@@ -416,7 +413,7 @@ public class RestServerHelper {
         return restServer.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators, progress);
     }
 
-    public void uploadEcat(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final String timestamp, final String timeZoneId, final ResultProgressHandle progress, final File file, final int fileNumber) throws Exception {
+    public void uploadEcat(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final String timestamp, final String timeZoneId, final File file, final int fileNumber) throws Exception {
 
         final String visit = sessionParameters.getVisit();
         final String protocol = sessionParameters.getProtocol();
@@ -438,7 +435,7 @@ public class RestServerHelper {
         buffer.append("&overwrite=append&rename=true&prevent_anon=true&prevent_auto_commit=true&SOURCE=applet");
         dataPostURL = buffer.toString();
 
-        restServer.uploadEcat(dataPostURL, projectLabel, sessionLabel, subjectLabel, progress, file);
+        restServer.uploadEcat(dataPostURL, projectLabel, sessionLabel, subjectLabel, file);
     }
 
 

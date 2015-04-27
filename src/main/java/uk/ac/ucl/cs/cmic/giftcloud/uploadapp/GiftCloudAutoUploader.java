@@ -111,13 +111,13 @@ public class GiftCloudAutoUploader {
 
         for (final Session session : sessions) {
 
-            UploadResult uploadSuccess = addSessionToUploadList(server, projectName, append, progressHandleWrapper, executorService, subjectMapFromServer, sessionMapFromServer, session);
+            UploadResult uploadSuccess = addSessionToUploadList(server, projectName, append, executorService, subjectMapFromServer, sessionMapFromServer, session);
         }
 
         return true;
     }
 
-    private UploadResult addSessionToUploadList(final GiftCloudServer server, final String projectName, final boolean append, final ProgressHandleWrapper progressHandleWrapper, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
+    private UploadResult addSessionToUploadList(final GiftCloudServer server, final String projectName, final boolean append, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
         final String patientId = session.getPatientId();
         final String studyUid = session.getStudyUid();
         final String seriesUid = session.getSeriesUid();
@@ -152,9 +152,9 @@ public class GiftCloudAutoUploader {
                 try {
                     UploadResult returnValue;
                     if (append) {
-                        returnValue = session.appendTo(projectName, finalSubjectName, server, sessionParameters, project, progressHandleWrapper, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
+                        returnValue = session.appendTo(projectName, finalSubjectName, server, sessionParameters, project, new SwingUploadFailureHandler(), reporter);
                     } else {
-                        returnValue = session.uploadTo(projectName, finalSubjectName, server, sessionParameters, project, progressHandleWrapper, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
+                        returnValue = session.uploadTo(projectName, finalSubjectName, server, sessionParameters, project, new SwingUploadFailureHandler(), reporter);
                     }
                     return returnValue;
                 } catch (CancellationException exception) {

@@ -83,7 +83,7 @@ public class UploadWizardResultProducer implements WizardResultProducer {
                 upload = _executorService.submit(new Callable<UploadResult>() {
                     public UploadResult call() {
                         try {
-                            UploadResult result = session.uploadTo(uploadSelector.getProject().toString(), uploadSelector.getSubject().getLabel(), giftCloudServer, sessionParameters, uploadSelector.getProject(), progress, uploadSelector.getWindowName(), uploadSelector.getJSContext(), new SwingUploadFailureHandler(), reporter);
+                            UploadResult result = session.uploadTo(uploadSelector.getProject().toString(), uploadSelector.getSubject().getLabel(), giftCloudServer, sessionParameters, uploadSelector.getProject(), new SwingUploadFailureHandler(), reporter);
 
                             if (result instanceof UploadResultsSuccess) {
                                 final UploadResultsSuccess resultsSuccess = (UploadResultsSuccess)result;
