@@ -37,7 +37,7 @@ public class RetrieveWorker implements Runnable {
         if (currentQuerySelection.getCurrentRemoteQuerySelectionLevel() == null) {	// they have selected the root of the tree
             QueryTreeRecord parent = currentQuerySelection.getCurrentRemoteQuerySelectionQueryTreeRecord();
             if (parent != null) {
-                reporter.updateProgress("Retrieving everything from " + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
+                reporter.updateStatusText("Retrieving everything from " + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
                 Enumeration children = parent.children();
                 if (children != null) {
                     int nChildren = parent.getChildCount();
@@ -47,7 +47,7 @@ public class RetrieveWorker implements Runnable {
                         QueryTreeRecord r = (QueryTreeRecord)(children.nextElement());
                         if (r != null) {
                             QuerySelection currentRemoteQuerySelection = new QuerySelection(r, currentRemoteQueryInformationModel);
-                            reporter.updateProgress("Retrieving " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel() + " " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString() + " from " + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
+                            reporter.updateStatusText("Retrieving " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel() + " " + currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKey().getSingleStringValueOrEmptyString() + " from " + currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
                             performRetrieve(currentRemoteQuerySelection.getCurrentRemoteQuerySelectionUniqueKeys(), currentRemoteQuerySelection.getCurrentRemoteQuerySelectionLevel(), currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
                             reporter.updateProgressBar(++doneCount);
                         }
@@ -63,7 +63,7 @@ public class RetrieveWorker implements Runnable {
             reporter.startProgressBar(1);
             performRetrieve(currentQuerySelection.getCurrentRemoteQuerySelectionUniqueKeys(), currentQuerySelection.getCurrentRemoteQuerySelectionLevel(), currentQuerySelection.getCurrentRemoteQuerySelectionRetrieveAE());
 
-            reporter.updateProgress("Done sending retrieval request");
+            reporter.updateStatusText("Done sending retrieval request");
             reporter.endProgressBar();
         }
     }

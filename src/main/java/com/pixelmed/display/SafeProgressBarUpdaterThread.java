@@ -33,16 +33,19 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 	private int value;
 	private int maximum;
 	private boolean stringPainted;
+	private String progressText;
 	
 	public SafeProgressBarUpdaterThread(JProgressBar progressBar) {
 		this.progressBar = progressBar;
 		this.value = 0;
 		this.maximum = 0;
+		this.progressText = "";
 	}
 	
 	public void run() {
 		progressBar.setValue(value);
 		progressBar.setMaximum(maximum);			// undesirable to keep setting the maximum this way, may cause flicker but saves having to have a separate class to do it since only one run method
+		progressBar.setString(progressText);
 		progressBar.setStringPainted(stringPainted);
 		progressBar.repaint();
 	}
@@ -122,6 +125,25 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 		}
 	}
 
+	@Override
+	public void updateStatusText(String progressText) {
+		if (java.awt.EventQueue.isDispatchThread()) {
+			progressBar.setString(progressText);
+			progressBar.setStringPainted(true);
+			progressBar.repaint();
+		}
+		else {
+			setCachedString(progressText);
+			setCachedStringPainted(true);
+			java.awt.EventQueue.invokeLater(this);
+		}
+	}
+
+	@Override
+	public boolean isCancelled() {
+		return false;
+	}
+
 
 	// static convenience methods ...
 
@@ -164,6 +186,10 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
     private void setCachedMaximum(int maximum) {
         this.maximum = maximum;
     }
+
+	private void setCachedString(String s) {
+		progressText = s;
+	}
 
     private void setCachedStringPainted(boolean b) {
         stringPainted = b;

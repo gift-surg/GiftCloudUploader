@@ -10,4 +10,8 @@ public interface Progress {
     void updateProgressBar(int value, int maximum);
 
     void endProgressBar();
+
+    void updateStatusText(final String progressText);
+
+    boolean isCancelled();
 }

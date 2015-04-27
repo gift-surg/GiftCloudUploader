@@ -29,7 +29,7 @@ public class GiftCloudAppendUploadWorker implements Runnable {
         reporter.setWaitCursor();
 
         if (sourceFilePathSelections == null) {
-            reporter.updateProgress("GIFT-Cloud upload: no files were selected for upload");
+            reporter.updateStatusText("GIFT-Cloud upload: no files were selected for upload");
             reporter.showError("No files were selected for uploading.");
         } else {
             reporter.sendLn("GIFT-Cloud upload started");
@@ -42,16 +42,16 @@ public class GiftCloudAppendUploadWorker implements Runnable {
 
                     System.out.println("Uploading single file: " + fileName);
                     if (giftCloudUploader.appendToGiftCloud(singleFile)) {
-                        reporter.updateProgress("GIFT-Cloud upload complete");
+                        reporter.updateStatusText("GIFT-Cloud upload complete");
                     } else {
-                        reporter.updateProgress("Partial failure in GIFT-Cloud upload");
+                        reporter.updateStatusText("Partial failure in GIFT-Cloud upload");
                         uploadSuccessCallback.addFailedUpload(fileName);
                     }
                 } catch (GiftCloudHttpException e) {
-                    reporter.updateProgress("Partial failure in GIFT-Cloud upload, due to the following error: " + e.getHtmlText());
+                    reporter.updateStatusText("Partial failure in GIFT-Cloud upload, due to the following error: " + e.getHtmlText());
                     e.printStackTrace(System.err);
                 } catch (Exception e) {
-                    reporter.updateProgress("Failure in GIFT-Cloud upload, due to the following error: " + e.toString());
+                    reporter.updateStatusText("Failure in GIFT-Cloud upload, due to the following error: " + e.toString());
                     e.printStackTrace(System.err);
                 }
             }

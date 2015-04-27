@@ -124,7 +124,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudUploader, reporter));
             activeThread.start();
         } catch (Exception e) {
-            reporter.updateProgress("GIFT-Cloud upload failed: " + e);
+            reporter.updateStatusText("GIFT-Cloud upload failed: " + e);
             reporter.error("GIFT-Cloud upload failed: " + e);
             e.printStackTrace(System.err);
         }
@@ -154,7 +154,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                 }
                 catch (Exception e) {
                     e.printStackTrace(System.err);
-                    reporter.updateProgress("Query to " + ae + " failed");
+                    reporter.updateStatusText("Query to " + ae + " failed");
 //                        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Query to "+ae+" failed"));
                 }
             }
@@ -187,7 +187,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                 runImport(filePath, reporter);
             }
         } catch (Exception e) {
-            reporter.updateProgress("Importing failed due to the following error: " + e);
+            reporter.updateStatusText("Importing failed due to the following error: " + e);
             e.printStackTrace(System.err);
         }
     }

@@ -235,7 +235,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 
         } catch (DicomException e) {
             // ToDo
-            reporter.updateProgress("Refresh of the file database failed: " + e);
+            reporter.updateStatusText("Refresh of the file database failed: " + e);
             e.printStackTrace();
         }
         srcDatabasePanel.validate();

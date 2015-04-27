@@ -45,6 +45,13 @@ public class StatusPanel extends JPanel implements Progress {
 
             progressBarUpdater = new SafeProgressBarUpdaterThread(progressBar);
         }
+        {
+            JButton cancelButton = new JButton("Cancel");
+            cancelButton.setToolTipText("Cancel current task");
+            add(cancelButton);
+            cancelButton.addActionListener(new CancelActionListener());
+
+        }
     }
 
     @Override
@@ -60,6 +67,16 @@ public class StatusPanel extends JPanel implements Progress {
     @Override
     public void endProgressBar() {
         SafeProgressBarUpdaterThread.endProgressBar(progressBarUpdater);
+    }
+
+    @Override
+    public void updateStatusText(String progressText) {
+        statusBar.setText(progressText);
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return getAndResetCancellation();
     }
 
     @Override

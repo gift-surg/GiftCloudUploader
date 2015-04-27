@@ -36,7 +36,7 @@ public class ImportWorker implements Runnable {
         try {
             importer.importDicomFiles(pathName, progress);
         } catch (Exception e) {
-            reporter.updateProgress("Importing failed: " + e);
+            reporter.updateStatusText("Importing failed: " + e);
             e.printStackTrace(System.err);
         }
 //			srcDatabasePanel.removeAll();
@@ -49,7 +49,7 @@ public class ImportWorker implements Runnable {
 //			srcDatabasePanel.validate();
 
         reporter.endProgressBar();
-        reporter.updateProgress("Done importing");
+        reporter.updateStatusText("Done importing");
         // importer sends its own completion message to log, so do not need another one
         reporter.restoreCursor();
     }

@@ -212,12 +212,6 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
         cursorChanger.setWaitCursor();
     }
 
-    public void updateProgress(String message) {
-        messageLogger.sendLn(message);
-        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent(message));
-
-    }
-
     public void restoreCursor() {
         cursorChanger.restoreCursor();
     }
@@ -267,6 +261,17 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
         progressModel.endProgressBar();
     }
 
+    @Override
+    public void updateStatusText(String progressText) {
+        progressModel.updateProgressText(progressText);
+//        messageLogger.sendLn(progressText);
+        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent(progressText));
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return progressModel.isCancelled();
+    }
 
 
     // These are the preferred methods for reporting to the user

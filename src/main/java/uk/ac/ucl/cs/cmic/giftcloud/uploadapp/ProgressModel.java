@@ -42,4 +42,19 @@ class ProgressModel {
         }
     }
 
+    public void updateProgressText(final String text) {
+        for (Progress progress : listeners) {
+            progress.updateStatusText(text);
+        }
+    }
+
+    public boolean isCancelled() {
+        boolean cancelled = false;
+
+        // Note that we do not early out of the cancellation checks. This is because we want to give each progress listener a chance to reset its cancellation value
+        for (Progress progress : listeners) {
+            cancelled = cancelled || progress.isCancelled();
+        }
+        return cancelled;
+    }
 }

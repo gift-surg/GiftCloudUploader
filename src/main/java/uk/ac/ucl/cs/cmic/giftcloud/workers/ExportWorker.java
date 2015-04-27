@@ -50,20 +50,20 @@ reporter.updateProgressBar(0, nFiles + 1); // include DICOMDIR
                 String exportRelativePathName = hierarchicalExport ? makeNewFullyQualifiedHierarchicalInstancePathName(databaseFileName) : makeNewFullyQualifiedInterchangeMediaInstancePathName(j);
                 File exportFile = new File(exportDirectory,exportRelativePathName);
 //					ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Exporting "+exportRelativePathName));
-                reporter.updateProgress("Exporting " + databaseFileName + " to " + exportFile.getCanonicalPath());
+                reporter.updateStatusText("Exporting " + databaseFileName + " to " + exportFile.getCanonicalPath());
                 exportFile.getParentFile().mkdirs();
                 CopyStream.copy(new File(databaseFileName), exportFile);
                 exportFileNames[j] = exportRelativePathName;
 reporter.updateProgressBar(j + 1);
             }
-reporter.updateProgress("Exporting DICOMDIR");
+reporter.updateStatusText("Exporting DICOMDIR");
             DicomDirectory dicomDirectory = new DicomDirectory(exportDirectory, exportFileNames);
 dicomDirectory.write(new File(exportDirectory,nameForDicomDirectoryOnInterchangeMedia).getCanonicalPath());
 reporter.updateProgressBar(nFiles + 1); // include DICOMDIR
 
             if (zipExport) {
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Zipping exported files"));
-reporter.updateProgress("Zipping exported files");
+reporter.updateStatusText("Zipping exported files");
                 File zipFile = new File(exportDirectory,exportedZipFileName);
                 zipFile.delete();
                 FileOutputStream fout = new FileOutputStream(zipFile);
@@ -107,7 +107,7 @@ reporter.updateProgressBar(nFiles + 1); // include DICOMDIR
             ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Export failed: "+e));
             e.printStackTrace(System.err);
         }
-reporter.updateProgress("Done exporting to " + exportDirectory);
+reporter.updateStatusText("Done exporting to " + exportDirectory);
 reporter.endProgressBar();
 reporter.sendLn("Export complete");
         reporter.restoreCursor();

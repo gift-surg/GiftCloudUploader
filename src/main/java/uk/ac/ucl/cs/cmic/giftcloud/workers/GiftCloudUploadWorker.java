@@ -26,22 +26,22 @@ public class GiftCloudUploadWorker implements Runnable {
         reporter.setWaitCursor();
 
         if (sourceFilePathSelections == null) {
-            reporter.updateProgress("No files selected for upload.");
+            reporter.updateStatusText("No files selected for upload.");
             reporter.showError("No files were selected for uploading.");
         } else {
             reporter.sendLn("GIFT-Cloud upload started");
             reporter.startProgressBar();
             try {
                 if (giftCloudUploader.uploadToGiftCloud(sourceFilePathSelections)) {
-                    reporter.updateProgress("GIFT-Cloud upload complete");
+                    reporter.updateStatusText("GIFT-Cloud upload complete");
                 } else {
-                    reporter.updateProgress("GIFT-Cloud upload failed");
+                    reporter.updateStatusText("GIFT-Cloud upload failed");
                 }
             } catch (GiftCloudHttpException e) {
-                reporter.updateProgress("GIFT-Cloud upload failed with the following error: " + e.getHtmlText());
+                reporter.updateStatusText("GIFT-Cloud upload failed with the following error: " + e.getHtmlText());
                 e.printStackTrace(System.err);
             } catch (Exception e) {
-                reporter.updateProgress("GIFT-Cloud upload failed with the following error: " + e.toString());
+                reporter.updateStatusText("GIFT-Cloud upload failed with the following error: " + e.toString());
                 e.printStackTrace(System.err);
             }
             reporter.endProgressBar();
