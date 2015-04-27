@@ -1,9 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.google.common.collect.Lists;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
-import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
-import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
@@ -11,12 +8,14 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SubjectAliasMap;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
+import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -141,9 +140,6 @@ public class GiftCloudAutoUploader {
         final LinkedList<SessionVariable> sessionVariables = Lists.newLinkedList(session.getVariables(project, session));
         sessionParameters.setSessionVariables(sessionVariables);
 
-
-        final Optional<String> windowTitle = Optional.empty();
-        final Optional<JSObject> jsContext = Optional.empty();
 
         final String finalSubjectName = subjectName;
 

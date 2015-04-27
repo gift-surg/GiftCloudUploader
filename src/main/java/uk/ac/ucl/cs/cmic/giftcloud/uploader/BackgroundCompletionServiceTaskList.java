@@ -9,7 +9,8 @@ public class BackgroundCompletionServiceTaskList<T> extends BackgroundServiceTas
     private final Map<Future<T>, BackgroundServiceTaskWrapper<Callable<T>, Future<T>>> uploaderResultMap = new HashMap<Future<T>, BackgroundServiceTaskWrapper<Callable<T>, Future<T>>>();
     private final ExecutorService executor;
 
-    BackgroundCompletionServiceTaskList(final int numThreads) {
+    BackgroundCompletionServiceTaskList(final int numThreads, final BackgroundThreadTermination backgroundThreadTermination) {
+        super(backgroundThreadTermination);
         executor = Executors.newFixedThreadPool(numThreads);
         completionService = new ExecutorCompletionService<T>(executor);
     }
@@ -24,6 +25,11 @@ public class BackgroundCompletionServiceTaskList<T> extends BackgroundServiceTas
     public BackgroundServiceTaskWrapper<Callable<T>, Future<T>> take() throws InterruptedException {
         final Future<T> future = completionService.take();
         return uploaderResultMap.remove(future);
+    }
+
+    @Override
+    protected boolean isEmpty() {
+        return uploaderResultMap.isEmpty();
     }
 
 }

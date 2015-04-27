@@ -97,6 +97,10 @@ public class BackgroundServiceTaskListTest {
     class BackgroundServiceTaskListFake extends BackgroundServiceTaskList<String, String> {
         final List<TaskError> taskList = new ArrayList<TaskError>();
 
+        BackgroundServiceTaskListFake() {
+            super(BackgroundServiceTaskList.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED);
+        }
+
         @Override
         public void add(String task, BackgroundServiceErrorRecord errorRecord) {
             taskList.add(new TaskError(task, errorRecord));
@@ -105,6 +109,11 @@ public class BackgroundServiceTaskListTest {
         @Override
         public BackgroundServiceTaskWrapper take() throws InterruptedException {
             return null;
+        }
+
+        @Override
+        protected boolean isEmpty() {
+            return taskList.isEmpty();
         }
 
         class TaskError {

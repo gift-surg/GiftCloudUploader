@@ -21,7 +21,7 @@ public class BackgroundCompletionServiceTaskListTest {
     @Test
     public void testAddTake() throws Exception {
         // We will try running 50 callable tasks using a variable number of threads
-        final BackgroundCompletionServiceTaskList<String> list = new BackgroundCompletionServiceTaskList<String>(numThreads);
+        final BackgroundCompletionServiceTaskList<String> list = new BackgroundCompletionServiceTaskList<String>(numThreads, BackgroundServiceTaskList.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED);
 
         // Ordered set of results
         final LinkedHashSet<String> submittedResults = new LinkedHashSet<String>();

@@ -21,7 +21,7 @@ public class PendingUploadTaskList {
 
     public PendingUploadTaskList(final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
         this.reporter = reporter;
-        taskList = new BackgroundBlockingQueueTaskList<PendingUploadTask>();
+        taskList = new BackgroundBlockingQueueTaskList<PendingUploadTask>(BackgroundServiceTaskList.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED);
         pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
     }
 

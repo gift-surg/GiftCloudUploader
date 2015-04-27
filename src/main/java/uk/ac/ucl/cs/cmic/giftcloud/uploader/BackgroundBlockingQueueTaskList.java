@@ -12,6 +12,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class BackgroundBlockingQueueTaskList<T> extends BackgroundServiceTaskList<T, T> {
     private final BlockingQueue<BackgroundServiceTaskWrapper<T, T>> pendingUploadItemList = new LinkedBlockingQueue<BackgroundServiceTaskWrapper<T, T>>();
 
+    BackgroundBlockingQueueTaskList(final BackgroundThreadTermination backgroundThreadTermination) {
+        super(backgroundThreadTermination);
+    }
+
     @Override
     public void add(T task, BackgroundServiceErrorRecord errorRecord) {
         pendingUploadItemList.add(new BackgroundServiceTaskWrapper<T, T>(task, task, errorRecord));
@@ -21,4 +25,10 @@ public class BackgroundBlockingQueueTaskList<T> extends BackgroundServiceTaskLis
     public BackgroundServiceTaskWrapper<T, T> take() throws InterruptedException {
         return pendingUploadItemList.take();
     }
+
+    @Override
+    protected boolean isEmpty() {
+        return pendingUploadItemList.isEmpty();
+    }
+
 }

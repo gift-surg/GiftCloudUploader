@@ -150,6 +150,10 @@ public class BackgroundServiceTest {
 
         final BlockingQueue<BackgroundServiceTaskWrapper<String, String>> tasks = new LinkedBlockingDeque<BackgroundServiceTaskWrapper<String, String>>();
 
+        FakeBackgroundServiceTaskList() {
+            super(BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED);
+        }
+
         @Override
         public void add(String task, BackgroundServiceErrorRecord errorRecord) {
             tasks.add(new BackgroundServiceTaskWrapper<String, String>(task, task, errorRecord));
@@ -158,6 +162,11 @@ public class BackgroundServiceTest {
         @Override
         public BackgroundServiceTaskWrapper<String, String> take() throws InterruptedException {
             return tasks.take();
+        }
+
+        @Override
+        protected boolean isEmpty() {
+            return tasks.isEmpty();
         }
     }
 

@@ -7,7 +7,7 @@ public class BackgroundBlockingQueueTaskListTest {
 
     @Test
     public void testAddTake() throws Exception {
-        final BackgroundBlockingQueueTaskList<String> list = new BackgroundBlockingQueueTaskList<String>();
+        final BackgroundBlockingQueueTaskList<String> list = new BackgroundBlockingQueueTaskList<String>(BackgroundServiceTaskList.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED);
         final String task1 = "Task1";
         final String task2 = "Task2";
         final String task3 = "Task3";

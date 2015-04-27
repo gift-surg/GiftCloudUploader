@@ -7,6 +7,7 @@ public abstract class BackgroundService<T_taskType, T_resultType> implements Run
     private final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList;
     protected final MultiUploadReporter reporter;
     private Thread serviceThread = null;
+    private boolean running = false;
 
     public BackgroundService(final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList, final MultiUploadReporter reporter) {
         this.backgroundServicePendingList = backgroundServicePendingList;
@@ -14,6 +15,10 @@ public abstract class BackgroundService<T_taskType, T_resultType> implements Run
     }
 
     public synchronized void start() {
+
+        if (running) {
+            return;
+        }
 
         // If the thread is still waiting to end from a previous stop() then we block and wait
         if (serviceThread != null) {
@@ -25,9 +30,13 @@ public abstract class BackgroundService<T_taskType, T_resultType> implements Run
 
         serviceThread = new Thread(this);
         serviceThread.start();
+
+        running = true;
     }
 
     public synchronized void stop() {
+        running = false;
+        
         serviceThread.interrupt();
     }
 
@@ -36,7 +45,7 @@ public abstract class BackgroundService<T_taskType, T_resultType> implements Run
         // An InterruptedException is only received if the thread is currently blocking. If this happens the interrupted
         // flag is not set. If the thread is not blocking, the interrupted flag is set but an exception does not occur.
         // Therefore we must check both for the interrupted flag and for the exception in order to correctly process an interruption.
-        while (!serviceThread.isInterrupted()) {
+        while (!serviceThread.isInterrupted() && backgroundServicePendingList.continueProcessing()) {
             try {
                 final BackgroundServiceTaskWrapper<T_taskType, T_resultType> backgroundServiceResult = backgroundServicePendingList.take();
                 try {

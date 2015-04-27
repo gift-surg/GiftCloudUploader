@@ -44,7 +44,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
         final int numThreads = 1;
         final ProgressHandleWrapper progressHandleWrapper = new ProgressHandleWrapper(reporter);
-        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads), progressHandleWrapper, this, reporter);
+        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads, BackgroundServiceTaskList.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED), progressHandleWrapper, this, reporter);
     }
 
     public void setUploadServiceRunningState(final boolean start) {
