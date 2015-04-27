@@ -6,7 +6,6 @@ import com.pixelmed.utils.FileUtilities;
 import com.pixelmed.utils.MessageLogger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
-import javax.swing.*;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,13 +30,9 @@ import java.util.Iterator;
  * @author	dclunie
  */
 public class MediaImporter {
-
-	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/dicom/MediaImporter.java,v 1.14 2014/11/26 14:50:49 dclunie Exp $";
-
 	protected String mediaDirectoryPath;
 	protected MessageLogger logger;
-	protected JProgressBar progressBar;
-	
+
 	/**
 	 * @param	s	message to log
 	 */
@@ -45,7 +40,6 @@ public class MediaImporter {
 		if (logger != null) {
 			logger.sendLn(s);
 		}
-		//System.err.println(s);
 	}
 		
 	/**

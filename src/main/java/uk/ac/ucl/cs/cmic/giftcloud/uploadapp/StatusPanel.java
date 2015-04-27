@@ -72,6 +72,7 @@ public class StatusPanel extends JPanel implements Progress {
     @Override
     public void updateStatusText(String progressText) {
         statusBar.setText(progressText);
+        SafeProgressBarUpdaterThread.updateStatusText(progressBarUpdater, progressText);
     }
 
     @Override
@@ -87,12 +88,6 @@ public class StatusPanel extends JPanel implements Progress {
     @Override
     public void updateProgressBar(int value) {
         SafeProgressBarUpdaterThread.updateProgressBar(progressBarUpdater, value);
-    }
-
-
-    // This is to deal with the Media Importer, which takes in an actual JProgressBar
-    public JProgressBar getProgressBar() {
-        return progressBar;
     }
 
 

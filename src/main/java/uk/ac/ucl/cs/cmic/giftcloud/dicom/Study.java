@@ -28,12 +28,13 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResultsFailure;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
 
 import java.io.File;
@@ -266,13 +267,13 @@ public class Study extends MapEntity implements Entity, Session {
      * (non-Javadoc)
      * @see Session#uploadTo(java.util.Map, UploadFailureHandler, org.netbeans.spi.wizard.ResultProgressHandle)
      */
-    public boolean uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException {
+    public UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException {
 
         final List<FileCollection> fileCollections = getFiles();
 
         if (fileCollections.isEmpty()) {
-            progress.failed("No files were selected for upload", true);
-            return false;
+            logger.updateStatusText("No files were selected for upload");
+            return new UploadResultsFailure("No files were selected for upload");
         }
 
         final XnatModalityParams xnatModalityParams = getXnatModalityParams();
@@ -285,13 +286,13 @@ public class Study extends MapEntity implements Entity, Session {
          * (non-Javadoc)
          * @see Session#uploadTo(java.util.Map, UploadFailureHandler, org.netbeans.spi.wizard.ResultProgressHandle)
          */
-    public boolean appendTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException {
+    public UploadResult appendTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final MultiUploadReporter logger) throws IOException {
 
         final List<FileCollection> fileCollections = getFiles();
 
         if (fileCollections.isEmpty()) {
-            progress.failed("No files were selected for upload", true);
-            return false;
+            logger.updateStatusText("No files were selected for upload");
+            return new UploadResultsFailure("No files were selected for upload");
         }
 
         final XnatModalityParams xnatModalityParams = getXnatModalityParams();

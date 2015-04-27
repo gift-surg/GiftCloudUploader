@@ -1,7 +1,8 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.google.common.collect.Lists;
-import com.pixelmed.display.EmptyProgress;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
+import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
@@ -10,10 +11,10 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SubjectAliasMap;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingProgressMonitor;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
@@ -83,16 +84,16 @@ public class GiftCloudAutoUploader {
         }
 
 
-        final SwingProgressMonitor progress = new SwingProgressMonitor(reporter.getContainer(), "Finding data files", "searching", 0, paths.size());
 
-        final EmptyProgress emptyProgress = new EmptyProgress();
+        final ProgressHandleWrapper progressHandleWrapper = new ProgressHandleWrapper(reporter);
 
         final Vector<File> fileList = new Vector<File>();
         for (final String path : paths) {
             fileList.add(new File(path));
         }
 
-        final List<Session> sessions = new MasterTrawler(progress, fileList, filter).call();
+        final EditProgressMonitorWrapper progressWrapper = new EditProgressMonitorWrapper(reporter);
+        final List<Session> sessions = new MasterTrawler(progressWrapper, fileList, filter).call();
 
         final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -108,17 +109,15 @@ public class GiftCloudAutoUploader {
         }
 
 
-        boolean uploadSuccess = true;
-
         for (final Session session : sessions) {
 
-            uploadSuccess = addSessionToUploadList(server, projectName, append, emptyProgress, executorService, subjectMapFromServer, sessionMapFromServer, uploadSuccess, session);
+            UploadResult uploadSuccess = addSessionToUploadList(server, projectName, append, progressHandleWrapper, executorService, subjectMapFromServer, sessionMapFromServer, session);
         }
 
         return true;
     }
 
-    private boolean addSessionToUploadList(final GiftCloudServer server, final String projectName, final boolean append, final EmptyProgress emptyProgress, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, boolean uploadSuccess, final Session session) throws IOException {
+    private UploadResult addSessionToUploadList(final GiftCloudServer server, final String projectName, final boolean append, final ProgressHandleWrapper progressHandleWrapper, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
         final String patientId = session.getPatientId();
         final String studyUid = session.getStudyUid();
         final String seriesUid = session.getSeriesUid();
@@ -148,29 +147,26 @@ public class GiftCloudAutoUploader {
 
         final String finalSubjectName = subjectName;
 
-        Future<Boolean> upload = executorService.submit(new Callable<Boolean>() {
-            public Boolean call() {
+        Future<UploadResult> upload = executorService.submit(new Callable<UploadResult>() {
+            public UploadResult call() throws IOException {
                 try {
-                    Boolean returnValue;
+                    UploadResult returnValue;
                     if (append) {
-                        returnValue = session.appendTo(projectName, finalSubjectName, server, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
+                        returnValue = session.appendTo(projectName, finalSubjectName, server, sessionParameters, project, progressHandleWrapper, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
                     } else {
-                        returnValue = session.uploadTo(projectName, finalSubjectName, server, sessionParameters, project, emptyProgress, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
+                        returnValue = session.uploadTo(projectName, finalSubjectName, server, sessionParameters, project, progressHandleWrapper, windowTitle, jsContext, new SwingUploadFailureHandler(), reporter);
                     }
                     return returnValue;
                 } catch (CancellationException exception) {
                     // Cancellation is the only type of exception for which we don't attempt to upload any more files
                     throw exception;
-                } catch (Exception e) {
-                    // ToDo: We should pass back the exception and catch it lower down
-                    return false;
                 }
-
+                // We let other exceptions fall through and cause an ExecutionException
             }
         });
 
         try {
-            uploadSuccess = uploadSuccess && upload.get();
+            return upload.get();
         } catch (InterruptedException e) {
             final Throwable cause = e.getCause();
             throw new IOException("Uploading was interrupted due to the following error: " + cause.getMessage(), cause);
@@ -178,7 +174,6 @@ public class GiftCloudAutoUploader {
             final Throwable cause = e.getCause();
             throw new IOException("Uploading failed due to the following error: " + cause.getMessage(), cause);
         }
-        return uploadSuccess;
     }
 
     private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {

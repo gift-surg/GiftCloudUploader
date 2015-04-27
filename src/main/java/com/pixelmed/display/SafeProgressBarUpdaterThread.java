@@ -177,6 +177,12 @@ public class SafeProgressBarUpdaterThread implements Runnable, Progress {
 		}
 	}
 
+	public static void updateStatusText(SafeProgressBarUpdaterThread progressBarUpdater, String statusText) {
+		if (progressBarUpdater != null) {
+			progressBarUpdater.updateStatusText(statusText);
+		}
+	}
+
     // Set cached values for later invocation on EDT
 
     private void setCachedValue(int value) {

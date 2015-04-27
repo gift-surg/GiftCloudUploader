@@ -12,15 +12,20 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import org.netbeans.spi.wizard.DeferredWizardResult;
 import org.netbeans.spi.wizard.ResultProgressHandle;
+import org.netbeans.spi.wizard.Summary;
 import org.netbeans.spi.wizard.WizardPage.WizardResultProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResultsFailure;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResultsSuccess;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -56,7 +61,7 @@ public class UploadWizardResultProducer implements WizardResultProducer {
     private class UploadWizardResult extends DeferredWizardResult {
         private final Logger logger = LoggerFactory.getLogger(UploadWizardResult.class);
 
-        private Future<Boolean> upload = null;
+        private Future<UploadResult> upload = null;
 
         UploadWizardResult() {
             super(true);
@@ -75,17 +80,32 @@ public class UploadWizardResultProducer implements WizardResultProducer {
                 logger.trace("Wizard parameter map {}", wizardData);
                 final SessionParameters sessionParameters = new WizardSessionParameters(wizardData);
                         // Analytics.enter(UploadAssistantApplet.class, String.format("Upload commenced with wizard parameter map %s", wizardData));
-                upload = _executorService.submit(new Callable<Boolean>() {
-                    public Boolean call() {
+                upload = _executorService.submit(new Callable<UploadResult>() {
+                    public UploadResult call() {
                         try {
-                            return session.uploadTo(uploadSelector.getProject().toString(), uploadSelector.getSubject().getLabel(), giftCloudServer, sessionParameters, uploadSelector.getProject(), progress, uploadSelector.getWindowName(), uploadSelector.getJSContext(), new SwingUploadFailureHandler(), reporter);
+                            UploadResult result = session.uploadTo(uploadSelector.getProject().toString(), uploadSelector.getSubject().getLabel(), giftCloudServer, sessionParameters, uploadSelector.getProject(), progress, uploadSelector.getWindowName(), uploadSelector.getJSContext(), new SwingUploadFailureHandler(), reporter);
+
+                            if (result instanceof UploadResultsSuccess) {
+                                final UploadResultsSuccess resultsSuccess = (UploadResultsSuccess)result;
+                                final UploadResultPanel resultPanel = new UploadResultPanel(resultsSuccess.getsessionLabel(), resultsSuccess.getSessionViewUrl(), uploadSelector.getWindowName(), uploadSelector.getJSContext());
+                                final String fullUrlString = sessionParameters.getBaseURL() + resultsSuccess.getUri();
+                                progress.finished(Summary.create(resultPanel, new URL(fullUrlString)));
+                            } else if (result instanceof UploadResultsFailure) {
+                            } else {
+                                throw new RuntimeException("Unknown result type");
+                            }
+                            return result;
+
                         } catch (IOException e) {
                             e.printStackTrace();
-                            return false; // ToDo
+                            return new UploadResultsFailure("Failed to upload due to the following error:" + e.getLocalizedMessage());
                         }
                     }
                 });
                 upload.get();
+
+
+
             } catch (final CancellationException ignored) {
                 progress.failed("Upload canceled", false);
                 // Analytics.enter(UploadAssistantApplet.class, "Upload cancelled by user");

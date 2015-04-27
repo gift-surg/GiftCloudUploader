@@ -2,14 +2,13 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import netscape.javascript.JSObject;
-import org.netbeans.spi.wizard.ResultProgressHandle;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadAbortedException;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 
 import java.util.List;
 import java.util.Map;
@@ -25,24 +24,24 @@ public class MultiZipSeriesUploader {
     private final ExecutorService executor;
     private final CompletionService<Set<String>> completionService;
     private final Map<Future<Set<String>>, CallableUploader> uploaders;
-    private final MultiUploadReporter logger;
+    private final MultiUploadReporter reporter;
 
-    public MultiZipSeriesUploader(final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final MultiUploadReporter logger, final GiftCloudServer server, final CallableUploader.CallableUploaderFactory callableUploaderFactory) {
-        this.logger = logger;
+    public MultiZipSeriesUploader(final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final MultiUploadReporter reporter, final GiftCloudServer server, final CallableUploader.CallableUploaderFactory callableUploaderFactory) {
+        this.reporter = reporter;
         int fileCount = getFileCountFromFileCollection(uploads);
-        progress.setProgress(0, fileCount);
-        progress.setBusy("Building sessionLabel manifest");
+        reporter.startProgressBar(fileCount);
+        reporter.updateStatusText("Building sessionLabel manifest");
 
         final boolean useFixedSize = sessionParameters.getUseFixedSize();
         final int nThreads = sessionParameters.getNumberOfThreads();
 
-        progress.setBusy("Preparing upload...");
-        logger.trace("creating thread pool and executors");
+        reporter.updateStatusText("Preparing upload...");
+        reporter.trace("creating thread pool and executors");
         executor = Executors.newFixedThreadPool(nThreads);
         completionService = new ExecutorCompletionService<Set<String>>(executor);
         uploaders = Maps.newHashMap();
-        logger.trace("submitting uploaders for {}", uploads);
-        final UploadStatisticsReporter stats = new UploadStatisticsReporter(progress);
+        reporter.trace("submitting uploaders for {}", uploads);
+        final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
         for (final FileCollection s : uploads) {
             stats.addToSend(s.getSize());
             final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, s, applicators, stats, server);
@@ -60,8 +59,9 @@ public class MultiZipSeriesUploader {
         return uris;
     }
 
-    public boolean run(final ResultProgressHandle progress, final MultiUploadReporter logger) {
+    public Optional<String> run(final MultiUploadReporter logger) {
 
+        final ProgressHandleWrapper progress = new ProgressHandleWrapper(reporter);
         while (progress.isRunning() && !uploaders.isEmpty()) {
             final Future<Set<String>> future;
             try {
@@ -101,16 +101,16 @@ public class MultiZipSeriesUploader {
                 }
                 String message = MultiUploaderUtils.buildFailureMessage(failures);
                 progress.failed(message, false);
-                return false;
+                return Optional.of(message);
             }
         }
 
         if (!uploaders.isEmpty()) {
             logger.error("progress failed before uploaders complete: {}");
-            return false;
+            return Optional.of("progress failed before uploaders complete: {}");
         }
 
-        return true;
+        return Optional.empty();
     }
 
     private static int getFileCountFromFileCollection(final List<FileCollection> fileCollections) {

@@ -27,6 +27,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.SwingProgressMonitorWrapper;
 
 import javax.swing.*;
 import java.applet.Applet;
@@ -47,10 +48,13 @@ public class MultiUploadAppletReporter implements MultiUploadReporter {
 
     private static final Logger logger = LoggerFactory.getLogger(MultiUploadAppletReporter.class);
 
+    private final SwingProgressMonitorWrapper progressWrapper;
 
     public MultiUploadAppletReporter(Applet applet) {
         this.applet = applet;
         configureLogging();
+
+        progressWrapper = new SwingProgressMonitorWrapper(getContainer());
     }
 
     @Override
@@ -220,5 +224,40 @@ public class MultiUploadAppletReporter implements MultiUploadReporter {
                 error("Unable to read remote log4j configuration file " + log4jProps, e);
             }
         }
+    }
+
+    @Override
+    public void startProgressBar(int maximum) {
+        progressWrapper.startProgressBar(maximum);
+    }
+
+    @Override
+    public void startProgressBar() {
+        progressWrapper.startProgressBar();
+    }
+
+    @Override
+    public void updateProgressBar(int value) {
+        progressWrapper.updateProgressBar(value);
+    }
+
+    @Override
+    public void updateProgressBar(int value, int maximum) {
+        progressWrapper.updateProgressBar(value, maximum);
+    }
+
+    @Override
+    public void endProgressBar() {
+        progressWrapper.endProgressBar();
+    }
+
+    @Override
+    public void updateStatusText(String progressText) {
+        progressWrapper.updateStatusText(progressText);
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return progressWrapper.isCancelled();
     }
 }

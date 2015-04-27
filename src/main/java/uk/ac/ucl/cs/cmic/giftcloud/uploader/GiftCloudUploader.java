@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import com.pixelmed.display.EmptyProgress;
+import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
@@ -43,8 +43,8 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
 
         final int numThreads = 1;
-        final EmptyProgress emptyProgress = new EmptyProgress();
-        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads), emptyProgress, this, reporter);
+        final ProgressHandleWrapper progressHandleWrapper = new ProgressHandleWrapper(reporter);
+        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads), progressHandleWrapper, this, reporter);
     }
 
     public void setUploadServiceRunningState(final boolean start) {

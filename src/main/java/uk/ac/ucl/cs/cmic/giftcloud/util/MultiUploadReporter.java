@@ -21,11 +21,12 @@
 package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 import netscape.javascript.JSObject;
+import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
 import java.awt.*;
 import java.net.MalformedURLException;
 
-public interface MultiUploadReporter {
+public interface MultiUploadReporter extends Progress {
 
     void errorBox(final String errorMessage, final Throwable throwable);
 

@@ -26,14 +26,12 @@ import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.netbeans.spi.wizard.ResultProgressHandle;
-import org.netbeans.spi.wizard.Summary;
 import org.nrg.dcm.edit.ScriptApplicator;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.Study;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.UploadResultPanel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
@@ -163,18 +161,19 @@ public class RestServerHelper {
         return restServer.getStringFromStream(uri, xmlStream);
     }
 
-    public boolean uploadToEcat(final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final TimeZone timeZone, final MultiUploadReporter logger) {
+    public UploadResult uploadToEcat(final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Optional<String> windowName, final Optional<JSObject> jsContext, final UploadFailureHandler failureHandler, final TimeZone timeZone, final MultiUploadReporter logger) {
 
 
         if (fileCollection.getFileCount() == 0) {
-            progress.failed("No ECAT files available to upload", true);
-            return false;
+            reporter.updateStatusText("No ECAT files available to upload");
+            return new UploadResultsFailure("No ECAT files available to upload");
         }
 
         final EcatUploader uploader = new EcatUploader(this, fileCollection, projectLabel, subjectLabel, sessionParameters, progress, failureHandler, timeZone, logger);
 
-        if (!uploader.run()) {
-            return false;
+        final Optional<String> failureMessage = uploader.run();
+        if (failureMessage.isPresent()) {
+            return new UploadResultsFailure(failureMessage.get());
         }
 
         final String sessionLabel = sessionParameters.getSessionLabel();
@@ -184,43 +183,31 @@ public class RestServerHelper {
         // Alternatively, we could obtain the failures from the uploader, but these are currently of a different type - irrelevant since there are none
         final Map<FileCollection, Throwable> failures = Maps.newHashMap();
 
-        closeSession(uploader.getUri(), sessionParameters, progress, failures, windowName, jsContext, Optional.ofNullable(timeZone));
-
-        return true;
+        return closeSession(uploader.getUri(), sessionParameters, progress, failures, windowName, jsContext, Optional.ofNullable(timeZone));
     }
 
 
-
-
-    public boolean closeSession(final String uri, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Map<FileCollection, Throwable> failures, final Optional<String> windowName, final Optional<JSObject> jsContext, final Optional<TimeZone> timeZone) {
+    public UploadResult closeSession(final String uri, final SessionParameters sessionParameters, final ResultProgressHandle progress, final Map<FileCollection, Throwable> failures, final Optional<String> windowName, final Optional<JSObject> jsContext, final Optional<TimeZone> timeZone) {
         final String adminEmail = sessionParameters.getAdminEmail();
-        final String session = sessionParameters.getSessionLabel();
-        final String fullUrlString = sessionParameters.getBaseURL() + uri;
+        final String sessionLabel = sessionParameters.getSessionLabel();
 
         // Close session and return result
         try {
             if (failures.isEmpty()) {
-                progress.setBusy("Committing session");
+                reporter.updateStatusText("Committing session");
 
                 final URL sessionViewUrl = commitSessionAndGetSessionViewUrl(uri, sessionParameters, timeZone);
-
-                // TODO: build summary, notify user
-                final UploadResultPanel resultPanel = new UploadResultPanel(session, sessionViewUrl, windowName, jsContext);
-
-                progress.finished(Summary.create(resultPanel, new URL(fullUrlString)));
-                return true;
+                return new UploadResultsSuccess(uri, sessionLabel, sessionViewUrl);
             } else {
-                progress.failed(MultiUploaderUtils.buildFailureMessage(failures), false);
-                return false;
+                reporter.updateStatusText(MultiUploaderUtils.buildFailureMessage(failures));
+                return new UploadResultsFailure(MultiUploaderUtils.buildFailureMessage(failures));
             }
         } catch (JSONException e) {
             reporter.error("unable to write commit request entity", e);
-            // ToDo: TD: should there be a progress.failed call here?
-            return false;
+            return new UploadResultsFailure("unable to write commit request entity");
         } catch (GiftCloudHttpException e) {
             reporter.error("session commit failed", e);
-            progress.failed(e.getHtmlText(), true);
-            return false;
+            return new UploadResultsFailure(e.getHtmlText());
         } catch (IOException e) {
             reporter.error("Session commit failed", e);
             final StringBuilder sb = new StringBuilder("<h3>Communications error</h3>");
@@ -231,8 +218,8 @@ public class RestServerHelper {
             sb.append("). Please contact your administrator ");
             sb.append("<").append(adminEmail).append(">");
             sb.append(" for help.</p>");
-            progress.failed(sb.toString(), false);
-            return false;
+            return new UploadResultsFailure(sb.toString());
+
         } catch (Throwable t) {
             reporter.error("Session commit failed", t);
             final StringBuilder sb = new StringBuilder("<h3>Error in applet</h3>");
@@ -242,7 +229,7 @@ public class RestServerHelper {
             sb.append("<").append(adminEmail).append(">");
             sb.append(" for help.</p>");
             progress.failed(sb.toString(), false);
-            return false;
+            return new UploadResultsFailure(sb.toString());
         }
     }
 

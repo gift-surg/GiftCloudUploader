@@ -52,7 +52,7 @@ public class EcatUploader {
         return failures;
     }
 
-    public boolean run() {
+    public Optional<String> run() {
         // add scans to session, and the data file to each scan
         int i = 0;
         final int size = fileStack.size();
@@ -83,12 +83,12 @@ public class EcatUploader {
                     while (!fileStack.isEmpty()) {
                         failures.put(fileStack.remove(), getUserCanceledFailure());
                     }
-                    return false;
+                    return Optional.of(message.toString());
                 }
             }
         }
 
-        return true;
+        return Optional.empty();
     }
 
     public String getUri() {
