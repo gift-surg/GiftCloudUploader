@@ -62,7 +62,7 @@ public abstract class BackgroundServiceTaskList<T_taskType, T_resultType> {
         if (backgroundThreadTermination.getStopWhenEmpty()) {
             return !isEmpty();
         } else {
-            return false;
+            return true;
         }
     }
 
