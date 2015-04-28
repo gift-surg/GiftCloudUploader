@@ -21,19 +21,19 @@ public class PendingUploadTaskList {
 
     public PendingUploadTaskList(final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
         this.reporter = reporter;
-        taskList = new BackgroundBlockingQueueTaskList<PendingUploadTask>(BackgroundServiceTaskList.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED);
+        taskList = new BackgroundBlockingQueueTaskList<PendingUploadTask>();
         pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
     }
 
     public void addFileReference(final String fileReference, final Optional<String> projectName) throws IOException {
         final PendingUploadTaskReference taskReference = new PendingUploadTaskReference(fileReference, projectName);
-        taskList.add(taskReference);
+        taskList.addNewTask(taskReference);
         fileMap.put(fileReference, taskReference);
     }
 
     public void addFileInstance(final String fileInstance, final Optional<String> projectName) throws IOException {
         final PendingUploadTaskInstance taskInstance = new PendingUploadTaskInstance(fileInstance, projectName);
-        taskList.add(taskInstance);
+        taskList.addNewTask(taskInstance);
         fileMap.put(fileInstance, taskInstance);
     }
 

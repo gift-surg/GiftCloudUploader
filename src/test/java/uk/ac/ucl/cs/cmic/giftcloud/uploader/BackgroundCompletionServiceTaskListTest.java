@@ -21,7 +21,7 @@ public class BackgroundCompletionServiceTaskListTest {
     @Test
     public void testAddTake() throws Exception {
         // We will try running 50 callable tasks using a variable number of threads
-        final BackgroundCompletionServiceTaskList<String> list = new BackgroundCompletionServiceTaskList<String>(numThreads, BackgroundServiceTaskList.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED);
+        final BackgroundCompletionServiceTaskList<String> list = new BackgroundCompletionServiceTaskList<String>(numThreads);
 
         // Ordered set of results
         final LinkedHashSet<String> submittedResults = new LinkedHashSet<String>();
@@ -37,7 +37,7 @@ public class BackgroundCompletionServiceTaskListTest {
 
         // Add some of the tasks
         for (int i = 0; i < 31; i++) {
-            list.add(tasks.get(i));
+            list.addNewTask(tasks.get(i));
         }
 
         // Retrieve some of the tasks
@@ -48,7 +48,7 @@ public class BackgroundCompletionServiceTaskListTest {
 
         // Add the remaining tasks
         for (int i = 31; i < 50; i++) {
-            list.add(tasks.get(i));
+            list.addNewTask(tasks.get(i));
         }
 
         // Retrieve the remaining tasks
@@ -59,6 +59,16 @@ public class BackgroundCompletionServiceTaskListTest {
 
         Assert.assertEquals(submittedResults, completedResults);
     }
+
+    public void testIsEmpty() {
+        final BackgroundCompletionServiceTaskList<String> list = new BackgroundCompletionServiceTaskList<String>(numThreads);
+        Assert.assertTrue(list.isEmpty());
+        list.addNewTask(new FakeCallable("Task1"));
+        Assert.assertFalse(list.isEmpty());
+        list.addNewTask(new FakeCallable("Task2"));
+        Assert.assertFalse(list.isEmpty());
+    }
+
 
     @Parameterized.Parameters
     public static Collection threads() {

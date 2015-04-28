@@ -19,7 +19,7 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
 
 
     public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final ResultProgressHandle progress, final BackgroundUploadOutcomeCallback outcomeCallback, final MultiUploadReporter reporter) {
-        super(backgroundCompletionServiceTaskList, reporter);
+        super(BackgroundService.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED, backgroundCompletionServiceTaskList, reporter);
 
         this.progress = progress;
         this.backgroundCompletionServiceTaskList = backgroundCompletionServiceTaskList;
@@ -35,7 +35,7 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
 
     private void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, UploadStatisticsReporter stats, FileCollection fileCollection) {
         final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, fileCollection, applicators, stats, server);
-        backgroundCompletionServiceTaskList.add(uploader);
+        backgroundCompletionServiceTaskList.addNewTask(uploader);
     }
 
 

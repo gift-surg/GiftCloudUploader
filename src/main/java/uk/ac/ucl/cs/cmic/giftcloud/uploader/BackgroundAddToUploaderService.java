@@ -12,7 +12,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
     private final GiftCloudAutoUploader autoUploader;
 
     public BackgroundAddToUploaderService(final PendingUploadTaskList pendingUploadList, final GiftCloudServerFactory serverFactory, final GiftCloudUploader uploader, final GiftCloudAutoUploader autoUploader, final MultiUploadReporter reporter) {
-        super(pendingUploadList.getList(), reporter);
+        super(BackgroundService.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED, pendingUploadList.getList(), reporter);
         this.serverFactory = serverFactory;
         this.uploader = uploader;
         this.autoUploader = autoUploader;
