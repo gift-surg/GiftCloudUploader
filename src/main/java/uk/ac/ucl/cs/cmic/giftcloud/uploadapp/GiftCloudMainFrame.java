@@ -65,7 +65,7 @@ class GiftCloudMainFrame implements MainFrame {
                 container.toFront();
                 container.requestFocus();
                 container.setAlwaysOnTop(false);
-                notifyVisbilityChanged(MainWindowVisibility.HIDDEN);
+                notifyVisbilityChanged(MainWindowVisibility.VISIBLE);
             }
         });
     }

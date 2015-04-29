@@ -4,7 +4,14 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import java.util.List;
 
-public abstract class BackgroundService<T_taskType, T_resultType> implements Runnable {
+public abstract class BackgroundService<T_taskType, T_resultType> extends StatusObservable<BackgroundService.ServiceStatus> implements Runnable {
+
+    enum ServiceStatus {
+        INITIALIZED,
+        RUNNING,
+        STOP_REQUESTED,
+        COMPLETE
+    }
 
     enum BackgroundThreadTermination {
         STOP_WHEN_LIST_EMPTY(true),
@@ -26,7 +33,7 @@ public abstract class BackgroundService<T_taskType, T_resultType> implements Run
     private final BackgroundServiceFailureList<T_taskType> backgroundServiceFailureList;
     protected final MultiUploadReporter reporter;
     private Thread serviceThread = null;
-    private volatile boolean running = false;
+    private ServiceStatus serviceStatus = ServiceStatus.INITIALIZED;
 
     public BackgroundService(final BackgroundThreadTermination backgroundThreadTermination, final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList, final MultiUploadReporter reporter) {
         this.backgroundThreadTermination = backgroundThreadTermination;
@@ -37,22 +44,33 @@ public abstract class BackgroundService<T_taskType, T_resultType> implements Run
 
     public final synchronized void start() {
 
-        if (running) {
+        if (isRunning()) {
             return;
         }
 
         // If the thread is still waiting to end from a previous stop() then we block and wait
         waitForThreadCompletion();
 
+        updateServiceStatus(ServiceStatus.RUNNING);
+
         serviceThread = new Thread(this);
         serviceThread.start();
+    }
 
-        running = true;
+    private void updateServiceStatus(final ServiceStatus requestedServiceStatus) {
+
+        // The synchronization block ensure that if the thread completes before the service status is set to
+        // STOP_REQUESTED, then we keep the status as STOPPED
+        synchronized (serviceStatus) {
+            if (!(serviceStatus == ServiceStatus.COMPLETE && requestedServiceStatus == ServiceStatus.STOP_REQUESTED)) {
+                serviceStatus = requestedServiceStatus;
+                notify(serviceStatus);
+            }
+        }
     }
 
     public final synchronized void stop() {
-        running = false;
-        
+        updateServiceStatus(ServiceStatus.STOP_REQUESTED);
         serviceThread.interrupt();
     }
 
@@ -86,13 +104,13 @@ public abstract class BackgroundService<T_taskType, T_resultType> implements Run
             }
         }
 
-        running = false;
+        updateServiceStatus(ServiceStatus.COMPLETE);
 
         // We leave all remaining items on the queue so they can be processed if the thread is restarted
     }
 
     public final boolean isRunning() {
-        return running;
+        return (serviceStatus == ServiceStatus.RUNNING);
     }
 
     public final List<BackgroundServiceFailureList.FailureRecord> getFailures() {
@@ -125,4 +143,6 @@ public abstract class BackgroundService<T_taskType, T_resultType> implements Run
 
     abstract protected void notifySuccess(final BackgroundServiceTaskWrapper<T_taskType, T_resultType> taskWrapper);
     abstract protected void notifyFailure(final BackgroundServiceTaskWrapper<T_taskType, T_resultType> taskWrapper);
+
+
 }
