@@ -32,7 +32,7 @@ public class QueryRetrieveHelper {
         // ToDo: Cache active thread so we can provide a cancel option
     }
 
-    public void query(final GiftCloudUploaderPanel giftCloudUploaderPanel, final QueryParams queryParams) {
+    public void query(final QueryRetrievePanel queryRetrievePanel, final QueryParams queryParams) {
         //new QueryRetrieveDialog("GiftCloudUploaderPanel Query",400,512);
         String ae = giftCloudProperties.getCurrentlySelectedQueryTargetAE();
         if (ae != null) {
@@ -43,7 +43,7 @@ public class QueryRetrieveHelper {
             else {
                 try {
                     AttributeList filter = queryParams.build();
-                    Thread activeThread = new Thread(new QueryWorker(giftCloudUploaderPanel, currentRemoteQueryInformationModel, filter, dicomNode, reporter));
+                    Thread activeThread = new Thread(new QueryWorker(queryRetrievePanel, currentRemoteQueryInformationModel, filter, dicomNode, reporter));
                     activeThread.start();
                 }
                 catch (Exception e) {

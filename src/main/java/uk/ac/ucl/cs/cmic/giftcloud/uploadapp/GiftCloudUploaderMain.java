@@ -135,8 +135,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void query(QueryParams queryParams) {
-        queryRetrieveHelper.query(giftCloudUploaderPanel, queryParams);
+    public void query(final QueryRetrievePanel queryRetrievePanel, final QueryParams queryParams) {
+        queryRetrievePanel.removeAll();
+        queryRetrieveHelper.query(queryRetrievePanel, queryParams);
+        queryRetrievePanel.validate();
     }
 
     @Override
