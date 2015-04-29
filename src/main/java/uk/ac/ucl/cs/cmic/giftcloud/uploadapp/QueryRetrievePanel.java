@@ -30,6 +30,9 @@ public class QueryRetrievePanel extends JPanel {
     public void updateQueryPanel(final QueryInformationModel queryInformationModel, final AttributeList filter, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomNetworkException, DicomException, IOException {
         QueryTreeModel treeModel = queryInformationModel.performHierarchicalQuery(filter);
         new OurQueryTreeBrowser(queryInformationModel, treeModel, this, currentRemoteQueryInformationModel);
+
+        // TD: unsure if this is required or not... for re-laying out the panel after a query operation has succeeded
+        validate();
     }
 
     public List<QuerySelection> getCurrentRemoteQuerySelectionList() {

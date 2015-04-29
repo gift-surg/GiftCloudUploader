@@ -181,6 +181,10 @@ public class GiftCloudUploaderPanel extends JPanel {
         projectList.setModel(projectListModel);
     }
 
+    public QueryRetrievePanel getQueryRetrievePanel() {
+        return remoteQueryRetrievePanel;
+    }
+
     // Called when the database model has changed
     public void rebuildFileList(final DatabaseInformationModel srcDatabase) {
         srcDatabasePanel.removeAll();
@@ -214,7 +218,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     private class QueryActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-            controller.query(remoteQueryRetrievePanel, queryFilterPanel.getQueryParams());
+            controller.query(queryFilterPanel.getQueryParams());
 		}
 	}
 

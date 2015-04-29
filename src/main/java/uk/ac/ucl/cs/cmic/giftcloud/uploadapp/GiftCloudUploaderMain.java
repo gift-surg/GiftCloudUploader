@@ -18,18 +18,18 @@ import java.util.*;
 public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
 	private static String propertiesFileName  = ".com.pixelmed.display.GiftCloudUploader.properties";
-	private final ResourceBundle resourceBundle;
+    private final ResourceBundle resourceBundle;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final GiftCloudMainFrame giftCloudMainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
     private final DicomNode dicomNode;
-    private GiftCloudUploader giftCloudUploader = null;
+    private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
     private final GiftCloudReporter reporter;
     private final Optional<GiftCloudSystemTray> giftCloudSystemTray;
-    private final QueryRetrieveHelper queryRetrieveHelper;
+    private final QueryRetrieveController queryRetrieveController;
 
-    public GiftCloudUploaderMain(ResourceBundle resourceBundle) throws DicomException, IOException {
+    public GiftCloudUploaderMain(final ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
         final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
 
@@ -52,12 +52,12 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
         }
 
-        queryRetrieveHelper = new QueryRetrieveHelper(giftCloudProperties, dicomNode, reporter);
 
         // Attempt to authenticate
         giftCloudUploader.tryAuthentication();
 
         giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, giftCloudUploader.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
+        queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrievePanel(), giftCloudProperties, dicomNode, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
 
@@ -123,22 +123,26 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudUploader, reporter));
             activeThread.start();
         } catch (Exception e) {
-            reporter.updateStatusText("GIFT-Cloud upload failed: " + e);
-            reporter.error("GIFT-Cloud upload failed: " + e);
-            e.printStackTrace(System.err);
+            reporter.reportErrorToUser("Uploading to GIFT-Cloud failed due to the following error:", e);
         }
     }
 
     @Override
     public void retrieve(List<QuerySelection> currentRemoteQuerySelectionList) {
-        queryRetrieveHelper.retrieve(currentRemoteQuerySelectionList);
+        try {
+            queryRetrieveController.retrieve(currentRemoteQuerySelectionList);
+        } catch (Exception e) {
+            reporter.reportErrorToUser("The DICOM retrieve operation failed due to the following error:", e);
+        }
     }
 
     @Override
-    public void query(final QueryRetrievePanel queryRetrievePanel, final QueryParams queryParams) {
-        queryRetrievePanel.removeAll();
-        queryRetrieveHelper.query(queryRetrievePanel, queryParams);
-        queryRetrievePanel.validate();
+    public void query(final QueryParams queryParams) {
+        try {
+            queryRetrieveController.query(queryParams);
+        } catch (Exception e) {
+            reporter.reportErrorToUser("The DICOM query operation failed due to the following error:", e);
+        }
     }
 
     @Override

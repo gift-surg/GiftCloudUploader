@@ -21,7 +21,7 @@ public interface GiftCloudUploaderController {
 
     void retrieve(List<QuerySelection> currentRemoteQuerySelectionList);
 
-    void query(final QueryRetrievePanel queryRetrievePanel, QueryParams queryParams);
+    void query(QueryParams queryParams);
 
     void export(String exportDirectory, Vector<String> filesToExport);
 
