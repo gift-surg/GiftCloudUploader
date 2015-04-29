@@ -11,11 +11,11 @@ public class StatusObservable<T> {
         }
     }
 
-    interface StatusListener<T> {
+    public interface StatusListener<T> {
         void statusChanged(final T visibility);
     }
 
-    protected void notify(final T status) {
+    protected void notifyStatusChanged(final T status) {
         for (final StatusListener<T> listener : listeners) {
             listener.statusChanged(status);
         }

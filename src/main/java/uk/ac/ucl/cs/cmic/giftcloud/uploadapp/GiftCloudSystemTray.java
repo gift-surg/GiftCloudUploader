@@ -1,5 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundService;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -134,7 +136,8 @@ public class GiftCloudSystemTray {
 
         trayIcon.setPopupMenu(popup);
 
-        updateMenu(GiftCloudMainFrame.MainWindowVisibility.HIDDEN);
+        updateMenuForWindowVisibility(GiftCloudMainFrame.MainWindowVisibility.HIDDEN);
+        updateMenuForBackgroundUploadingServiceStatus(BackgroundService.ServiceStatus.INITIALIZED);
     }
 
     /**
@@ -166,12 +169,28 @@ public class GiftCloudSystemTray {
      *
      * @param mainWindowVisibility  whether the main window is currently hidden or visible
      */
-    void updateMenu(final GiftCloudMainFrame.MainWindowVisibility mainWindowVisibility) {
+    void updateMenuForWindowVisibility(final GiftCloudMainFrame.MainWindowVisibility mainWindowVisibility) {
         if (tray == null) {
             return;
         }
 
         hideItem.setEnabled(mainWindowVisibility.isVisible());
         showItem.setEnabled(!mainWindowVisibility.isVisible());
+    }
+
+    /**
+     * Updates the system tray menu according to enable/disable the start/pause menu items according to the status of the uploading thread
+     *
+     * @param serviceStatus  whether the uploader service is currently running
+     */
+    void updateMenuForBackgroundUploadingServiceStatus(final BackgroundService.ServiceStatus serviceStatus) {
+        if (tray == null) {
+            return;
+        }
+
+        boolean running = serviceStatus == BackgroundService.ServiceStatus.RUNNING;
+
+        startUploaderItem.setEnabled(!running);
+        pauseUploaderItem.setEnabled(running);
     }
 }

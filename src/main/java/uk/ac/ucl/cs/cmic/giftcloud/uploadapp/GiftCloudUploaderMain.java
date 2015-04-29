@@ -62,7 +62,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
 
         systemTrayController = new SystemTrayController(this, resourceBundle, reporter);
-        giftCloudMainFrame.addListener(systemTrayController);
+        giftCloudMainFrame.addListener(systemTrayController.new MainWindowVisibilityListener());
+        giftCloudUploader.getBackgroundAddToUploaderService().addListener(systemTrayController.new BackgroundAddToUploaderServiceListener());
 
         if (systemTrayController.isPresent()) {
             hide();

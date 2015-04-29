@@ -49,4 +49,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
     protected void notifyFailure(BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask> taskWrapper) {
 
     }
+
+    public interface BackgroundAddToUploaderServiceListener extends StatusObservable.StatusListener<BackgroundService.ServiceStatus> {
+    }
 }

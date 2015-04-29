@@ -1,6 +1,5 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
@@ -10,6 +9,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadWizard;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 
 import javax.security.sasl.AuthenticationException;
 import javax.swing.*;
@@ -53,6 +53,10 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         } else {
             backgroundAddToUploaderService.stop();
         }
+    }
+
+    public BackgroundAddToUploaderService getBackgroundAddToUploaderService() {
+        return backgroundAddToUploaderService;
     }
 
     /**

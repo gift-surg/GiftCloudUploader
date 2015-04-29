@@ -1,12 +1,13 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.StatusObservable;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 
-class GiftCloudMainFrame implements MainFrame {
+class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowVisibility> implements MainFrame {
     protected final JDialog container;
     private GiftCloudUploaderController controller;
 
@@ -43,12 +44,6 @@ class GiftCloudMainFrame implements MainFrame {
         });
     }
 
-    private final java.util.List<MainFrameListener> listeners = new ArrayList<MainFrameListener>();
-
-    void addListener(final MainFrameListener listener) {
-        listeners.add(listener);
-    }
-
     @Override
     public void show() {
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -65,15 +60,9 @@ class GiftCloudMainFrame implements MainFrame {
                 container.toFront();
                 container.requestFocus();
                 container.setAlwaysOnTop(false);
-                notifyVisbilityChanged(MainWindowVisibility.VISIBLE);
+                notifyStatusChanged(MainWindowVisibility.VISIBLE);
             }
         });
-    }
-
-    private void notifyVisbilityChanged(final MainWindowVisibility visibility) {
-        for (MainFrameListener listener : listeners) {
-            listener.windowVisibilityChanged(visibility);
-        }
     }
 
     @Override
@@ -82,7 +71,7 @@ class GiftCloudMainFrame implements MainFrame {
             @Override
             public void run() {
                 container.setVisible(false);
-                notifyVisbilityChanged(MainWindowVisibility.HIDDEN);
+                notifyStatusChanged(MainWindowVisibility.HIDDEN);
             }
         });
     }
@@ -95,9 +84,5 @@ class GiftCloudMainFrame implements MainFrame {
     public void addMainPanel(final Container panel) {
         container.add(panel);
         container.pack();
-    }
-
-    interface MainFrameListener {
-        void windowVisibilityChanged(final MainWindowVisibility visibility);
     }
 }

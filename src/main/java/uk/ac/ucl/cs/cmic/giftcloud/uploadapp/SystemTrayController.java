@@ -1,9 +1,12 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundService;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.StatusObservable;
+
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class SystemTrayController implements GiftCloudMainFrame.MainFrameListener {
+public class SystemTrayController {
 
     private final Optional<GiftCloudSystemTray> giftCloudSystemTray;
 
@@ -16,10 +19,30 @@ public class SystemTrayController implements GiftCloudMainFrame.MainFrameListene
         return giftCloudSystemTray.isPresent();
     }
 
-    @Override
-    public void windowVisibilityChanged(GiftCloudMainFrame.MainWindowVisibility visibility) {
+    public void windowVisibilityStatusChanged(GiftCloudMainFrame.MainWindowVisibility visibility) {
         if (giftCloudSystemTray.isPresent()) {
-            giftCloudSystemTray.get().updateMenu(visibility);
+            giftCloudSystemTray.get().updateMenuForWindowVisibility(visibility);
         }
     }
+
+    public void backgroundAddToUploaderServiceListenerServiceStatusChanged(final BackgroundService.ServiceStatus serviceStatus) {
+        if (giftCloudSystemTray.isPresent()) {
+            giftCloudSystemTray.get().updateMenuForBackgroundUploadingServiceStatus(serviceStatus);
+        }
+    }
+
+    public class MainWindowVisibilityListener implements StatusObservable.StatusListener<GiftCloudMainFrame.MainWindowVisibility> {
+        @Override
+        public void statusChanged(final GiftCloudMainFrame.MainWindowVisibility visibility) {
+            windowVisibilityStatusChanged(visibility);
+        }
+    }
+
+    public class BackgroundAddToUploaderServiceListener implements StatusObservable.StatusListener<BackgroundService.ServiceStatus> {
+        @Override
+        public void statusChanged(final BackgroundService.ServiceStatus serviceStatus) {
+            backgroundAddToUploaderServiceListenerServiceStatusChanged(serviceStatus);
+        }
+    }
+
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 public abstract class BackgroundService<T_taskType, T_resultType> extends StatusObservable<BackgroundService.ServiceStatus> implements Runnable {
 
-    enum ServiceStatus {
+    public enum ServiceStatus {
         INITIALIZED,
         RUNNING,
         STOP_REQUESTED,
@@ -64,7 +64,7 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
         synchronized (serviceStatus) {
             if (!(serviceStatus == ServiceStatus.COMPLETE && requestedServiceStatus == ServiceStatus.STOP_REQUESTED)) {
                 serviceStatus = requestedServiceStatus;
-                notify(serviceStatus);
+                notifyStatusChanged(serviceStatus);
             }
         }
     }
