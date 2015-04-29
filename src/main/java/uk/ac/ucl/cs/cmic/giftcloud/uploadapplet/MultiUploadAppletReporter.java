@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.SwingProgressMonitorWrapper;
 
@@ -57,7 +58,6 @@ public class MultiUploadAppletReporter implements MultiUploadReporter {
         progressWrapper = new SwingProgressMonitorWrapper(getContainer());
     }
 
-    @Override
     public void errorBox(final String errorMessage, final Throwable throwable) {
         final StringWriter sw = new StringWriter();
         final PrintWriter writer = new PrintWriter(sw);
@@ -199,6 +199,20 @@ public class MultiUploadAppletReporter implements MultiUploadReporter {
                 options,
                 options[0]);
         return (JOptionPane.NO_OPTION != n);
+    }
+
+    @Override
+    public void reportErrorToUser(String errorText, Throwable throwable) {
+        String finalErrorText;
+        if (throwable instanceof GiftCloudException) {
+            finalErrorText = throwable.getLocalizedMessage();
+        } else {
+            finalErrorText = errorText + " " + throwable.getLocalizedMessage();
+        }
+        errorBox(finalErrorText, throwable);
+        updateStatusText("GIFT-Cloud upload failed: " + throwable);
+        error("GIFT-Cloud upload failed: " + throwable);
+        throwable.printStackTrace(System.err);
     }
 
     @Override

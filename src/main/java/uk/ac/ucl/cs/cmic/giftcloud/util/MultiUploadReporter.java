@@ -28,8 +28,6 @@ import java.net.MalformedURLException;
 
 public interface MultiUploadReporter extends Progress {
 
-    void errorBox(final String errorMessage, final Throwable throwable);
-
     void loadWebPage(String url) throws MalformedURLException;
 
     void exit();
@@ -63,6 +61,14 @@ public interface MultiUploadReporter extends Progress {
 
     // The following methods are the new "preferred" methods for error and warning reporting
 
+
+    /**
+     * Used to display a message to the end user, unless running in background mode
+     * @param errorText error text to display, unless a GiftCloudException is received
+     * @param throwable exception to report. If this is a GiftCloudException then the exception's error text is used in
+     *                  place of the error message, otherwise the exception's error text is appended to the error message
+     */
+    void reportErrorToUser(final String errorText, final Throwable throwable);
 
     /**
      * Indicates a warning that should not be reported to the user, but should be recorded in the log

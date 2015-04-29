@@ -62,7 +62,7 @@ public class MultiUploadAssistantApplet extends JApplet {
 
         } catch (Throwable t) {
             if (reporter.isPresent()) {
-                reporter.get().errorBox("Applet initialisation failed", t);
+                reporter.get().reportErrorToUser("Applet initialisation failed", t);
             }
             throw new RuntimeException(t);
         }
@@ -80,7 +80,7 @@ public class MultiUploadAssistantApplet extends JApplet {
             giftCloudUploader.get().runWizard(multiUploadParameters.get());
 
         } catch (Throwable t) {
-            reporter.get().errorBox("Applet startup failed", t);
+            reporter.get().reportErrorToUser("Applet startup failed", t);
             throw new RuntimeException(t);
         }
     }

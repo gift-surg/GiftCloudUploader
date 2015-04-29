@@ -30,6 +30,7 @@ import netscape.javascript.JSObject;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 
 import javax.swing.*;
@@ -37,6 +38,7 @@ import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.util.Optional;
 
 public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Progress {
 
@@ -59,13 +61,12 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
         cursorChanger = new SafeCursorChanger(container);
     }
 
-    @Override
-    public void errorBox(final String errorMessage, final Throwable throwable) {
+    private void errorBox(final String errorMessage, final Optional<String> additionalText) {
         final StringWriter sw = new StringWriter();
         final PrintWriter writer = new PrintWriter(sw);
         writer.println(errorMessage);
         writer.println("Error details:");
-        throwable.printStackTrace(writer);
+        writer.println(additionalText);
         final JTextArea text = new JTextArea(sw.toString());
         text.setEditable(false);
         container.add(text);
@@ -189,6 +190,26 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
                 options,
                 options[0]);
         return (JOptionPane.NO_OPTION != n);
+    }
+
+    @Override
+    public void reportErrorToUser(String errorText, Throwable throwable) {
+        String finalErrorText;
+        String combinedErrorText;
+        Optional<String> additionalText = Optional.empty();
+
+        if (throwable instanceof GiftCloudException) {
+            finalErrorText = throwable.getLocalizedMessage();
+            combinedErrorText = finalErrorText;
+        } else {
+            combinedErrorText = errorText + " " + throwable.getLocalizedMessage();
+            finalErrorText = errorText;
+            additionalText = Optional.of(throwable.getLocalizedMessage());
+        }
+        errorBox(finalErrorText, additionalText);
+        updateStatusText(combinedErrorText);
+        error(combinedErrorText);
+        throwable.printStackTrace(System.err);
     }
 
     @Override
