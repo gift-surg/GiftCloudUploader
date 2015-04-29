@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 
 class GiftCloudMainFrame implements MainFrame {
     protected final JDialog container;
@@ -42,6 +43,12 @@ class GiftCloudMainFrame implements MainFrame {
         });
     }
 
+    private final java.util.List<MainFrameListener> listeners = new ArrayList<MainFrameListener>();
+
+    void addListener(final MainFrameListener listener) {
+        listeners.add(listener);
+    }
+
     @Override
     public void show() {
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -58,8 +65,15 @@ class GiftCloudMainFrame implements MainFrame {
                 container.toFront();
                 container.requestFocus();
                 container.setAlwaysOnTop(false);
+                notifyVisbilityChanged(MainWindowVisibility.HIDDEN);
             }
         });
+    }
+
+    private void notifyVisbilityChanged(final MainWindowVisibility visibility) {
+        for (MainFrameListener listener : listeners) {
+            listener.windowVisibilityChanged(visibility);
+        }
     }
 
     @Override
@@ -68,6 +82,7 @@ class GiftCloudMainFrame implements MainFrame {
             @Override
             public void run() {
                 container.setVisible(false);
+                notifyVisbilityChanged(MainWindowVisibility.HIDDEN);
             }
         });
     }
@@ -80,5 +95,9 @@ class GiftCloudMainFrame implements MainFrame {
     public void addMainPanel(final Container panel) {
         container.add(panel);
         container.pack();
+    }
+
+    interface MainFrameListener {
+        void windowVisibilityChanged(final MainWindowVisibility visibility);
     }
 }

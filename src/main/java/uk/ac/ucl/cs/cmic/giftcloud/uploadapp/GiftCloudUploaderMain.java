@@ -26,8 +26,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
     private final GiftCloudReporter reporter;
-    private final Optional<GiftCloudSystemTray> giftCloudSystemTray;
     private final QueryRetrieveController queryRetrieveController;
+    private final SystemTrayController systemTrayController;
 
     public GiftCloudUploaderMain(final ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
@@ -61,9 +61,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
 
-        // Try to create a system tray icon. If this fails, then we warn the user and make the main dialog visible
-        giftCloudSystemTray = GiftCloudSystemTray.safeCreateSystemTray(this, resourceBundle, reporter);
-        if (giftCloudSystemTray.isPresent()) {
+        systemTrayController = new SystemTrayController(this, resourceBundle, reporter);
+        giftCloudMainFrame.addListener(systemTrayController);
+
+        if (systemTrayController.isPresent()) {
             hide();
         } else {
             reporter.warnUser("A system tray icon could not be created. The GIFT-Cloud uploader will start in visible mode.");
@@ -94,17 +95,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void hide() {
         giftCloudMainFrame.hide();
-        if (giftCloudSystemTray.isPresent()) {
-            giftCloudSystemTray.get().updateMenu(GiftCloudMainFrame.MainWindowVisibility.HIDDEN);
-        }
     }
 
     @Override
     public void show() {
         giftCloudMainFrame.show();
-        if (giftCloudSystemTray.isPresent()) {
-            giftCloudSystemTray.get().updateMenu(GiftCloudMainFrame.MainWindowVisibility.VISIBLE);
-        }
     }
 
     @Override

@@ -41,7 +41,6 @@ public class QueryRetrieveController {
         if (currentRemoteQueryInformationModel.isPresent()) {
             Thread activeThread = new Thread(new RetrieveWorker(currentRemoteQuerySelectionList, currentRemoteQueryInformationModel.get(), reporter));
             activeThread.start();
-            // ToDo: Cache active thread so we can provide a cancel option
         } else {
             throw new GiftCloudException(GiftCloudUploaderError.NO_QUERY_OR_QUERY_FAILED);
         }
