@@ -17,14 +17,14 @@ import java.util.Optional;
 
 public class QueryRetrieveController {
 
-    private final QueryRetrievePanel queryRetrievePanel;
+    private final QueryRetrieveRemoteView queryRetrievePanel;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final DicomNode dicomNode;
     private final GiftCloudReporter reporter;
     private Optional<QueryInformationModel> currentRemoteQueryInformationModel = Optional.empty();
     private Thread activeThread = null;
 
-    QueryRetrieveController(final QueryRetrievePanel queryRetrievePanel, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final GiftCloudReporter reporter) {
+    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrievePanel, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final GiftCloudReporter reporter) {
         this.queryRetrievePanel = queryRetrievePanel;
         this.giftCloudProperties = giftCloudProperties;
         this.dicomNode = dicomNode;

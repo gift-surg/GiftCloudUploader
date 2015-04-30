@@ -37,12 +37,11 @@ public class GiftCloudUploaderPanel extends JPanel {
     private static int textFieldLengthForGiftCloudServerUrl = 32;
 
     // User interface components
-    private final QueryFilterPanel queryFilterPanel;
     private final StatusPanel statusPanel;
     private final JComboBox<String> projectList;
     private final JPanel srcDatabasePanel;
-    private final QueryRetrievePanel remoteQueryRetrievePanel;
     private final JTextField giftCloudServerText;
+    private final QueryRetrievePanel remoteQueryRetrievePanel;
 
     // Callback to the controller for invoking actions
     private final GiftCloudUploaderController controller;
@@ -58,11 +57,10 @@ public class GiftCloudUploaderPanel extends JPanel {
         this.controller = controller;
         this.reporter = reporter;
 
+        remoteQueryRetrievePanel = new QueryRetrievePanel(controller, resourceBundle);
+
         srcDatabasePanel = new JPanel();
-        remoteQueryRetrievePanel = new QueryRetrievePanel();
-
         srcDatabasePanel.setLayout(new GridLayout(1, 1));
-
         new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
 
         Border panelBorder = BorderFactory.createEtchedBorder();
@@ -80,16 +78,6 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(configureButton);
         configureButton.addActionListener(new ConfigureActionListener());
 
-        JButton queryButton = new JButton(resourceBundle.getString("queryButtonLabelText"));
-        queryButton.setToolTipText(resourceBundle.getString("queryButtonToolTipText"));
-        buttonPanel.add(queryButton);
-        queryButton.addActionListener(new QueryActionListener());
-
-        JButton retrieveButton = new JButton(resourceBundle.getString("retrieveButtonLabelText"));
-        retrieveButton.setToolTipText(resourceBundle.getString("retrieveButtonToolTipText"));
-        buttonPanel.add(retrieveButton);
-        retrieveButton.addActionListener(new RetrieveActionListener());
-
         JButton importButton = new JButton(resourceBundle.getString("importButtonLabelText"));
         importButton.setToolTipText(resourceBundle.getString("importButtonToolTipText"));
         buttonPanel.add(importButton);
@@ -100,19 +88,17 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(giftCloudUploadButton);
         giftCloudUploadButton.addActionListener(new GiftCloudUploadActionListener());
 
-        queryFilterPanel = new QueryFilterPanel(resourceBundle);
-
-        JPanel newTextEntryPanel = new JPanel();
-        newTextEntryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        newTextEntryPanel.setBorder(panelBorder);
+        JPanel projectUploadPanel = new JPanel();
+        projectUploadPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        projectUploadPanel.setBorder(panelBorder);
 
         projectList = new JComboBox<String>();
         projectList.setEditable(false);
         projectList.setToolTipText(resourceBundle.getString("giftCloudProjectTooltip"));
 
         JLabel projectListLabel = new JLabel(resourceBundle.getString("giftCloudProjectLabelText"));
-        newTextEntryPanel.add(projectListLabel);
-        newTextEntryPanel.add(projectList);
+        projectUploadPanel.add(projectListLabel);
+        projectUploadPanel.add(projectList);
 
         JLabel giftCloudServerLabel = new JLabel(resourceBundle.getString("giftCloudServerText"));
         giftCloudServerLabel.setToolTipText(resourceBundle.getString("giftCloudServerTextToolTipText"));
@@ -125,8 +111,8 @@ public class GiftCloudUploaderPanel extends JPanel {
             }
         };
 
-        newTextEntryPanel.add(giftCloudServerLabel);
-        newTextEntryPanel.add(giftCloudServerText);
+        projectUploadPanel.add(giftCloudServerLabel);
+        projectUploadPanel.add(giftCloudServerText);
 
         statusPanel = new StatusPanel();
         reporter.addProgressListener(statusPanel);
@@ -153,20 +139,12 @@ public class GiftCloudUploaderPanel extends JPanel {
                 add(buttonPanel);
             }
             {
-                GridBagConstraints queryFilterTextEntryPanelConstraints = new GridBagConstraints();
-                queryFilterTextEntryPanelConstraints.gridx = 0;
-                queryFilterTextEntryPanelConstraints.gridy = 2;
-                queryFilterTextEntryPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-                mainPanelLayout.setConstraints(queryFilterPanel,queryFilterTextEntryPanelConstraints);
-                add(queryFilterPanel);
-            }
-            {
-                GridBagConstraints newTextEntryPanelConstraints = new GridBagConstraints();
-                newTextEntryPanelConstraints.gridx = 0;
-                newTextEntryPanelConstraints.gridy = 3;
-                newTextEntryPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-                mainPanelLayout.setConstraints(newTextEntryPanel,newTextEntryPanelConstraints);
-                add(newTextEntryPanel);
+                GridBagConstraints projectUploadPanelConstraints = new GridBagConstraints();
+                projectUploadPanelConstraints.gridx = 0;
+                projectUploadPanelConstraints.gridy = 3;
+                projectUploadPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+                mainPanelLayout.setConstraints(projectUploadPanel,projectUploadPanelConstraints);
+                add(projectUploadPanel);
             }
             {
                 GridBagConstraints statusBarPanelConstraints = new GridBagConstraints();
@@ -181,8 +159,8 @@ public class GiftCloudUploaderPanel extends JPanel {
         projectList.setModel(projectListModel);
     }
 
-    public QueryRetrievePanel getQueryRetrievePanel() {
-        return remoteQueryRetrievePanel;
+    public QueryRetrieveRemoteView getQueryRetrievePanel() {
+        return remoteQueryRetrievePanel.getQueryRetrievePanel();
     }
 
     // Called when the database model has changed
@@ -215,18 +193,6 @@ public class GiftCloudUploaderPanel extends JPanel {
             controller.upload(currentSourceFilePathSelections);
         }
     }
-
-    private class QueryActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-            controller.query(queryFilterPanel.getQueryParams());
-		}
-	}
-
-    private class RetrieveActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-            controller.retrieve(remoteQueryRetrievePanel.getCurrentRemoteQuerySelectionList());
-		}
-	}
 
 	private class ConfigureActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
