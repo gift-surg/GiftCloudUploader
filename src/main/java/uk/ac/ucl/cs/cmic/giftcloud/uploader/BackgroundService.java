@@ -30,17 +30,23 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
 
     private final BackgroundThreadTermination backgroundThreadTermination;
     private final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList;
+    private long maximumThreadCompletionWaitTime;
     private final BackgroundServiceFailureList<T_taskType> backgroundServiceFailureList;
     protected final MultiUploadReporter reporter;
     private Thread serviceThread = null;
     private ServiceStatus serviceStatus = ServiceStatus.INITIALIZED;
 
-    public BackgroundService(final BackgroundThreadTermination backgroundThreadTermination, final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList, final MultiUploadReporter reporter) {
+    public BackgroundService(final BackgroundThreadTermination backgroundThreadTermination, final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList, final long maximumThreadCompletionWaitTime, final MultiUploadReporter reporter) {
         this.backgroundThreadTermination = backgroundThreadTermination;
         this.backgroundServicePendingList = backgroundServicePendingList;
+        this.maximumThreadCompletionWaitTime = maximumThreadCompletionWaitTime;
         this.backgroundServiceFailureList = new BackgroundServiceFailureList<T_taskType>();
         this.reporter = reporter;
     }
+
+    abstract protected void processItem(final T_resultType backgroundServiceResult) throws Exception;
+    abstract protected void notifySuccess(final BackgroundServiceTaskWrapper<T_taskType, T_resultType> taskWrapper);
+    abstract protected void notifyFailure(final BackgroundServiceTaskWrapper<T_taskType, T_resultType> taskWrapper);
 
     public final synchronized void start() {
 
@@ -48,25 +54,15 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
             return;
         }
 
-        // If the thread is still waiting to end from a previous stop() then we block and wait
-        waitForThreadCompletion();
+        // If the thread is still waiting to end from a previous stop() then we block and wait, up to the timeout limit
+        if (!waitForThreadCompletion()) {
+            reporter.silentWarning("A background service has been re-started, but the previous thread has not yet terminated. I am starting a new thread anyway.");
+        }
 
         updateServiceStatus(ServiceStatus.RUNNING);
 
         serviceThread = new Thread(this);
         serviceThread.start();
-    }
-
-    private void updateServiceStatus(final ServiceStatus requestedServiceStatus) {
-
-        // The synchronization block ensure that if the thread completes before the service status is set to
-        // STOP_REQUESTED, then we keep the status as STOPPED
-        synchronized (serviceStatus) {
-            if (!(serviceStatus == ServiceStatus.COMPLETE && requestedServiceStatus == ServiceStatus.STOP_REQUESTED)) {
-                serviceStatus = requestedServiceStatus;
-                notifyStatusChanged(serviceStatus);
-            }
-        }
     }
 
     public final synchronized void stop() {
@@ -117,11 +113,30 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
         return backgroundServiceFailureList.getFailures();
     }
 
-    protected final void waitForThreadCompletion() {
-        if (serviceThread != null) {
+    /**
+     * Waits for the thread to complete, up to the specified timeout limit.
+     * @return true if the thread has completed or was never started
+     */
+    protected final boolean waitForThreadCompletion() {
+        if (serviceThread == null) {
+            return true;
+        } else {
             try {
-                serviceThread.join();
+                serviceThread.join(maximumThreadCompletionWaitTime);
             } catch (InterruptedException e) {
+            }
+            return !serviceThread.isAlive();
+        }
+    }
+
+    private void updateServiceStatus(final ServiceStatus requestedServiceStatus) {
+
+        // The synchronization block ensure that if the thread completes before the service status is set to
+        // STOP_REQUESTED, then we keep the status as STOPPED
+        synchronized (serviceStatus) {
+            if (!(serviceStatus == ServiceStatus.COMPLETE && requestedServiceStatus == ServiceStatus.STOP_REQUESTED)) {
+                serviceStatus = requestedServiceStatus;
+                notifyStatusChanged(serviceStatus);
             }
         }
     }
@@ -137,12 +152,4 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
             return true;
         }
     }
-
-
-    abstract protected void processItem(final T_resultType backgroundServiceResult) throws Exception;
-
-    abstract protected void notifySuccess(final BackgroundServiceTaskWrapper<T_taskType, T_resultType> taskWrapper);
-    abstract protected void notifyFailure(final BackgroundServiceTaskWrapper<T_taskType, T_resultType> taskWrapper);
-
-
 }

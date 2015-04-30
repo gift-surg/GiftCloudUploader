@@ -12,6 +12,12 @@ import java.util.concurrent.Future;
 
 public class BackgroundUploader extends BackgroundService<CallableUploader, Future<Set<String>>> {
 
+    /**
+     * When re-starting the service and the previous thread has been signalled to stop but has not yet completed, this
+     * is how long we wait before just going ahead and creating a new thread anyway
+     */
+    private static final long MAXIMUM_THREAD_COMPLETION_WAIT_MS = 10000;
+
     private final ResultProgressHandle progress;
     private final boolean useFixedSize = true;
     final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList;
@@ -19,7 +25,7 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
 
 
     public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final ResultProgressHandle progress, final BackgroundUploadOutcomeCallback outcomeCallback, final MultiUploadReporter reporter) {
-        super(BackgroundService.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED, backgroundCompletionServiceTaskList, reporter);
+        super(BackgroundService.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED, backgroundCompletionServiceTaskList, MAXIMUM_THREAD_COMPLETION_WAIT_MS, reporter);
 
         this.progress = progress;
         this.backgroundCompletionServiceTaskList = backgroundCompletionServiceTaskList;

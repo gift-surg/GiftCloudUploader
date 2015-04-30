@@ -28,6 +28,9 @@ public class GiftCloudSystemTray {
     private MenuItem startUploaderItem;
     private MenuItem pauseUploaderItem;
 
+    private boolean startIsResume = false;
+    private final String resumeText;
+
     /**
      * Private constructor for creating a new menu and icon for the system tray
      *
@@ -103,6 +106,9 @@ public class GiftCloudSystemTray {
                 controller.pauseUploading();
             }
         });
+
+        // After pausing, the "start" item changes to "resume"
+        resumeText = resourceBundle.getString("systemTrayResumeUploader");
 
         popup.addSeparator();
 
@@ -188,9 +194,43 @@ public class GiftCloudSystemTray {
             return;
         }
 
-        boolean running = serviceStatus == BackgroundService.ServiceStatus.RUNNING;
+        boolean startItemEnabled = false;
+        boolean pauseItemEnabled = false;
+        boolean startBecomesResume = false;
 
-        startUploaderItem.setEnabled(!running);
-        pauseUploaderItem.setEnabled(running);
+        switch (serviceStatus) {
+            case INITIALIZED:
+                startItemEnabled = true;
+                pauseItemEnabled = false;
+                startBecomesResume = false;
+                break;
+
+            case STOP_REQUESTED:
+                startItemEnabled = false;
+                pauseItemEnabled = false;
+                startBecomesResume = false;
+                break;
+
+            case RUNNING:
+                startItemEnabled = false;
+                pauseItemEnabled = true;
+                startBecomesResume = true;
+                break;
+
+            case COMPLETE:
+                startItemEnabled = true;
+                pauseItemEnabled = false;
+                startBecomesResume = true;
+                break;
+        }
+        startUploaderItem.setEnabled(startItemEnabled);
+        pauseUploaderItem.setEnabled(pauseItemEnabled);
+
+        // Update the "start" menu item to become "resume" after a pause
+        if (startBecomesResume && !startIsResume) {
+            startUploaderItem.setLabel(resumeText);
+            startIsResume = true;
+        }
+
     }
 }

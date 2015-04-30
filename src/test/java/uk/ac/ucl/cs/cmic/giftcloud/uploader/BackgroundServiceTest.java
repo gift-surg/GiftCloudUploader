@@ -279,7 +279,7 @@ public class BackgroundServiceTest {
         List<BackgroundServiceTaskWrapper<FakeTask, FakeTask>> failNotify = new ArrayList<BackgroundServiceTaskWrapper<FakeTask, FakeTask>>();
 
         FakeBackgroundService(final BackgroundThreadTermination threadTermination, final BackgroundServiceTaskList<FakeTask, FakeTask> backgroundServicePendingList) {
-            super(threadTermination, backgroundServicePendingList, mock(MultiUploadReporter.class));
+            super(threadTermination, backgroundServicePendingList, 1000, mock(MultiUploadReporter.class));
         }
 
         @Override

@@ -7,12 +7,18 @@ import java.util.Optional;
 
 public class BackgroundAddToUploaderService extends BackgroundService<PendingUploadTask, PendingUploadTask> {
 
+    /**
+     * When re-starting the service and the previous thread has been signalled to stop but has not yet completed, this
+     * is how long we wait before just going ahead and creating a new thread anyway
+     */
+    private static final long MAXIMUM_THREAD_COMPLETION_WAIT_MS = 1000;
+
     private final GiftCloudServerFactory serverFactory;
     private final GiftCloudUploader uploader;
     private final GiftCloudAutoUploader autoUploader;
 
     public BackgroundAddToUploaderService(final PendingUploadTaskList pendingUploadList, final GiftCloudServerFactory serverFactory, final GiftCloudUploader uploader, final GiftCloudAutoUploader autoUploader, final MultiUploadReporter reporter) {
-        super(BackgroundService.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED, pendingUploadList.getList(), reporter);
+        super(BackgroundService.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED, pendingUploadList.getList(), MAXIMUM_THREAD_COMPLETION_WAIT_MS, reporter);
         this.serverFactory = serverFactory;
         this.uploader = uploader;
         this.autoUploader = autoUploader;
@@ -48,8 +54,5 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
     @Override
     protected void notifyFailure(BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask> taskWrapper) {
 
-    }
-
-    public interface BackgroundAddToUploaderServiceListener extends StatusObservable.StatusListener<BackgroundService.ServiceStatus> {
     }
 }
