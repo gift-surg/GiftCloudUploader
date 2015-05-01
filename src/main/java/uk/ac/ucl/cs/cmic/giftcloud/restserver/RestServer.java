@@ -11,9 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-/**
- * Created by tom on 01/05/15.
- */
 public interface RestServer {
     void tryAuthentication() throws IOException;
 
