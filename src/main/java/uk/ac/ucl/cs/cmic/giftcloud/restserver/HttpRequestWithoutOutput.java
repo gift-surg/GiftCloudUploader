@@ -20,8 +20,8 @@ import java.io.IOException;
 
 class HttpRequestWithoutOutput<T> extends HttpRequest<T> {
 
-    HttpRequestWithoutOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final MultiUploadReporter reporter) {
-        super(connectionType, urlString, responseProcessor, reporter);
+    HttpRequestWithoutOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+        super(connectionType, urlString, responseProcessor, giftCloudProperties, reporter);
     }
 
     protected void prepareConnection(final HttpConnectionBuilder connectionBuilder) throws IOException {

@@ -38,8 +38,8 @@ class JSONRequestConnectionProcessor extends HttpRequestWithOutput<String> {
     private final Logger logger = LoggerFactory.getLogger(JSONRequestConnectionProcessor.class);
     private final JSONObject jsonObject;
 
-    JSONRequestConnectionProcessor(final SessionParameters sessionParameters, final String urlString, final MultiUploadReporter reporter) {
-        super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpStringResponseProcessor(), reporter);
+    JSONRequestConnectionProcessor(final SessionParameters sessionParameters, final String urlString, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+        super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpStringResponseProcessor(), giftCloudProperties, reporter);
         this.jsonObject = buildCommitEntity(sessionParameters);
     }
 

@@ -39,8 +39,9 @@ class ZipSeriesRequestFixedSize extends HttpRequestWithOutput<Set<String>> {
                               final Iterable<ScriptApplicator> applicators,
                               final UploadStatisticsReporter progress,
                               final HttpResponseProcessor responseProcessor,
+                              final GiftCloudProperties giftCloudProperties,
                               final MultiUploadReporter reporter) {
-        super(connectionType, url, responseProcessor, reporter);
+        super(connectionType, url, responseProcessor, giftCloudProperties, reporter);
         this.fileCollection = fileCollection;
         this.zipper = new SeriesZipper(applicators);
         this.progress = progress;

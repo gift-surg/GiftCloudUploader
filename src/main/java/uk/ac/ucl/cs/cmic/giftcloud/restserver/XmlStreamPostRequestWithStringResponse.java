@@ -16,8 +16,8 @@ class XmlStreamPostRequestWithStringResponse extends HttpRequestWithOutput<Strin
     private final Logger logger = LoggerFactory.getLogger(XmlStreamPostRequestWithStringResponse.class);
     private final InputStream in;
 
-    XmlStreamPostRequestWithStringResponse(final String urlString, final InputStream in, final MultiUploadReporter reporter) {
-        super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpStringResponseProcessor(), reporter);
+    XmlStreamPostRequestWithStringResponse(final String urlString, final InputStream in, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+        super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpStringResponseProcessor(), giftCloudProperties, reporter);
 
         this.in = in;
     }

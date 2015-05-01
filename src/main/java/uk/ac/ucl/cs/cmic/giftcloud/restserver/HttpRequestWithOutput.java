@@ -21,8 +21,8 @@ import java.io.OutputStream;
 
 abstract class HttpRequestWithOutput<T> extends HttpRequest<T> {
 
-    HttpRequestWithOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final MultiUploadReporter reporter) {
-        super(connectionType, urlString, responseProcessor, reporter);
+    HttpRequestWithOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+        super(connectionType, urlString, responseProcessor, giftCloudProperties, reporter);
     }
 
     protected void prepareConnection(final HttpConnectionBuilder connectionBuilder) throws IOException {

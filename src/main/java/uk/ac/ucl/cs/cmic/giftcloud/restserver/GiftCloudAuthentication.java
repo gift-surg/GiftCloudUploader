@@ -23,6 +23,7 @@ import java.util.concurrent.CancellationException;
 class GiftCloudAuthentication {
     private static final int MAX_NUM_LOGIN_ATTEMPTS = 3;
     private final HttpConnectionFactory connectionFactory;
+    private GiftCloudProperties giftCloudProperties;
     private MultiUploadReporter reporter;
     private final JSessionIdCookieWrapper cookieWrapper;
     private final URL baseUrl;
@@ -39,6 +40,7 @@ class GiftCloudAuthentication {
      */
     GiftCloudAuthentication(final HttpConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final Authenticator authenticator, final MultiUploadReporter reporter) {
         this.connectionFactory = connectionFactory;
+        this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
         this.cookieWrapper = new JSessionIdCookieWrapper(giftCloudProperties.getSessionCookie());
         baseUrl = connectionFactory.getBaseUrl();
@@ -144,7 +146,7 @@ class GiftCloudAuthentication {
 
     private Optional<String> tryAuthenticatedLogin(final ConnectionFactory connectionFactory, final int attemptNumber) throws IOException {
         try {
-            return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor(), reporter).getResponse(connectionFactory));
+            return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor(), giftCloudProperties, reporter).getResponse(connectionFactory));
         } catch (AuthorisationFailureException e) {
             if (attemptNumber >= MAX_NUM_LOGIN_ATTEMPTS) {
                 throw e;
