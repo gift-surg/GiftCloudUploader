@@ -5,7 +5,7 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.DicomNetworkException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.ConnectionFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudAppendUploadWorker;
@@ -30,7 +30,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final QueryRetrieveController queryRetrieveController;
     private final SystemTrayController systemTrayController;
 
-    public GiftCloudUploaderMain(final ConnectionFactory connectionFactory, final ResourceBundle resourceBundle) throws DicomException, IOException {
+    public GiftCloudUploaderMain(final RestServerFactory restServerFactory, final ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
         final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
 
@@ -42,7 +42,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase, resourceBundle);
 
         // Initialise the main GIFT-Cloud class
-        giftCloudUploader = new GiftCloudUploader(connectionFactory, giftCloudProperties, reporter);
+        giftCloudUploader = new GiftCloudUploader(restServerFactory, giftCloudProperties, reporter);
         giftCloudUploader.addExistingFilesToUploadQueue();
 
         dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"), giftCloudUploader, reporter);

@@ -20,7 +20,7 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpConnectionFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 
 import javax.swing.*;
@@ -59,7 +59,7 @@ public class MultiUploadAssistantApplet extends JApplet {
 
             GiftCloudPropertiesFromApplet giftCloudPropertiesFromApplet = new GiftCloudPropertiesFromApplet(multiUploadParameters.get(), resourceBundle);
 
-            giftCloudUploader = Optional.of(new GiftCloudUploader(new HttpConnectionFactory(), giftCloudPropertiesFromApplet, reporter.get()));
+            giftCloudUploader = Optional.of(new GiftCloudUploader(new RestServerFactory(), giftCloudPropertiesFromApplet, reporter.get()));
 
         } catch (Throwable t) {
             if (reporter.isPresent()) {

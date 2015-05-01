@@ -19,7 +19,7 @@ public class GiftCloudServer {
     private final RestServer restServer;
     private final URI giftCloudUri;
 
-    public GiftCloudServer(final String giftCloudServerUrlString, final ConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
+    public GiftCloudServer(final RestServerFactory restServerFactory, final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudServerUrlString = giftCloudServerUrlString;
         this.reporter = reporter;
 
@@ -33,7 +33,7 @@ public class GiftCloudServer {
             throw new MalformedURLException("The GIFT-Cloud server name " + giftCloudServerUrlString + " is not a valid URL.");
         }
 
-        restServer = new GiftCloudUploaderRestServer(giftCloudServerUrlString, giftCloudProperties, connectionFactory, reporter);
+        restServer = restServerFactory.create(giftCloudServerUrlString, giftCloudProperties, reporter);
     }
 
     public void tryAuthentication() throws IOException {

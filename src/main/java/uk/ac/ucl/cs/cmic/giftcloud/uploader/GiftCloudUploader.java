@@ -2,8 +2,8 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.ConnectionFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
@@ -33,12 +33,12 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
-    public GiftCloudUploader(final ConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final RestServerFactory restServerFactory, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         this.giftCloudProperties = giftCloudProperties;
         this.container = reporter.getContainer();
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
-        serverFactory = new GiftCloudServerFactory(connectionFactory, giftCloudProperties, projectListModel, reporter);
+        serverFactory = new GiftCloudServerFactory(restServerFactory, giftCloudProperties, projectListModel, reporter);
         autoUploader = new GiftCloudAutoUploader(serverFactory, reporter);
         pendingUploadList = new PendingUploadTaskList(giftCloudProperties, reporter);
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
