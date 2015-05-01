@@ -31,6 +31,12 @@ public class SystemTrayController {
         }
     }
 
+    public void remove() {
+        if (giftCloudSystemTray.isPresent()) {
+            giftCloudSystemTray.get().remove();
+        }
+    }
+
     public class MainWindowVisibilityListener implements StatusObservable.StatusListener<GiftCloudMainFrame.MainWindowVisibility> {
         @Override
         public void statusChanged(final GiftCloudMainFrame.MainWindowVisibility visibility) {

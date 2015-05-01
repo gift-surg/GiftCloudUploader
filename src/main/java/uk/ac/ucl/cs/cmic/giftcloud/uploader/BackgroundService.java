@@ -55,7 +55,7 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
         }
 
         // If the thread is still waiting to end from a previous stop() then we block and wait, up to the timeout limit
-        if (!waitForThreadCompletion()) {
+        if (!waitForThreadCompletion(maximumThreadCompletionWaitTime)) {
             reporter.silentWarning("A background service has been re-started, but the previous thread has not yet terminated. I am starting a new thread anyway.");
         }
 
@@ -66,8 +66,10 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
     }
 
     public final synchronized void stop() {
-        updateServiceStatus(ServiceStatus.STOP_REQUESTED);
-        serviceThread.interrupt();
+        if (serviceThread != null) {
+            updateServiceStatus(ServiceStatus.STOP_REQUESTED);
+            serviceThread.interrupt();
+        }
     }
 
     public final void run() {
@@ -117,12 +119,12 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
      * Waits for the thread to complete, up to the specified timeout limit.
      * @return true if the thread has completed or was never started
      */
-    protected final boolean waitForThreadCompletion() {
+    public final boolean waitForThreadCompletion(final long maximumThreadCompletionWaitTime) {
         if (serviceThread == null) {
             return true;
         } else {
             try {
-                serviceThread.join(maximumThreadCompletionWaitTime);
+                serviceThread.join();
             } catch (InterruptedException e) {
             }
             return !serviceThread.isAlive();

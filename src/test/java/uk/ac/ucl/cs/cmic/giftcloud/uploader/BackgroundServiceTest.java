@@ -312,7 +312,7 @@ public class BackgroundServiceTest {
         }
 
         void waitForThreadToComplete() {
-            waitForThreadCompletion();
+            waitForThreadCompletion(0);
         }
     }
 

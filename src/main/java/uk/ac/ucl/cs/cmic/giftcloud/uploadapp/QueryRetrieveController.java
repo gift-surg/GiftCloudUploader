@@ -31,6 +31,9 @@ public class QueryRetrieveController {
         this.reporter = reporter;
     }
 
+    public boolean isRunning() {
+        return (activeThread != null && activeThread.isAlive());
+    }
 
     public synchronized void retrieve(final List<QuerySelection> currentRemoteQuerySelectionList) throws GiftCloudException {
         // Report an error if a previous thread has not yet completed
@@ -92,4 +95,12 @@ public class QueryRetrieveController {
         }
     }
 
+    public void waitForCompletion(final long maxWaitTimeMs) {
+        if (activeThread != null) {
+            try {
+                activeThread.join(maxWaitTimeMs);
+            } catch (InterruptedException e) {
+            }
+        }
+    }
 }

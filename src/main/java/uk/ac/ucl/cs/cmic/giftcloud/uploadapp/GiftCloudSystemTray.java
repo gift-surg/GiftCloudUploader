@@ -19,21 +19,20 @@ import java.util.ResourceBundle;
  */
 public class GiftCloudSystemTray {
 
-    private GiftCloudUploaderController controller;
-    private SystemTray tray;
-    private TrayIcon trayIcon;
-    private MenuItem hideItem;
-    private MenuItem showItem;
-    private MenuItem importItem;
-    private MenuItem startUploaderItem;
-    private MenuItem pauseUploaderItem;
+    private final GiftCloudUploaderController controller;
+    private final SystemTray tray;
+    private final TrayIcon trayIcon;
+    private final MenuItem hideItem;
+    private final MenuItem showItem;
+    private final MenuItem importItem;
+    private final MenuItem startUploaderItem;
+    private final MenuItem pauseUploaderItem;
 
     private boolean startIsResume = false;
     private final String resumeText;
 
     /**
      * Private constructor for creating a new menu and icon for the system tray
-     *
      *
      * @param controller        the controller used to perform menu actions
      * @param resourceBundle    the application resources used to choose menu text
@@ -135,8 +134,7 @@ public class GiftCloudSystemTray {
         popup.add(exitItem);
         exitItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                tray.remove(trayIcon);
-                System.exit(0);
+                controller.quit();
             }
         });
 
@@ -144,6 +142,14 @@ public class GiftCloudSystemTray {
 
         updateMenuForWindowVisibility(GiftCloudMainFrame.MainWindowVisibility.HIDDEN);
         updateMenuForBackgroundUploadingServiceStatus(BackgroundService.ServiceStatus.INITIALIZED);
+
+        // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                remove();
+            }
+        });
+
     }
 
     /**
@@ -232,5 +238,12 @@ public class GiftCloudSystemTray {
             startIsResume = true;
         }
 
+    }
+
+    /**
+     * Removes the menu from the system tray
+     */
+    void remove() {
+        tray.remove(trayIcon);
     }
 }

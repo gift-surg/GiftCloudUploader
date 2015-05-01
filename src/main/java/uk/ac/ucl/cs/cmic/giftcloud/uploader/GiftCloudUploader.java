@@ -226,4 +226,11 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     public void addExistingFilesToUploadQueue() {
         pendingUploadList.addExistingFiles();
     }
+
+    public void waitForCompletion(final long maxWaitTimeMs) {
+        backgroundAddToUploaderService.stop();
+        backgroundAddToUploaderService.waitForThreadCompletion(maxWaitTimeMs);
+        backgroundUploader.stop();
+        backgroundUploader.waitForThreadCompletion(maxWaitTimeMs);
+    }
 }
