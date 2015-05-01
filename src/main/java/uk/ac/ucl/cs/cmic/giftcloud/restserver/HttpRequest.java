@@ -14,7 +14,7 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ abstract class HttpRequest<T> {
     private Optional<Optional<T>> response = Optional.empty();
 
     private final HttpResponseProcessor<T> responseProcessor;
-    private final MultiUploadReporter reporter;
+    private final GiftCloudReporter reporter;
     private final String userAgentString;
 
     /**
@@ -55,7 +55,7 @@ abstract class HttpRequest<T> {
      * @param giftCloudProperties
      * @param reporter an object for reporting errors and warnings back to the user and/or program logs
      */
-    HttpRequest(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+    HttpRequest(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         this.connectionType = connectionType;
         this.urlString = urlString;
         this.responseProcessor = responseProcessor;

@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import com.google.common.collect.Maps;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
@@ -22,13 +22,13 @@ public class EcatUploader {
     private final SessionParameters sessionParameters;
     private final UploadFailureHandler failureHandler;
     private final TimeZone timeZone;
-    private final MultiUploadReporter logger;
+    private final GiftCloudReporter logger;
     final String timestamp;
 
     final Map<File, Object> failures = Maps.newLinkedHashMap();
 
 
-    public EcatUploader(final RestServerHelper restServerHelper, final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final MultiUploadReporter logger) {
+    public EcatUploader(final RestServerHelper restServerHelper, final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final GiftCloudReporter logger) {
         this.restServerHelper = restServerHelper;
         this.projectLabel = projectLabel;
         this.subjectLabel = subjectLabel;

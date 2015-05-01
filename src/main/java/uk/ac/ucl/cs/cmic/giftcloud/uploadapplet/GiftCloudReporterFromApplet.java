@@ -18,63 +18,62 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
-
-import com.pixelmed.display.DialogMessageLogger;
-import com.pixelmed.display.SafeCursorChanger;
-import com.pixelmed.display.event.StatusChangeEvent;
-import com.pixelmed.event.ApplicationEventDispatcher;
-import com.pixelmed.utils.MessageLogger;
+import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.SwingProgressMonitorWrapper;
 
 import javax.swing.*;
+import java.applet.Applet;
 import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.util.Optional;
+import java.net.URL;
+import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Progress {
+public class GiftCloudReporterFromApplet implements GiftCloudReporter {
 
-    private final Container container;
-    private final GiftCloudDialogs giftCloudDialogs;
+    private Applet applet;
 
-    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(GiftCloudReporter.class);
+    private static final Logger logger = LoggerFactory.getLogger(GiftCloudReporterFromApplet.class);
 
-    protected final SafeCursorChanger cursorChanger;
-    protected final MessageLogger messageLogger;
+    private final SwingProgressMonitorWrapper progressWrapper;
 
-    private final ProgressModel progressModel = new ProgressModel();
-
-    public GiftCloudReporter(final Container container, final GiftCloudDialogs giftCloudDialogs) {
-        this.container = container;
-        this.giftCloudDialogs = giftCloudDialogs;
+    public GiftCloudReporterFromApplet(final Applet applet) {
+        this.applet = applet;
         configureLogging();
-        messageLogger = new DialogMessageLogger("GIFT-Cloud Log", 512, 384, false/*exitApplicationOnClose*/, false/*visible*/);
-        cursorChanger = new SafeCursorChanger(container);
+
+        progressWrapper = new SwingProgressMonitorWrapper(getContainer());
     }
 
-    private void errorBox(final String errorMessage, final Optional<String> additionalText) {
+    public void errorBox(final String errorMessage, final Throwable throwable) {
         final StringWriter sw = new StringWriter();
         final PrintWriter writer = new PrintWriter(sw);
         writer.println(errorMessage);
         writer.println("Error details:");
-        writer.println(additionalText);
+        throwable.printStackTrace(writer);
         final JTextArea text = new JTextArea(sw.toString());
         text.setEditable(false);
-        container.add(text);
-        container.validate();
+        applet.add(text);
+        applet.validate();
+
     }
 
     @Override
     public void loadWebPage(String url) throws MalformedURLException {
-//        container.getAppletContext().showDocument(new URL(url));
+        applet.getAppletContext().showDocument(new URL(url));
     }
 
     @Override
@@ -87,23 +86,34 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
             System.err.println("javascript close failed");
             // this usually means we're in a non-browser applet viewer
         } else {
-            context.call("close", (Object) null);
+            context.call("close", null);
         }
     }
 
     @Override
     public Container getContainer() {
-        return container;
+        return applet;
     }
 
     /**
      * Retrieves the Javascript object context if available.
      *
      * @return The Javascript object if available. Returns null if not available (e.g. if running in a debugger or
-     * non-Javascript-enabled browser.
+     *         non-Javascript-enabled browser.
      */
     public JSObject getJSContext() {
-        return null;
+        final Callable<JSObject> getWindow = new Callable<JSObject>() {
+            public JSObject call() throws JSException {
+                return JSObject.getWindow(applet);
+            }
+        };
+        final ExecutorService es = Executors.newSingleThreadExecutor();
+        try {
+            return es.invokeAny(Collections.singleton(getWindow), 10, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            warn("Unable to retrieve JavaScript window context, possibly running in non-browser-hosted mode like appletviewer?");
+            return null;
+        }
     }
 
     @Override
@@ -172,6 +182,7 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
         logger.error(message);
     }
 
+
     @Override
     public boolean isDebugEnabled() {
         return logger.isDebugEnabled();
@@ -194,25 +205,19 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
     @Override
     public void reportErrorToUser(String errorText, Throwable throwable) {
         String finalErrorText;
-        String combinedErrorText;
-        Optional<String> additionalText = Optional.empty();
-
         if (throwable instanceof GiftCloudException) {
             finalErrorText = throwable.getLocalizedMessage();
-            combinedErrorText = finalErrorText;
         } else {
-            combinedErrorText = errorText + " " + throwable.getLocalizedMessage();
-            finalErrorText = errorText;
-            additionalText = Optional.of(throwable.getLocalizedMessage());
+            finalErrorText = errorText + " " + throwable.getLocalizedMessage();
         }
-        errorBox(finalErrorText, additionalText);
-        updateStatusText(combinedErrorText);
-        error(combinedErrorText);
+        errorBox(finalErrorText, throwable);
+        updateStatusText("GIFT-Cloud upload failed: " + throwable);
+        error("GIFT-Cloud upload failed: " + throwable);
         throwable.printStackTrace(System.err);
     }
 
     @Override
-    public void silentWarning(final String warning) {
+    public void silentWarning(String warning) {
         logger.info(warning);
     }
 
@@ -222,91 +227,52 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
     }
 
     /**
-     * Loads logging resources
+     * Loads logging resources, including loading logging properties from custom URLs specified by the
+     * LOG4J_PROPS_URL applet parameter.
      */
     private void configureLogging() {
-        PropertyConfigurator.configure(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/log4j.properties"));
-    }
-
-    public void setWaitCursor() {
-        cursorChanger.setWaitCursor();
-    }
-
-    public void restoreCursor() {
-        cursorChanger.restoreCursor();
-    }
-
-
-    public void addProgressListener(final Progress progress) {
-        progressModel.addListener(progress);
-    }
-
-    @Override
-    public void sendLn(String message) {
-        messageLogger.sendLn(message);
-    }
-
-    @Override
-    public void send(String message) {
-        messageLogger.send(message);
-    }
-
-    public void showMesageLogger() {
-        if (logger instanceof DialogMessageLogger) {
-            ((DialogMessageLogger) logger).setVisible(true);
+        final String log4jProps = applet.getParameter(MultiUploadParameters.LOG4J_PROPS_URL);
+        if (StringUtils.isNotBlank(log4jProps)) {
+            try {
+                PropertyConfigurator.configure(new URL(log4jProps));
+            } catch (MalformedURLException e) {
+                error("Unable to read remote log4j configuration file " + log4jProps, e);
+            }
         }
     }
 
-    public void showError(final String errorMessage) {
-        giftCloudDialogs.showError(errorMessage);
-    }
-
+    @Override
     public void startProgressBar(int maximum) {
-        progressModel.startProgress(maximum);
+        progressWrapper.startProgressBar(maximum);
     }
 
+    @Override
     public void startProgressBar() {
-        progressModel.startProgress();
+        progressWrapper.startProgressBar();
     }
 
+    @Override
     public void updateProgressBar(int value) {
-        progressModel.updateProgressBar(value);
+        progressWrapper.updateProgressBar(value);
     }
 
+    @Override
     public void updateProgressBar(int value, int maximum) {
-        progressModel.updateProgressBar(value, maximum);
+        progressWrapper.updateProgressBar(value, maximum);
     }
 
+    @Override
     public void endProgressBar() {
-        progressModel.endProgressBar();
+        progressWrapper.endProgressBar();
     }
 
     @Override
     public void updateStatusText(String progressText) {
-        progressModel.updateProgressText(progressText);
-//        messageLogger.sendLn(progressText);
-        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent(progressText));
+        progressWrapper.updateStatusText(progressText);
     }
 
     @Override
     public boolean isCancelled() {
-        return progressModel.isCancelled();
+        return progressWrapper.isCancelled();
     }
-
-
-    // These are the preferred methods for reporting to the user
-
-    public void silentError(final String errorMessage, final Throwable throwable) {
-        if (throwable == null) {
-            messageLogger.sendLn(errorMessage);
-        } else {
-            messageLogger.sendLn(errorMessage + " with exception:" + throwable.getLocalizedMessage());
-        }
-    }
-
-    public void warnUser(final String warningMessage) {
-        giftCloudDialogs.showMessage(warningMessage);
-    }
-
-
 }

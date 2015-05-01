@@ -4,7 +4,7 @@ import com.pixelmed.dicom.*;
 import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.utils.CopyStream;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,7 +22,7 @@ public class ExportWorker implements Runnable {
     private final File exportDirectory;
 private final boolean hierarchicalExport;
 private final boolean zipExport;
-private final GiftCloudReporter reporter;
+private final GiftCloudReporterFromApplication reporter;
 private String rootNameForDicomInstanceFilesOnInterchangeMedia = "DICOM"; //static
 private String filePrefixForDicomInstanceFilesOnInterchangeMedia = "I";  //static
 private String fileSuffixForDicomInstanceFilesOnInterchangeMedia = ""; //static
@@ -30,7 +30,7 @@ private String nameForDicomDirectoryOnInterchangeMedia = "DICOMDIR"; // static
 private String exportedZipFileName = "export.zip"; // static
 
 
-public ExportWorker(final Vector<String> destinationFilePathSelections, final File exportDirectory, final boolean hierarchicalExport, final boolean zipExport, final GiftCloudReporter reporter) {
+public ExportWorker(final Vector<String> destinationFilePathSelections, final File exportDirectory, final boolean hierarchicalExport, final boolean zipExport, final GiftCloudReporterFromApplication reporter) {
         this.destinationFilePathSelections = destinationFilePathSelections;
         this.exportDirectory = exportDirectory;
 this.hierarchicalExport = hierarchicalExport;

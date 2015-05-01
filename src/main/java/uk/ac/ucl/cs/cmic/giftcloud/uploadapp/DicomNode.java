@@ -8,7 +8,7 @@ import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.*;
 import com.pixelmed.utils.CapabilitiesAvailable;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.*;
 import java.util.*;
@@ -18,14 +18,14 @@ public class DicomNode extends Observable {
     private StorageSOPClassSCPDispatcher storageSOPClassSCPDispatcher;
     private String ourCalledAETitle;		// set when reading network properties; used not just in StorageSCP, but also when creating exported meta information headers
     private GiftCloudPropertiesFromApplication giftCloudProperties;
-    private MultiUploadReporter reporter;
+    private GiftCloudReporter reporter;
     private NetworkApplicationInformation networkApplicationInformation;
     private DatabaseInformationModel srcDatabase;
     protected Map<String,Date> earliestDatesIndexedBySourceFilePath = new HashMap<String,Date>();
     private final GiftCloudUploader giftCloudUploader;
 
 
-    public DicomNode(final GiftCloudPropertiesFromApplication giftCloudProperties, final String databaseRootTitle, final GiftCloudUploader giftCloudUploader, final MultiUploadReporter reporter) throws DicomException {
+    public DicomNode(final GiftCloudPropertiesFromApplication giftCloudProperties, final String databaseRootTitle, final GiftCloudUploader giftCloudUploader, final GiftCloudReporter reporter) throws DicomException {
         this.giftCloudProperties = giftCloudProperties;
         this.giftCloudUploader = giftCloudUploader;
         this.reporter = reporter;

@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 import java.net.Authenticator;
@@ -24,7 +24,7 @@ class GiftCloudAuthentication {
     private static final int MAX_NUM_LOGIN_ATTEMPTS = 3;
     private final HttpConnectionFactory connectionFactory;
     private GiftCloudProperties giftCloudProperties;
-    private MultiUploadReporter reporter;
+    private GiftCloudReporter reporter;
     private final JSessionIdCookieWrapper cookieWrapper;
     private final URL baseUrl;
     private boolean successfulAuthentication = false;
@@ -38,7 +38,7 @@ class GiftCloudAuthentication {
      * @param giftCloudProperties used to get the session cookie and to get and set the username and password for the last successful login
      * @param reporter used to get the container for the user login dialog
      */
-    GiftCloudAuthentication(final HttpConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final Authenticator authenticator, final MultiUploadReporter reporter) {
+    GiftCloudAuthentication(final HttpConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final Authenticator authenticator, final GiftCloudReporter reporter) {
         this.connectionFactory = connectionFactory;
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;

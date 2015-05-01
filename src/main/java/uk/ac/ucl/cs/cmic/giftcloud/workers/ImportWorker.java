@@ -8,18 +8,18 @@ import com.pixelmed.utils.CapabilitiesAvailable;
 import com.pixelmed.utils.MessageLogger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 
 public class ImportWorker implements Runnable {
     private DicomNode dicomNode;
     private GiftCloudUploader giftCloudUploader;
-    private GiftCloudReporter reporter;
+    private GiftCloudReporterFromApplication reporter;
     private MediaImporter importer;
     private String pathName;
     private Progress progress;
 
-    public ImportWorker(final DicomNode dicomNode, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final GiftCloudReporter reporter) {
+    public ImportWorker(final DicomNode dicomNode, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final GiftCloudReporterFromApplication reporter) {
         this.dicomNode = dicomNode;
         this.giftCloudUploader = giftCloudUploader;
         this.reporter = reporter;

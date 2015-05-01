@@ -22,7 +22,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.applet.Applet;
 import java.io.IOException;
@@ -32,9 +32,9 @@ import java.util.Properties;
 public class MultiUploadAppletParameters extends MultiUploadParameters {
 
     private final Applet applet;
-    private MultiUploadReporter reporter;
+    private GiftCloudReporter reporter;
 
-    public MultiUploadAppletParameters(final Applet applet, final MultiUploadReporter reporter) {
+    public MultiUploadAppletParameters(final Applet applet, final GiftCloudReporter reporter) {
         this.applet = applet;
         this.reporter = reporter;
 

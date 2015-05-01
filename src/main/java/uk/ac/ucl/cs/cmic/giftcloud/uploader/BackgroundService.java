@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.util.List;
 
@@ -32,11 +32,11 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
     private final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList;
     private long maximumThreadCompletionWaitTime;
     private final BackgroundServiceFailureList<T_taskType> backgroundServiceFailureList;
-    protected final MultiUploadReporter reporter;
+    protected final GiftCloudReporter reporter;
     private Thread serviceThread = null;
     private ServiceStatus serviceStatus = ServiceStatus.INITIALIZED;
 
-    public BackgroundService(final BackgroundThreadTermination backgroundThreadTermination, final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList, final long maximumThreadCompletionWaitTime, final MultiUploadReporter reporter) {
+    public BackgroundService(final BackgroundThreadTermination backgroundThreadTermination, final BackgroundServiceTaskList<T_taskType, T_resultType> backgroundServicePendingList, final long maximumThreadCompletionWaitTime, final GiftCloudReporter reporter) {
         this.backgroundThreadTermination = backgroundThreadTermination;
         this.backgroundServicePendingList = backgroundServicePendingList;
         this.maximumThreadCompletionWaitTime = maximumThreadCompletionWaitTime;

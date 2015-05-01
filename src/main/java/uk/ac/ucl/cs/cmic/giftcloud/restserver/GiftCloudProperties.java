@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public interface GiftCloudProperties {
 
     void setLastProject(final String lastProjectName);
 
-    File getUploadFolder(final MultiUploadReporter reporter);
+    File getUploadFolder(final GiftCloudReporter reporter);
 
     String getUserAgentString();
 }

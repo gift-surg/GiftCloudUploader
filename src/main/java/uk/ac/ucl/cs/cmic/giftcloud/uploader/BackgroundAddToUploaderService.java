@@ -1,7 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.util.Optional;
 
@@ -17,7 +17,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
     private final GiftCloudUploader uploader;
     private final GiftCloudAutoUploader autoUploader;
 
-    public BackgroundAddToUploaderService(final PendingUploadTaskList pendingUploadList, final GiftCloudServerFactory serverFactory, final GiftCloudUploader uploader, final GiftCloudAutoUploader autoUploader, final MultiUploadReporter reporter) {
+    public BackgroundAddToUploaderService(final PendingUploadTaskList pendingUploadList, final GiftCloudServerFactory serverFactory, final GiftCloudUploader uploader, final GiftCloudAutoUploader autoUploader, final GiftCloudReporter reporter) {
         super(BackgroundService.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED, pendingUploadList.getList(), MAXIMUM_THREAD_COMPLETION_WAIT_MS, reporter);
         this.serverFactory = serverFactory;
         this.uploader = uploader;

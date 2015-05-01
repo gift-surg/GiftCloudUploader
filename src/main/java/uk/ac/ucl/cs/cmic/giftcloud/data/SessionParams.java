@@ -2,7 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.data;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.UploadSelector;
 
@@ -27,14 +27,14 @@ public class SessionParams {
      *
      * @return The map of parameters for the wizard.
      */
-    public static SessionParams fromRestServer(final MultiUploadParameters multiUploadParameters, final UploadSelector uploadSelector, final MultiUploadReporter reporter) {
+    public static SessionParams fromRestServer(final MultiUploadParameters multiUploadParameters, final UploadSelector uploadSelector, final GiftCloudReporter reporter) {
         final Map<String, Object> params = SessionParams.fromMultiUploadParameters(multiUploadParameters, reporter);
         params.put(UploadSelector.UPLOAD_SELECTOR_WIZARD_ID, uploadSelector);
         params.put(XNAT_URL_WIZ_PARAM, multiUploadParameters.getStrippedXnatUrl().get());
         return new SessionParams(params);
     }
 
-    public static Map<String, Object> fromMultiUploadParameters(final MultiUploadParameters multiUploadParameters, final MultiUploadReporter reporter)
+    public static Map<String, Object> fromMultiUploadParameters(final MultiUploadParameters multiUploadParameters, final GiftCloudReporter reporter)
     {
         final Map<String, Object> params = Maps.newLinkedHashMap();
         params.put(XNAT_ADMIN_EMAIL_WIZ_PARAM, multiUploadParameters.getParameter(MultiUploadParameters.XNAT_ADMIN_EMAIL));

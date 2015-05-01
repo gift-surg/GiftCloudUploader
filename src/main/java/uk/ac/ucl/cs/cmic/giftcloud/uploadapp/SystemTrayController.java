@@ -10,7 +10,7 @@ public class SystemTrayController {
 
     private final Optional<GiftCloudSystemTray> giftCloudSystemTray;
 
-    SystemTrayController(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporter reporter) {
+    SystemTrayController(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
         // Try to create a system tray icon. If this fails, then we warn the user and make the main dialog visible
         giftCloudSystemTray = GiftCloudSystemTray.safeCreateSystemTray(controller, resourceBundle, reporter);
     }

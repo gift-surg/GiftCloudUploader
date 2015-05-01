@@ -24,7 +24,7 @@ import org.netbeans.spi.wizard.Wizard;
 import org.netbeans.spi.wizard.WizardPage;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,7 +43,7 @@ public class EDTHelper {
         T getValue();
     }
 
-    public static SelectProjectPage createSelectProjectPage(final Dimension dimension, final UploadSelector uploadSelector, final MultiUploadReporter reporter) throws InvocationTargetException, InterruptedException {
+    public static SelectProjectPage createSelectProjectPage(final Dimension dimension, final UploadSelector uploadSelector, final GiftCloudReporter reporter) throws InvocationTargetException, InterruptedException {
 
         final RunnableReturner<SelectProjectPage> returner =
                 new RunnableReturner<SelectProjectPage>() {
@@ -67,7 +67,7 @@ public class EDTHelper {
         return returner.getValue();
     }
 
-    public static SelectSubjectPage createSelectSubjectPage(final RestServerHelper restServerHelper, final Dimension dimension, final UploadSelector uploadSelector, final MultiUploadReporter reporter) throws InvocationTargetException, InterruptedException {
+    public static SelectSubjectPage createSelectSubjectPage(final RestServerHelper restServerHelper, final Dimension dimension, final UploadSelector uploadSelector, final GiftCloudReporter reporter) throws InvocationTargetException, InterruptedException {
 
         final RunnableReturner<SelectSubjectPage> returner =
                 new RunnableReturner<SelectSubjectPage>() {
@@ -188,7 +188,7 @@ public class EDTHelper {
         return returner.getValue();
     }
 
-    public static WizardDisplayer createAndInstallWizard(final GiftCloudServer server, final java.util.List<WizardPage> pages, final Container container, final Map<String, Object> params, final WizardResultReceiver receiver, final MultiUploadReporter reporter) throws InvocationTargetException, InterruptedException {
+    public static WizardDisplayer createAndInstallWizard(final GiftCloudServer server, final java.util.List<WizardPage> pages, final Container container, final Map<String, Object> params, final WizardResultReceiver receiver, final GiftCloudReporter reporter) throws InvocationTargetException, InterruptedException {
 
         final RunnableReturner<WizardDisplayer> returner =
                 new RunnableReturner<WizardDisplayer>() {

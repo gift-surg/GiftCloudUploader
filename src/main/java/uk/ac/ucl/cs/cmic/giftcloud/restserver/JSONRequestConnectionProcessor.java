@@ -26,7 +26,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -38,7 +38,7 @@ class JSONRequestConnectionProcessor extends HttpRequestWithOutput<String> {
     private final Logger logger = LoggerFactory.getLogger(JSONRequestConnectionProcessor.class);
     private final JSONObject jsonObject;
 
-    JSONRequestConnectionProcessor(final SessionParameters sessionParameters, final String urlString, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+    JSONRequestConnectionProcessor(final SessionParameters sessionParameters, final String urlString, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpStringResponseProcessor(), giftCloudProperties, reporter);
         this.jsonObject = buildCommitEntity(sessionParameters);
     }

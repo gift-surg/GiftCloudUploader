@@ -12,7 +12,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import org.json.JSONException;
 import org.netbeans.spi.wizard.WizardPage;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Subject;
@@ -40,14 +40,14 @@ public class SelectSubjectPage extends WizardPage {
     private final DefaultListModel listModel = new DefaultListModel();
     private final Dimension dimension;
     private UploadSelector uploadSelector;
-    private MultiUploadReporter reporter;
+    private GiftCloudReporter reporter;
     private final RestServerHelper restServerHelper;
 
     public static String getDescription() {
         return STEP_DESCRIPTION;
     }
 
-    public SelectSubjectPage(final RestServerHelper restServerHelper, final Dimension dimension, final UploadSelector uploadSelector, final MultiUploadReporter reporter) {
+    public SelectSubjectPage(final RestServerHelper restServerHelper, final Dimension dimension, final UploadSelector uploadSelector, final GiftCloudReporter reporter) {
         this.restServerHelper = restServerHelper;
         this.dimension = dimension;
         this.uploadSelector = uploadSelector;

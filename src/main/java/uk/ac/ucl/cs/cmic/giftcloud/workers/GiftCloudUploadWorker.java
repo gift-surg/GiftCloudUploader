@@ -1,17 +1,17 @@
 package uk.ac.ucl.cs.cmic.giftcloud.workers;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudHttpException;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 
 import java.util.Vector;
 
 public class GiftCloudUploadWorker implements Runnable {
     Vector<String> sourceFilePathSelections;
-    private GiftCloudReporter reporter;
+    private GiftCloudReporterFromApplication reporter;
     private GiftCloudUploader giftCloudUploader;
 
-    public GiftCloudUploadWorker(Vector<String> sourceFilePathSelections, final GiftCloudUploader giftCloudUploader, final GiftCloudReporter reporter) {
+    public GiftCloudUploadWorker(Vector<String> sourceFilePathSelections, final GiftCloudUploader giftCloudUploader, final GiftCloudReporterFromApplication reporter) {
         this.sourceFilePathSelections = sourceFilePathSelections;
         this.reporter = reporter;
         this.giftCloudUploader = giftCloudUploader;

@@ -2,7 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -279,7 +279,7 @@ public class BackgroundServiceTest {
         List<BackgroundServiceTaskWrapper<FakeTask, FakeTask>> failNotify = new ArrayList<BackgroundServiceTaskWrapper<FakeTask, FakeTask>>();
 
         FakeBackgroundService(final BackgroundThreadTermination threadTermination, final BackgroundServiceTaskList<FakeTask, FakeTask> backgroundServicePendingList) {
-            super(threadTermination, backgroundServicePendingList, 1000, mock(MultiUploadReporter.class));
+            super(threadTermination, backgroundServicePendingList, 1000, mock(GiftCloudReporter.class));
         }
 
         @Override

@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.ResultProgressListener;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class EcatUploadPostRequest extends HttpRequestWithOutput<Void> {
 	 *
 	 */
 	public EcatUploadPostRequest(final String urlString, final File f,
-                                 final String project, final String subject, final String session, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter)
+                                 final String project, final String subject, final String session, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter)
 	throws IOException {
 		super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter);
 

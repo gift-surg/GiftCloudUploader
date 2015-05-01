@@ -23,7 +23,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
@@ -48,9 +48,9 @@ public class UploadSelector {
     private boolean fetchDateFromSession = false;
 
     private RestServerHelper restServerHelper;
-    private MultiUploadReporter reporter;
+    private GiftCloudReporter reporter;
 
-    public UploadSelector(RestServerHelper restServerHelper, MultiUploadParameters multiUploadParameters, MultiUploadReporter reporter) throws ExecutionException, InterruptedException {
+    public UploadSelector(RestServerHelper restServerHelper, MultiUploadParameters multiUploadParameters, GiftCloudReporter reporter) throws ExecutionException, InterruptedException {
         this.restServerHelper = restServerHelper;
         this.reporter = reporter;
 

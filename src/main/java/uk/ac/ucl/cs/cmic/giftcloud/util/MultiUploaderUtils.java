@@ -187,7 +187,7 @@ public class MultiUploaderUtils {
      * @param reporter for logging warnings
      * @return File object referencing the existing or newly created folder
      */
-    public static File createOrGetLocalUploadCacheDirectory(final MultiUploadReporter reporter) {
+    public static File createOrGetLocalUploadCacheDirectory(final GiftCloudReporter reporter) {
 
         final File appFolder = createOrGetGiftCloudFolder(reporter);
 
@@ -207,7 +207,7 @@ public class MultiUploaderUtils {
      * @param reporter for logging warnings
      * @return File object referencing the existing or newly created folder
      */
-    public static File createOrGetGiftCloudFolder(final MultiUploadReporter reporter) {
+    public static File createOrGetGiftCloudFolder(final GiftCloudReporter reporter) {
 
         File appFolder = new File(System.getProperty("user.home"), GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME);
 

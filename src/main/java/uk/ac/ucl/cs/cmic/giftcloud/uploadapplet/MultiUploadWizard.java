@@ -25,7 +25,7 @@ import org.netbeans.api.wizard.WizardDisplayer;
 import org.netbeans.api.wizard.WizardResultReceiver;
 import org.netbeans.spi.wizard.WizardPage;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionParams;
 
@@ -38,10 +38,10 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class MultiUploadWizard implements WizardResultReceiver {
-    private MultiUploadReporter reporter;
+    private GiftCloudReporter reporter;
     private String giftCloudUrl;
 
-    public MultiUploadWizard(final GiftCloudServer server, final RestServerHelper restServerHelper, final Dimension dimension, final MultiUploadParameters multiUploadParameters, final String giftCloudUrl, final MultiUploadReporter reporter) throws InvocationTargetException, InterruptedException, ExecutionException {
+    public MultiUploadWizard(final GiftCloudServer server, final RestServerHelper restServerHelper, final Dimension dimension, final MultiUploadParameters multiUploadParameters, final String giftCloudUrl, final GiftCloudReporter reporter) throws InvocationTargetException, InterruptedException, ExecutionException {
         this.giftCloudUrl = giftCloudUrl;
         final UploadSelector uploadSelector = new UploadSelector(restServerHelper, multiUploadParameters, reporter);
 

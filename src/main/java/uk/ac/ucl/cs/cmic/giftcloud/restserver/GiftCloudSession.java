@@ -14,7 +14,7 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -24,7 +24,7 @@ class GiftCloudSession {
     private final GiftCloudAuthentication giftCloudAuthentication;
 
 
-    GiftCloudSession(final GiftCloudProperties giftCloudProperties, final HttpConnectionFactory connectionFactory, final MultiUploadReporter reporter) {
+    GiftCloudSession(final GiftCloudProperties giftCloudProperties, final HttpConnectionFactory connectionFactory, final GiftCloudReporter reporter) {
         giftCloudAuthentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, new GiftCloudLoginAuthenticator(reporter.getContainer(), giftCloudProperties), reporter);
     }
 

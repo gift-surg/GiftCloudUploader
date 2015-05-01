@@ -4,7 +4,7 @@ import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.util.List;
 import java.util.Set;
@@ -24,7 +24,7 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
     private BackgroundUploadOutcomeCallback outcomeCallback;
 
 
-    public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final ResultProgressHandle progress, final BackgroundUploadOutcomeCallback outcomeCallback, final MultiUploadReporter reporter) {
+    public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final ResultProgressHandle progress, final BackgroundUploadOutcomeCallback outcomeCallback, final GiftCloudReporter reporter) {
         super(BackgroundService.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED, backgroundCompletionServiceTaskList, MAXIMUM_THREAD_COMPLETION_WAIT_MS, reporter);
 
         this.progress = progress;

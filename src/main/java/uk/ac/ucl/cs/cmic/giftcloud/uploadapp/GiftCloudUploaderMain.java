@@ -25,7 +25,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final DicomNode dicomNode;
     private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
-    private final GiftCloudReporter reporter;
+    private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
     private final SystemTrayController systemTrayController;
 
@@ -35,7 +35,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"), this);
         giftCloudDialogs = new GiftCloudDialogs(giftCloudMainFrame);
-        reporter = new GiftCloudReporter(giftCloudMainFrame.getContainer(), giftCloudDialogs);
+        reporter = new GiftCloudReporterFromApplication(giftCloudMainFrame.getContainer(), giftCloudDialogs);
 
         // Initialise application properties
         giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase, resourceBundle);

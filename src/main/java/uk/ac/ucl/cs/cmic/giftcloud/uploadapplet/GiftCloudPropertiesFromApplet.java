@@ -17,7 +17,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
@@ -99,7 +99,7 @@ public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
     }
 
     @Override
-    public File getUploadFolder(MultiUploadReporter reporter) {
+    public File getUploadFolder(GiftCloudReporter reporter) {
         // ToDo: the uploader folder is not currently an applet parameter, so we always use the default
         return MultiUploaderUtils.createOrGetLocalUploadCacheDirectory(reporter);
     }

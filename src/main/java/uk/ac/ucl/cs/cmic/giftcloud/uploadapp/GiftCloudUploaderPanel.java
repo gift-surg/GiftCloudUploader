@@ -50,9 +50,9 @@ public class GiftCloudUploaderPanel extends JPanel {
     private Vector<String> currentSourceFilePathSelections;
 
     // Error reporting interface
-    private final GiftCloudReporter reporter;
+    private final GiftCloudReporterFromApplication reporter;
 
-    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final ComboBoxModel<String> projectListModel, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudReporter reporter) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final ComboBoxModel<String> projectListModel, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
         this.reporter = reporter;

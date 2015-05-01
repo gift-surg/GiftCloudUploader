@@ -5,7 +5,7 @@ import com.pixelmed.network.NetworkApplicationProperties;
 import com.pixelmed.network.NetworkConfigurationSource;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
@@ -108,7 +108,7 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     @Override
-    public File getUploadFolder(final MultiUploadReporter reporter) {
+    public File getUploadFolder(final GiftCloudReporter reporter) {
         final String uploadFolderString = properties.getProperty(propertyName_GiftCloudLocalUploadFolder);
         if (StringUtils.isNotBlank(uploadFolderString)) {
             return new File(uploadFolderString);

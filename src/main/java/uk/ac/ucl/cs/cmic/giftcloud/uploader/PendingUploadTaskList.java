@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import org.apache.commons.io.FileUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,10 +16,10 @@ public class PendingUploadTaskList {
     private final BackgroundBlockingQueueTaskList<PendingUploadTask> taskList;
     private final File pendingUploadFolder;
     private final UniqueFileMap<PendingUploadTask> fileMap = new UniqueFileMap<PendingUploadTask>();
-    private MultiUploadReporter reporter;
+    private GiftCloudReporter reporter;
     private final List<FileCollection> failures = new ArrayList<FileCollection>();
 
-    public PendingUploadTaskList(final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+    public PendingUploadTaskList(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         this.reporter = reporter;
         taskList = new BackgroundBlockingQueueTaskList<PendingUploadTask>();
         pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);

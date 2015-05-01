@@ -5,7 +5,7 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.QueryTreeRecord;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.QuerySelection;
 
 import java.util.Enumeration;
@@ -13,10 +13,10 @@ import java.util.List;
 
 public class RetrieveWorker implements Runnable {
     private QueryInformationModel currentRemoteQueryInformationModel;
-    private GiftCloudReporter reporter;
+    private GiftCloudReporterFromApplication reporter;
     private List<QuerySelection> currentRemoteQuerySelectionList;
 
-    public RetrieveWorker(final List<QuerySelection> currentRemoteQuerySelectionList, final QueryInformationModel currentRemoteQueryInformationModel, final GiftCloudReporter reporter) {
+    public RetrieveWorker(final List<QuerySelection> currentRemoteQuerySelectionList, final QueryInformationModel currentRemoteQueryInformationModel, final GiftCloudReporterFromApplication reporter) {
         this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
         this.reporter = reporter;
         this.currentRemoteQuerySelectionList = currentRemoteQuerySelectionList;

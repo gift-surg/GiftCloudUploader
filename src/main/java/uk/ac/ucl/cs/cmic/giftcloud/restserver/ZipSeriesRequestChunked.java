@@ -14,7 +14,7 @@ import org.nrg.dcm.edit.ScriptEvaluationException;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +34,7 @@ class ZipSeriesRequestChunked extends HttpRequestWithOutput<Set<String>> {
                             final UploadStatisticsReporter progress,
                             final HttpResponseProcessor responseProcessor,
                             final GiftCloudProperties giftCloudProperties,
-                            final MultiUploadReporter reporter) {
+                            final GiftCloudReporter reporter) {
         super(connectionType, url, responseProcessor, giftCloudProperties, reporter);
         this.fileCollection = fileCollection;
         this.zipper = new SeriesZipper(applicators);

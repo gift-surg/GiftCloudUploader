@@ -23,7 +23,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import javax.swing.*;
 import java.text.SimpleDateFormat;
@@ -292,7 +292,7 @@ public final class EcatSession implements Session {
     /* (non-Javadoc)
      * @see Session#uploadTo(java.util.Map, org.netbeans.spi.wizard.ResultProgressHandle)
      */
-    public UploadResult uploadTo(final boolean append, final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) {
+    public UploadResult uploadTo(final boolean append, final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) {
         return server.getRestServerHelper().uploadToEcat(new MatrixDataFileCollection(data), projectLabel, subjectLabel, sessionParameters, failureHandler, timeZone, reporter);
     }
 

@@ -26,7 +26,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import java.awt.*;
 import java.net.MalformedURLException;
 
-public interface MultiUploadReporter extends Progress {
+public interface GiftCloudReporter extends Progress {
 
     void loadWebPage(String url) throws MalformedURLException;
 

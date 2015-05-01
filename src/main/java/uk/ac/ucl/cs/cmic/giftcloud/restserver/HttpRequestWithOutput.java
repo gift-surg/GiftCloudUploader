@@ -14,14 +14,14 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 abstract class HttpRequestWithOutput<T> extends HttpRequest<T> {
 
-    HttpRequestWithOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+    HttpRequestWithOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         super(connectionType, urlString, responseProcessor, giftCloudProperties, reporter);
     }
 

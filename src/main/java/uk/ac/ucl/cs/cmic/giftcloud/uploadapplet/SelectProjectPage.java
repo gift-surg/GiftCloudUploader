@@ -21,7 +21,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import org.json.JSONException;
 import org.netbeans.spi.wizard.WizardPage;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -40,13 +40,13 @@ public final class SelectProjectPage extends WizardPage implements ListSelection
 	private final JList list;
 	private final Dimension preferredComponentSize;
 	private final UploadSelector uploadSelector;
-	private final MultiUploadReporter reporter;
+	private final GiftCloudReporter reporter;
 
 	public static String getDescription() {
 		return STEP_DESCRIPTION;
 	}
 
-	public SelectProjectPage(final Dimension preferredComponentSize, final UploadSelector uploadSelector, final MultiUploadReporter reporter)
+	public SelectProjectPage(final Dimension preferredComponentSize, final UploadSelector uploadSelector, final GiftCloudReporter reporter)
 	throws IOException,JSONException {
 		super(); // TODO: remove this?
 

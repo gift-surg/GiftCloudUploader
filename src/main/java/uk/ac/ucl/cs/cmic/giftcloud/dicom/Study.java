@@ -32,7 +32,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResultsFailure;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
 
 import java.io.File;
@@ -265,7 +265,7 @@ public class Study extends MapEntity implements Entity, Session {
      * (non-Javadoc)
      * @see Session#uploadTo(java.util.Map, UploadFailureHandler, org.netbeans.spi.wizard.ResultProgressHandle)
      */
-    public UploadResult uploadTo(final boolean append, final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) throws IOException {
+    public UploadResult uploadTo(final boolean append, final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException {
         final List<FileCollection> fileCollections = getFiles();
 
         if (fileCollections.isEmpty()) {

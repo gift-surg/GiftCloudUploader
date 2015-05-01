@@ -4,7 +4,7 @@ import junit.framework.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 
 import java.io.ByteArrayInputStream;
 import java.net.Authenticator;
@@ -51,7 +51,7 @@ public class GiftCloudAuthenticationTest {
         final String wrongPassword = "WrongPassword";
         final Authenticator authenticator = new FakeLoginAuthenticator(wrongUserName, wrongPassword.toCharArray(), false);
 
-        final GiftCloudReporter reporter = mock(GiftCloudReporter.class);
+        final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
         final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
 
@@ -108,7 +108,7 @@ public class GiftCloudAuthenticationTest {
         final String wrongPassword = "WrongPassword";
         final Authenticator authenticator = new FakeLoginAuthenticator(wrongUserName, wrongPassword.toCharArray(), false);
 
-        final GiftCloudReporter reporter = mock(GiftCloudReporter.class);
+        final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
         final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
 
@@ -148,7 +148,7 @@ public class GiftCloudAuthenticationTest {
         final String wrongPassword = "WrongPassword";
         final Authenticator authenticator = new FakeLoginAuthenticator(wrongUserName, wrongPassword.toCharArray(), false);
 
-        final GiftCloudReporter reporter = mock(GiftCloudReporter.class);
+        final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
         final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
 
@@ -191,7 +191,7 @@ public class GiftCloudAuthenticationTest {
         // In this test we are testing the username and password set in the properties, not those typed in by the user
         final Authenticator authenticator = new FakeLoginAuthenticator(null, null, true);
 
-        final GiftCloudReporter reporter = mock(GiftCloudReporter.class);
+        final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
         final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
 
@@ -227,7 +227,7 @@ public class GiftCloudAuthenticationTest {
         final String wrongPassword = "WrongPassword";
         final FakeLoginAuthenticator authenticator = new FakeLoginAuthenticator(wrongUserName, wrongPassword.toCharArray(), true);
 
-        final GiftCloudReporter reporter = mock(GiftCloudReporter.class);
+        final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
         final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
 
@@ -286,7 +286,7 @@ public class GiftCloudAuthenticationTest {
 
         final Authenticator authenticator = mock(Authenticator.class);
 
-        final GiftCloudReporter reporter = mock(GiftCloudReporter.class);
+        final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
         final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
         final HttpConnectionBuilder connectionBuilder = mock(HttpConnectionBuilder.class);
 

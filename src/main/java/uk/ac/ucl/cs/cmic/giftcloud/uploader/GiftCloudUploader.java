@@ -8,7 +8,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadWizard;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 
 import javax.security.sasl.AuthenticationException;
@@ -25,14 +25,14 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final GiftCloudProperties giftCloudProperties;
     private final Container container;
     private final PendingUploadTaskList pendingUploadList;
-    private final MultiUploadReporter reporter;
+    private final GiftCloudReporter reporter;
     private final ProjectListModel projectListModel;
     private final GiftCloudServerFactory serverFactory;
     private final BackgroundAddToUploaderService backgroundAddToUploaderService;
     private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
-    public GiftCloudUploader(final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+    public GiftCloudUploader(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         this.giftCloudProperties = giftCloudProperties;
         this.container = reporter.getContainer();
         this.reporter = reporter;

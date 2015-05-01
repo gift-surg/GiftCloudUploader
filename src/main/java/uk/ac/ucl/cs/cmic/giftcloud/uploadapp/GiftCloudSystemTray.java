@@ -162,7 +162,7 @@ public class GiftCloudSystemTray {
      * @param reporter          the reporter object used to record errors
      * @return                  an (@link Optional) containing the (@link GiftCloudSystemTray) object or an empty (@link Optional) if the SystemTray is not supported, or an error occurred, e.g. in attempting to load the icon
      */
-    static Optional<GiftCloudSystemTray> safeCreateSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporter reporter) {
+    static Optional<GiftCloudSystemTray> safeCreateSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
         if (!SystemTray.isSupported()) {
             reporter.silentError("SystemTray is not supported on this system.", null);
             return Optional.empty();

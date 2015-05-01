@@ -31,7 +31,7 @@ public class MultiUploadAssistantApplet extends JApplet {
 
     protected static String resourceBundleName  = "uk.ac.ucl.cs.cmic.giftcloud.GiftCloudUploader";
 
-    private Optional<MultiUploadAppletReporter> reporter = Optional.empty();
+    private Optional<GiftCloudReporterFromApplet> reporter = Optional.empty();
     private Optional<MultiUploadAppletParameters> multiUploadParameters = Optional.empty();
     private Optional<GiftCloudUploader> giftCloudUploader = Optional.empty();
 
@@ -52,7 +52,7 @@ public class MultiUploadAssistantApplet extends JApplet {
     public void init() {
         try {
             final ResourceBundle resourceBundle = ResourceBundle.getBundle(resourceBundleName);
-            reporter = Optional.of(new MultiUploadAppletReporter(this));
+            reporter = Optional.of(new GiftCloudReporterFromApplet(this));
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             multiUploadParameters = Optional.of(new MultiUploadAppletParameters(this, reporter.get()));
 

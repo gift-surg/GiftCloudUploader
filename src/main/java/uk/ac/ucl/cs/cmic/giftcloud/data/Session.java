@@ -10,13 +10,10 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.data;
 
-import netscape.javascript.JSObject;
-import org.netbeans.spi.wizard.ResultProgressHandle;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 import java.util.*;
@@ -45,7 +42,7 @@ public interface Session {
 	/*
 	List<SessionVariable> unify(Iterable<? extends SessionVariable> vars);
 	*/
-	UploadResult uploadTo(final boolean append, final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final MultiUploadReporter reporter) throws IOException;
+	UploadResult uploadTo(final boolean append, final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException;
 
 	TimeZone getTimeZone();
 }

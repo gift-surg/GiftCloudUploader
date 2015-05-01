@@ -8,7 +8,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesAppendUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 
@@ -26,9 +26,9 @@ public class MultiZipSeriesUploader {
     private final ExecutorService executor;
     private final CompletionService<Set<String>> completionService;
     private final Map<Future<Set<String>>, CallableUploader> uploaders;
-    private final MultiUploadReporter reporter;
+    private final GiftCloudReporter reporter;
 
-    public MultiZipSeriesUploader(final boolean append, final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final MultiUploadReporter reporter, final GiftCloudServer server) {
+    public MultiZipSeriesUploader(final boolean append, final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final GiftCloudReporter reporter, final GiftCloudServer server) {
         this.reporter = reporter;
 
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = getZipSeriesUploaderFactory(append);
@@ -72,7 +72,7 @@ public class MultiZipSeriesUploader {
         return uris;
     }
 
-    public Optional<String> run(final MultiUploadReporter logger) {
+    public Optional<String> run(final GiftCloudReporter logger) {
 
         final ProgressHandleWrapper progress = new ProgressHandleWrapper(reporter);
         while (progress.isRunning() && !uploaders.isEmpty()) {

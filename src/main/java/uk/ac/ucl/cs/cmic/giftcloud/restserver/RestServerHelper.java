@@ -31,7 +31,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
@@ -44,7 +44,7 @@ import java.util.*;
 public class RestServerHelper {
 
     private final RestServer restServer;
-    private final MultiUploadReporter reporter;
+    private final GiftCloudReporter reporter;
 
     // Access to these members is through a synchronized method to ensure thread safety
     private Optional<String> siteWideAnonScript = Optional.empty();
@@ -56,7 +56,7 @@ public class RestServerHelper {
 
 
 
-    public RestServerHelper(final RestServer restServer, final MultiUploadReporter reporter) {
+    public RestServerHelper(final RestServer restServer, final GiftCloudReporter reporter) {
         this.restServer = restServer;
         this.reporter = reporter;
     }
@@ -159,7 +159,7 @@ public class RestServerHelper {
         return restServer.getStringFromStream(uri, xmlStream);
     }
 
-    public UploadResult uploadToEcat(final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final MultiUploadReporter logger) {
+    public UploadResult uploadToEcat(final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final GiftCloudReporter logger) {
 
 
         if (fileCollection.getFileCount() == 0) {

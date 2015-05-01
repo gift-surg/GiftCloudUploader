@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.workers;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.query.QueryInformationModel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.QueryRetrieveRemoteView;
 
 public class QueryWorker implements Runnable {
@@ -11,9 +11,9 @@ public class QueryWorker implements Runnable {
     private QueryInformationModel currentRemoteQueryInformationModel;
     AttributeList filter;
     private DicomNode dicomNode;
-    private GiftCloudReporter reporter;
+    private GiftCloudReporterFromApplication reporter;
 
-    public QueryWorker(final QueryRetrieveRemoteView queryRetrievePanel, final QueryInformationModel currentRemoteQueryInformationModel, AttributeList filter, final DicomNode dicomNode, final GiftCloudReporter reporter) {
+    public QueryWorker(final QueryRetrieveRemoteView queryRetrievePanel, final QueryInformationModel currentRemoteQueryInformationModel, AttributeList filter, final DicomNode dicomNode, final GiftCloudReporterFromApplication reporter) {
         this.queryRetrievePanel = queryRetrievePanel;
         this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
         this.filter=filter;

@@ -4,7 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -15,11 +15,11 @@ import java.util.*;
 public class GiftCloudServer {
 
     private final String giftCloudServerUrl;
-    private final MultiUploadReporter reporter;
+    private final GiftCloudReporter reporter;
     private final RestServerHelper restServerHelper;
     private final URI giftCloudUri;
 
-    public GiftCloudServer(final String giftCloudServerUrl, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) throws MalformedURLException {
+    public GiftCloudServer(final String giftCloudServerUrl, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudServerUrl = giftCloudServerUrl;
         this.reporter = reporter;
 
@@ -84,7 +84,7 @@ public class GiftCloudServer {
         return restServerHelper.getProjectSeriesImportFilter(projectName);
     }
 
-    public UploadResult uploadToStudy(final boolean append, List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, MultiUploadReporter logger) {
+    public UploadResult uploadToStudy(final boolean append, List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) {
         MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(append, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
 
         final Optional<String> failureMessage = uploader.run(logger);

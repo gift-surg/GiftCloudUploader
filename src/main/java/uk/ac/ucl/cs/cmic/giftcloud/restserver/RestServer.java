@@ -23,7 +23,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import org.json.JSONException;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,9 +38,9 @@ public class RestServer {
 
     private final GiftCloudSession giftCloudSession;
     private GiftCloudProperties giftCloudProperties;
-    private MultiUploadReporter reporter;
+    private GiftCloudReporter reporter;
 
-    public RestServer(final GiftCloudProperties giftCloudProperties, final String baseUrl, final MultiUploadReporter reporter) throws MalformedURLException {
+    public RestServer(final GiftCloudProperties giftCloudProperties, final String baseUrl, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
 

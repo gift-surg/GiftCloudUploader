@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import org.nrg.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +16,7 @@ class XmlStreamPostRequestWithStringResponse extends HttpRequestWithOutput<Strin
     private final Logger logger = LoggerFactory.getLogger(XmlStreamPostRequestWithStringResponse.class);
     private final InputStream in;
 
-    XmlStreamPostRequestWithStringResponse(final String urlString, final InputStream in, final GiftCloudProperties giftCloudProperties, final MultiUploadReporter reporter) {
+    XmlStreamPostRequestWithStringResponse(final String urlString, final InputStream in, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpStringResponseProcessor(), giftCloudProperties, reporter);
 
         this.in = in;

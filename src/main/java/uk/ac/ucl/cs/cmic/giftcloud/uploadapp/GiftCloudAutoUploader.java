@@ -13,7 +13,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 
@@ -25,7 +25,7 @@ import java.util.concurrent.*;
 
 public class GiftCloudAutoUploader {
 
-    private final MultiUploadReporter reporter;
+    private final GiftCloudReporter reporter;
 
     // Create a map of subjects and sessions we have already uploaded
     private final Map<String, String> sessionsAlreadyUploaded = new HashMap<String, String>();
@@ -54,7 +54,7 @@ public class GiftCloudAutoUploader {
      * @para serverFactory
      * @param reporter
      */
-    public GiftCloudAutoUploader(final GiftCloudServerFactory serverFactory, final MultiUploadReporter reporter) {
+    public GiftCloudAutoUploader(final GiftCloudServerFactory serverFactory, final GiftCloudReporter reporter) {
         this.serverFactory = serverFactory;
         this.reporter = reporter;
         subjectAliasMap = new SubjectAliasMap();

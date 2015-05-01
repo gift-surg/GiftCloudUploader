@@ -22,7 +22,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResultsFailure;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResultsSuccess;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 import java.net.URL;
@@ -36,9 +36,9 @@ public class UploadWizardResultProducer implements WizardResultProducer {
 
     private GiftCloudServer giftCloudServer;
     private final ExecutorService _executorService;
-    private MultiUploadReporter reporter;
+    private GiftCloudReporter reporter;
 
-    public UploadWizardResultProducer(final GiftCloudServer giftCloudServer, final ExecutorService executorService, final MultiUploadReporter reporter) {
+    public UploadWizardResultProducer(final GiftCloudServer giftCloudServer, final ExecutorService executorService, final GiftCloudReporter reporter) {
         this.giftCloudServer = giftCloudServer;
         _executorService = executorService;
         this.reporter = reporter;

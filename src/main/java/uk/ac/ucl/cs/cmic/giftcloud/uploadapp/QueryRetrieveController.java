@@ -20,11 +20,11 @@ public class QueryRetrieveController {
     private final QueryRetrieveRemoteView queryRetrievePanel;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final DicomNode dicomNode;
-    private final GiftCloudReporter reporter;
+    private final GiftCloudReporterFromApplication reporter;
     private Optional<QueryInformationModel> currentRemoteQueryInformationModel = Optional.empty();
     private Thread activeThread = null;
 
-    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrievePanel, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final GiftCloudReporter reporter) {
+    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrievePanel, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final GiftCloudReporterFromApplication reporter) {
         this.queryRetrievePanel = queryRetrievePanel;
         this.giftCloudProperties = giftCloudProperties;
         this.dicomNode = dicomNode;

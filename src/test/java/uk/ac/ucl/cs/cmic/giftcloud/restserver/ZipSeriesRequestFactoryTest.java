@@ -4,7 +4,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.util.ArrayList;
 
@@ -16,7 +16,7 @@ public class ZipSeriesRequestFactoryTest {
     public void testBuild() throws Exception {
         final String url = "testUrl";
         final FileCollection fileCollection = mock(FileCollection.class);
-        final MultiUploadReporter reporter = mock(MultiUploadReporter.class);
+        final GiftCloudReporter reporter = mock(GiftCloudReporter.class);
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
         final Iterable<ScriptApplicator> applicators = new ArrayList<ScriptApplicator>();
         final UploadStatisticsReporter progress = mock(UploadStatisticsReporter.class);
