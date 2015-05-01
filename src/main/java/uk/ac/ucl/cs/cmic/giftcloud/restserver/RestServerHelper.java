@@ -56,8 +56,8 @@ public class RestServerHelper {
 
 
 
-    public RestServerHelper(final RestServer restServer, final GiftCloudReporter reporter) {
-        this.restServer = restServer;
+    public RestServerHelper(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
+        this.restServer = new RestServer(giftCloudServerUrlString, giftCloudProperties, connectionFactory, reporter);
         this.reporter = reporter;
     }
 
