@@ -1,7 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud;
 
 import com.apple.eawt.Application;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudUploaderRestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderMain;
 
 import javax.imageio.ImageIO;
@@ -45,7 +45,7 @@ public class GiftCloudTestUploaderApp {
             // This is used to set the application title on OSX, but may not work when run from the debugger
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", applicationTitle);
 
-            new GiftCloudUploaderMain(new RestServerFactory(), resourceBundle);
+            new GiftCloudUploaderMain(new GiftCloudUploaderRestServerFactory(), resourceBundle);
 		}
 		catch (Exception e) {
 			e.printStackTrace(System.err);
