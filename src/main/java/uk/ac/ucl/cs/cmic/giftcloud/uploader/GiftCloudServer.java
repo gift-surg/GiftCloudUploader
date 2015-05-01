@@ -14,29 +14,27 @@ import java.util.*;
 
 public class GiftCloudServer {
 
-    private final String giftCloudServerUrl;
+    private final String giftCloudServerUrlString;
     private final GiftCloudReporter reporter;
     private final RestServerHelper restServerHelper;
     private final URI giftCloudUri;
 
-    public GiftCloudServer(final String giftCloudServerUrl, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
-        this.giftCloudServerUrl = giftCloudServerUrl;
+    public GiftCloudServer(final String giftCloudServerUrlString, final ConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
+        this.giftCloudServerUrlString = giftCloudServerUrlString;
         this.reporter = reporter;
 
-        if (StringUtils.isBlank(giftCloudServerUrl)) {
+        if (StringUtils.isBlank(giftCloudServerUrlString)) {
             throw new MalformedURLException("Please set the URL for the GIFT-Cloud server.");
         }
 
         try {
-            giftCloudUri = new URI(giftCloudServerUrl);
+            giftCloudUri = new URI(giftCloudServerUrlString);
         } catch (URISyntaxException e) {
-            throw new MalformedURLException("The GIFT-Cloud server name " + giftCloudServerUrl + " is not a valid URL.");
+            throw new MalformedURLException("The GIFT-Cloud server name " + giftCloudServerUrlString + " is not a valid URL.");
         }
 
-        final RestServer restServer = new RestServer(giftCloudProperties, giftCloudServerUrl, reporter);
+        final RestServer restServer = new RestServer(giftCloudServerUrlString, giftCloudProperties, connectionFactory, reporter);
         restServerHelper = new RestServerHelper(restServer, reporter);
-
-
     }
 
     public void tryAuthentication() throws IOException {
@@ -65,7 +63,7 @@ public class GiftCloudServer {
     }
 
     public String getGiftCloudServerUrl() {
-        return giftCloudServerUrl;
+        return giftCloudServerUrlString;
     }
 
     public Map<String,String> getListOfSubjects(final String projectName) throws IOException {

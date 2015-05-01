@@ -22,16 +22,16 @@ import java.net.PasswordAuthentication;
 class ConnectionFactoryWithPasswordAuthentication implements ConnectionFactory {
 
     private final PasswordAuthentication passwordAuthentication;
-    private HttpConnectionFactory connectionFactory;
+    private ConnectionFactory connectionFactory;
 
-    ConnectionFactoryWithPasswordAuthentication(final HttpConnectionFactory connectionFactory, final PasswordAuthentication passwordAuthentication) {
+    ConnectionFactoryWithPasswordAuthentication(final ConnectionFactory connectionFactory, final PasswordAuthentication passwordAuthentication) {
         this.connectionFactory = connectionFactory;
         this.passwordAuthentication = passwordAuthentication;
     }
 
-    public HttpConnectionWrapper createConnection(final String relativeUrlString, final HttpConnectionBuilder connectionBuilder) throws IOException {
+    public HttpConnectionWrapper createConnection(final String fullUrl, final HttpConnectionBuilder connectionBuilder) throws IOException {
         connectionBuilder.setAuthorisationHeader(makeBasicAuthorization(passwordAuthentication));
-        return connectionFactory.createConnection(relativeUrlString, connectionBuilder);
+        return connectionFactory.createConnection(fullUrl, connectionBuilder);
     }
 
     private static String makeBasicAuthorization(final PasswordAuthentication auth) {

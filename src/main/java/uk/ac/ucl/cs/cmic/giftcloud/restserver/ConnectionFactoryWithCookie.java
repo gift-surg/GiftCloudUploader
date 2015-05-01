@@ -19,17 +19,17 @@ import java.io.IOException;
 class ConnectionFactoryWithCookie implements ConnectionFactory {
 
     private final JSessionIdCookieWrapper cookie;
-    private final HttpConnectionFactory connectionFactory;
+    private final ConnectionFactory connectionFactory;
 
-    ConnectionFactoryWithCookie(final HttpConnectionFactory connectionFactory, final JSessionIdCookieWrapper cookie) {
+    ConnectionFactoryWithCookie(final ConnectionFactory connectionFactory, final JSessionIdCookieWrapper cookie) {
         this.connectionFactory = connectionFactory;
         this.cookie = cookie;
     }
 
-    public HttpConnectionWrapper createConnection(final String relativeUrlString, final HttpConnectionBuilder connectionBuilder) throws IOException {
+    public HttpConnectionWrapper createConnection(final String fullUrl, final HttpConnectionBuilder connectionBuilder) throws IOException {
 
         connectionBuilder.setCookie(cookie.getFormattedCookieString());
 
-        return connectionFactory.createConnection(relativeUrlString, connectionBuilder);
+        return connectionFactory.createConnection(fullUrl, connectionBuilder);
     }
 }

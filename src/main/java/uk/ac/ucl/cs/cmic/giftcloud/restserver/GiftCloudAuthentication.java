@@ -4,6 +4,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 import java.net.Authenticator;
+import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Optional;
@@ -22,7 +23,8 @@ import java.util.concurrent.CancellationException;
  */
 class GiftCloudAuthentication {
     private static final int MAX_NUM_LOGIN_ATTEMPTS = 3;
-    private final HttpConnectionFactory connectionFactory;
+    private String baseUrlString;
+    private final ConnectionFactory connectionFactory;
     private GiftCloudProperties giftCloudProperties;
     private GiftCloudReporter reporter;
     private final JSessionIdCookieWrapper cookieWrapper;
@@ -38,12 +40,13 @@ class GiftCloudAuthentication {
      * @param giftCloudProperties used to get the session cookie and to get and set the username and password for the last successful login
      * @param reporter used to get the container for the user login dialog
      */
-    GiftCloudAuthentication(final HttpConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final Authenticator authenticator, final GiftCloudReporter reporter) {
+    GiftCloudAuthentication(final String baseUrlString, final ConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final Authenticator authenticator, final GiftCloudReporter reporter) throws MalformedURLException {
+        this.baseUrlString = baseUrlString;
         this.connectionFactory = connectionFactory;
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
         this.cookieWrapper = new JSessionIdCookieWrapper(giftCloudProperties.getSessionCookie());
-        baseUrl = connectionFactory.getBaseUrl();
+        this.baseUrl = new URL(baseUrlString);
 
         Optional<PasswordAuthentication> passwordAuthenticationFromUrl = PasswordAuthenticationWrapper.getPasswordAuthenticationFromURL(baseUrl);
 
@@ -146,7 +149,7 @@ class GiftCloudAuthentication {
 
     private Optional<String> tryAuthenticatedLogin(final ConnectionFactory connectionFactory, final int attemptNumber) throws IOException {
         try {
-            return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor(), giftCloudProperties, reporter).getResponse(connectionFactory));
+            return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnectionWrapper.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor(), giftCloudProperties, reporter).getResponse(baseUrlString, connectionFactory));
         } catch (AuthorisationFailureException e) {
             if (attemptNumber >= MAX_NUM_LOGIN_ATTEMPTS) {
                 throw e;

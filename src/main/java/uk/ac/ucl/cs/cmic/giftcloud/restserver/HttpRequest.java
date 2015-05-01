@@ -36,7 +36,7 @@ import static java.net.HttpURLConnection.*;
 abstract class HttpRequest<T> {
 
     private final HttpConnectionWrapper.ConnectionType connectionType;
-    protected final String urlString;
+    protected final String relativeUrlString;
 
     // The response value could be null. As you can't store a null value in an Optional, we use an Optional of Optional.
     // The outer Optional determines if a response has been set. The inner Optional determines whether this response is null or a value
@@ -50,14 +50,14 @@ abstract class HttpRequest<T> {
      * Create a new request object that will connect to the given URL, and whose server reply will be interpreted by the response processor
      *
      * @param connectionType whether this request call is GET, POST, PUT
-     * @param urlString the relative URL of the resource being referred to by the request call (i.e. excluding the server URL)
+     * @param relativeUrlString the relative URL of the resource being referred to by the request call (i.e. excluding the server URL)
      * @param responseProcessor the object that will process the server's reply and produce an output of the parameterised type T
      * @param giftCloudProperties
      * @param reporter an object for reporting errors and warnings back to the user and/or program logs
      */
-    HttpRequest(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    HttpRequest(final HttpConnectionWrapper.ConnectionType connectionType, final String relativeUrlString, final HttpResponseProcessor<T> responseProcessor, GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         this.connectionType = connectionType;
-        this.urlString = urlString;
+        this.relativeUrlString = relativeUrlString;
         this.responseProcessor = responseProcessor;
         this.reporter = reporter;
         userAgentString = giftCloudProperties.getUserAgentString();
@@ -70,9 +70,9 @@ abstract class HttpRequest<T> {
      * @return the result object computed by the response processor based on the response from the server
      * @throws IOException if an error occurs during the server communication
      */
-    final T getResponse(final ConnectionFactory connectionFactory) throws IOException {
+    final T getResponse(final String baseUrlString, final ConnectionFactory connectionFactory) throws IOException {
         if (!response.isPresent()) {
-            doRequest(connectionFactory);
+            doRequest(baseUrlString, connectionFactory);
         }
         // The value of the response should now be set to an Optional - if this inner opttional is not set, that indicates a null value
         return response.get().orElse(null);
@@ -105,15 +105,16 @@ abstract class HttpRequest<T> {
      */
     abstract protected void processOutputStream(final HttpConnectionWrapper connectionWrapper) throws IOException;
 
-    private void doRequest(final ConnectionFactory connectionFactory) throws IOException {
+    private void doRequest(final String baseUrlString, final ConnectionFactory connectionFactory) throws IOException {
 
         try {
-            final HttpConnectionBuilder connectionBuilder = new HttpConnectionBuilder(urlString);
+            final HttpConnectionBuilder connectionBuilder = new HttpConnectionBuilder(relativeUrlString);
 
             prepareConnection(connectionBuilder);
 
             // Build the connection
-            final HttpConnectionWrapper connection = connectionFactory.createConnection(urlString, connectionBuilder);
+            final String fullUrl = HttpRequest.getFullUrl(baseUrlString, relativeUrlString);
+            final HttpConnectionWrapper connection = connectionFactory.createConnection(fullUrl, connectionBuilder);
 
             // Send data to the connection if required
             processOutputStream(connection);
@@ -192,6 +193,28 @@ abstract class HttpRequest<T> {
             default:
                 throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), MultiUploaderUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
         }
+    }
+
+    /** Combine the base URL with a relative path, while ensuring there is exactly one / character between them
+     * @param baseUrlString the URI of the server
+     * @param relativePath the location relative to the base URI
+     * @return the full URI string
+     */
+    private static final String getFullUrl(final String baseUrlString, final String relativePath) {
+        final StringBuilder sb = new StringBuilder(baseUrlString);
+
+        // Remove any trailing '/' characters from the base URL
+        while (sb.length() > 0 && sb.charAt(sb.length() - 1) == '/') {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+
+        // Now add a single '/' only if one isn't already present in the appended relative path
+        if ('/' != relativePath.charAt(0)) {
+            sb.append('/');
+        }
+        sb.append(relativePath);
+
+        return sb.toString();
     }
 
 }

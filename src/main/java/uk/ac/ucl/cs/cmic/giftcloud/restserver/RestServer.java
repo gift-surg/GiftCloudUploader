@@ -40,11 +40,11 @@ public class RestServer {
     private GiftCloudProperties giftCloudProperties;
     private GiftCloudReporter reporter;
 
-    public RestServer(final GiftCloudProperties giftCloudProperties, final String baseUrl, final GiftCloudReporter reporter) throws MalformedURLException {
+    public RestServer(final String baseUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
 
-        giftCloudSession = new GiftCloudSession(giftCloudProperties, new HttpConnectionFactory(baseUrl), reporter);
+        giftCloudSession = new GiftCloudSession(baseUrlString, giftCloudProperties, connectionFactory, reporter);
     }
 
     public void tryAuthentication() throws IOException {

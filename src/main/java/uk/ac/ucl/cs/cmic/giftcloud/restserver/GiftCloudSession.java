@@ -17,15 +17,18 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Optional;
 
 class GiftCloudSession {
 
     private final GiftCloudAuthentication giftCloudAuthentication;
+    private String baseUrlString;
 
 
-    GiftCloudSession(final GiftCloudProperties giftCloudProperties, final HttpConnectionFactory connectionFactory, final GiftCloudReporter reporter) {
-        giftCloudAuthentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, new GiftCloudLoginAuthenticator(reporter.getContainer(), giftCloudProperties), reporter);
+    GiftCloudSession(final String baseUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
+        this.baseUrlString = baseUrlString;
+        giftCloudAuthentication = new GiftCloudAuthentication(baseUrlString, connectionFactory, giftCloudProperties, new GiftCloudLoginAuthenticator(reporter.getContainer(), giftCloudProperties), reporter);
     }
 
     <T> T request(final HttpRequest request) throws IOException {
@@ -35,7 +38,7 @@ class GiftCloudSession {
         giftCloudAuthentication.tryAuthentication();
 
         try {
-            return (T) request.getResponse(giftCloudAuthentication.getAuthenticatedConnectionFactory());
+            return (T) request.getResponse(baseUrlString, giftCloudAuthentication.getAuthenticatedConnectionFactory());
 
         } catch (AuthorisationFailureException exception) {
 
@@ -43,7 +46,7 @@ class GiftCloudSession {
             giftCloudAuthentication.forceAuthentication();
 
             // Then try and connect again. We allow any further AuthorisationFailureException to fall through
-            return (T) request.getResponse(giftCloudAuthentication.getAuthenticatedConnectionFactory());
+            return (T) request.getResponse(baseUrlString, giftCloudAuthentication.getAuthenticatedConnectionFactory());
 
         }
     }

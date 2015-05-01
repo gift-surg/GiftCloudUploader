@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.ConnectionFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
@@ -12,11 +13,13 @@ import java.util.Optional;
 public class GiftCloudServerFactory {
 
     private Optional<GiftCloudServer> giftCloudServer = Optional.empty();
+    private ConnectionFactory connectionFactory;
     private GiftCloudProperties properties;
     private ProjectListModel projectListModel;
     private GiftCloudReporter reporter;
 
-    public GiftCloudServerFactory(final GiftCloudProperties properties, final ProjectListModel projectListModel, final GiftCloudReporter reporter) {
+    public GiftCloudServerFactory(final ConnectionFactory connectionFactory, final GiftCloudProperties properties, final ProjectListModel projectListModel, final GiftCloudReporter reporter) {
+        this.connectionFactory = connectionFactory;
         this.properties = properties;
         this.projectListModel = projectListModel;
         this.reporter = reporter;
@@ -39,7 +42,7 @@ public class GiftCloudServerFactory {
             // The project list is no longer valid. We will update it after creating a new GiftCloudAutoUploader, but if that throws an exception, we want to leave the project list model in an invalid state
             projectListModel.invalidate();
 
-            giftCloudServer = Optional.of(new GiftCloudServer(giftCloudUrl, properties, reporter));
+            giftCloudServer = Optional.of(new GiftCloudServer(giftCloudUrl, connectionFactory, properties, reporter));
 
             // Now update the project list
             projectListModel.setItems(giftCloudServer.get().getListOfProjects());

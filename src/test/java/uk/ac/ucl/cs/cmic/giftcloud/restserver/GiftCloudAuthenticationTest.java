@@ -15,6 +15,7 @@ import java.util.concurrent.CancellationException;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class GiftCloudAuthenticationTest {
@@ -38,7 +39,6 @@ public class GiftCloudAuthenticationTest {
         when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
-        when(connectionFactory.getBaseUrl()).thenReturn(url);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
@@ -53,7 +53,7 @@ public class GiftCloudAuthenticationTest {
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
 
         {
             // An authorisation failure should throw an exception
@@ -92,7 +92,6 @@ public class GiftCloudAuthenticationTest {
         when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
-        when(connectionFactory.getBaseUrl()).thenReturn(url);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
@@ -110,7 +109,7 @@ public class GiftCloudAuthenticationTest {
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
 
         {
             // Login with cookie string
@@ -135,7 +134,6 @@ public class GiftCloudAuthenticationTest {
         when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
-        when(connectionFactory.getBaseUrl()).thenReturn(url);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
@@ -150,7 +148,7 @@ public class GiftCloudAuthenticationTest {
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
 
         {
             // An authorisation failure should throw an exception
@@ -171,7 +169,6 @@ public class GiftCloudAuthenticationTest {
         final URL url = new URL(urlString);
         final String cookieString = "CookieOne";
         final Optional<String> emptyOptional = Optional.empty();
-        final Optional<char[]> emptyOptionalArray = Optional.empty();
         final String userName = "UserName";
         final String password = "Password";
 
@@ -179,7 +176,6 @@ public class GiftCloudAuthenticationTest {
         when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
-        when(connectionFactory.getBaseUrl()).thenReturn(url);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
@@ -193,7 +189,7 @@ public class GiftCloudAuthenticationTest {
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
 
         // Login with username and password
         when(connectionWrapper.getResponseCode()).thenReturn(HTTP_OK);
@@ -213,7 +209,6 @@ public class GiftCloudAuthenticationTest {
         when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
-        when(connectionFactory.getBaseUrl()).thenReturn(url);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
@@ -229,7 +224,7 @@ public class GiftCloudAuthenticationTest {
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
 
         // The authenticator has been set to cancel, and no cookie is valid, so an authorisation failure exception should be thrown
         when(connectionWrapper.getResponseCode()).thenReturn(HTTP_UNAUTHORIZED);
@@ -276,7 +271,6 @@ public class GiftCloudAuthenticationTest {
         final Optional<char[]> emptyOptionalArray = Optional.empty();
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
-        when(connectionFactory.getBaseUrl()).thenReturn(url);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
         when(giftCloudProperties.getUserAgentString()).thenReturn("TestUserAgent");
@@ -287,7 +281,7 @@ public class GiftCloudAuthenticationTest {
         final Authenticator authenticator = mock(Authenticator.class);
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
         final HttpConnectionBuilder connectionBuilder = mock(HttpConnectionBuilder.class);
 
         final ConnectionFactory authenticatedConnectionFactory = authentication.getAuthenticatedConnectionFactory();
