@@ -48,7 +48,8 @@ abstract class HttpRequest<T> {
 
     /**
      * Create a new request object that will connect to the given URL, and whose server reply will be interpreted by the response processor
-     *  @param connectionType whether this request call is GET, POST, PUT
+     *
+     * @param connectionType whether this request call is GET, POST, PUT
      * @param urlString the relative URL of the resource being referred to by the request call (i.e. excluding the server URL)
      * @param responseProcessor the object that will process the server's reply and produce an output of the parameterised type T
      * @param giftCloudProperties
