@@ -34,13 +34,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class RestServer {
+public class RestServerSessionHelper {
 
     private final GiftCloudSession giftCloudSession;
     private GiftCloudProperties giftCloudProperties;
     private GiftCloudReporter reporter;
 
-    public RestServer(final String baseUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
+    public RestServerSessionHelper(final String baseUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
 
