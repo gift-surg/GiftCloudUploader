@@ -23,7 +23,7 @@ abstract class HttpResponseProcessor<T> {
 
     abstract protected T streamFromConnection(final InputStream inputStream) throws IOException;
 
-    final T processInputStream(final HttpConnectionWrapper connection) throws IOException {
+    final T processInputStream(final HttpConnection connection) throws IOException {
 
         return new CloseableResource<T, InputStream>() {
             @Override

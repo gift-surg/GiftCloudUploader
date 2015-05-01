@@ -17,14 +17,14 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-public class HttpConnectionFactory implements ConnectionFactory {
+public class HttpMockConnectionFactory implements ConnectionFactory {
 
-    public HttpConnectionFactory() {
+    public HttpMockConnectionFactory() {
         HttpURLConnection.setFollowRedirects(false);
     }
 
     @Override
     public HttpConnection createConnection(final String fullUrl, final HttpConnectionBuilder connectionBuilder) throws IOException {
-        return connectionBuilder.buildHttpURLConnection(new HttpConnectionWrapper(fullUrl));
+        return connectionBuilder.buildHttpURLConnection(new FakeHttpConnectionWrapper(fullUrl));
     }
 }

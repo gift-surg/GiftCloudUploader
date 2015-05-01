@@ -103,7 +103,7 @@ abstract class HttpRequest<T> {
      * @param connectionWrapper the connection interface to be used to write to the output stream
      * @throws IOException may be thrown by the implementing methods during writing to the output stream
      */
-    abstract protected void processOutputStream(final HttpConnectionWrapper connectionWrapper) throws IOException;
+    abstract protected void processOutputStream(final HttpConnection connectionWrapper) throws IOException;
 
     private void doRequest(final String baseUrlString, final ConnectionFactory connectionFactory) throws IOException {
 
@@ -114,7 +114,7 @@ abstract class HttpRequest<T> {
 
             // Build the connection
             final String fullUrl = HttpRequest.getFullUrl(baseUrlString, relativeUrlString);
-            final HttpConnectionWrapper connection = connectionFactory.createConnection(fullUrl, connectionBuilder);
+            final HttpConnection connection = connectionFactory.createConnection(fullUrl, connectionBuilder);
 
             // Send data to the connection if required
             processOutputStream(connection);
@@ -150,7 +150,7 @@ abstract class HttpRequest<T> {
     protected void cleanup() {
     }
 
-    private void throwIfBadResponse(final HttpConnectionWrapper connection) throws IOException {
+    private void throwIfBadResponse(final HttpConnection connection) throws IOException {
 
         final String urlString = connection.getUrlString();
         final URL url = connection.getURL();

@@ -43,7 +43,7 @@ public class HttpConnectionBuilder {
         this.urlString = urlString;
     }
 
-    HttpConnectionWrapper buildHttpURLConnection(final HttpConnectionWrapper connection) throws IOException {
+    HttpConnection buildHttpURLConnection(final HttpConnection connection) throws IOException {
         if (connectionType.isPresent()) {
             connection.setRequestMethod(connectionType.get().getMethodString());
         } else {

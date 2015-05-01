@@ -17,5 +17,5 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import java.io.IOException;
 
 public interface ConnectionFactory {
-    HttpConnectionWrapper createConnection(final String fullUrl, final HttpConnectionBuilder connectionBuilder) throws IOException;
+    HttpConnection createConnection(final String fullUrl, final HttpConnectionBuilder connectionBuilder) throws IOException;
 }

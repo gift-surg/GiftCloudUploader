@@ -51,7 +51,7 @@ public class EcatUploadPostRequest extends HttpRequestWithOutput<Void> {
 	public EcatUploadPostRequest(final String urlString, final File f,
                                  final String project, final String subject, final String session, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter)
 	throws IOException {
-		super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter);
+		super(HttpConnection.ConnectionType.POST, urlString, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter);
 
         this.f = f;
 		size = (int)f.length();

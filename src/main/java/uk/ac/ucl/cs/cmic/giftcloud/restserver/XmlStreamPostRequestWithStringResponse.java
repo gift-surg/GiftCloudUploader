@@ -17,7 +17,7 @@ class XmlStreamPostRequestWithStringResponse extends HttpRequestWithOutput<Strin
     private final InputStream in;
 
     XmlStreamPostRequestWithStringResponse(final String urlString, final InputStream in, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
-        super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpStringResponseProcessor(), giftCloudProperties, reporter);
+        super(HttpConnection.ConnectionType.POST, urlString, new HttpStringResponseProcessor(), giftCloudProperties, reporter);
 
         this.in = in;
     }

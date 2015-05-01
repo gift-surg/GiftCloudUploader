@@ -26,7 +26,7 @@ class ConnectionFactoryWithCookie implements ConnectionFactory {
         this.cookie = cookie;
     }
 
-    public HttpConnectionWrapper createConnection(final String fullUrl, final HttpConnectionBuilder connectionBuilder) throws IOException {
+    public HttpConnection createConnection(final String fullUrl, final HttpConnectionBuilder connectionBuilder) throws IOException {
 
         connectionBuilder.setCookie(cookie.getFormattedCookieString());
 

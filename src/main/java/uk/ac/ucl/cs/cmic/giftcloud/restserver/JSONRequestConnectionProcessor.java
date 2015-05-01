@@ -39,7 +39,7 @@ class JSONRequestConnectionProcessor extends HttpRequestWithOutput<String> {
     private final JSONObject jsonObject;
 
     JSONRequestConnectionProcessor(final SessionParameters sessionParameters, final String urlString, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
-        super(HttpConnectionWrapper.ConnectionType.POST, urlString, new HttpStringResponseProcessor(), giftCloudProperties, reporter);
+        super(HttpConnection.ConnectionType.POST, urlString, new HttpStringResponseProcessor(), giftCloudProperties, reporter);
         this.jsonObject = buildCommitEntity(sessionParameters);
     }
 

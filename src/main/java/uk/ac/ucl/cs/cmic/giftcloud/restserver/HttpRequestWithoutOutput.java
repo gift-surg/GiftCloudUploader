@@ -30,7 +30,7 @@ class HttpRequestWithoutOutput<T> extends HttpRequest<T> {
         connectionBuilder.setDoInput(true);
     }
 
-    final protected void processOutputStream(HttpConnectionWrapper connection) throws IOException {
+    final protected void processOutputStream(HttpConnection connection) throws IOException {
     }
 
 }
