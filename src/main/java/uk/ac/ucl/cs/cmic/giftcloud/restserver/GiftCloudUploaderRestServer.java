@@ -41,7 +41,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-public class RestServerHelper implements RestServer {
+public class GiftCloudUploaderRestServer implements RestServer {
 
     private final RestServerSessionHelper restServerSessionHelper;
     private final GiftCloudReporter reporter;
@@ -56,7 +56,7 @@ public class RestServerHelper implements RestServer {
 
 
 
-    public RestServerHelper(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
+    public GiftCloudUploaderRestServer(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
         this.restServerSessionHelper = new RestServerSessionHelper(giftCloudServerUrlString, giftCloudProperties, connectionFactory, reporter);
         this.reporter = reporter;
     }
@@ -253,7 +253,7 @@ public class RestServerHelper implements RestServer {
 
     private final URL commitSessionAndGetSessionViewUrl(final String uri, final SessionParameters sessionParameters, final Optional<TimeZone> timeZone) throws Exception {
         final String response = commitSession(uri, sessionParameters, timeZone);
-        String resultPath = RestServerHelper.getWebAppRelativePath(sessionParameters.getBaseURL(), response);
+        String resultPath = GiftCloudUploaderRestServer.getWebAppRelativePath(sessionParameters.getBaseURL(), response);
         final URL result = new URL(sessionParameters.getBaseURL() + "/" + resultPath);
         return buildSessionViewURL(result, resultPath);
     }
