@@ -28,7 +28,7 @@ public class Project {
 
 	private final ExecutorService executor = Executors.newCachedThreadPool();
 	private final String name;
-	private final RestServerHelper restServerHelper;
+	private final RestServer restServer;
 	private final Future<Map<String,String>> subjects;
 	private final Set<Subject> newSubjects = Sets.newLinkedHashSet();	// locally added subjects
 	private final Future<Map<String,String>> sessions;
@@ -36,15 +36,15 @@ public class Project {
     private final Future<Set<String>> petTracers;
     private final Future<PrearchiveCode> prearchiveCode;
 
-	public Project(final String projectName, final RestServerHelper restServerHelper) {
+	public Project(final String projectName, final RestServer restServer) {
 		this.name = projectName;
-		this.restServerHelper = restServerHelper;
+		this.restServer = restServer;
 
-		sessions = executor.submit(new ProjectSessionLister(restServerHelper, projectName));
-		subjects = executor.submit(new ProjectSubjectLister(restServerHelper, projectName));
-        dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServerHelper, projectName, getDicomFunctions(sessions)));
-        petTracers = executor.submit(new PETTracerRetriever(restServerHelper, projectName));
-        prearchiveCode = executor.submit(new ProjectPreArcCodeRetriever(restServerHelper, projectName));
+		sessions = executor.submit(new ProjectSessionLister(restServer, projectName));
+		subjects = executor.submit(new ProjectSubjectLister(restServer, projectName));
+        dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServer, projectName, getDicomFunctions(sessions)));
+        petTracers = executor.submit(new PETTracerRetriever(restServer, projectName));
+        prearchiveCode = executor.submit(new ProjectPreArcCodeRetriever(restServer, projectName));
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class Project {
 		return m;
 	}
 
-	public RestServerHelper getRestServerHelper() { return restServerHelper; }
+	public RestServer getRestServerHelper() { return restServer; }
 
 	public Collection<Subject> getSubjects()
 	throws ExecutionException,InterruptedException {
@@ -120,7 +120,7 @@ public class Project {
 
 	public org.nrg.ecat.edit.ScriptApplicator getEcatScriptApplicator(final Session session)
 	throws InterruptedException,ExecutionException {
-        final Future<org.nrg.ecat.edit.ScriptApplicator> ecatScriptApplicator = executor.submit(new ECATScriptApplicatorRetriever(restServerHelper, name, getEcatFunctions(sessions, session)));
+        final Future<org.nrg.ecat.edit.ScriptApplicator> ecatScriptApplicator = executor.submit(new ECATScriptApplicatorRetriever(restServer, name, getEcatFunctions(sessions, session)));
 		return ecatScriptApplicator.get();
 	}
 

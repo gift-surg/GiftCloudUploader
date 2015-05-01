@@ -22,7 +22,7 @@ import org.netbeans.api.wizard.WizardDisplayer;
 import org.netbeans.api.wizard.WizardResultReceiver;
 import org.netbeans.spi.wizard.Wizard;
 import org.netbeans.spi.wizard.WizardPage;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -67,14 +67,14 @@ public class EDTHelper {
         return returner.getValue();
     }
 
-    public static SelectSubjectPage createSelectSubjectPage(final RestServerHelper restServerHelper, final Dimension dimension, final UploadSelector uploadSelector, final GiftCloudReporter reporter) throws InvocationTargetException, InterruptedException {
+    public static SelectSubjectPage createSelectSubjectPage(final RestServer restServer, final Dimension dimension, final UploadSelector uploadSelector, final GiftCloudReporter reporter) throws InvocationTargetException, InterruptedException {
 
         final RunnableReturner<SelectSubjectPage> returner =
                 new RunnableReturner<SelectSubjectPage>() {
                     private SelectSubjectPage result;
 
                     public void run() {
-                        result = new SelectSubjectPage(restServerHelper, dimension, uploadSelector, reporter);
+                        result = new SelectSubjectPage(restServer, dimension, uploadSelector, reporter);
                     }
 
                     public SelectSubjectPage getValue() {

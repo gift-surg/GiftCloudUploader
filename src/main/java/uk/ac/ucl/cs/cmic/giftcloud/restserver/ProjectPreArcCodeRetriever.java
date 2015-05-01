@@ -14,11 +14,11 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.PrearchiveCode;
 import java.util.concurrent.Callable;
 
 public class ProjectPreArcCodeRetriever implements Callable<PrearchiveCode> {
-    private final RestServerHelper restServerHelper;
+    private final RestServer restServer;
     private final String projectName;
 
-    public ProjectPreArcCodeRetriever(final RestServerHelper restServerHelper, final String projectName) {
-        this.restServerHelper = restServerHelper;
+    public ProjectPreArcCodeRetriever(final RestServer restServer, final String projectName) {
+        this.restServer = restServer;
         this.projectName = projectName;
     }
 
@@ -28,6 +28,6 @@ public class ProjectPreArcCodeRetriever implements Callable<PrearchiveCode> {
       */
     @Override
     public PrearchiveCode call() throws Exception {
-        return PrearchiveCode.code(restServerHelper.getPreArcCode(projectName));
+        return PrearchiveCode.code(restServer.getPreArcCode(projectName));
     }
 }

@@ -31,13 +31,13 @@ public final class DicomScriptApplicatorRetriever
 implements Callable<Iterable<ScriptApplicator>> {
 
     private final Logger logger = LoggerFactory.getLogger(DicomScriptApplicatorRetriever.class);
-    private final RestServerHelper restServerHelper;
+    private final RestServer restServer;
     private final String project, projBasePath;
     private final ScriptApplicatorFactory<ScriptApplicator> factory;
     private final Map<String, ScriptFunction> scriptFunctions;
 
-    public DicomScriptApplicatorRetriever(final RestServerHelper restServerHelper, final String project, final Map<String, ScriptFunction> scriptFunctions) {
-        this.restServerHelper = restServerHelper;
+    public DicomScriptApplicatorRetriever(final RestServer restServer, final String project, final Map<String, ScriptFunction> scriptFunctions) {
+        this.restServer = restServer;
         this.project = project;
         this.projBasePath = "/data/config/edit/projects/" + project + "/image/dicom/";
         this.factory = buildFactory(scriptFunctions);
@@ -67,7 +67,7 @@ implements Callable<Iterable<ScriptApplicator>> {
     public final Iterable<ScriptApplicator> call() throws Exception {
         final List<ScriptApplicator> applicators = Lists.newArrayList();
 
-        Optional<String> script = restServerHelper.getSiteWideAnonScript();
+        Optional<String> script = restServer.getSiteWideAnonScript();
         if (script.isPresent()) {
             // The site script is straightforward.
             final ScriptApplicator siteScript = new ScriptApplicator(new ByteArrayInputStream(script.get().getBytes()), scriptFunctions);
@@ -77,10 +77,10 @@ implements Callable<Iterable<ScriptApplicator>> {
         }
 
         // The project scripts are sort of complicated.
-        Collection<?> statusc =restServerHelper.getScriptStatus(project);
+        Collection<?> statusc = restServer.getScriptStatus(project);
         logger.trace("project {} script status: {}", project, statusc);
         if (statusc.contains("true")) {
-            Collection<?> scriptsc = restServerHelper.getScripts(project);
+            Collection<?> scriptsc = restServer.getScripts(project);
             logger.trace("project {} script text: {}", project, scriptsc);
             for (final Object scripto : scriptsc) {
                 if (null == scripto) continue;

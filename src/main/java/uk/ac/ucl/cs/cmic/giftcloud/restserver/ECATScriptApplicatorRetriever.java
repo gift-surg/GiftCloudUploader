@@ -22,9 +22,9 @@ import java.util.concurrent.Callable;
 public final class ECATScriptApplicatorRetriever
 extends BaseScriptApplicatorRetreiver<ScriptApplicator>
 implements Callable<ScriptApplicator> {
-	public ECATScriptApplicatorRetriever(final RestServerHelper restServerHelper, final String projectName,
+	public ECATScriptApplicatorRetriever(final RestServer restServer, final String projectName,
 			final Map<String,? extends ScriptFunction> scriptFunctions) {
-		super(restServerHelper, buildFactory(scriptFunctions), projectName
+		super(restServer, buildFactory(scriptFunctions), projectName
 				);
 	}
 	
@@ -39,6 +39,6 @@ implements Callable<ScriptApplicator> {
 	}
 
 	public ScriptApplicator call() throws Exception {
-        return restServerHelper.getApplicator(projectName, factory);
+        return restServer.getApplicator(projectName, factory);
     }
 }

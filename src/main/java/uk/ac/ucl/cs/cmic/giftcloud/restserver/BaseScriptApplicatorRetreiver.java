@@ -13,14 +13,14 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import java.util.concurrent.Callable;
 
 abstract class BaseScriptApplicatorRetreiver<ApplicatorT> implements Callable<ApplicatorT> {
-    protected final RestServerHelper restServerHelper;
+    protected final RestServer restServer;
     protected final String projectName;
     protected final ScriptApplicatorFactory<ApplicatorT> factory;
 
-    BaseScriptApplicatorRetreiver(final RestServerHelper restServerHelper,
+    BaseScriptApplicatorRetreiver(final RestServer restServer,
             final ScriptApplicatorFactory<ApplicatorT> factory,
             final String projectName) {
-        this.restServerHelper = restServerHelper;
+        this.restServer = restServer;
         this.factory = factory;
         this.projectName = projectName;
     }

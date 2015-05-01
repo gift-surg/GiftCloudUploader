@@ -12,8 +12,8 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import org.json.JSONException;
 import org.netbeans.spi.wizard.WizardPage;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Subject;
 import org.slf4j.Logger;
@@ -41,14 +41,14 @@ public class SelectSubjectPage extends WizardPage {
     private final Dimension dimension;
     private UploadSelector uploadSelector;
     private GiftCloudReporter reporter;
-    private final RestServerHelper restServerHelper;
+    private final RestServer restServer;
 
     public static String getDescription() {
         return STEP_DESCRIPTION;
     }
 
-    public SelectSubjectPage(final RestServerHelper restServerHelper, final Dimension dimension, final UploadSelector uploadSelector, final GiftCloudReporter reporter) {
-        this.restServerHelper = restServerHelper;
+    public SelectSubjectPage(final RestServer restServer, final Dimension dimension, final UploadSelector uploadSelector, final GiftCloudReporter reporter) {
+        this.restServer = restServer;
         this.dimension = dimension;
         this.uploadSelector = uploadSelector;
         this.reporter = reporter;
@@ -82,7 +82,7 @@ public class SelectSubjectPage extends WizardPage {
             refreshSubjectList();
             final JButton newSubject = new JButton("Create new subject");
 
-            final JDialog newSubjectDialog = new NewSubjectDialog(this, restServerHelper, uploadSelector.getProject());
+            final JDialog newSubjectDialog = new NewSubjectDialog(this, restServer, uploadSelector.getProject());
             newSubject.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     newSubjectDialog.setVisible(true);

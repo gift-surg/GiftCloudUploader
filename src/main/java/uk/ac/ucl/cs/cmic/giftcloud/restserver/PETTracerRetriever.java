@@ -24,11 +24,11 @@ public final class PETTracerRetriever implements Callable<Set<String>> {
     private static final String DEFAULT_TRACERS_RESOURCE = "/uk/ac/ucl/cs/cmic/giftcloud/PET-tracers.txt";
     private static final Set<String> defaultTracers = getDefaultTracers(DEFAULT_TRACERS_RESOURCE);
 
-    private final RestServerHelper restServerHelper;
+    private final RestServer restServer;
     private String projectName;
 
-    public PETTracerRetriever(final RestServerHelper restServerHelper, final String projectName) {
-        this.restServerHelper = restServerHelper;
+    public PETTracerRetriever(final RestServer restServer, final String projectName) {
+        this.restServer = restServer;
         this.projectName = projectName;
     }
 
@@ -37,9 +37,9 @@ public final class PETTracerRetriever implements Callable<Set<String>> {
             // check to see if we got back a status page instead of a list of tracers
             // if so, there's no project specific list, so just get the site list instead
             try {
-                return restServerHelper.getProjectTracers(projectName);
+                return restServer.getProjectTracers(projectName);
             } catch (Throwable t) {
-                return restServerHelper.getSiteTracers();
+                return restServer.getSiteTracers();
             }
         // Cancellation exceptions should terminate the whole operation, while other exceptions result in default behaviour
         } catch (CancellationException e) {

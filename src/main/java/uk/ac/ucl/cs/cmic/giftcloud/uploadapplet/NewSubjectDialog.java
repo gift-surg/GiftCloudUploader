@@ -11,7 +11,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import com.google.common.base.Strings;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Subject;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SubjectInformation;
@@ -41,16 +41,16 @@ public class NewSubjectDialog extends JDialog {
 
 	private final Logger logger = LoggerFactory.getLogger(NewSubjectDialog.class);
 	private final SelectSubjectPage page;
-	private final RestServerHelper restServerHelper;
+	private final RestServer restServer;
 	private final Project project;
 	private JPanel contents = null;
 
 
-	public NewSubjectDialog(final SelectSubjectPage page, final RestServerHelper restServerHelper, final Project project) {
+	public NewSubjectDialog(final SelectSubjectPage page, final RestServer restServer, final Project project) {
 		super(UIUtils.findParentFrame(page), TITLE, true);
 		setLocationRelativeTo(getOwner());
 		this.page = page;
-		this.restServerHelper = restServerHelper;
+		this.restServer = restServer;
 		this.project = project;
 		setContentPane(getContents());
 		pack();
@@ -59,7 +59,7 @@ public class NewSubjectDialog extends JDialog {
 	private void doCreateSubject(final String label) {
 		final Callable<Subject> doCreate = new Callable<Subject>() {
 			public Subject call() throws SubjectInformation.UploadSubjectException {
-				final SubjectInformation subjectInfo = new SubjectInformation(restServerHelper, project);
+				final SubjectInformation subjectInfo = new SubjectInformation(restServer, project);
 				subjectInfo.setLabel(label);
 				try {
 					final Subject subject = subjectInfo.uploadTo();

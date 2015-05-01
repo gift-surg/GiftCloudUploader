@@ -41,7 +41,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-public class RestServerHelper {
+public class RestServerHelper implements RestServer {
 
     private final RestServerSessionHelper restServerSessionHelper;
     private final GiftCloudReporter reporter;
@@ -61,55 +61,66 @@ public class RestServerHelper {
         this.reporter = reporter;
     }
 
+    @Override
     public void tryAuthentication() throws IOException {
         restServerSessionHelper.tryAuthentication();
     }
 
+    @Override
     public Vector<Object> getListOfProjects() throws IOException {
         final String uri = "/REST/projects?format=json&owner=true&member=true";
         return new Vector<Object>(restServerSessionHelper.getValues(uri, "id"));
     }
 
+    @Override
     public Map<String, String> getListOfSubjects(final String projectName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/subjects?format=json&columns=DEFAULT"; // Note: &columns=DEFAULT is for 1.4rc3 compatibility
         return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
+    @Override
     public Map<String, String> getListOfSessions(final String projectName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/experiments?format=json";
         return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
+    @Override
     public Map<String, String> getListOfScans(final String projectName, final String subjectName, final String sessionName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/" + sessionName + "/scans?format=json";
         return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
+    @Override
     public Map<String, String> getListOfPseudonyms(final String projectName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/pseudonyms?format=json";
         return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
+    @Override
     public Map<String, String> getListOfResources(final String projectName, final String subjectName, final String sessionName, final String scanName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/" + sessionName + "/scans/" + scanName + "/resources?format=json";
         return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
+    @Override
     public Optional<String> getSubjectPseudonym(final String projectName, final String ppid) throws IOException {
         final String uri = "/REST/projects/" + projectName + "/pseudonyms/" + ppid + "?format=json&columns=DEFAULT";
         return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
     }
 
+    @Override
     public Collection<?> getScriptStatus(final String projectName) throws IOException {
         String uri = "/data/config/edit/projects/" + projectName + "/image/dicom/status/?format=json"; // TD: added JSON field
         return restServerSessionHelper.getValues(uri, "edit");
     }
 
+    @Override
     public Collection<?> getScripts(final String projectName) throws IOException {
         final String uri = "/data/config/edit/projects/" + projectName + "/image/dicom/script";
         return restServerSessionHelper.getValues(uri, "script");
     }
 
+    @Override
     public synchronized Optional<String> getSiteWideAnonScript() throws IOException {
         if (!siteWideAnonScriptHasBeenRetrieved) {
             final Optional<String> result = restServerSessionHelper.getUsingJsonExtractor("/data/config/anon/script?format=json");
@@ -124,41 +135,49 @@ public class RestServerHelper {
     }
 
 
+    @Override
     public Optional<Map<String, String>> getSitewideSeriesImportFilter() throws IOException, JSONException {
         final String uri = "/data/config/seriesImportFilter/config?format=json";
         return restServerSessionHelper.getUsingJsonExtractor(uri);
     }
 
+    @Override
     public Optional<Map<String, String>> getProjectSeriesImportFilter(String projectName) throws IOException, JSONException {
         final String uri = "/data/projects/" + projectName + "/config/seriesImportFilter/config?format=json";
         return restServerSessionHelper.getUsingJsonExtractor(uri);
     }
 
+    @Override
     public String getPreArcCode(final String projectName) throws Exception {
         final String uri = String.format("/data/archive/projects/%s/prearchive_code", projectName);
         return restServerSessionHelper.getString(uri);
     }
 
+    @Override
     public Set<String> getProjectTracers(final String projectName) throws Exception {
         final String uri = "/REST/projects/" + projectName + "/config/tracers/tracers?contents=true";
         return restServerSessionHelper.getStringList(uri);
     }
 
+    @Override
     public Set<String> getSiteTracers() throws Exception {
         final String uri = "/REST/config/tracers/tracers?contents=true";
         return restServerSessionHelper.getStringList(uri);
     }
 
+    @Override
     public <ApplicatorT> ApplicatorT getApplicator(final String projectName, final ScriptApplicatorFactory<ApplicatorT> factory) throws Exception {
         final String uri = "/REST/projects/" + projectName + "/resources/UPLOAD_CONFIG/files/ecat.eas";
         return restServerSessionHelper.getApplicator(uri, factory);
     }
 
+    @Override
     public String uploadSubject(final String projectName, final InputStream xmlStream) throws Exception {
         final String uri = "/REST/projects/" + projectName + "/subjects";
         return restServerSessionHelper.getStringFromStream(uri, xmlStream);
     }
 
+    @Override
     public UploadResult uploadToEcat(final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final GiftCloudReporter logger) {
 
 
@@ -185,6 +204,7 @@ public class RestServerHelper {
     }
 
 
+    @Override
     public UploadResult closeSession(final String uri, final SessionParameters sessionParameters, final Map<FileCollection, Throwable> failures, final Optional<TimeZone> timeZone) {
         final String adminEmail = sessionParameters.getAdminEmail();
         final String sessionLabel = sessionParameters.getSessionLabel();
@@ -312,6 +332,7 @@ public class RestServerHelper {
     }
 
 
+    @Override
     public Set<String> uploadZipFile(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
 
         final String visit = sessionParameters.getVisit();
@@ -375,6 +396,7 @@ public class RestServerHelper {
         }
     }
 
+    @Override
     public synchronized void createPseudonymIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
         final Optional<String> pseuodynym = getSubjectPseudonym(projectLabel, subjectLabel);
         if (!pseuodynym.isPresent()) {
@@ -383,6 +405,7 @@ public class RestServerHelper {
         }
     }
 
+    @Override
     public Set<String> appendZipFileToExistingScan(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
 
         createSubjectIfNotExisting(projectLabel, subjectLabel);
@@ -413,6 +436,7 @@ public class RestServerHelper {
         return restServerSessionHelper.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators, progress);
     }
 
+    @Override
     public void uploadEcat(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final String timestamp, final String timeZoneId, final File file, final int fileNumber) throws Exception {
 
         final String visit = sessionParameters.getVisit();
@@ -439,6 +463,7 @@ public class RestServerHelper {
     }
 
 
+    @Override
     public void resetCancellation() {
         restServerSessionHelper.resetCancellation();
     }

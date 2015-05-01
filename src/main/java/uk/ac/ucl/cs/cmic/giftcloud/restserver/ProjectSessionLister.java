@@ -27,11 +27,11 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public final class ProjectSessionLister implements Callable<Map<String,String>> {
-	private final RestServerHelper restServerHelper;
+	private final RestServer restServer;
 	private final String projectName;
 	
-	public ProjectSessionLister(final RestServerHelper restServerHelper, final String projectName) {
-		this.restServerHelper = restServerHelper;
+	public ProjectSessionLister(final RestServer restServer, final String projectName) {
+		this.restServer = restServer;
 		this.projectName = projectName;
 	}
 
@@ -41,6 +41,6 @@ public final class ProjectSessionLister implements Callable<Map<String,String>> 
 	 */
 	public Map<String,String> call()
             throws IOException, JSONException {
-		return restServerHelper.getListOfSessions(projectName);
+		return restServer.getListOfSessions(projectName);
 	}
 }

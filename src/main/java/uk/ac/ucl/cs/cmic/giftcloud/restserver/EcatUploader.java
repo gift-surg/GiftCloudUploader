@@ -16,7 +16,7 @@ public class EcatUploader {
     private static final String TIMESTAMP_FORMAT = "yyyyMMdd_HHmmss";
 
     private final Queue<File> fileStack = new LinkedList<File>();
-    private RestServerHelper restServerHelper;
+    private RestServer restServer;
     private final String projectLabel;
     private final String subjectLabel;
     private final SessionParameters sessionParameters;
@@ -28,8 +28,8 @@ public class EcatUploader {
     final Map<File, Object> failures = Maps.newLinkedHashMap();
 
 
-    public EcatUploader(final RestServerHelper restServerHelper, final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final GiftCloudReporter logger) {
-        this.restServerHelper = restServerHelper;
+    public EcatUploader(final RestServer restServer, final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final GiftCloudReporter logger) {
+        this.restServer = restServer;
         this.projectLabel = projectLabel;
         this.subjectLabel = subjectLabel;
         this.sessionParameters = sessionParameters;
@@ -60,7 +60,7 @@ public class EcatUploader {
             try {
                 logger.updateStatusText(String.format("Uploading scan %d/%d", i, size));
                 logger.updateProgressBar(i - 1, size);
-                restServerHelper.uploadEcat(projectLabel, subjectLabel, sessionParameters, timestamp, timeZone.getID(), nextFile, i);
+                restServer.uploadEcat(projectLabel, subjectLabel, sessionParameters, timestamp, timeZone.getID(), nextFile, i);
                 break;
 
             } catch (CancellationException exception) {

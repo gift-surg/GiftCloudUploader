@@ -24,9 +24,9 @@ import com.google.common.collect.Lists;
 import org.netbeans.api.wizard.WizardDisplayer;
 import org.netbeans.api.wizard.WizardResultReceiver;
 import org.netbeans.spi.wizard.WizardPage;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionParams;
 
 import java.awt.*;
@@ -41,9 +41,9 @@ public class MultiUploadWizard implements WizardResultReceiver {
     private GiftCloudReporter reporter;
     private String giftCloudUrl;
 
-    public MultiUploadWizard(final GiftCloudServer server, final RestServerHelper restServerHelper, final Dimension dimension, final MultiUploadParameters multiUploadParameters, final String giftCloudUrl, final GiftCloudReporter reporter) throws InvocationTargetException, InterruptedException, ExecutionException {
+    public MultiUploadWizard(final GiftCloudServer server, final RestServer restServer, final Dimension dimension, final MultiUploadParameters multiUploadParameters, final String giftCloudUrl, final GiftCloudReporter reporter) throws InvocationTargetException, InterruptedException, ExecutionException {
         this.giftCloudUrl = giftCloudUrl;
-        final UploadSelector uploadSelector = new UploadSelector(restServerHelper, multiUploadParameters, reporter);
+        final UploadSelector uploadSelector = new UploadSelector(restServer, multiUploadParameters, reporter);
 
         this.reporter = reporter;
         final Optional<String> projectName = multiUploadParameters.getProjectName();
@@ -56,7 +56,7 @@ public class MultiUploadWizard implements WizardResultReceiver {
         }
 
         if (!uploadSelector.isSubjectSet()) {
-            pages.add(EDTHelper.createSelectSubjectPage(restServerHelper, dimension, uploadSelector, reporter));
+            pages.add(EDTHelper.createSelectSubjectPage(restServer, dimension, uploadSelector, reporter));
         }
 
         if (!uploadSelector.getDateFromSession() && !uploadSelector.isDateSet()) {
@@ -69,7 +69,7 @@ public class MultiUploadWizard implements WizardResultReceiver {
         pages.add(EDTHelper.createSelectSessionPage(server, projectName, fileSelector, uploadSelector));
         pages.add(EDTHelper.createAssignSessionVariablesPage(uploadSelector));
 
-        restServerHelper.resetCancellation();
+        restServer.resetCancellation();
 
         final WizardDisplayer displayer = EDTHelper.createAndInstallWizard(server, pages, reporter.getContainer(), params.getParams(), this, reporter);
         displayer.setCloseHandler(closeHandler);

@@ -16,7 +16,7 @@ public class GiftCloudServer {
 
     private final String giftCloudServerUrlString;
     private final GiftCloudReporter reporter;
-    private final RestServerHelper restServerHelper;
+    private final RestServer restServer;
     private final URI giftCloudUri;
 
     public GiftCloudServer(final String giftCloudServerUrlString, final ConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
@@ -33,19 +33,19 @@ public class GiftCloudServer {
             throw new MalformedURLException("The GIFT-Cloud server name " + giftCloudServerUrlString + " is not a valid URL.");
         }
 
-        restServerHelper = new RestServerHelper(giftCloudServerUrlString, giftCloudProperties, connectionFactory, reporter);
+        restServer = new RestServerHelper(giftCloudServerUrlString, giftCloudProperties, connectionFactory, reporter);
     }
 
     public void tryAuthentication() throws IOException {
-        restServerHelper.tryAuthentication();
+        restServer.tryAuthentication();
     }
 
     public Vector<Object> getListOfProjects() throws IOException {
-        return restServerHelper.getListOfProjects();
+        return restServer.getListOfProjects();
     }
 
     public void resetCancellation() {
-        restServerHelper.resetCancellation();
+        restServer.resetCancellation();
     }
 
     public boolean matchesServer(final String giftCloudUrl) throws MalformedURLException {
@@ -57,8 +57,8 @@ public class GiftCloudServer {
         }
     }
 
-    public RestServerHelper getRestServerHelper() {
-        return restServerHelper;
+    public RestServer getRestServerHelper() {
+        return restServer;
     }
 
     public String getGiftCloudServerUrl() {
@@ -66,19 +66,19 @@ public class GiftCloudServer {
     }
 
     public Map<String,String> getListOfSubjects(final String projectName) throws IOException {
-        return restServerHelper.getListOfSubjects(projectName);
+        return restServer.getListOfSubjects(projectName);
     }
 
     public Map<String, String> getListOfSessions(final String projectName) throws IOException {
-        return restServerHelper.getListOfSessions(projectName);
+        return restServer.getListOfSessions(projectName);
     }
 
     public Optional<Map<String, String>> getSitewideSeriesImportFilter() throws IOException {
-        return restServerHelper.getSitewideSeriesImportFilter();
+        return restServer.getSitewideSeriesImportFilter();
     }
 
     public Optional<Map<String, String>> getProjectSeriesImportFilter(final String projectName) throws IOException {
-        return restServerHelper.getProjectSeriesImportFilter(projectName);
+        return restServer.getProjectSeriesImportFilter(projectName);
     }
 
     public UploadResult uploadToStudy(final boolean append, List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) {
@@ -99,14 +99,14 @@ public class GiftCloudServer {
 
         final String uri = uris.iterator().next();
         final Optional<TimeZone> timeZone = Optional.empty();
-        return restServerHelper.closeSession(uri, sessionParameters, uploader.getFailures(), timeZone);
+        return restServer.closeSession(uri, sessionParameters, uploader.getFailures(), timeZone);
     }
 
     public void createPseudonymIfNotExisting(final String projectName, final String subjectName, final String hashedPatientId) throws IOException {
-        restServerHelper.createPseudonymIfNotExisting(projectName, subjectName, hashedPatientId);
+        restServer.createPseudonymIfNotExisting(projectName, subjectName, hashedPatientId);
     }
 
     public Optional<String> getSubjectPseudonym(final String projectName, final String hashedPatientId) throws IOException {
-        return restServerHelper.getSubjectPseudonym(projectName, hashedPatientId);
+        return restServer.getSubjectPseudonym(projectName, hashedPatientId);
     }
 }

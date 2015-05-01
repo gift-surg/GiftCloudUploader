@@ -23,9 +23,9 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Subject;
@@ -47,11 +47,11 @@ public class UploadSelector {
     private Optional<String> windowName = Optional.empty();
     private boolean fetchDateFromSession = false;
 
-    private RestServerHelper restServerHelper;
+    private RestServer restServer;
     private GiftCloudReporter reporter;
 
-    public UploadSelector(RestServerHelper restServerHelper, MultiUploadParameters multiUploadParameters, GiftCloudReporter reporter) throws ExecutionException, InterruptedException {
-        this.restServerHelper = restServerHelper;
+    public UploadSelector(RestServer restServer, MultiUploadParameters multiUploadParameters, GiftCloudReporter reporter) throws ExecutionException, InterruptedException {
+        this.restServer = restServer;
         this.reporter = reporter;
 
         final String paramWindowName = multiUploadParameters.getParameter(MultiUploadParameters.WINDOW_NAME);
@@ -133,7 +133,7 @@ public class UploadSelector {
         if (project.isPresent()) {
             throw new RuntimeException("A Project has already been created");
         }
-        project = Optional.of(new Project(name, restServerHelper));
+        project = Optional.of(new Project(name, restServer));
     }
 
     /**
@@ -141,7 +141,7 @@ public class UploadSelector {
      *
      */
     public Vector<Object> getListOfProjects() throws IOException {
-        return restServerHelper.getListOfProjects();
+        return restServer.getListOfProjects();
     }
 
 

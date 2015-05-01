@@ -25,18 +25,18 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerHelper;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class SubjectInformation {
-	private final RestServerHelper restServerHelper;
+	private final RestServer restServer;
 	private final Project project;
 
 	private String label;
 
-	public SubjectInformation(RestServerHelper restServerHelper, Project project) {
-		this.restServerHelper = restServerHelper;
+	public SubjectInformation(RestServer restServer, Project project) {
+		this.restServer = restServer;
 		this.project = project;
 
 	}
@@ -45,7 +45,7 @@ public class SubjectInformation {
 		try {
 			final InputStream xmlStream = createProcessorStream();
 
-			final String response = restServerHelper.uploadSubject(project.toString(), xmlStream);
+			final String response = restServer.uploadSubject(project.toString(), xmlStream);
 
 			// parse out id from response
 			return new Subject(label, parseId(response));

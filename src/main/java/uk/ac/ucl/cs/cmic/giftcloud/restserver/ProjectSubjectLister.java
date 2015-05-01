@@ -27,11 +27,11 @@ import java.util.concurrent.Callable;
 import org.json.JSONException;
 
 public final class ProjectSubjectLister implements Callable<Map<String,String>> {
-	private final RestServerHelper restServerHelper;
+	private final RestServer restServer;
 	private final String projectName;
 
-	public ProjectSubjectLister(final RestServerHelper restServerHelper, final String projectName) {
-		this.restServerHelper = restServerHelper;
+	public ProjectSubjectLister(final RestServer restServer, final String projectName) {
+		this.restServer = restServer;
 		this.projectName = projectName;
 	}
 
@@ -40,6 +40,6 @@ public final class ProjectSubjectLister implements Callable<Map<String,String>> 
 	 * @see java.util.concurrent.Callable#call()
 	 */
 	public Map<String,String> call() throws IOException, JSONException {
-		return restServerHelper.getListOfSubjects(projectName);
+		return restServer.getListOfSubjects(projectName);
 	}
 }
