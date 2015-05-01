@@ -43,7 +43,7 @@ import java.util.*;
 
 public class RestServerHelper {
 
-    private final RestServer restServer;
+    private final RestServerSessionHelper restServerSessionHelper;
     private final GiftCloudReporter reporter;
 
     // Access to these members is through a synchronized method to ensure thread safety
@@ -57,62 +57,62 @@ public class RestServerHelper {
 
 
     public RestServerHelper(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
-        this.restServer = new RestServer(giftCloudServerUrlString, giftCloudProperties, connectionFactory, reporter);
+        this.restServerSessionHelper = new RestServerSessionHelper(giftCloudServerUrlString, giftCloudProperties, connectionFactory, reporter);
         this.reporter = reporter;
     }
 
     public void tryAuthentication() throws IOException {
-        restServer.tryAuthentication();
+        restServerSessionHelper.tryAuthentication();
     }
 
     public Vector<Object> getListOfProjects() throws IOException {
         final String uri = "/REST/projects?format=json&owner=true&member=true";
-        return new Vector<Object>(restServer.getValues(uri, "id"));
+        return new Vector<Object>(restServerSessionHelper.getValues(uri, "id"));
     }
 
     public Map<String, String> getListOfSubjects(final String projectName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/subjects?format=json&columns=DEFAULT"; // Note: &columns=DEFAULT is for 1.4rc3 compatibility
-        return restServer.getAliases(uri, "label", "ID");
+        return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
     public Map<String, String> getListOfSessions(final String projectName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/experiments?format=json";
-        return restServer.getAliases(uri, "label", "ID");
+        return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
     public Map<String, String> getListOfScans(final String projectName, final String subjectName, final String sessionName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/" + sessionName + "/scans?format=json";
-        return restServer.getAliases(uri, "label", "ID");
+        return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
     public Map<String, String> getListOfPseudonyms(final String projectName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/pseudonyms?format=json";
-        return restServer.getAliases(uri, "label", "ID");
+        return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
     public Map<String, String> getListOfResources(final String projectName, final String subjectName, final String sessionName, final String scanName) throws IOException, JSONException {
         final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/" + sessionName + "/scans/" + scanName + "/resources?format=json";
-        return restServer.getAliases(uri, "label", "ID");
+        return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
     public Optional<String> getSubjectPseudonym(final String projectName, final String ppid) throws IOException {
         final String uri = "/REST/projects/" + projectName + "/pseudonyms/" + ppid + "?format=json&columns=DEFAULT";
-        return restServer.getPpidAlias(uri, "label", "ID");
+        return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
     }
 
     public Collection<?> getScriptStatus(final String projectName) throws IOException {
         String uri = "/data/config/edit/projects/" + projectName + "/image/dicom/status/?format=json"; // TD: added JSON field
-        return restServer.getValues(uri, "edit");
+        return restServerSessionHelper.getValues(uri, "edit");
     }
 
     public Collection<?> getScripts(final String projectName) throws IOException {
         final String uri = "/data/config/edit/projects/" + projectName + "/image/dicom/script";
-        return restServer.getValues(uri, "script");
+        return restServerSessionHelper.getValues(uri, "script");
     }
 
     public synchronized Optional<String> getSiteWideAnonScript() throws IOException {
         if (!siteWideAnonScriptHasBeenRetrieved) {
-            final Optional<String> result = restServer.getUsingJsonExtractor("/data/config/anon/script?format=json");
+            final Optional<String> result = restServerSessionHelper.getUsingJsonExtractor("/data/config/anon/script?format=json");
             if (result.isPresent() && StringUtils.isNotBlank(result.get())) {
                 siteWideAnonScript = Optional.of(result.get());
             }
@@ -126,37 +126,37 @@ public class RestServerHelper {
 
     public Optional<Map<String, String>> getSitewideSeriesImportFilter() throws IOException, JSONException {
         final String uri = "/data/config/seriesImportFilter/config?format=json";
-        return restServer.getUsingJsonExtractor(uri);
+        return restServerSessionHelper.getUsingJsonExtractor(uri);
     }
 
     public Optional<Map<String, String>> getProjectSeriesImportFilter(String projectName) throws IOException, JSONException {
         final String uri = "/data/projects/" + projectName + "/config/seriesImportFilter/config?format=json";
-        return restServer.getUsingJsonExtractor(uri);
+        return restServerSessionHelper.getUsingJsonExtractor(uri);
     }
 
     public String getPreArcCode(final String projectName) throws Exception {
         final String uri = String.format("/data/archive/projects/%s/prearchive_code", projectName);
-        return restServer.getString(uri);
+        return restServerSessionHelper.getString(uri);
     }
 
     public Set<String> getProjectTracers(final String projectName) throws Exception {
         final String uri = "/REST/projects/" + projectName + "/config/tracers/tracers?contents=true";
-        return restServer.getStringList(uri);
+        return restServerSessionHelper.getStringList(uri);
     }
 
     public Set<String> getSiteTracers() throws Exception {
         final String uri = "/REST/config/tracers/tracers?contents=true";
-        return restServer.getStringList(uri);
+        return restServerSessionHelper.getStringList(uri);
     }
 
     public <ApplicatorT> ApplicatorT getApplicator(final String projectName, final ScriptApplicatorFactory<ApplicatorT> factory) throws Exception {
         final String uri = "/REST/projects/" + projectName + "/resources/UPLOAD_CONFIG/files/ecat.eas";
-        return restServer.getApplicator(uri, factory);
+        return restServerSessionHelper.getApplicator(uri, factory);
     }
 
     public String uploadSubject(final String projectName, final InputStream xmlStream) throws Exception {
         final String uri = "/REST/projects/" + projectName + "/subjects";
-        return restServer.getStringFromStream(uri, xmlStream);
+        return restServerSessionHelper.getStringFromStream(uri, xmlStream);
     }
 
     public UploadResult uploadToEcat(final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final GiftCloudReporter logger) {
@@ -257,11 +257,11 @@ public class RestServerHelper {
             queryParams += "&TIMEZONE=" + timeZone.get().getID();
         }
 
-        return restServer.sendSessionVariables(relativeUrl + queryParams, sessionParameters);
+        return restServerSessionHelper.sendSessionVariables(relativeUrl + queryParams, sessionParameters);
     }
 
     /**
-     * The RestServer URL includes the web application part of the path.
+     * The RestServerSessionHelper URL includes the web application part of the path.
      * If the given path starts with the web application path, returns the path
      * minus the web application context; otherwise return the full path. Either
      * way, any leading /'s are removed.
@@ -344,18 +344,18 @@ public class RestServerHelper {
         dataPostURL = buffer.toString();
 
         ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
-        return restServer.uploadSeriesUsingZipUpload(dataPostURL, zipStreaming, fileCollection, applicators, progress);
+        return restServerSessionHelper.uploadSeriesUsingZipUpload(dataPostURL, zipStreaming, fileCollection, applicators, progress);
     }
 
     private synchronized void createSubjectIfNotExisting(final String projectLabel, final String subjectLabel) throws IOException {
-        restServer.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel);
+        restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel);
     }
 
     private synchronized void createSessionIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final String params) throws IOException {
         Map<String, String> sessions = getListOfSessions(projectLabel);
 
         if (!sessions.containsKey(sessions)) {
-            restServer.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + params);
+            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + params);
         }
     }
 
@@ -363,7 +363,7 @@ public class RestServerHelper {
         Map<String,String> scans = getListOfScans(projectLabel, subjectLabel, sessionLabel);
 
         if (!scans.containsKey(scanLabel)) {
-            restServer.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + "/scans/" + scanLabel + params);
+            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + "/scans/" + scanLabel + params);
         }
     }
 
@@ -371,7 +371,7 @@ public class RestServerHelper {
         Map<String,String> resources = getListOfResources(projectLabel, subjectLabel, sessionLabel, scanLabel);
 
         if (!resources.containsKey(resourceName)) {
-            restServer.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + "/scans/" + scanLabel + "/resources/" + resourceName + params);
+            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + "/scans/" + scanLabel + "/resources/" + resourceName + params);
         }
     }
 
@@ -379,7 +379,7 @@ public class RestServerHelper {
         final Optional<String> pseuodynym = getSubjectPseudonym(projectLabel, subjectLabel);
         if (!pseuodynym.isPresent()) {
             createSubjectIfNotExisting(projectLabel, subjectLabel);
-            restServer.createPostResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/pseudonyms/" + pseudonym);
+            restServerSessionHelper.createPostResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/pseudonyms/" + pseudonym);
         }
     }
 
@@ -410,7 +410,7 @@ public class RestServerHelper {
         final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getSessionLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" + collectionLabel + "/files/" + firstFile.getName() + ".zip" + uriParams;
 
         ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
-        return restServer.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators, progress);
+        return restServerSessionHelper.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators, progress);
     }
 
     public void uploadEcat(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final String timestamp, final String timeZoneId, final File file, final int fileNumber) throws Exception {
@@ -435,12 +435,12 @@ public class RestServerHelper {
         buffer.append("&overwrite=append&rename=true&prevent_anon=true&prevent_auto_commit=true&SOURCE=applet");
         dataPostURL = buffer.toString();
 
-        restServer.uploadEcat(dataPostURL, projectLabel, sessionLabel, subjectLabel, file);
+        restServerSessionHelper.uploadEcat(dataPostURL, projectLabel, sessionLabel, subjectLabel, file);
     }
 
 
     public void resetCancellation() {
-        restServer.resetCancellation();
+        restServerSessionHelper.resetCancellation();
     }
 
 
