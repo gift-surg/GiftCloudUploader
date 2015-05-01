@@ -22,43 +22,33 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
-import java.util.Properties;
 
 import static java.net.HttpURLConnection.*;
 
 
+/**
+ * Base class for all HTTP requests to the GIFT-Cloud REST server
+ *
+ * All communication with the GIFT-Cloud server should be using objects derived from this type. This ensures proper
+ * error handling and automated login after a connection has been lost.
+ *
+ * @param <T> type of the response that will be returned to the caller if the request succeeds. This is the type
+ *           returned by the response processor after processing the server's reply
+ */
 abstract class HttpRequest<T> {
 
-    private HttpConnectionWrapper.ConnectionType connectionType;
+    private final HttpConnectionWrapper.ConnectionType connectionType;
     protected final String urlString;
 
     // The response value could be null. As you can't store a null value in an Optional, we use an Optional of Optional.
     // The outer Optional determines if a response has been set. The inner Optional determines whether this response is null or a value
     private Optional<Optional<T>> response = Optional.empty();
 
-    static final String PROPERTIES_FILE = "META-INF/application.properties";
-    final static String GIFTCLOUD_VERSION;
-
     private final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
     private final HttpResponseProcessor<T> responseProcessor;
-    private MultiUploadReporter reporter;
-
-
-    static {
-        final Properties properties = new Properties();
-        try {
-            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_FILE));
-        } catch (Throwable throwable) {
-            LoggerFactory.getLogger(HttpConnectionBuilder.class).error("The properties file " + PROPERTIES_FILE + " could not be loaded", throwable);
-        }
-        String version = properties.getProperty("application.version");
-        if (null != version) {
-            GIFTCLOUD_VERSION = version;
-        } else {
-            GIFTCLOUD_VERSION = "";
-        }
-    }
+    private final MultiUploadReporter reporter;
+    private final String userAgentString;
 
     /**
      * Create a new request object that will connect to the given URL, and whose server reply will be interpreted by the response processor
@@ -73,8 +63,16 @@ abstract class HttpRequest<T> {
         this.urlString = urlString;
         this.responseProcessor = responseProcessor;
         this.reporter = reporter;
+        userAgentString = giftCloudProperties.getUserAgentString();
     }
 
+    /**
+     * Executes the request and processes the server response to produce an output of the parameterised type T
+     *
+     * @param connectionFactory used to construct the HTTP connection object
+     * @return the result object computed by the response processor based on the response from the server
+     * @throws IOException if an error occurs during the server communication
+     */
     final T getResponse(final ConnectionFactory connectionFactory) throws IOException {
         if (!response.isPresent()) {
             doRequest(connectionFactory);
@@ -83,11 +81,17 @@ abstract class HttpRequest<T> {
         return response.get().orElse(null);
     }
 
+    /**
+     * Set the parameters for the connection. A subclass may wish to override this, but should call the base class
+     *
+     * @param connectionBuilder a builder object used to set the connection parameters in advance of creating the connection
+     * @throws IOException not thrown by the base class but might be thrown by subclasses
+     */
     // Get the connection parameters. These may be altered by subclasses
     protected void prepareConnection(final HttpConnectionBuilder connectionBuilder) throws IOException
     {
         // Add version
-        connectionBuilder.setUserAgent("GiftCloudUploader/" + GIFTCLOUD_VERSION);
+        connectionBuilder.setUserAgent(userAgentString);
 
         // Accept all media types
         connectionBuilder.setAccept("*/*");
@@ -96,7 +100,13 @@ abstract class HttpRequest<T> {
         connectionBuilder.setConnectionType(connectionType);
     }
 
-    abstract protected void processOutputStream(HttpConnectionWrapper connection) throws IOException;
+    /**
+     * Subclasses use this method to write to the connection's output stream (if it exists) before performing the request
+     *
+     * @param connectionWrapper the connection interface to be used to write to the output stream
+     * @throws IOException may be thrown by the implementing methods during writing to the output stream
+     */
+    abstract protected void processOutputStream(final HttpConnectionWrapper connectionWrapper) throws IOException;
 
     private void doRequest(final ConnectionFactory connectionFactory) throws IOException {
 
@@ -118,11 +128,8 @@ abstract class HttpRequest<T> {
                 try {
                     throwIfBadResponse(connection);
 
-                    // Get data from the connection and process
+                    // Get data from the connection and process. In the case of an error, this will process the error stream
                     response = Optional.of(Optional.ofNullable(responseProcessor.processInputStream(connection)));
-
-                    // ToDo: we need to process the error stream at some point           InputStream errorStream = connection.getErrorStream();
-
 
                 } finally {
                     connection.disconnect();
@@ -138,6 +145,10 @@ abstract class HttpRequest<T> {
         }
     }
 
+    /**
+     * This method will be called after the request has completed, even if it failed.
+     * Subclasses use this method to perform any required cleanup.
+     */
     protected void cleanup() {
     }
 

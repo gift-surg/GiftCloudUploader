@@ -10,10 +10,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 public class GiftCloudPropertiesFromApplication extends Observable implements GiftCloudProperties {
 
@@ -27,12 +24,18 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     private final GiftCloudUploaderApplicationBase applicationBase;
 
     private NetworkApplicationProperties networkApplicationProperties;
+    private final String userAgentString;
 
 
-    public GiftCloudPropertiesFromApplication(final GiftCloudUploaderApplicationBase applicationBase) {
+    public GiftCloudPropertiesFromApplication(final GiftCloudUploaderApplicationBase applicationBase, final ResourceBundle resourceBundle) {
         this.applicationBase = applicationBase;
         this.properties = applicationBase.getPropertiesFromApplicationBase();
 
+
+        // Set the user agent string for the application
+        final String nameString = resourceBundle.getString("userAgentNameApplication");
+        final String versionString = resourceBundle.getString("mavenVersion");
+        userAgentString = nameString + (versionString != null ? versionString : "");
 
         try {
             networkApplicationProperties = new NetworkApplicationProperties(properties, true/*addPublicStorageSCPsIfNoRemoteAEsConfigured*/);
@@ -112,6 +115,11 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         } else {
             return MultiUploaderUtils.createOrGetLocalUploadCacheDirectory(reporter);
         }
+    }
+
+    @Override
+    public String getUserAgentString() {
+        return userAgentString;
     }
 
     @Override

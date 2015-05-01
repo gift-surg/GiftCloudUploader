@@ -51,13 +51,13 @@ public class MultiUploadAssistantApplet extends JApplet {
     @Override
     public void init() {
         try {
+            final ResourceBundle resourceBundle = ResourceBundle.getBundle(resourceBundleName);
             reporter = Optional.of(new MultiUploadAppletReporter(this));
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             multiUploadParameters = Optional.of(new MultiUploadAppletParameters(this, reporter.get()));
 
-            GiftCloudPropertiesFromApplet giftCloudPropertiesFromApplet = new GiftCloudPropertiesFromApplet(multiUploadParameters.get());
+            GiftCloudPropertiesFromApplet giftCloudPropertiesFromApplet = new GiftCloudPropertiesFromApplet(multiUploadParameters.get(), resourceBundle);
 
-            final ResourceBundle resourceBundle = ResourceBundle.getBundle(resourceBundleName);
             giftCloudUploader = Optional.of(new GiftCloudUploader(giftCloudPropertiesFromApplet, reporter.get()));
 
         } catch (Throwable t) {

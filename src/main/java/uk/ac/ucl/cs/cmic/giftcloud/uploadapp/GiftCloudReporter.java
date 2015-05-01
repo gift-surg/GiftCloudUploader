@@ -52,8 +52,7 @@ public class GiftCloudReporter implements MultiUploadReporter, MessageLogger, Pr
 
     private final ProgressModel progressModel = new ProgressModel();
 
-
-    public GiftCloudReporter(Container container, final GiftCloudDialogs giftCloudDialogs) {
+    public GiftCloudReporter(final Container container, final GiftCloudDialogs giftCloudDialogs) {
         this.container = container;
         this.giftCloudDialogs = giftCloudDialogs;
         configureLogging();

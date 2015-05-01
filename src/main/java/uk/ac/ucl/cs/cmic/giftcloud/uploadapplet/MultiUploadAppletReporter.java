@@ -51,7 +51,7 @@ public class MultiUploadAppletReporter implements MultiUploadReporter {
 
     private final SwingProgressMonitorWrapper progressWrapper;
 
-    public MultiUploadAppletReporter(Applet applet) {
+    public MultiUploadAppletReporter(final Applet applet) {
         this.applet = applet;
         configureLogging();
 
@@ -68,6 +68,7 @@ public class MultiUploadAppletReporter implements MultiUploadReporter {
         text.setEditable(false);
         applet.add(text);
         applet.validate();
+
     }
 
     @Override

@@ -31,4 +31,6 @@ public interface GiftCloudProperties {
     void setLastProject(final String lastProjectName);
 
     File getUploadFolder(final MultiUploadReporter reporter);
+
+    String getUserAgentString();
 }

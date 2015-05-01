@@ -22,6 +22,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
 
@@ -29,10 +30,15 @@ public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
     private static final String DEV_PASS = "dev-pass";
 
     private MultiUploadParameters multiUploadParameters;
+    private final String userAgentString;
 
-    public GiftCloudPropertiesFromApplet(MultiUploadParameters multiUploadParameters) {
-
+    public GiftCloudPropertiesFromApplet(final MultiUploadParameters multiUploadParameters, final ResourceBundle resourceBundle) {
         this.multiUploadParameters = multiUploadParameters;
+
+        // Set the user agent string for the applet
+        final String nameString = resourceBundle.getString("userAgentNameApplet");
+        final String versionString = resourceBundle.getString("mavenVersion");
+        userAgentString = nameString + (versionString != null ? versionString : "");
     }
 
     @Override
@@ -50,6 +56,10 @@ public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
         }
     }
 
+    @Override
+    public String getUserAgentString() {
+        return userAgentString;
+    }
 
     @Override
     public void setLastUserName(final String lastUserName) {

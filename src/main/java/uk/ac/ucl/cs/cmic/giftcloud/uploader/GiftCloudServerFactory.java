@@ -33,7 +33,7 @@ public class GiftCloudServerFactory {
 
         final String giftCloudUrl = optionalGiftCloudUrl.get();
 
-        // We need to create new GiftCloudAutoUploader if one does not exist, or if the URL has changed
+        // We need to create new GiftCloudServer if one does not exist, or if the URL has changed
         if (!(giftCloudServer.isPresent() && giftCloudServer.get().matchesServer(giftCloudUrl))) {
 
             // The project list is no longer valid. We will update it after creating a new GiftCloudAutoUploader, but if that throws an exception, we want to leave the project list model in an invalid state

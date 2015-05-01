@@ -38,7 +38,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         reporter = new GiftCloudReporter(giftCloudMainFrame.getContainer(), giftCloudDialogs);
 
         // Initialise application properties
-        giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase);
+        giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase, resourceBundle);
 
         // Initialise the main GIFT-Cloud class
         giftCloudUploader = new GiftCloudUploader(giftCloudProperties, reporter);
