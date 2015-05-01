@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
 
 public interface HttpConnection {
 
@@ -44,11 +42,7 @@ public interface HttpConnection {
 
     String getResponseMessage() throws IOException;
 
-    Map<String, List<String>> getHeaderFields();
-
     InputStream getInputStream() throws IOException;
-
-    Object getContent() throws IOException;
 
     int getResponseCode() throws IOException;
 

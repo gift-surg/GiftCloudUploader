@@ -14,14 +14,14 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
 
 class FakeHttpConnectionWrapper implements HttpConnection {
 
@@ -40,12 +40,13 @@ class FakeHttpConnectionWrapper implements HttpConnection {
 
     @Override
     public InputStream getErrorStream() {
+
         return null;
     }
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-        return null;
+        return new ByteArrayOutputStream();
     }
 
     @Override
@@ -60,7 +61,7 @@ class FakeHttpConnectionWrapper implements HttpConnection {
 
     @Override
     public String getRequestMethod() {
-        return null;
+        return "FAKE_REQUEST";
     }
 
     @Override
@@ -74,27 +75,20 @@ class FakeHttpConnectionWrapper implements HttpConnection {
 
     @Override
     public String getResponseMessage() throws IOException {
-        return null;
-    }
-
-    @Override
-    public Map<String, List<String>> getHeaderFields() {
-        return null;
+        return "FAKE_RESPONSE";
     }
 
     @Override
     public InputStream getInputStream() throws IOException {
-        return null;
-    }
 
-    @Override
-    public Object getContent() throws IOException {
+        // ToDo
         return null;
     }
 
     @Override
     public int getResponseCode() throws IOException {
-        return 0;
+
+        return HttpURLConnection.HTTP_OK;
     }
 
     @Override

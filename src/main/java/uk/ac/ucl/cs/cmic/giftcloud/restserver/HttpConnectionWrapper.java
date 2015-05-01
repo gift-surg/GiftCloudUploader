@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.*;
-import java.util.List;
-import java.util.Map;
 
 class HttpConnectionWrapper implements HttpConnection {
     private HttpURLConnection connection;
@@ -78,18 +76,8 @@ class HttpConnectionWrapper implements HttpConnection {
     }
 
     @Override
-    public Map<String, List<String>> getHeaderFields() {
-        return connection.getHeaderFields();
-    }
-
-    @Override
     public InputStream getInputStream() throws IOException {
         return connection.getInputStream();
-    }
-
-    @Override
-    public Object getContent() throws IOException {
-        return connection.getContent();
     }
 
     @Override
