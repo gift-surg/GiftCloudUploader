@@ -14,8 +14,6 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploadReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
@@ -43,8 +41,6 @@ abstract class HttpRequest<T> {
     // The response value could be null. As you can't store a null value in an Optional, we use an Optional of Optional.
     // The outer Optional determines if a response has been set. The inner Optional determines whether this response is null or a value
     private Optional<Optional<T>> response = Optional.empty();
-
-    private final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
     private final HttpResponseProcessor<T> responseProcessor;
     private final MultiUploadReporter reporter;

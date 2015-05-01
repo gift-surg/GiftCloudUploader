@@ -42,6 +42,7 @@ public class GiftCloudAuthenticationTest {
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
+        when(giftCloudProperties.getUserAgentString()).thenReturn("TestUserAgent");
         when(giftCloudProperties.getSessionCookie()).thenReturn(Optional.of(cookieString));
         when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
         when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
@@ -95,6 +96,7 @@ public class GiftCloudAuthenticationTest {
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
+        when(giftCloudProperties.getUserAgentString()).thenReturn("TestUserAgent");
         when(giftCloudProperties.getSessionCookie()).thenReturn(Optional.of(cookieString));
         when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
         when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
@@ -137,6 +139,7 @@ public class GiftCloudAuthenticationTest {
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
+        when(giftCloudProperties.getUserAgentString()).thenReturn("TestUserAgent");
         when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
         when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
         when(giftCloudProperties.getSessionCookie()).thenReturn(Optional.of(cookieString));
@@ -180,6 +183,7 @@ public class GiftCloudAuthenticationTest {
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
+        when(giftCloudProperties.getUserAgentString()).thenReturn("TestUserAgent");
         when(giftCloudProperties.getSessionCookie()).thenReturn(emptyOptional);
         when(giftCloudProperties.getLastUserName()).thenReturn(Optional.of(userName));
         when(giftCloudProperties.getLastPassword()).thenReturn(Optional.of(password.toCharArray()));
@@ -213,6 +217,7 @@ public class GiftCloudAuthenticationTest {
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
+        when(giftCloudProperties.getUserAgentString()).thenReturn("TestUserAgent");
         when(giftCloudProperties.getSessionCookie()).thenReturn(Optional.of(cookieString));
         when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
         when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
@@ -274,6 +279,7 @@ public class GiftCloudAuthenticationTest {
         when(connectionFactory.getBaseUrl()).thenReturn(url);
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
+        when(giftCloudProperties.getUserAgentString()).thenReturn("TestUserAgent");
         when(giftCloudProperties.getSessionCookie()).thenReturn(Optional.of(cookieString));
         when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
         when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);

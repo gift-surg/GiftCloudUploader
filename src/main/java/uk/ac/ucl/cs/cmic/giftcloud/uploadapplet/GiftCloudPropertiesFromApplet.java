@@ -38,7 +38,7 @@ public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
         // Set the user agent string for the applet
         final String nameString = resourceBundle.getString("userAgentNameApplet");
         final String versionString = resourceBundle.getString("mavenVersion");
-        userAgentString = nameString + (versionString != null ? versionString : "");
+        userAgentString = (nameString != null ? nameString : "") + (versionString != null ? versionString : "");
     }
 
     @Override
