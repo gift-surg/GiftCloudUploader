@@ -52,13 +52,12 @@ public class QueryFilterPanel extends JPanel {
         inputConstraints.gridx = 1;
         inputConstraints.gridy = 0;
         inputConstraints.gridwidth = 1;
-        inputConstraints.weightx = 2;
+        inputConstraints.weightx = 1;
         inputConstraints.weighty = 1;
-        labelConstraints.anchor = GridBagConstraints.LINE_END;
+        inputConstraints.anchor = GridBagConstraints.LINE_END;
         inputConstraints.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel queryIntroduction = new JLabel(resourceBundle.getString("queryIntroductionLabelText"));
-        add(queryIntroduction);
         layout.setConstraints(queryIntroduction, introConstraints);
         add(queryIntroduction);
 
