@@ -24,7 +24,7 @@ public class DicomDirectory implements TreeModel {
 	// Stuff to support listener vector
 
 	/***/
-	private Vector listeners;
+	private Vector<TreeModelListener> listeners;
 
 	// Methods for TreeModel
 
@@ -50,7 +50,7 @@ public class DicomDirectory implements TreeModel {
 	}
 
 	public void addTreeModelListener(TreeModelListener tml) {
-		if (listeners == null) listeners = new Vector();
+		if (listeners == null) listeners = new Vector<TreeModelListener>();
 		listeners.addElement(tml);
 	}
 
