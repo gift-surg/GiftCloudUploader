@@ -47,7 +47,6 @@
 		<level name="Maven: com.toedter:jcalendar:1.4" value="project"/>
 		<level name="Maven: com.jgoodies:common:1.2.0" value="project"/>
 		<level name="Maven: com.jgoodies:looks:2.4.1" value="project"/>
-		<level name="Maven: org.nrg:dicom-xnat:1.6.4-SNAPSHOT" value="project"/>
 		<level name="Maven: org.nrg:ecat-edit:0.2.0" value="project"/>
 		<level name="Maven: org.nrg:framework:1.6.4-SNAPSHOT" value="project"/>
 		<level name="Maven: org.springframework:spring-orm:3.0.7.RELEASE" value="project"/>
@@ -79,7 +78,6 @@
 		<level name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.1.0" value="project"/>
 		<level name="Maven: com.fasterxml.jackson.core:jackson-core:2.1.0" value="project"/>
 		<level name="Maven: org.restlet:org.restlet:1.1.10" value="project"/>
-		<level name="Maven: org.nrg:nrg:1.6.4-SNAPSHOT" value="project"/>
 		<level name="Maven: org.nrg:transaction:1.6.4-SNAPSHOT" value="project"/>
 		<level name="Maven: joda-time:joda-time:1.6.2" value="project"/>
 		<level name="Maven: org.mockito:mockito-core:1.8.5" value="project"/>

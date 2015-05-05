@@ -41,7 +41,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.toedter:jcalendar:1.4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.jgoodies:common:1.2.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.jgoodies:looks:2.4.1"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.nrg:dicom-xnat:1.6.4-SNAPSHOT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.nrg:ecat-edit:0.2.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.nrg:framework:1.6.4-SNAPSHOT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.springframework:spring-orm:3.0.7.RELEASE"/>
@@ -73,7 +72,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.fasterxml.jackson.core:jackson-annotations:2.1.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.fasterxml.jackson.core:jackson-core:2.1.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.restlet:org.restlet:1.1.10"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.nrg:nrg:1.6.4-SNAPSHOT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.nrg:transaction:1.6.4-SNAPSHOT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: joda-time:joda-time:1.6.2"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.mockito:mockito-core:1.8.5"/>
