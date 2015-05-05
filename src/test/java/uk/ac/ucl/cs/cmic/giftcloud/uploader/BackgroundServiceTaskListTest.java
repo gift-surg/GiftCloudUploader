@@ -50,7 +50,7 @@ public class BackgroundServiceTaskListTest {
         }
 
         @Override
-        public BackgroundServiceTaskWrapper take() throws InterruptedException {
+        public BackgroundServiceTaskWrapper<String, String> take() throws InterruptedException {
             return null;
         }
 
