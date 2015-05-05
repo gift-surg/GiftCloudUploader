@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import com.pixelmed.network.NetworkApplicationInformation;
 import com.pixelmed.network.NetworkApplicationProperties;
 import com.pixelmed.network.NetworkConfigurationSource;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;

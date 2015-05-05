@@ -5,9 +5,7 @@
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/junit:junit:4.8.1"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/com.google.guava:guava:16.0.1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/org.apache.directory.studio:org.slf4j.log4j12:1.7.2"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/com.fasterxml.uuid:java-uuid-generator:3.1.3"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/org.mockito:mockito-core:1.9.5"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: uk.ac.ucl.cs.cmic.giftcloud.localrepo:pixelmed_codec:1.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: uk.ac.ucl.cs.cmic.giftcloud.localrepo:wizard:1.0"/>
@@ -21,12 +19,12 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.antlr:antlr-runtime:3.4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.antlr:stringtemplate:3.2.1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: antlr:antlr:2.7.7"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.google.guava:guava:15.0"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.fasterxml.uuid:java-uuid-generator:3.1.3"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: hsqldb:hsqldb:1.8.0.10"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: commons-net:commons-net:3.3"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: commons-io:commons-io:2.4"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: commons-lang:commons-lang:2.5"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.google.guava:guava:16.0.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.fasterxml.uuid:java-uuid-generator:3.1.3"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: commons-lang:commons-lang:2.6"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.nrg:ecat-io:0.1.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.nrg:dicom-xnat-sop:1.6.4-SNAPSHOT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.nrg:dicom-xnat-util:1.6.4-SNAPSHOT"/>
@@ -73,7 +71,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.mockito:mockito-core:1.8.5"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.hamcrest:hamcrest-core:1.1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.objenesis:objenesis:1.0"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.apache.commons:commons-lang3:3.1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.nrg:DicomUtils:1.3.1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: dcm4che:dcm4che-net:2.0.29-INTERMEDIATE.v20150501_1416"/>
 	<classpathentry kind="output" path="target/classes"/>
