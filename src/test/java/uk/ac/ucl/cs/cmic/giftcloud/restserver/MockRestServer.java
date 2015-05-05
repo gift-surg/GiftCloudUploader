@@ -13,6 +13,8 @@ import java.util.*;
 
 public class MockRestServer implements RestServer {
 
+    private final ProjectMap projectMap = new ProjectMap();
+
     public MockRestServer(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) {
     }
 
@@ -23,7 +25,12 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Vector<Object> getListOfProjects() throws IOException {
-        return null;
+        final Set<String> projectList = projectMap.getProjectList();
+        final Vector<Object> projectVector = new Vector<Object>();
+        for (final String projectLabel : projectList) {
+            projectVector.add(projectLabel);
+        }
+        return projectVector;
     }
 
     @Override
@@ -43,7 +50,7 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Map<String, String> getListOfPseudonyms(String projectName) throws IOException, JSONException {
-        return null;
+        return projectMap.get(projectName).getPseudonyms();
     }
 
     @Override
@@ -53,7 +60,7 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Optional<String> getSubjectPseudonym(String projectName, String ppid) throws IOException {
-        return null;
+        return projectMap.get(projectName).getPseudonym(ppid);
     }
 
     @Override
@@ -68,17 +75,17 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Optional<String> getSiteWideAnonScript() throws IOException {
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public Optional<Map<String, String>> getSitewideSeriesImportFilter() throws IOException, JSONException {
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public Optional<Map<String, String>> getProjectSeriesImportFilter(String projectName) throws IOException, JSONException {
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -122,8 +129,11 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public void createPseudonymIfNotExisting(String projectLabel, String subjectLabel, String pseudonym) throws IOException {
+    public void createPseudonymIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
+        final ProjectMap.ProjectRecord projectRecord = projectMap.get(projectLabel);
 
+        final ProjectMap.ProjectRecord.SubjectRecord subjectRecord = projectRecord.get(subjectLabel);
+        projectRecord.addPseudonym(subjectLabel, pseudonym);
     }
 
     @Override
@@ -140,4 +150,60 @@ public class MockRestServer implements RestServer {
     public void resetCancellation() {
 
     }
+
+    class ProjectMap {
+
+        private final Map<String, ProjectRecord> projectMap = new HashMap<String, ProjectRecord>();
+
+        final Set<String> getProjectList() {
+            return projectMap.keySet();
+        }
+
+        public ProjectRecord get(final String projectLabel) {
+            return projectMap.get(projectLabel);
+        }
+
+        class ProjectRecord {
+            private String projectLabel;
+            private final Map<String, SubjectRecord> subjectMap = new HashMap<String, SubjectRecord>();
+            private final Map<String, String> pseudonyms = new HashMap<String, String>();
+
+            ProjectRecord(final String projectLabel) {
+                this.projectLabel = projectLabel;
+            }
+
+            public SubjectRecord get(final String subjectLabel) {
+                return subjectMap.get(subjectLabel);
+            }
+
+            public Map<String,String> getPseudonyms() {
+                return pseudonyms;
+            }
+
+            public void addPseudonym(final String subjectLabel, final String pseudonym) {
+                pseudonyms.put(pseudonym, subjectLabel);
+            }
+
+            public Optional<String> getPseudonym(final String ppid) {
+                if (pseudonyms.containsKey(ppid)) {
+                    return Optional.of(pseudonyms.get(ppid));
+                } else {
+                    return Optional.empty();
+                }
+            }
+
+            class SubjectRecord {
+                private String subjectLabel;
+
+                SubjectRecord(final String subjectLabel) {
+                    this.subjectLabel = subjectLabel;
+                }
+
+            }
+
+        }
+
+    }
+
+
 }
