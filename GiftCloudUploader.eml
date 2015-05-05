@@ -41,12 +41,7 @@
 		<level name="Maven: javax.inject:javax.inject:1" value="project"/>
 		<level name="Maven: org.nrg:nrgutil:2.0.0" value="project"/>
 		<level name="Maven: commons-lang:commons-lang:2.5" value="project"/>
-		<level name="Maven: log4j:log4j:1.2.15" value="project"/>
-		<level name="Maven: javax.mail:mail:1.4" value="project"/>
-		<level name="Maven: javax.activation:activation:1.1" value="project"/>
-		<level name="Maven: javax.jms:jms:1.1" value="project"/>
-		<level name="Maven: com.sun.jdmk:jmxtools:1.2.1" value="project"/>
-		<level name="Maven: com.sun.jmx:jmxri:1.2.1" value="project"/>
+		<level name="Maven: log4j:log4j:1.2.17" value="project"/>
 		<level name="Maven: org.json:json:20140107" value="project"/>
 		<level name="Maven: com.toedter:jcalendar:1.4" value="project"/>
 		<level name="Maven: com.jgoodies:common:1.2.0" value="project"/>
