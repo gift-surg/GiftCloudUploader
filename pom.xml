@@ -29,24 +29,6 @@
             <name>"Josh" Dzhoshkun Ismail Shakir</name>
             <email>d.shakir@ucl.ac.uk</email>
         </developer>
-        <developer>
-            <id>karchie</id>
-            <name>Kevin Archie</name>
-            <email>karchie@wustl.edu</email>
-            <timezone>-6</timezone>
-        </developer>
-        <developer>
-            <name>John Paulett</name>
-            <email>jpaulett@wustl.edu</email>
-        </developer>
-        <developer>
-            <name>Aditya Siram</name>
-            <email>aditya.siram@gmail.com</email>
-        </developer>
-        <developer>
-            <name>Rick Herrick</name>
-            <email>rick.herrick@wustl.edu</email>
-        </developer>
     </developers>
 
     <properties>
@@ -203,6 +185,16 @@
             <name>project</name>
             <url>file:${project.basedir}/repo</url>
         </repository>
+        <repository>
+            <id>org.nrg.maven.artifacts.snapshot</id>
+            <name>NRG/XDAT/XNAT Temporary Snapshot Maven Repo</name>
+            <url>http://maven.xnat.org/libs-snapshot</url>
+        </repository>
+        <repository>
+            <id>org.nrg.maven.artifacts.release</id>
+            <name>NRG/XDAT/XNAT Temporary Release Maven Repo</name>
+            <url>http://maven.xnat.org/libs-release</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -213,24 +205,25 @@
         </dependency>
         <dependency>
             <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>ecat-edit</artifactId>
-            <version>0.2.0</version>
-        </dependency>
-        <!-- NRG dependencies -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.4</version>
+            <artifactId>wizard</artifactId>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
             <artifactId>DicomEdit</artifactId>
+            <version>4.0.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>dcm4che-net</artifactId>
                     <groupId>dcm4che</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- NRG dependencies -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
@@ -246,11 +239,6 @@
             <groupId>org.nrg</groupId>
             <artifactId>ecat-io</artifactId>
             <version>0.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>ecat-edit</artifactId>
-            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
@@ -291,16 +279,6 @@
             <groupId>com.toedter</groupId>
             <artifactId>jcalendar</artifactId>
             <version>1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>DicomEdit</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>ecat-edit</artifactId>
-            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
@@ -412,6 +390,16 @@
             <groupId>org.nrg</groupId>
             <artifactId>ecat</artifactId>
             <version>0.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.5</version>
         </dependency>
     </dependencies>
 
