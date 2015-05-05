@@ -4,19 +4,13 @@ import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.network.DicomNetworkException;
 import com.pixelmed.query.QueryInformationModel;
-import com.pixelmed.query.QueryTreeBrowser;
-import com.pixelmed.query.QueryTreeModel;
-import com.pixelmed.query.QueryTreeRecord;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -26,7 +20,6 @@ import java.util.ResourceBundle;
 public class QueryRetrievePanel extends JPanel {
 
     private final QueryFilterPanel queryFilterPanel;
-    private List<QuerySelection> currentRemoteQuerySelectionList;
     private GiftCloudUploaderController controller;
     private QueryRetrieveRemoteView queryRetrieveRemoteView;
 
@@ -81,15 +74,11 @@ public class QueryRetrievePanel extends JPanel {
     }
 
     public void updateQueryPanel(final QueryInformationModel queryInformationModel, final AttributeList filter, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomNetworkException, DicomException, IOException {
-        QueryTreeModel treeModel = queryInformationModel.performHierarchicalQuery(filter);
-        new OurQueryTreeBrowser(queryInformationModel, treeModel, this, currentRemoteQueryInformationModel);
-
-        // TD: unsure if this is required or not... for re-laying out the panel after a query operation has succeeded
-        validate();
+        queryRetrieveRemoteView.updateQueryPanel(queryInformationModel, filter, currentRemoteQueryInformationModel);
     }
 
     public List<QuerySelection> getCurrentRemoteQuerySelectionList() {
-        return currentRemoteQuerySelectionList;
+        return queryRetrieveRemoteView.getCurrentRemoteQuerySelectionList();
     }
 
     public QueryRetrieveRemoteView getQueryRetrievePanel() {
@@ -99,39 +88,6 @@ public class QueryRetrievePanel extends JPanel {
     private class RetrieveActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             controller.retrieve(getCurrentRemoteQuerySelectionList());
-        }
-    }
-
-    private class OurQueryTreeBrowser extends QueryTreeBrowser {
-        private QueryInformationModel currentRemoteQueryInformationModel;
-
-        /**
-         * @param	q
-         * @param	m
-         * @param	content
-         * @throws DicomException
-         */
-        OurQueryTreeBrowser(QueryInformationModel q,QueryTreeModel m,Container content, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomException {
-            super(q,m,content);
-            this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
-        }
-
-        /***/
-        protected TreeSelectionListener buildTreeSelectionListenerToDoSomethingWithSelectedLevel() {
-            return new TreeSelectionListener() {
-                public void valueChanged(TreeSelectionEvent tse) {
-
-                    // Store all the selected paths
-                    QueryTreeRecord[] records = getSelectionPaths();
-                    List<QuerySelection> remoteQuerySelectionList = new ArrayList<QuerySelection>();
-                    if (records != null) {
-                        for (QueryTreeRecord record : records) {
-                            remoteQuerySelectionList.add(new QuerySelection(record, currentRemoteQueryInformationModel));
-                        }
-                    }
-                    currentRemoteQuerySelectionList = remoteQuerySelectionList;
-                }
-            };
         }
     }
 
