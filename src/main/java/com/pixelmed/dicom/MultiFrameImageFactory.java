@@ -2,35 +2,16 @@
 
 package com.pixelmed.dicom;
 
-import com.pixelmed.anatproc.CodedConcept;
 import com.pixelmed.anatproc.CTAnatomy;
+import com.pixelmed.anatproc.CodedConcept;
 import com.pixelmed.anatproc.DisplayableAnatomicConcept;
 import com.pixelmed.anatproc.ProjectionXRayAnatomy;
-
-import com.pixelmed.geometry.GeometryOfSlice;
-import com.pixelmed.geometry.GeometryOfVolume;
-
 import com.pixelmed.utils.FileUtilities;
 
+import javax.vecmath.Vector3d;
 import java.io.File;
 import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TimeZone;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.vecmath.Vector3d;
+import java.util.*;
 
 /**
  * <p>A class to create a set of instances, which when given unenhanced ("classic") images creates
@@ -41,6 +22,7 @@ import javax.vecmath.Vector3d;
  *
  * @author	dclunie
  */
+@SuppressWarnings("deprecation")
 public class MultiFrameImageFactory {
 
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/dicom/MultiFrameImageFactory.java,v 1.29 2014/09/09 20:34:09 dclunie Exp $";

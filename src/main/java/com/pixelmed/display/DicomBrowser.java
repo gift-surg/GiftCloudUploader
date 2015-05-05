@@ -2,19 +2,19 @@
 
 package com.pixelmed.display;
 
-import java.awt.*; 
-import java.awt.event.*; 
-import java.awt.image.*; 
-import java.awt.color.*;
-import java.awt.geom.*; 
-import java.awt.font.*; 
-import java.util.*; 
-import java.io.*; 
-import javax.swing.*; 
-import javax.swing.event.*;
-
-import com.pixelmed.display.event.*; 
 import com.pixelmed.dicom.*;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * <p>A primitive DICOMDIR browsing application that will display images and
@@ -170,6 +170,7 @@ public class DicomBrowser extends ApplicationFrame {
 					if (title == null) {
 						title=list.buildInstanceTitleFromAttributeList();
 					}
+					//noinspection deprecation
 					StructuredReportBrowser tree = new DisplayStructuredReportBrowser(list,mapOfSOPInstanceUIDToReferencedFileName,
 						frameWidthWanted,frameHeightWanted,title);
 					tree.setVisible(true);

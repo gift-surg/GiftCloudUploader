@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("deprecation")
 public class ImageLibrary {
 	
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/dicom/ImageLibrary.java,v 1.5 2014/03/09 16:56:22 dclunie Exp $";

@@ -2,21 +2,21 @@
 
 package com.pixelmed.dicom;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
-import java.util.*;
-import java.io.*;
-
 import com.pixelmed.utils.JTreeWithAdditionalKeyStrokeActions;
+
+import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Iterator;
+import java.util.Vector;
 
 /**
  * <p>The {@link com.pixelmed.dicom.StructuredReportBrowser StructuredReportBrowser} class implements a Swing graphical user interface
  * to browse the contents of a {@link com.pixelmed.dicom.StructuredReport StructuredReport}.</p>
- *
- * @deprecated use  {@link com.pixelmed.dicom.StructuredReportTreeBrowser StructuredReportTreeBrowser} instead
  *
  * @see com.pixelmed.dicom.StructuredReportTreeBrowser
  * @see com.pixelmed.dicom.AttributeTreeBrowser

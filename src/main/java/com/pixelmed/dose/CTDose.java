@@ -2,18 +2,11 @@
 
 package com.pixelmed.dose;
 
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import com.pixelmed.anatproc.CodedConcept;
-
 import com.pixelmed.dicom.*;
+
+import java.io.IOException;
+import java.util.*;
 
 public class CTDose implements RadiationDoseStructuredReport, RadiationDoseStructuredReportFactory {
 	
@@ -995,6 +988,7 @@ public class CTDose implements RadiationDoseStructuredReport, RadiationDoseStruc
 		return list;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void write(String filename,String aet,String manufacturerModelName) throws DicomException, IOException {
 		String useAET = aet == null ? "OURAETITLE" : aet;
 		getAttributeList();

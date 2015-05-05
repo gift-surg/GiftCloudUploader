@@ -12,6 +12,7 @@ import java.util.Vector;
 /**
  * @author	dclunie
  */
+@SuppressWarnings("deprecation")
 public class DisplayStructuredReportBrowser extends StructuredReportBrowser {
 
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/display/DisplayStructuredReportBrowser.java,v 1.6 2014/09/09 20:34:09 dclunie Exp $";
