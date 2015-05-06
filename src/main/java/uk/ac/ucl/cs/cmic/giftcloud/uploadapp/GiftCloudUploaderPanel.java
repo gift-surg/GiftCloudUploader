@@ -1,14 +1,9 @@
-/* Copyright (c) 2001-2014, David A. Clunie DBA Pixelmed Publishing. All rights reserved. */
-
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.database.DatabaseTreeBrowser;
 import com.pixelmed.database.DatabaseTreeRecord;
-import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;
-import com.pixelmed.network.DicomNetworkException;
-import com.pixelmed.query.QueryInformationModel;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -20,17 +15,7 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 /**
- * <p>This class is an application for importing or retrieving DICOM studies,
- * cleaning them (i.e., de-identifying them or replacing UIDs, etc.), and
- * sending them elsewhere.</p>
- * 
- * <p>It is configured by use of a properties file that resides in the user's
- * home directory in <code>.uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderPanel.properties</code>.</p>
- * 
- * <p>It supports import and network retrieval of uncompressed, deflate and bzip compressed,
- * and baseline JPEG compressed images (but not yet other encapsulated compressed pixel data).</p>
- * 
- * @author	dclunie
+ *
  */
 public class GiftCloudUploaderPanel extends JPanel {
 
@@ -52,22 +37,18 @@ public class GiftCloudUploaderPanel extends JPanel {
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
-    public GiftCloudUploaderPanel(final GiftCloudUploaderController controller, final ComboBoxModel<String> projectListModel, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final Dialog dialog, final GiftCloudUploaderController controller, final ComboBoxModel<String> projectListModel, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
         this.reporter = reporter;
 
-        remoteQueryRetrievePanel = new QueryRetrievePanel(controller, resourceBundle);
+        remoteQueryRetrievePanel = new QueryRetrievePanel(dialog, controller, resourceBundle);
 
         srcDatabasePanel = new JPanel();
         srcDatabasePanel.setLayout(new GridLayout(1, 1));
         new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
 
         Border panelBorder = BorderFactory.createEtchedBorder();
-
-        JSplitPane remoteAndLocalBrowserPanes = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,remoteQueryRetrievePanel,srcDatabasePanel);
-        remoteAndLocalBrowserPanes.setOneTouchExpandable(true);
-        remoteAndLocalBrowserPanes.setResizeWeight(0.5);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -82,6 +63,11 @@ public class GiftCloudUploaderPanel extends JPanel {
         importButton.setToolTipText(resourceBundle.getString("importButtonToolTipText"));
         buttonPanel.add(importButton);
         importButton.addActionListener(new ImportActionListener());
+
+        JButton importPacsButton = new JButton(resourceBundle.getString("importPacsButtonLabelText"));
+        importPacsButton.setToolTipText(resourceBundle.getString("importPacsButtonToolTipText"));
+        buttonPanel.add(importPacsButton);
+        importPacsButton.addActionListener(new ImportPacsActionListener());
 
         JButton giftCloudUploadButton = new JButton(resourceBundle.getString("giftCloudUploadButtonLabelText"));
         giftCloudUploadButton.setToolTipText(resourceBundle.getString("giftCloudUploadButtonToolTipText"));
@@ -121,14 +107,14 @@ public class GiftCloudUploaderPanel extends JPanel {
             GridBagLayout mainPanelLayout = new GridBagLayout();
             setLayout(mainPanelLayout);
             {
-                GridBagConstraints remoteAndLocalBrowserPanesConstraints = new GridBagConstraints();
-                remoteAndLocalBrowserPanesConstraints.gridx = 0;
-                remoteAndLocalBrowserPanesConstraints.gridy = 0;
-                remoteAndLocalBrowserPanesConstraints.weightx = 1;
-                remoteAndLocalBrowserPanesConstraints.weighty = 1;
-                remoteAndLocalBrowserPanesConstraints.fill = GridBagConstraints.BOTH;
-                mainPanelLayout.setConstraints(remoteAndLocalBrowserPanes,remoteAndLocalBrowserPanesConstraints);
-                add(remoteAndLocalBrowserPanes);
+                GridBagConstraints localBrowserPanesConstraints = new GridBagConstraints();
+                localBrowserPanesConstraints.gridx = 0;
+                localBrowserPanesConstraints.gridy = 0;
+                localBrowserPanesConstraints.weightx = 1;
+                localBrowserPanesConstraints.weighty = 1;
+                localBrowserPanesConstraints.fill = GridBagConstraints.BOTH;
+                mainPanelLayout.setConstraints(srcDatabasePanel,localBrowserPanesConstraints);
+                add(srcDatabasePanel);
             }
             {
                 GridBagConstraints buttonPanelConstraints = new GridBagConstraints();
@@ -159,10 +145,6 @@ public class GiftCloudUploaderPanel extends JPanel {
         projectList.setModel(projectListModel);
     }
 
-    public QueryRetrieveRemoteView getQueryRetrievePanel() {
-        return remoteQueryRetrievePanel.getQueryRetrievePanel();
-    }
-
     // Called when the database model has changed
     public void rebuildFileList(final DatabaseInformationModel srcDatabase) {
         srcDatabasePanel.removeAll();
@@ -178,8 +160,8 @@ public class GiftCloudUploaderPanel extends JPanel {
         srcDatabasePanel.validate();
     }
 
-    public void updateQueryPanel(final QueryInformationModel queryInformationModel, final AttributeList filter, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomException, IOException, DicomNetworkException {
-        remoteQueryRetrievePanel.updateQueryPanel(queryInformationModel, filter, currentRemoteQueryInformationModel);
+    public QueryRetrieveRemoteView getQueryRetrieveRemoteView() {
+        return remoteQueryRetrievePanel.getQueryRetrieveRemoteView();
     }
 
     private class ImportActionListener implements ActionListener {
@@ -187,6 +169,12 @@ public class GiftCloudUploaderPanel extends JPanel {
             controller.selectAndImport();
         }
 	}
+
+    private class ImportPacsActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            remoteQueryRetrievePanel.setVisible(true);
+        }
+    }
 
     private class GiftCloudUploadActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {

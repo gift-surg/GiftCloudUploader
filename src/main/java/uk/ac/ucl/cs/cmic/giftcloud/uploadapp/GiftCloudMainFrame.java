@@ -81,6 +81,10 @@ class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowV
         return container;
     }
 
+    public Dialog getDialog() {
+        return container;
+    }
+
     public void addMainPanel(final Container panel) {
         container.add(panel);
         container.pack();

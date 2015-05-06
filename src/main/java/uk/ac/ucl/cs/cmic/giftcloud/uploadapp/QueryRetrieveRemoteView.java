@@ -13,7 +13,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import java.awt.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,8 +22,10 @@ import java.util.List;
 public class QueryRetrieveRemoteView extends JPanel {
 
     private List<QuerySelection> currentRemoteQuerySelectionList;
+    private QueryRetrievePanel callback;
 
-    QueryRetrieveRemoteView() {
+    QueryRetrieveRemoteView(final QueryRetrievePanel callback) {
+        this.callback = callback;
         setLayout(new GridLayout(1, 1));
     }
 
@@ -33,27 +35,25 @@ public class QueryRetrieveRemoteView extends JPanel {
 
         // TD: unsure if this is required or not... for re-laying out the panel after a query operation has succeeded
         validate();
+        callback.pack();
     }
 
     public List<QuerySelection> getCurrentRemoteQuerySelectionList() {
         return currentRemoteQuerySelectionList;
     }
 
+    private void updateListStatus(final boolean nonEmpty) {
+        callback.updateListStatus(nonEmpty);
+    }
+
     private class OurQueryTreeBrowser extends QueryTreeBrowser {
         private QueryInformationModel currentRemoteQueryInformationModel;
 
-        /**
-         * @param	q
-         * @param	m
-         * @param	content
-         * @throws DicomException
-         */
         OurQueryTreeBrowser(QueryInformationModel q,QueryTreeModel m,Container content, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomException {
             super(q,m,content);
             this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
         }
 
-        /***/
         protected TreeSelectionListener buildTreeSelectionListenerToDoSomethingWithSelectedLevel() {
             return new TreeSelectionListener() {
                 public void valueChanged(TreeSelectionEvent tse) {
@@ -67,6 +67,7 @@ public class QueryRetrieveRemoteView extends JPanel {
                         }
                     }
                     currentRemoteQuerySelectionList = remoteQuerySelectionList;
+                    updateListStatus(!remoteQuerySelectionList.isEmpty());
                 }
             };
         }

@@ -17,15 +17,15 @@ import java.util.Optional;
 
 public class QueryRetrieveController {
 
-    private final QueryRetrieveRemoteView queryRetrievePanel;
+    private QueryRetrieveRemoteView queryRetrieveRemoteView;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final DicomNode dicomNode;
     private final GiftCloudReporterFromApplication reporter;
     private Optional<QueryInformationModel> currentRemoteQueryInformationModel = Optional.empty();
     private Thread activeThread = null;
 
-    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrievePanel, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final GiftCloudReporterFromApplication reporter) {
-        this.queryRetrievePanel = queryRetrievePanel;
+    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrieveRemoteView, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final GiftCloudReporterFromApplication reporter) {
+        this.queryRetrieveRemoteView = queryRetrieveRemoteView;
         this.giftCloudProperties = giftCloudProperties;
         this.dicomNode = dicomNode;
         this.reporter = reporter;
@@ -57,11 +57,11 @@ public class QueryRetrieveController {
         }
 
         currentRemoteQueryInformationModel = Optional.of(createRemoteQueryInformationModel());
-        queryRetrievePanel.removeAll();
-        queryRetrievePanel.validate();
+        queryRetrieveRemoteView.removeAll();
+        queryRetrieveRemoteView.validate();
 
         AttributeList filter = queryParams.build();
-        Thread activeThread = new Thread(new QueryWorker(queryRetrievePanel, currentRemoteQueryInformationModel.get(), filter, dicomNode, reporter));
+        Thread activeThread = new Thread(new QueryWorker(queryRetrieveRemoteView, currentRemoteQueryInformationModel.get(), filter, dicomNode, reporter));
         activeThread.start();
     }
 

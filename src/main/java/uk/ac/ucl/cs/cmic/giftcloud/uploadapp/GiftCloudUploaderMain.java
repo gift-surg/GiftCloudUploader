@@ -57,8 +57,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Attempt to authenticate
         giftCloudUploader.tryAuthentication();
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(this, giftCloudUploader.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
-        queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrievePanel(), giftCloudProperties, dicomNode, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, giftCloudUploader.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
+        queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
 

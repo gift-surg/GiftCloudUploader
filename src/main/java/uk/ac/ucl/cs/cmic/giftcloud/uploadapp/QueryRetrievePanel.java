@@ -1,34 +1,38 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.pixelmed.dicom.AttributeList;
-import com.pixelmed.dicom.DicomException;
-import com.pixelmed.network.DicomNetworkException;
-import com.pixelmed.query.QueryInformationModel;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * A panel showing query/retrieve buttons and text options and the results of the DICOM query operation
+ * A dialog for performing Dicom query and retrieve operations
  */
-public class QueryRetrievePanel extends JPanel {
+public class QueryRetrievePanel extends JDialog {
 
     private final QueryFilterPanel queryFilterPanel;
-    private GiftCloudUploaderController controller;
-    private QueryRetrieveRemoteView queryRetrieveRemoteView;
+    private final GiftCloudUploaderController controller;
+    private final QueryRetrieveRemoteView queryRetrieveRemoteView;
+    private final JButton retrieveButton;
 
 
-    QueryRetrievePanel(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) {
+    /**
+     * Creates the query-retrieve dialog
+     *
+     * @param owner the owning dialog
+     * @param controller used to perform the query-retrieve operations
+     * @param resourceBundle for accessing the text labels
+     */
+    QueryRetrievePanel(final Dialog owner, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) {
+        super(owner);
         this.controller = controller;
 
+        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        setTitle(resourceBundle.getString("queryRetrieveWindowTitle"));
+
         queryFilterPanel = new QueryFilterPanel(controller, resourceBundle);
-        queryRetrieveRemoteView = new QueryRetrieveRemoteView();
 
         GridBagLayout layout = new GridBagLayout();
         setLayout(layout);
@@ -36,13 +40,22 @@ public class QueryRetrievePanel extends JPanel {
         Border panelBorder = BorderFactory.createEtchedBorder();
 
         JPanel retrieveButtonPanel = new JPanel();
-        retrieveButtonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        retrieveButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
         retrieveButtonPanel.setBorder(panelBorder);
 
-        JButton retrieveButton = new JButton(resourceBundle.getString("retrieveButtonLabelText"));
+        JButton cancelButton = new JButton(resourceBundle.getString("closeRetrieveButtonLabelText"));
+        cancelButton.setToolTipText(resourceBundle.getString("closeRetrieveButtonToolTipText"));
+        retrieveButtonPanel.add(cancelButton);
+        cancelButton.addActionListener(new CloseRetrieveActionListener());
+
+        retrieveButton = new JButton(resourceBundle.getString("retrieveButtonLabelText"));
+        retrieveButton.setEnabled(false);
         retrieveButton.setToolTipText(resourceBundle.getString("retrieveButtonToolTipText"));
         retrieveButtonPanel.add(retrieveButton);
         retrieveButton.addActionListener(new RetrieveActionListener());
+
+        // The remote view will call back into this class to enable or disable the retrieve button
+        queryRetrieveRemoteView = new QueryRetrieveRemoteView(this);
 
         {
             GridBagConstraints queryFilterTextEntryPanelConstraints = new GridBagConstraints();
@@ -71,24 +84,26 @@ public class QueryRetrievePanel extends JPanel {
             add(retrieveButtonPanel);
         }
 
+        pack();
     }
 
-    public void updateQueryPanel(final QueryInformationModel queryInformationModel, final AttributeList filter, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomNetworkException, DicomException, IOException {
-        queryRetrieveRemoteView.updateQueryPanel(queryInformationModel, filter, currentRemoteQueryInformationModel);
-    }
-
-    public List<QuerySelection> getCurrentRemoteQuerySelectionList() {
-        return queryRetrieveRemoteView.getCurrentRemoteQuerySelectionList();
-    }
-
-    public QueryRetrieveRemoteView getQueryRetrievePanel() {
+    public QueryRetrieveRemoteView getQueryRetrieveRemoteView() {
         return queryRetrieveRemoteView;
+    }
+
+    public void updateListStatus(boolean nonEmpty) {
+        retrieveButton.setEnabled(nonEmpty);
     }
 
     private class RetrieveActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            controller.retrieve(getCurrentRemoteQuerySelectionList());
+            controller.retrieve(queryRetrieveRemoteView.getCurrentRemoteQuerySelectionList());
         }
     }
 
+    private class CloseRetrieveActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            setVisible(false);
+        }
+    }
 }
