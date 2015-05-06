@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
 /**
  * A dialog for performing Dicom query and retrieve operations
  */
-public class QueryRetrievePanel extends JDialog {
+public class QueryRetrieveDialog extends JDialog {
 
     private final QueryFilterPanel queryFilterPanel;
     private final GiftCloudUploaderController controller;
@@ -25,7 +25,7 @@ public class QueryRetrievePanel extends JDialog {
      * @param controller used to perform the query-retrieve operations
      * @param resourceBundle for accessing the text labels
      */
-    QueryRetrievePanel(final Dialog owner, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) {
+    QueryRetrieveDialog(final Dialog owner, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) {
         super(owner);
         this.controller = controller;
 

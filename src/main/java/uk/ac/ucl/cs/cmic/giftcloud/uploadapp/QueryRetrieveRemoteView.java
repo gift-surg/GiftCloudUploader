@@ -22,9 +22,9 @@ import java.util.List;
 public class QueryRetrieveRemoteView extends JPanel {
 
     private List<QuerySelection> currentRemoteQuerySelectionList;
-    private QueryRetrievePanel callback;
+    private QueryRetrieveDialog callback;
 
-    QueryRetrieveRemoteView(final QueryRetrievePanel callback) {
+    QueryRetrieveRemoteView(final QueryRetrieveDialog callback) {
         this.callback = callback;
         setLayout(new GridLayout(1, 1));
     }

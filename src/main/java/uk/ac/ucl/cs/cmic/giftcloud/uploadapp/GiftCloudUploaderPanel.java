@@ -26,7 +26,7 @@ public class GiftCloudUploaderPanel extends JPanel {
     private final JComboBox<String> projectList;
     private final JPanel srcDatabasePanel;
     private final JTextField giftCloudServerText;
-    private final QueryRetrievePanel remoteQueryRetrievePanel;
+    private final QueryRetrieveDialog remoteQueryRetrieveDialog;
 
     // Callback to the controller for invoking actions
     private final GiftCloudUploaderController controller;
@@ -42,7 +42,7 @@ public class GiftCloudUploaderPanel extends JPanel {
         this.controller = controller;
         this.reporter = reporter;
 
-        remoteQueryRetrievePanel = new QueryRetrievePanel(dialog, controller, resourceBundle);
+        remoteQueryRetrieveDialog = new QueryRetrieveDialog(dialog, controller, resourceBundle);
 
         srcDatabasePanel = new JPanel();
         srcDatabasePanel.setLayout(new GridLayout(1, 1));
@@ -161,7 +161,7 @@ public class GiftCloudUploaderPanel extends JPanel {
     }
 
     public QueryRetrieveRemoteView getQueryRetrieveRemoteView() {
-        return remoteQueryRetrievePanel.getQueryRetrieveRemoteView();
+        return remoteQueryRetrieveDialog.getQueryRetrieveRemoteView();
     }
 
     private class ImportActionListener implements ActionListener {
@@ -172,7 +172,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     private class ImportPacsActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            remoteQueryRetrievePanel.setVisible(true);
+            remoteQueryRetrieveDialog.setVisible(true);
         }
     }
 
