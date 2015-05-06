@@ -171,19 +171,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
-    @Override
-    public void quit() {
-        try {
-            dicomNode.shutdownStorageSCP();
-            final long maxWaitTimeMs = 60000;
-            queryRetrieveController.waitForCompletion(maxWaitTimeMs);
-            giftCloudUploader.waitForCompletion(maxWaitTimeMs);
-            systemTrayController.remove();
-        } finally {
-            System.exit(0);
-        }
-    }
-
     private class DicomNodeListener implements Observer {
 
         private GiftCloudAppendUploadActionListener appendListener = new GiftCloudAppendUploadActionListener();

@@ -134,7 +134,8 @@ public class GiftCloudSystemTray {
         popup.add(exitItem);
         exitItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                controller.quit();
+                //ToDo: remove system tray icon here
+                System.exit(0);
             }
         });
 
@@ -142,14 +143,6 @@ public class GiftCloudSystemTray {
 
         updateMenuForWindowVisibility(GiftCloudMainFrame.MainWindowVisibility.HIDDEN);
         updateMenuForBackgroundUploadingServiceStatus(BackgroundService.ServiceStatus.INITIALIZED);
-
-        // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                remove();
-            }
-        });
-
     }
 
     /**

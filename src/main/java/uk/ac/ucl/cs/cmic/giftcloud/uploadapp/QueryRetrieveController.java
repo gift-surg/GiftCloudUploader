@@ -29,6 +29,17 @@ public class QueryRetrieveController {
         this.giftCloudProperties = giftCloudProperties;
         this.dicomNode = dicomNode;
         this.reporter = reporter;
+
+        // Add a shutdown hook for graceful exit
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                cleanup(giftCloudProperties.getShutdownTimeoutMs());
+            }
+        });
+    }
+
+    private void cleanup(final long maxWaitTimeMs) {
+        waitForCompletion(maxWaitTimeMs);
     }
 
     public boolean isRunning() {

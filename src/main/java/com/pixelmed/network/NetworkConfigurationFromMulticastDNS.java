@@ -128,6 +128,7 @@ if (debugLevel > 1) System.err.println("NetworkConfigurationFromMulticastDNS.Our
 			int port = -1;
 			if (info != null) {
 if (debugLevel > 1) System.err.println("NetworkConfigurationFromMulticastDNS.OurJmDNSServiceListener: Service resolved: Info getServer() = "+info.getServer());
+				//noinspection deprecation
 				hostname = info.getHostAddress();
 				port = info.getPort();
 				Enumeration propertyNames = info.getPropertyNames();

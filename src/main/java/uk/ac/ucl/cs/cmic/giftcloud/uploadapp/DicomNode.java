@@ -42,6 +42,7 @@ public class DicomNode extends Observable {
         // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
+                shutdownStorageSCPAndWait(giftCloudProperties.getShutdownTimeoutMs());
                 if (networkApplicationInformation != null && networkApplicationInformation instanceof NetworkApplicationInformationFederated) {
                     ((NetworkApplicationInformationFederated)networkApplicationInformation).removeAllSources();
                 }
@@ -91,6 +92,12 @@ public class DicomNode extends Observable {
     public void shutdownStorageSCP() {
         if (storageSOPClassSCPDispatcher != null) {
             storageSOPClassSCPDispatcher.shutdown();
+        }
+    }
+
+    public void shutdownStorageSCPAndWait(final long maximumThreadCompletionWaitTime) {
+        if (storageSOPClassSCPDispatcher != null) {
+            storageSOPClassSCPDispatcher.shutdownAndWait(maximumThreadCompletionWaitTime);
         }
     }
 

@@ -46,6 +46,13 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         final int numThreads = 1;
         final ProgressHandleWrapper progressHandleWrapper = new ProgressHandleWrapper(reporter);
         backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads), progressHandleWrapper, this, reporter);
+
+        // Add a shutdown hook for graceful exit
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                cleanup(giftCloudProperties.getShutdownTimeoutMs());
+            }
+        });
     }
 
     public void setUploadServiceRunningState(final boolean start) {
@@ -228,7 +235,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         pendingUploadList.addExistingFiles();
     }
 
-    public void waitForCompletion(final long maxWaitTimeMs) {
+    private void cleanup(final long maxWaitTimeMs) {
         backgroundAddToUploaderService.stop();
         backgroundAddToUploaderService.waitForThreadCompletion(maxWaitTimeMs);
         backgroundUploader.stop();

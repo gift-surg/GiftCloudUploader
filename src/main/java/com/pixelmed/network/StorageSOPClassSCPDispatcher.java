@@ -125,6 +125,8 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	private boolean wantToShutdown;
 	/***/
 	private boolean isReady;
+
+	private Thread executingThread = null;
 	
 	/**
 	 * <p>Is the dispatcher ready to receive connections?</p>
@@ -423,6 +425,16 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 		wantToShutdown = true;
 	}
 
+	public void shutdownAndWait(final long maximumThreadCompletionWaitTime) {
+		wantToShutdown = true;
+		if (executingThread != null) {
+			try {
+				executingThread.join(maximumThreadCompletionWaitTime);
+			} catch (InterruptedException e) {
+			}
+		}
+	}
+
 	/**
 	 * <p>Waits for a transport connection indications, then spawns
 	 * new threads to act as association acceptors, which then wait for storage or
@@ -479,12 +491,14 @@ if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": Storag
 if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher:run(): applicationEntityMap = "+applicationEntityMap);
 					}
 					try {
-						new Thread(new StorageSOPClassSCP(socket,calledAETitle,
+
+						executingThread = new Thread(new StorageSOPClassSCP(socket,calledAETitle,
 							ourMaximumLengthReceived,socketReceiveBufferSize,socketSendBufferSize,savedImagesFolder,storedFilePathStrategy,
 							receivedObjectHandler,associationStatusHandler,queryResponseGeneratorFactory,retrieveResponseGeneratorFactory,
 							applicationEntityMap,
 							presentationContextSelectionPolicy,
-							debugLevel)).start();
+							debugLevel));
+						executingThread.start();
 					}
 					catch (Exception e) {
 						e.printStackTrace(System.err);

@@ -124,7 +124,7 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
             return true;
         } else {
             try {
-                serviceThread.join();
+                serviceThread.join(maximumThreadCompletionWaitTime);
             } catch (InterruptedException e) {
             }
             return !serviceThread.isAlive();

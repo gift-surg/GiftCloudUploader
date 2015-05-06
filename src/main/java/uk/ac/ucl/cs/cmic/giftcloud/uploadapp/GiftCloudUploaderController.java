@@ -28,6 +28,4 @@ public interface GiftCloudUploaderController {
     void runImport(String filePath, final Progress progress);
 
     void selectAndImport();
-
-    void quit();
 }

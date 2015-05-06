@@ -123,6 +123,11 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     @Override
+    public long getShutdownTimeoutMs() {
+        return 30000;
+    }
+
+    @Override
     public Optional<char[]> getLastPassword() {
         return lastPassword;
     }

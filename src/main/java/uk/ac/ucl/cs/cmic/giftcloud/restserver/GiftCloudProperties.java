@@ -33,4 +33,6 @@ public interface GiftCloudProperties {
     File getUploadFolder(final GiftCloudReporter reporter);
 
     String getUserAgentString();
+
+    long getShutdownTimeoutMs();
 }
