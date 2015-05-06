@@ -53,10 +53,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
         }
 
-
-        // Attempt to authenticate
-        giftCloudUploader.tryAuthentication();
-
         giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, giftCloudUploader.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, reporter);
 
@@ -72,6 +68,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             reporter.warnUser("A system tray icon could not be created. The GIFT-Cloud uploader will start in visible mode.");
             show();
         }
+
+        // Attempt to authenticate
+        giftCloudUploader.tryAuthentication();
+
     }
 
     @Override
@@ -169,6 +169,20 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             reporter.updateStatusText("Importing failed due to the following error: " + e);
             e.printStackTrace(System.err);
         }
+    }
+
+    @Override
+    public void tryAuthentication() {
+        new Thread() {
+            public void run() {
+
+                // Attempt to authenticate
+                giftCloudUploader.tryAuthentication();
+            }
+        }.run();
+
+
+
     }
 
     private class DicomNodeListener implements Observer {
