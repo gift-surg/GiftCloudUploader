@@ -19,13 +19,9 @@ import java.util.Vector;
  */
 public class GiftCloudUploaderPanel extends JPanel {
 
-    private static int textFieldLengthForGiftCloudServerUrl = 32;
-
     // User interface components
     private final StatusPanel statusPanel;
-    private final JComboBox<String> projectList;
     private final JPanel srcDatabasePanel;
-    private final JTextField giftCloudServerText;
     private final QueryRetrieveDialog remoteQueryRetrieveDialog;
 
     // Callback to the controller for invoking actions
@@ -37,7 +33,7 @@ public class GiftCloudUploaderPanel extends JPanel {
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
-    public GiftCloudUploaderPanel(final Dialog dialog, final GiftCloudUploaderController controller, final ComboBoxModel<String> projectListModel, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final Dialog dialog, final GiftCloudUploaderController controller, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
         this.reporter = reporter;
@@ -74,31 +70,6 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(giftCloudUploadButton);
         giftCloudUploadButton.addActionListener(new GiftCloudUploadActionListener());
 
-        JPanel projectUploadPanel = new JPanel();
-        projectUploadPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        projectUploadPanel.setBorder(panelBorder);
-
-        projectList = new JComboBox<String>();
-        projectList.setEditable(false);
-        projectList.setToolTipText(resourceBundle.getString("giftCloudProjectTooltip"));
-
-        JLabel projectListLabel = new JLabel(resourceBundle.getString("giftCloudProjectLabelText"));
-        projectUploadPanel.add(projectListLabel);
-        projectUploadPanel.add(projectList);
-
-        JLabel giftCloudServerLabel = new JLabel(resourceBundle.getString("giftCloudServerText"));
-        giftCloudServerLabel.setToolTipText(resourceBundle.getString("giftCloudServerTextToolTipText"));
-
-
-        giftCloudServerText = new AutoSaveTextField(giftCloudProperties.getGiftCloudUrl(), textFieldLengthForGiftCloudServerUrl) {
-            @Override
-            void autoSave() {
-                giftCloudProperties.setGiftCloudUrl(getText());
-            }
-        };
-
-        projectUploadPanel.add(giftCloudServerLabel);
-        projectUploadPanel.add(giftCloudServerText);
 
         statusPanel = new StatusPanel();
         reporter.addProgressListener(statusPanel);
@@ -125,14 +96,6 @@ public class GiftCloudUploaderPanel extends JPanel {
                 add(buttonPanel);
             }
             {
-                GridBagConstraints projectUploadPanelConstraints = new GridBagConstraints();
-                projectUploadPanelConstraints.gridx = 0;
-                projectUploadPanelConstraints.gridy = 3;
-                projectUploadPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-                mainPanelLayout.setConstraints(projectUploadPanel,projectUploadPanelConstraints);
-                add(projectUploadPanel);
-            }
-            {
                 GridBagConstraints statusBarPanelConstraints = new GridBagConstraints();
                 statusBarPanelConstraints.gridx = 0;
                 statusBarPanelConstraints.gridy = 6;
@@ -141,8 +104,6 @@ public class GiftCloudUploaderPanel extends JPanel {
                 add(statusPanel);
             }
         }
-
-        projectList.setModel(projectListModel);
     }
 
     // Called when the database model has changed
@@ -182,16 +143,6 @@ public class GiftCloudUploaderPanel extends JPanel {
         }
     }
 
-	private class ConfigureActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			try {
-                controller.showConfigureDialog();
-			} catch (Exception e) {
-				e.printStackTrace(System.err);
-			}
-		}
-	}
-
     private class OurSourceDatabaseTreeBrowser extends DatabaseTreeBrowser {
         public OurSourceDatabaseTreeBrowser(DatabaseInformationModel d,Container content) throws DicomException {
             super(d,content);
@@ -206,4 +157,13 @@ public class GiftCloudUploaderPanel extends JPanel {
         }
     }
 
+    private class ConfigureActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            try {
+                controller.showConfigureDialog();
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
+            }
+        }
+    }
 }

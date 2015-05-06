@@ -26,6 +26,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final DicomNode dicomNode;
     private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
+    private final GiftCloudConfigurationDialog configurationDialog;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
     private final SystemTrayController systemTrayController;
@@ -41,6 +42,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Initialise application properties
         giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase, resourceBundle);
 
+
         // Initialise the main GIFT-Cloud class
         giftCloudUploader = new GiftCloudUploader(restServerFactory, giftCloudProperties, reporter);
         giftCloudUploader.addExistingFilesToUploadQueue();
@@ -53,7 +55,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
         }
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, giftCloudUploader.getProjectListModel(), dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
+        configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), this, giftCloudProperties, giftCloudUploader.getProjectListModel(), dicomNode, resourceBundle, giftCloudDialogs);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
@@ -76,16 +79,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     @Override
     public void showConfigureDialog() throws IOException, DicomNode.DicomNodeStartException {
-        dicomNode.shutdownStorageSCP();
-        try {
-            new NetworkApplicationConfigurationDialog(giftCloudMainFrame.getContainer(), dicomNode.getNetworkApplicationInformation(), giftCloudProperties, giftCloudDialogs);
-        } catch (DicomNetworkException e) {
-            throw new IOException("Failed to create configuration dialog due to error: " + e.getCause());
-        }
-        // should now save properties to file
-        giftCloudProperties.updatePropertiesWithNetworkProperties();
-        giftCloudProperties.storeProperties("Edited and saved from user interface");
-        dicomNode.activateStorageSCP();
+        configurationDialog.setVisible(true);
     }
 
     @Override
