@@ -15,6 +15,7 @@ import java.util.*;
 public class GiftCloudPropertiesFromApplication extends Observable implements GiftCloudProperties {
 
     protected static String propertyName_DicomCurrentlySelectedQueryTargetAE = "Dicom.CurrentlySelectedQueryTargetAE";
+    protected static String KEYSTORE_UPLOAD_PASSWORD_KEY = "GiftCloud.UploadPassword";
 
     private Properties properties;
 
@@ -26,10 +27,17 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     private NetworkApplicationProperties networkApplicationProperties;
     private final String userAgentString;
 
+    private Optional<PasswordStore> passwordStore = null;
+
 
     public GiftCloudPropertiesFromApplication(final GiftCloudUploaderApplicationBase applicationBase, final ResourceBundle resourceBundle) {
         this.applicationBase = applicationBase;
         this.properties = applicationBase.getPropertiesFromApplicationBase();
+
+        try {
+            passwordStore = Optional.of(new PasswordStore(new File(System.getProperty("user.home"), ".giftcloudkeys"), "k>9TG*"));
+        } catch (Throwable t) {
+        }
 
 
         // Set the user agent string for the application
@@ -129,12 +137,25 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
 
     @Override
     public Optional<char[]> getLastPassword() {
+        if (passwordStore.isPresent()) {
+            try {
+                return Optional.of(passwordStore.get().retrieve(KEYSTORE_UPLOAD_PASSWORD_KEY));
+            } catch (Throwable t) {
+                return lastPassword;
+            }
+        }
         return lastPassword;
     }
 
     @Override
     public void setLastPassword(char[] lastPassword) {
         this.lastPassword = Optional.of(lastPassword);
+        if (passwordStore.isPresent()) {
+            try {
+                passwordStore.get().store(KEYSTORE_UPLOAD_PASSWORD_KEY, lastPassword);
+            } catch (Throwable t) {
+            }
+        }
     }
 
     @Override
