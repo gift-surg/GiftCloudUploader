@@ -17,7 +17,6 @@
 		<level name="Maven: uk.ac.ucl.cs.cmic.giftcloud.localrepo:joda-time:1.5" value="project"/>
 		<level name="Maven: org.nrg:DicomEdit:4.0.0" value="project"/>
 		<level name="Maven: dcm4che:dcm4che-core:2.0.25" value="project"/>
-		<level name="Maven: org.slf4j:slf4j-api:1.7.12" value="project"/>
 		<level name="Maven: org.antlr:antlr-runtime:3.4" value="project"/>
 		<level name="Maven: org.antlr:stringtemplate:3.2.1" value="project"/>
 		<level name="Maven: antlr:antlr:2.7.7" value="project"/>
@@ -33,7 +32,8 @@
 		<level name="Maven: javax.inject:javax.inject:1" value="project"/>
 		<level name="Maven: org.nrg:nrgutil:2.0.0" value="project"/>
 		<level name="Maven: log4j:log4j:1.2.17" value="project"/>
-		<level name="Maven: org.slf4j:slf4j-simple:1.6.2" value="project"/>
+		<level name="Maven: org.slf4j:slf4j-log4j12:1.7.12" value="project"/>
+		<level name="Maven: org.slf4j:slf4j-api:1.7.12" value="project"/>
 		<level name="Maven: junit:junit:4.8.1" value="project"/>
 		<level name="Maven: org.json:json:20140107" value="project"/>
 		<level name="Maven: com.toedter:jcalendar:1.4" value="project"/>
