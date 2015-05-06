@@ -18,7 +18,7 @@ import java.util.*;
 
 public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
-	private static String propertiesFileName  = ".com.pixelmed.display.GiftCloudUploader.properties";
+	private static String propertiesFileName  = ".uk.ac.ucl.cs.cmic.giftcloud.GiftCloudUploader.properties";
     private final ResourceBundle resourceBundle;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final GiftCloudMainFrame giftCloudMainFrame;
