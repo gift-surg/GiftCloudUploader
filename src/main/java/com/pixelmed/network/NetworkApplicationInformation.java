@@ -2,8 +2,6 @@
 
 package com.pixelmed.network;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
@@ -15,10 +13,6 @@ import java.util.*;
  */
 public class NetworkApplicationInformation {
 
-	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/network/NetworkApplicationInformation.java,v 1.14 2014/09/09 20:34:09 dclunie Exp $";
-
-	public static final String resourceName_PublicStorageSCPs = "/com/pixelmed/network/publicstoragescps.properties";
-	
 	public static final String propertyName_DicomRemoteAEs = "Dicom.RemoteAEs";
 	
 	private static final String propertyNameSuffix_CalledAETitle = "CalledAETitle";
@@ -32,15 +26,6 @@ public class NetworkApplicationInformation {
 	private final ApplicationEntityMap applicationEntityMap;
 	private final TreeMap localNameToApplicationEntityTitleMap;
 	private final TreeMap applicationEntityTitleToLocalNameMap;
-	
-	public void addPublicStorageSCPs() throws IOException, DicomNetworkException {
-		Properties publicStorageSCPsProperties = new Properties();
-		InputStream publicStorageSCPsInputStream = NetworkApplicationProperties.class.getResourceAsStream(resourceName_PublicStorageSCPs);
-		if (publicStorageSCPsInputStream != null) {
-			publicStorageSCPsProperties.load(publicStorageSCPsInputStream);
-			addAll(publicStorageSCPsProperties);
-		}
-	}
 
 	/**
 	 * <p>Construct an empty container for properties of DICOM network devices.</p>
@@ -91,7 +76,6 @@ public class NetworkApplicationInformation {
 	 * @return	the updated properties or a new set of properties if none supplied
 	 */
 	public Properties getProperties(Properties properties) {
-//System.err.println("NetworkApplicationInformation.getProperties(): at start, properties = \n"+properties);
 		if (properties == null) {
 			properties = new Properties();
 		}
@@ -110,7 +94,6 @@ public class NetworkApplicationInformation {
 				}
 			}
 			properties.remove(propertyName_DicomRemoteAEs);
-//System.err.println("NetworkApplicationInformation.getProperties(): after removing existing remote AEs, properties = \n"+properties);
 		}
 		
 		{
@@ -143,7 +126,6 @@ public class NetworkApplicationInformation {
 			}
 			properties.setProperty(propertyName_DicomRemoteAEs,remoteAEs.toString());
 		}
-//System.err.println("NetworkApplicationInformation.getProperties(): at end, properties = \n"+properties);
 
 		return properties;
 	}
@@ -152,7 +134,6 @@ public class NetworkApplicationInformation {
 	 * <p>Completely empty all information.</p>
 	 */
 	public void removeAll() {
-//System.err.println("NetworkApplicationInformation.removeAll():");
 		applicationEntityMap.clear();
 		localNameToApplicationEntityTitleMap.clear();
 		applicationEntityTitleToLocalNameMap.clear();
@@ -224,7 +205,6 @@ public class NetworkApplicationInformation {
 	 * @throws	DicomNetworkException	if local name or AET already used, or either is null or empty
 	 */
 	public void add(String localName,String aeTitle,String hostname,int port,String queryModel,String primaryDeviceType) throws DicomNetworkException {
-//System.err.println("NetworkApplicationInformation.add("+localName+","+aeTitle+","+hostname+","+port+","+queryModel+","+primaryDeviceType+")");
 		if (aeTitle != null && aeTitle.length() > 0
 		 && hostname != null && hostname.length() > 0) {
 			// query model may be null
@@ -257,7 +237,6 @@ public class NetworkApplicationInformation {
 	 * @param	infoToAdd	the information to add
 	 */
 	public void addAll(NetworkApplicationInformation infoToAdd) {
-//System.err.println("NetworkApplicationInformation.addAll():");
 		if (infoToAdd != null) {
 			Set localNamesToAdd = infoToAdd.getListOfLocalNamesOfApplicationEntities();
 			ApplicationEntityMap aesToAdd = infoToAdd.getApplicationEntityMap();
@@ -266,22 +245,17 @@ public class NetworkApplicationInformation {
 				while (i.hasNext()) {
 					String localName = (String)(i.next());
 					if (localName != null && localName.length() > 0) {
-//System.err.println("NetworkApplicationInformation.addAll(): interating on localName = "+localName);
 						String aeTitle = infoToAdd.getApplicationEntityTitleFromLocalName(localName);
 						if (aeTitle != null && aeTitle.length() > 0) {
-//System.err.println("NetworkApplicationInformation.addAll(): aeTitle = "+aeTitle);
 							// Do not use add(localName,ae) ... causes infinite loop
 							if (localNameToApplicationEntityTitleMap.get(localName) == null
 							 && applicationEntityMap.get(aeTitle) == null) {
-//System.err.println("NetworkApplicationInformation.addAll(): adding new entry ");
 								ApplicationEntity ae = (ApplicationEntity)(aesToAdd.get(aeTitle));
 								applicationEntityMap.put(aeTitle,ae);
 								localNameToApplicationEntityTitleMap.put(localName,aeTitle);
 								applicationEntityTitleToLocalNameMap.put(aeTitle,localName);
-//System.err.println("NetworkApplicationInformation.addAll(): done adding new entry ");
 							}
 							else {
-//System.err.println("NetworkApplicationInformation.addAll(): already have localName or aeTitle");
 							}
 						}
 					}

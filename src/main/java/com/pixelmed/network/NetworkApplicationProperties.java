@@ -120,7 +120,6 @@ public class NetworkApplicationProperties {
 	 * @param	addPublicStorageSCPsIfNoRemoteAEsConfigured
 	 */
 	public NetworkApplicationProperties(Properties properties,boolean addPublicStorageSCPsIfNoRemoteAEsConfigured) throws DicomNetworkException, IOException {
-//System.err.println("NetworkApplicationProperties(Properties): properties ="+properties);
 		String portString=properties.getProperty(propertyName_DicomListeningPort);
 		if (portString == null || portString.length() == 0) {
 			port=NetworkDefaultValues.StandardDicomReservedPortNumber;
@@ -154,8 +153,6 @@ public class NetworkApplicationProperties {
 		if (addPublicStorageSCPsIfNoRemoteAEsConfigured) {
 			Set<String> aets = networkApplicationInformation.getListOfApplicationEntityTitlesOfApplicationEntities();
 			if (aets == null || aets.size() == 0 || (aets.size() == 1 && aets.contains(calledAETitle))) {
-				// nothing, or just ourselves
-				networkApplicationInformation.addPublicStorageSCPs();
 			}
 		}
 	}
