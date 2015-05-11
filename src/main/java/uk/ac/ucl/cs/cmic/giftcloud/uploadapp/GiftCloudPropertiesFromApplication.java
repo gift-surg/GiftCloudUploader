@@ -46,7 +46,7 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         userAgentString = nameString + (versionString != null ? versionString : "");
 
         try {
-            networkApplicationProperties = new NetworkApplicationProperties(properties, true/*addPublicStorageSCPsIfNoRemoteAEsConfigured*/);
+            networkApplicationProperties = new NetworkApplicationProperties(properties);
 
         }
         catch (Exception e) {

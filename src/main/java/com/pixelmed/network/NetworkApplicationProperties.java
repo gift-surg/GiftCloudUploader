@@ -4,7 +4,6 @@ package com.pixelmed.network;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * <p>This class provides common support to applications requiring properties related to DICOM network services.</p>
@@ -91,7 +90,6 @@ public class NetworkApplicationProperties {
 	 * <p>Create default properties.</p>
 	 */
 	public NetworkApplicationProperties() throws DicomNetworkException {
-//System.err.println("NetworkApplicationProperties():");
 		port = NetworkDefaultValues.StandardDicomReservedPortNumber;
 		calledAETitle = NetworkDefaultValues.getDefaultApplicationEntityTitle(port);
 		callingAETitle = calledAETitle;
@@ -103,23 +101,13 @@ public class NetworkApplicationProperties {
 		networkDynamicConfigurationDebugLevel = 0;
 		networkApplicationInformation = new NetworkApplicationInformation();
 	}
-	
+
 	/**
 	 * <p>Extract the DICOM network properties from the supplied properties.</p>
 	 *
 	 * @param	properties
 	 */
 	public NetworkApplicationProperties(Properties properties) throws DicomNetworkException, IOException {
-		this(properties,false/*addPublicStorageSCPsIfNoRemoteAEsConfigured*/);
-	}
-	
-	/**
-	 * <p>Extract the DICOM network properties from the supplied properties.</p>
-	 *
-	 * @param	properties
-	 * @param	addPublicStorageSCPsIfNoRemoteAEsConfigured
-	 */
-	public NetworkApplicationProperties(Properties properties,boolean addPublicStorageSCPsIfNoRemoteAEsConfigured) throws DicomNetworkException, IOException {
 		String portString=properties.getProperty(propertyName_DicomListeningPort);
 		if (portString == null || portString.length() == 0) {
 			port=NetworkDefaultValues.StandardDicomReservedPortNumber;
@@ -149,12 +137,6 @@ public class NetworkApplicationProperties {
 		networkDynamicConfigurationDebugLevel = Integer.valueOf(properties.getProperty(propertyName_NetworkDynamicConfigurationDebugLevel,"0")).intValue();
 
 		networkApplicationInformation = new NetworkApplicationInformation(properties);
-		
-		if (addPublicStorageSCPsIfNoRemoteAEsConfigured) {
-			Set<String> aets = networkApplicationInformation.getListOfApplicationEntityTitlesOfApplicationEntities();
-			if (aets == null || aets.size() == 0 || (aets.size() == 1 && aets.contains(calledAETitle))) {
-			}
-		}
 	}
 	
 	/**
