@@ -27,10 +27,7 @@ import java.util.*;
  * <ul>
  * <li> {@link #QueryInformationModel(String,int,String,String,int) QueryInformationModel()}
  * <li> {@link #performHierarchicalQuery(AttributeList) performHierarchicalQuery()}
- * <li> {@link #performHierarchicalMove(AttributeList) performHierarchicalMove()}
  * <li> {@link #performHierarchicalMoveFrom(AttributeList,String) performHierarchicalMoveFrom()}
- * <li> {@link #performHierarchicalMoveTo(AttributeList,String) performHierarchicalMoveTo()}
- * <li> {@link #performHierarchicalMoveFromTo(AttributeList,String,String) performHierarchicalMoveFromTo()}
  * </ul>
  *
  * @see com.pixelmed.query.StudyRootQueryInformationModel
@@ -225,39 +222,7 @@ if (debugLevel > 1) System.err.println("QueryInformationModel.performQuery(): re
 	public QueryTreeModel performHierarchicalQuery(AttributeList filter) throws IOException, DicomException, DicomNetworkException {
 		return new QueryTreeModel(this,filter,debugLevel);
 	}
-	
-	/**
-	 * <p>Retrieve DICOM object(s).</p>
-	 *
-	 * <p>Assumes that the objects are available at the<code>calledAETitle</code>
-	 * specified in the constructor in this class instance.</p>
-	 *
-	 * <p>Assumes that we have a storage SCP listening as the <code>callingAETitle</code>
-	 * specified in the constructor in this class instance.</p>
-	 *
-	 * @param		identifier				the move request identifier as a list of DICOM attributes
-	 * @throws	IOException				thrown if there is an generic IO problem
-	 * @throws	DicomException			thrown if there is a problem performing or parsing the query
-	 * @throws	DicomNetworkException	thrown if there is a problem with the DICOM network protocol
-	 */
-	public void performHierarchicalMove(AttributeList identifier) throws IOException, DicomException, DicomNetworkException {
-		if (cMoveAssociation == null) {
-			new MoveSOPClassSCU(hostname,port,calledAETitle,callingAETitle,callingAETitle,getMoveSOPClassUID(),identifier,debugLevel);
-		}
-		else {
-if (debugLevel > 1) System.err.println("performHierarchicalMove(): reusing existing association");
-			new MoveSOPClassSCU(cMoveAssociation,callingAETitle,getMoveSOPClassUID(),identifier,debugLevel);
-		}
 
-	}
-	
-	/**
-	 * @deprecated	See {@link #performHierarchicalMoveFrom(AttributeList,String) performHierarchicalMoveFrom()}.
-	 */
-	public void performHierarchicalMove(AttributeList identifier,String retrieveAE) throws IOException, DicomException, DicomNetworkException {
-		performHierarchicalMoveFrom(identifier,retrieveAE);
-	}
-	
 	/**
 	 * <p>Retrieve DICOM object(s) from the specified location.</p>
 	 *
@@ -282,46 +247,7 @@ if (debugLevel > 1) System.err.println("performHierarchicalMoveFrom(): reusing e
 			new MoveSOPClassSCU(cMoveAssociation,callingAETitle,getMoveSOPClassUID(),identifier,debugLevel);
 		}
 	}
-	
-	/**
-	 * <p>Retrieve DICOM object(s) to the specified location.</p>
-	 *
-	 * <p>Assumes that the objects are available at the <code>calledAETitle</code>
-	 * specified in the constructor in this class instance.</p>
-	 *
-	 * <p>Further assumes that <code>calledAETitle</code> knows how to resolve the <code>moveDestination</code>
-	 * into a presentation address (hostname and port number).</p>
-	 *
-	 * @param		identifier				the move request identifier as a list of DICOM attributes
-	 * @param		moveDestination			the AE title of where to move the object(s) to
-	 * @throws	IOException				thrown if there is an generic IO problem
-	 * @throws	DicomException			thrown if there is a problem performing or parsing the query
-	 * @throws	DicomNetworkException	thrown if there is a problem with the DICOM network protocol
-	 */
-	public void performHierarchicalMoveTo(AttributeList identifier,String moveDestination) throws IOException, DicomException, DicomNetworkException {
-		if (cMoveAssociation == null) {
-			new MoveSOPClassSCU(hostname,port,calledAETitle,callingAETitle,moveDestination,getMoveSOPClassUID(),identifier,debugLevel);
-		}
-		else {
-if (debugLevel > 1) System.err.println("performHierarchicalMoveTo(): reusing existing association");
-			new MoveSOPClassSCU(cMoveAssociation,moveDestination,getMoveSOPClassUID(),identifier,debugLevel);
-		}
-	}
-	
-	/**
-	 * <p>Retrieve DICOM object(s) from the specified location to the specified location.</p>
-	 *
-	 * @param		identifier				the move request identifier as a list of DICOM attributes
-	 * @param		retrieveAE				the AE title of where to move the object(s) from
-	 * @param		moveDestination			the AE title of where to move the object(s) to
-	 * @throws	IOException				thrown if there is an generic IO problem
-	 * @throws	DicomException			thrown if there is a problem performing or parsing the query
-	 * @throws	DicomNetworkException	thrown if there is a problem with the DICOM network protocol
-	 */
-	public void performHierarchicalMoveFromTo(AttributeList identifier,String retrieveAE,String moveDestination) throws IOException, DicomException, DicomNetworkException {
-		new MoveSOPClassSCU(hostname,port,retrieveAE,callingAETitle,moveDestination,getMoveSOPClassUID(),identifier,debugLevel);
-	}
-	
+
 	/**
 	 * <p>Release any cached Associations.</p>
 	 *
@@ -358,10 +284,7 @@ if (debugLevel > 1) System.err.println("QueryInformationModel: releasing C-MOVE 
 	 * <p>Does not actually perform a query or retrieval; for that see:</p>
 	 * <ul>
 	 * <li> {@link #performHierarchicalQuery(AttributeList) performHierarchicalQuery()}
-	 * <li> {@link #performHierarchicalMove(AttributeList) performHierarchicalMove()}
 	 * <li> {@link #performHierarchicalMoveFrom(AttributeList,String) performHierarchicalMoveFrom()}
-	 * <li> {@link #performHierarchicalMoveTo(AttributeList,String) performHierarchicalMoveTo()}
-	 * <li> {@link #performHierarchicalMoveFromTo(AttributeList,String,String) performHierarchicalMoveFromTo()}
 	 * </ul>
 	 *
 	 * @param	hostname			their hostname or IP address
@@ -396,10 +319,7 @@ if (debugLevel > 1) System.err.println("QueryInformationModel: releasing C-MOVE 
 	 * <p>Does not actually open an association or perform a query or retrieval; for that see:</p>
 	 * <ul>
 	 * <li> {@link #performHierarchicalQuery(AttributeList) performHierarchicalQuery()}
-	 * <li> {@link #performHierarchicalMove(AttributeList) performHierarchicalMove()}
 	 * <li> {@link #performHierarchicalMoveFrom(AttributeList,String) performHierarchicalMoveFrom()}
-	 * <li> {@link #performHierarchicalMoveTo(AttributeList,String) performHierarchicalMoveTo()}
-	 * <li> {@link #performHierarchicalMoveFromTo(AttributeList,String,String) performHierarchicalMoveFromTo()}
 	 * </ul>
 	 *
 	 * @param	hostname		their hostname or IP address
