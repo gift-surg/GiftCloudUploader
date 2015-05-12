@@ -26,7 +26,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final DicomNode dicomNode;
     private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
-    private final GiftCloudConfigurationDialog configurationDialog;
+    private GiftCloudConfigurationDialog configurationDialog = null;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
     private final SystemTrayController systemTrayController;
@@ -53,9 +53,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             dicomNode.activateStorageSCP();
         } catch (DicomNode.DicomNodeStartException e) {
             System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
+        } catch (DicomNetworkException e) {
+            System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
         }
 
-        configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), this, giftCloudProperties, giftCloudUploader.getProjectListModel(), dicomNode, resourceBundle, giftCloudDialogs);
         giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, reporter);
 
@@ -79,7 +80,9 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     @Override
     public void showConfigureDialog() throws IOException, DicomNode.DicomNodeStartException {
-        configurationDialog.setVisible(true);
+        if (configurationDialog == null || !configurationDialog.isVisible()) {
+            configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), this, giftCloudProperties, giftCloudUploader.getProjectListModel(), dicomNode, resourceBundle, giftCloudDialogs);
+        }
     }
 
     @Override
@@ -177,6 +180,25 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
 
 
+    }
+
+    @Override
+    public void restartDicomService() {
+        try {
+            dicomNode.shutdownStorageSCP();
+            dicomNode.activateStorageSCP();
+//            // else do nothing ... we have been modifying the NetworkApplicationInformation inside the existing NetworkApplicationProperties all along
+        } catch (Exception e) {
+//            e.printStackTrace(System.err);
+        }
+
+    }
+
+    @Override
+    public void restartUploader() {
+        // ToDo: this doesn't really deal with changes to the server etc
+        pauseUploading();
+        startUploading();
     }
 
     private class DicomNodeListener implements Observer {

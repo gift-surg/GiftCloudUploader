@@ -30,4 +30,8 @@ public interface GiftCloudUploaderController {
     void selectAndImport();
 
     void tryAuthentication();
+
+    void restartDicomService();
+
+    void restartUploader();
 }
