@@ -13,6 +13,16 @@ public interface GiftCloudProperties {
     String propertyName_GiftCloudLocalUploadFolder = "GiftCloud_LocalUploadFolder";
     String propertyName_LastImportDirectory = "LastImportDirectory";
     String propertyName_LastExportDirectory = "LastExportDirectory";
+    String propertyName_ListenerCallingAeTitle = "GiftCloud_ListenerCallingAeTitle";
+    String propertyName_ListenerCalledAeTitle = "GiftCloud_ListenerCalledAeTitle";
+    String propertyName_ListenerPort = "GiftCloud_ListenerPort";
+    String propertyName_PacsAeTitle = "GiftCloud_RemoteAeTitle";
+    String propertyName_PacsHostName = "GiftCloud_RemoteHostName";
+    String propertyName_PacsQueryModel = "GiftCloud_RemoteQueryModel";
+    String propertyName_PacsPrimaryDeviceType = "GiftCloud_RemotePrimaryDeviceType";
+    String propertyName_PacsPort = "GiftCloud_RemotePort";
+    String propertyName_Shutdowntimeout = "GiftCloud_ShutdownTimeout";
+
 
     Optional<String> getGiftCloudUrl();
 
@@ -35,4 +45,14 @@ public interface GiftCloudProperties {
     String getUserAgentString();
 
     long getShutdownTimeoutMs();
+
+    Optional<String> getPacsAeTitle();
+
+    Optional<String> getPacsHostName();
+
+    int getPacsPort();
+
+    Optional<String> getPacsQueryModel();
+
+    Optional<String> getPacsPrimaryDeviceType();
 }
