@@ -43,7 +43,6 @@ MessageServiceElementCommand.class \
 MoveSOPClassSCU.class \
 MultipleInstanceTransferStatusHandler.class \
 MultipleInstanceTransferStatusHandlerWithFileName.class \
-NetworkApplicationConfigurationDialog.class \
 NetworkApplicationInformation.class \
 NetworkApplicationInformationFederated.class \
 NetworkApplicationProperties.class \
