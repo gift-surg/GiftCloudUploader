@@ -3,7 +3,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.network.NetworkApplicationProperties;
-import com.pixelmed.network.PresentationAddress;
 import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.StudyRootQueryInformationModel;
 import org.apache.commons.lang.StringUtils;
@@ -82,27 +81,30 @@ public class QueryRetrieveController {
             throw new GiftCloudException(GiftCloudUploaderError.EMPTY_AE);
         }
 
-        if (giftCloudProperties.areNetworkPropertiesValid() && dicomNode.isNetworkApplicationInformationValid()) {
-            final String queryCallingAETitle = giftCloudProperties.getCallingAETitle();
-            final String queryCalledAETitle = dicomNode.getApplicationEntityTitleFromLocalName(remoteAEForQuery);
-            final PresentationAddress presentationAddress = dicomNode.getPresentationAddress(queryCalledAETitle);
-
-            if (presentationAddress == null) {
-                throw new GiftCloudException(GiftCloudUploaderError.QUERY_CANNOT_DETERMINE_PRESENTATION_ADDRESS, "Cannot determine presentation address for remote query AE:" + remoteAEForQuery);
+            final Optional<String> queryCallingAETitle = giftCloudProperties.getListenerCallingAETitle();
+            if (!queryCallingAETitle.isPresent() || StringUtils.isBlank(queryCallingAETitle.get())) {
+                throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_LISTENER_CALLING_AE, "No listener calling AE host has been set");
             }
 
-            final String queryHost = presentationAddress.getHostname();
-            final int queryPort = presentationAddress.getPort();
-            final String queryModel = dicomNode.getQueryModel(queryCalledAETitle);
+
+            final Optional<String> queryCalledAETitle = giftCloudProperties.getPacsAeTitle();
+            final Optional<String> queryHost = giftCloudProperties.getPacsHostName();
+            final int queryPort = giftCloudProperties.getPacsPort();
+            final Optional<String> queryModel = giftCloudProperties.getPacsQueryModel();
             final int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
 
-            if (NetworkApplicationProperties.isStudyRootQueryModel(queryModel) || queryModel == null) {
-                return new StudyRootQueryInformationModel(queryHost,queryPort,queryCalledAETitle,queryCallingAETitle,queryDebugLevel);
-            } else {
-                throw new GiftCloudException(GiftCloudUploaderError.QUERY_MODEL_NOT_SUPPORTED, "The query model is not supported for remote query AE:" + remoteAEForQuery);
+            if (!queryHost.isPresent() || StringUtils.isBlank(queryHost.get())) {
+                throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_HOST, "No PACS host has been set");
             }
+
+        if (!queryCalledAETitle.isPresent() || StringUtils.isBlank(queryCalledAETitle.get())) {
+            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_CALLED_AE_TITLE, "No PACS called AE title has been set");
+        }
+
+        if (!queryModel.isPresent() || NetworkApplicationProperties.isStudyRootQueryModel(queryModel.get())) {
+            return new StudyRootQueryInformationModel(queryHost.get(), queryPort, queryCalledAETitle.get(), queryCallingAETitle.get(), queryDebugLevel);
         } else {
-            throw new GiftCloudException(GiftCloudUploaderError.NETWORK_PROPERTIES_INVALID);
+            throw new GiftCloudException(GiftCloudUploaderError.QUERY_MODEL_NOT_SUPPORTED, "The query model is not supported for remote query AE:" + remoteAEForQuery);
         }
     }
 
