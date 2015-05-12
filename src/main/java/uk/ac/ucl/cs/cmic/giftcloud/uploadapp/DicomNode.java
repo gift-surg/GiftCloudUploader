@@ -7,7 +7,10 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.*;
 import com.pixelmed.utils.CapabilitiesAvailable;
+import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.*;
@@ -16,10 +19,8 @@ import java.util.*;
 public class DicomNode extends Observable {
 
     private StorageSOPClassSCPDispatcher storageSOPClassSCPDispatcher;
-    private String ourCalledAETitle;		// set when reading network properties; used not just in StorageSCP, but also when creating exported meta information headers
     private GiftCloudPropertiesFromApplication giftCloudProperties;
     private GiftCloudReporter reporter;
-    private NetworkApplicationInformation networkApplicationInformation;
     private DatabaseInformationModel srcDatabase;
     protected Map<String,Date> earliestDatesIndexedBySourceFilePath = new HashMap<String,Date>();
     private final GiftCloudUploader giftCloudUploader;
@@ -30,12 +31,6 @@ public class DicomNode extends Observable {
         this.giftCloudUploader = giftCloudUploader;
         this.reporter = reporter;
 
-        {
-            NetworkApplicationInformationFederated federatedNetworkApplicationInformation = new NetworkApplicationInformationFederated();
-            federatedNetworkApplicationInformation.startupAllKnownSourcesAndRegister(giftCloudProperties);
-            networkApplicationInformation = federatedNetworkApplicationInformation;
-        }
-
         // Start database for the "source" instances.
         srcDatabase = new PatientStudySeriesConcatenationInstanceModel("mem:src", null, databaseRootTitle);
 
@@ -43,9 +38,6 @@ public class DicomNode extends Observable {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 shutdownStorageSCPAndWait(giftCloudProperties.getShutdownTimeoutMs());
-                if (networkApplicationInformation != null && networkApplicationInformation instanceof NetworkApplicationInformationFederated) {
-                    ((NetworkApplicationInformationFederated)networkApplicationInformation).removeAllSources();
-                }
             }
         });
 
@@ -56,7 +48,7 @@ public class DicomNode extends Observable {
      *
      * @throws	com.pixelmed.dicom.DicomException
      */
-    public void activateStorageSCP() throws DicomNodeStartException {
+    public void activateStorageSCP() throws DicomNodeStartException, DicomNetworkException {
         try {
             final File savedImagesFolder = giftCloudProperties.getUploadFolder(reporter);
 
@@ -64,14 +56,20 @@ public class DicomNode extends Observable {
             if (giftCloudProperties.areNetworkPropertiesValid()) {
                 {
                     int port = giftCloudProperties.getListeningPort();
-                    final String ourCalledAETitle = giftCloudProperties.getCalledAETitle();
-                    ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port + " AET " + ourCalledAETitle));
+                    if (port < 0) {
+                        throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_PORT, "Could not start the Dicom storage SCP service because the port was not set");
+                    }
+                    final Optional<String> ourCalledAETitle = giftCloudProperties.getListenerCalledAETitle();
+                    if (!ourCalledAETitle.isPresent()) {
+                        throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_AE_TITLE, "Could not start the Dicom storage SCP service because the AE title was not set");
+                    }
+
+                    ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port  + " AET " + ourCalledAETitle));
                     int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
                     int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
-                    storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(port, ourCalledAETitle, savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
+                    storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(getAe(), port, ourCalledAETitle.get(), savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
                             srcDatabase == null ? null : srcDatabase.getQueryResponseGeneratorFactory(queryDebugLevel),
                             srcDatabase == null ? null : srcDatabase.getRetrieveResponseGeneratorFactory(queryDebugLevel),
-                            networkApplicationInformation,
                             new OurPresentationContextSelectionPolicy(),
                             false/*secureTransport*/,
                             storageSCPDebugLevel);
@@ -81,6 +79,30 @@ public class DicomNode extends Observable {
         } catch (IOException e) {
             throw new DicomNodeStartException("Could not start the Dicom storage SCP service due to the following error: " + e.getLocalizedMessage(), e);
         }
+    }
+
+
+    /**
+     * Creates an ApplicationEntity from the current properties
+     * @return
+     * @throws DicomNetworkException
+     */
+    public ApplicationEntity getAe() throws GiftCloudException {
+        final Optional<String> aeTitle = giftCloudProperties.getPacsAeTitle();
+        final Optional<String> hostname = giftCloudProperties.getPacsHostName();
+        final int port = giftCloudProperties.getPacsPort();
+        final Optional<String> queryModel = giftCloudProperties.getPacsQueryModel();
+        final Optional<String> primaryDeviceType = giftCloudProperties.getPacsPrimaryDeviceType();
+
+        if (!aeTitle.isPresent() || StringUtils.isBlank(aeTitle.get())) {
+            throw new GiftCloudException(GiftCloudUploaderError.NETWORK_PROPERTIES_INVALID, "The PACS AE title has not been set.");
+        }
+        if (!hostname.isPresent() || StringUtils.isBlank(hostname.get())) {
+            throw new GiftCloudException(GiftCloudUploaderError.NETWORK_PROPERTIES_INVALID, "The PACS host name has not been set.");
+        }
+
+        final PresentationAddress presentationAddress = new PresentationAddress(hostname.get(), port);
+        return new ApplicationEntity(aeTitle.get(), presentationAddress, queryModel.orElse(null), primaryDeviceType.orElse(null));
     }
 
     public class DicomNodeStartException extends Exception {
@@ -103,34 +125,6 @@ public class DicomNode extends Observable {
 
     public DatabaseInformationModel getSrcDatabase() {
         return srcDatabase;
-    }
-
-    public String getCalledAETitle(final String ae) {
-        return networkApplicationInformation.getApplicationEntityTitleFromLocalName(ae);
-    }
-
-    public PresentationAddress getPresentationAddress(String calledAETitle) {
-        return networkApplicationInformation.getApplicationEntityMap().getPresentationAddress(calledAETitle);
-    }
-
-    public String getLocalNameFromApplicationEntityTitle(String calledAET) {
-        return networkApplicationInformation.getLocalNameFromApplicationEntityTitle(calledAET);
-    }
-
-    public String getApplicationEntityTitleFromLocalName(String remoteAEForQuery) {
-        return networkApplicationInformation.getApplicationEntityTitleFromLocalName(remoteAEForQuery);
-    }
-
-    public String getQueryModel(String queryCalledAETitle) {
-        return networkApplicationInformation.getApplicationEntityMap().getQueryModel(queryCalledAETitle);
-    }
-
-    public boolean isNetworkApplicationInformationValid() {
-        return (networkApplicationInformation != null);
-    }
-
-    public NetworkApplicationInformation getNetworkApplicationInformation() {
-        return networkApplicationInformation;
     }
 
     public void importFileIntoDatabase(String dicomFileName,String fileReferenceType) throws FileNotFoundException, IOException, DicomException {
@@ -173,9 +167,7 @@ public class DicomNode extends Observable {
         public void sendReceivedObjectIndication(String dicomFileName,String transferSyntax,String callingAETitle)
                 throws DicomNetworkException, DicomException, IOException {
             if (dicomFileName != null) {
-                String localName = networkApplicationInformation.getLocalNameFromApplicationEntityTitle(callingAETitle);
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Received "+dicomFileName+" from "+callingAETitle+" in "+transferSyntax));
-//                giftCloudUploaderPanel.logger.sendLn("Received "+dicomFileName+" from "+localName+" ("+callingAETitle+")");
                 try {
                     importFileIntoDatabase(dicomFileName, DatabaseInformationModel.FILE_COPIED);
                     giftCloudUploader.addFileInstance(dicomFileName);
