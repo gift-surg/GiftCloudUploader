@@ -67,6 +67,31 @@ public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
     }
 
     @Override
+    public Optional<String> getPacsAeTitle() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> getPacsHostName() {
+        return Optional.empty();
+    }
+
+    @Override
+    public int getPacsPort() {
+        return -1;
+    }
+
+    @Override
+    public Optional<String> getPacsQueryModel() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> getPacsPrimaryDeviceType() {
+        return Optional.empty();
+    }
+
+    @Override
     public void setLastUserName(final String lastUserName) {
         // We do not store the last username when using the applet, since the applet is typically launched after already logging into the server
     }

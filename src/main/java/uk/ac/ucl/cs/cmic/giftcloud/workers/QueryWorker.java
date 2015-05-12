@@ -24,16 +24,15 @@ public class QueryWorker implements Runnable {
     public void run() {
         reporter.setWaitCursor();
         String calledAET = currentRemoteQueryInformationModel.getCalledAETitle();
-        String localName = dicomNode.getLocalNameFromApplicationEntityTitle(calledAET); //networkApplicationInformation.getLocalNameFromApplicationEntityTitle(calledAET);
-        reporter.updateStatusText("Performing query on " + localName + " (" + calledAET + ")");
+        reporter.updateStatusText("Performing query on " + calledAET + " (" + calledAET + ")");
         try {
             queryRetrieveRemoteView.updateQueryPanel(currentRemoteQueryInformationModel, filter, currentRemoteQueryInformationModel);
-            reporter.updateStatusText("Done querying " + localName);
+            reporter.updateStatusText("Done querying " + calledAET);
         } catch (Exception e) {
-            reporter.updateStatusText("Query to " + localName + " (" + calledAET + ") failed due to" + e);
+            reporter.updateStatusText("Query to " + calledAET + " failed due to" + e);
             e.printStackTrace(System.err);
         }
-        reporter.updateStatusText("Query to " + localName + " (" + calledAET + ") complete");
+        reporter.updateStatusText("Query to " + calledAET + ") complete");
         reporter.restoreCursor();
     }
 }

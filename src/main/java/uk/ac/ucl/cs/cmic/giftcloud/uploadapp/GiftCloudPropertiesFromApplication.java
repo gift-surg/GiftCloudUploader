@@ -3,6 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import com.pixelmed.network.NetworkApplicationInformation;
 import com.pixelmed.network.NetworkApplicationProperties;
 import com.pixelmed.network.NetworkConfigurationSource;
+import com.pixelmed.network.NetworkDefaultValues;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
@@ -46,7 +47,7 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         userAgentString = nameString + (versionString != null ? versionString : "");
 
         try {
-            networkApplicationProperties = new NetworkApplicationProperties(properties);
+            networkApplicationProperties = new NetworkApplicationProperties(this, properties);
 
         }
         catch (Exception e) {
@@ -60,12 +61,7 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
 
     @Override
     public Optional<String> getGiftCloudUrl() {
-        final String giftCloudUrl = properties.getProperty(propertyName_GiftCloudServerUrl);
-        if (StringUtils.isNotBlank(giftCloudUrl)) {
-            return Optional.of(giftCloudUrl);
-        } else {
-            return Optional.empty();
-        }
+        return getOptionalProperty(propertyName_GiftCloudServerUrl);
     }
 
     public void setGiftCloudUrl(final String giftCloudUrl) {
@@ -78,12 +74,7 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
 
     @Override
     public Optional<String> getLastUserName() {
-        final String lastUserName = properties.getProperty(propertyName_GiftCloudLastUsername);
-        if (StringUtils.isNotBlank(lastUserName)) {
-            return Optional.of(lastUserName);
-        } else {
-            return Optional.empty();
-        }
+        return getOptionalProperty(propertyName_GiftCloudLastUsername);
     }
 
 
@@ -98,12 +89,7 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
 
     @Override
     public Optional<String> getLastProject() {
-        final String lastProject = properties.getProperty(propertyName_GiftCloudLastProject);
-        if (StringUtils.isNotBlank(lastProject)) {
-            return Optional.of(lastProject);
-        } else {
-            return Optional.empty();
-        }
+        return getOptionalProperty(propertyName_GiftCloudLastProject);
     }
 
     @Override
@@ -132,7 +118,32 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
 
     @Override
     public long getShutdownTimeoutMs() {
-        return 30000;
+        return getLongWithDefault(propertyName_Shutdowntimeout, 30000);
+    }
+
+    @Override
+    public Optional<String> getPacsAeTitle() {
+        return getOptionalProperty(propertyName_PacsAeTitle);
+    }
+
+    @Override
+    public Optional<String> getPacsHostName() {
+        return getOptionalProperty(propertyName_PacsHostName);
+    }
+
+    @Override
+    public int getPacsPort() {
+        return getIntegerWithDefault(propertyName_PacsPort, NetworkDefaultValues.StandardDicomReservedPortNumber);
+    }
+
+    @Override
+    public Optional<String> getPacsQueryModel() {
+        return getOptionalProperty(propertyName_PacsQueryModel);
+    }
+
+    @Override
+    public Optional<String> getPacsPrimaryDeviceType() {
+        return getOptionalProperty(propertyName_PacsPrimaryDeviceType);
     }
 
     @Override
@@ -167,20 +178,20 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         return networkApplicationProperties != null;
     }
 
-    public String getCallingAETitle() {
-        return networkApplicationProperties.getCallingAETitle();
+    public Optional<String> getListenerCallingAETitle() {
+        return getOptionalProperty(propertyName_ListenerCallingAeTitle);
     }
 
     public int getQueryDebugLevel() {
         return networkApplicationProperties.getQueryDebugLevel();
     }
 
-    public String getCalledAETitle() {
-        return networkApplicationProperties.getCalledAETitle();
+    public Optional<String> getListenerCalledAETitle() {
+        return getOptionalProperty(propertyName_ListenerCalledAeTitle);
     }
 
     public int getListeningPort() {
-        return networkApplicationProperties.getListeningPort();
+        return getIntegerWithDefault(propertyName_ListenerPort, NetworkDefaultValues.StandardDicomReservedPortNumber);
     }
 
     public int getStorageSCPDebugLevel() {
@@ -294,5 +305,56 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         }
     }
 
+    private final Optional<String> getOptionalProperty(final String propertyName) {
+        final String propertyValue = getPropertyValue(propertyName);
+        if (StringUtils.isNotBlank(propertyValue)) {
+            return Optional.of(propertyValue);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<Integer> getOptionalInteger(final String propertyName) {
+        final String propertyValue = getPropertyValue(propertyName);
+        if (StringUtils.isNotBlank(propertyValue)) {
+            try {
+                return Optional.of(Integer.parseInt(propertyValue));
+            } catch (NumberFormatException e) {
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private int getIntegerWithDefault(final String propertyName, final int defaultValue) {
+        final String propertyValue = getPropertyValue(propertyName);
+        if (StringUtils.isNotBlank(propertyValue)) {
+            try {
+                return Integer.parseInt(propertyValue);
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
+        } else {
+            return defaultValue;
+        }
+    }
+
+    private long getLongWithDefault(final String propertyName, final long defaultValue) {
+        final String propertyValue = getPropertyValue(propertyName);
+        if (StringUtils.isNotBlank(propertyValue)) {
+            try {
+                return Long.parseLong(propertyValue);
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
+        } else {
+            return defaultValue;
+        }
+    }
+
+    private String getPropertyValue(final String propertyName) {
+        return properties.getProperty(propertyName);
+    }
 
 }
