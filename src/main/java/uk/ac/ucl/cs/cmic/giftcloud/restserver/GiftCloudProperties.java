@@ -22,6 +22,8 @@ public interface GiftCloudProperties {
     String propertyName_PacsPrimaryDeviceType = "GiftCloud_RemotePrimaryDeviceType";
     String propertyName_PacsPort = "GiftCloud_RemotePort";
     String propertyName_Shutdowntimeout = "GiftCloud_ShutdownTimeout";
+    String propertyName_QueryDebugLevel = "GiftCloud_QueryDebugLevel";
+    String propertyName_StorageSCPDebugLevel = "GiftCloud_StorageSCPDebugLevel";
 
 
     Optional<String> getGiftCloudUrl();
@@ -48,9 +50,15 @@ public interface GiftCloudProperties {
 
     Optional<String> getPacsAeTitle();
 
+    void setPacsAeTitle(final String pacsAeTitle);
+
     Optional<String> getPacsHostName();
 
+    void setPacsHostName(final String pacsHostName);
+
     int getPacsPort();
+
+    void setPacsPort(final int port);
 
     Optional<String> getPacsQueryModel();
 

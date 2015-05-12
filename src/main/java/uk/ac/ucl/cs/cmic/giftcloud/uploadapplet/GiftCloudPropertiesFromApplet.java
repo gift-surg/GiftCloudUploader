@@ -72,13 +72,27 @@ public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
     }
 
     @Override
+    public void setPacsAeTitle(String pacsAeTitle) {
+
+    }
+
+    @Override
     public Optional<String> getPacsHostName() {
         return Optional.empty();
     }
 
     @Override
+    public void setPacsHostName(String pacsHostName) {
+    }
+
+    @Override
     public int getPacsPort() {
         return -1;
+    }
+
+    @Override
+    public void setPacsPort(int port) {
+
     }
 
     @Override

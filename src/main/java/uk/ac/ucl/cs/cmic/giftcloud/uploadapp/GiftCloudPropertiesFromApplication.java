@@ -1,8 +1,5 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.pixelmed.network.NetworkApplicationInformation;
-import com.pixelmed.network.NetworkApplicationProperties;
-import com.pixelmed.network.NetworkConfigurationSource;
 import com.pixelmed.network.NetworkDefaultValues;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
@@ -25,7 +22,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     private Optional<char[]> lastPassword = Optional.empty(); // Currently this is not stored anywhere, but consider putting it in a keystore
     private final GiftCloudUploaderApplicationBase applicationBase;
 
-    private NetworkApplicationProperties networkApplicationProperties;
     private final String userAgentString;
 
     private Optional<PasswordStore> passwordStore = null;
@@ -45,15 +41,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         final String nameString = resourceBundle.getString("userAgentNameApplication");
         final String versionString = resourceBundle.getString("mavenVersion");
         userAgentString = nameString + (versionString != null ? versionString : "");
-
-        try {
-            networkApplicationProperties = new NetworkApplicationProperties(this, properties);
-
-        }
-        catch (Exception e) {
-            e.printStackTrace(System.err);
-            networkApplicationProperties = null;
-        }
 
         addObserver(new GiftCloudPropertiesListener());
     }
@@ -127,13 +114,28 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     @Override
+    public void setPacsAeTitle(final String pacsAeTitle) {
+        setPropertyString(propertyName_PacsAeTitle, pacsAeTitle);
+    }
+
+    @Override
     public Optional<String> getPacsHostName() {
         return getOptionalProperty(propertyName_PacsHostName);
     }
 
     @Override
+    public void setPacsHostName(String pacsHostName) {
+        setPropertyString(propertyName_PacsHostName, pacsHostName);
+    }
+
+    @Override
     public int getPacsPort() {
         return getIntegerWithDefault(propertyName_PacsPort, NetworkDefaultValues.StandardDicomReservedPortNumber);
+    }
+
+    @Override
+    public void setPacsPort(int port) {
+        setPropertyString(propertyName_PacsPort, Integer.toString(port));
     }
 
     @Override
@@ -174,16 +176,12 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         return sessionCookie;
     }
 
-    public boolean areNetworkPropertiesValid() {
-        return networkApplicationProperties != null;
-    }
-
     public Optional<String> getListenerCallingAETitle() {
         return getOptionalProperty(propertyName_ListenerCallingAeTitle);
     }
 
     public int getQueryDebugLevel() {
-        return networkApplicationProperties.getQueryDebugLevel();
+        return getIntegerWithDefault(propertyName_QueryDebugLevel, 0);
     }
 
     public Optional<String> getListenerCalledAETitle() {
@@ -195,51 +193,27 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     public int getStorageSCPDebugLevel() {
-        return networkApplicationProperties.getStorageSCPDebugLevel();
+        return getIntegerWithDefault(propertyName_StorageSCPDebugLevel, 0);
     }
 
     protected void storeProperties(String comment) throws IOException {
         applicationBase.storePropertiesToApplicationBase(comment);
     }
 
-    public NetworkConfigurationSource getNetworkConfigurationSource() {
-        return networkApplicationProperties.getNetworkConfigurationSource();
+    public void setListeningPort(final int listeningPort) {
+        setPropertyInteger(propertyName_ListenerPort, listeningPort);
     }
 
-    public String getPrimaryDeviceType() {
-        return networkApplicationProperties.getPrimaryDeviceType();
-    }
-
-    public int getNetworkDynamicConfigurationDebugLevel() {
-        return networkApplicationProperties.getNetworkDynamicConfigurationDebugLevel();
-    }
-
-    public NetworkApplicationInformation getNetworkApplicationInformation() {
-        return networkApplicationProperties.getNetworkApplicationInformation();
-    }
-
-    public void setListeningPort(int listeningPort) {
-        networkApplicationProperties.setListeningPort(listeningPort);
-    }
-
-    public void setCalledAETitle(String calledAETitle) {
-        networkApplicationProperties.setCalledAETitle(calledAETitle);
+    public void setCalledAETitle(final String calledAETitle) {
+        setPropertyString(propertyName_ListenerCalledAeTitle, calledAETitle);
     }
 
     public void setCallingAETitle(String callingAETitle) {
-        networkApplicationProperties.setCallingAETitle(callingAETitle);
-    }
-
-    public void updatePropertiesWithNetworkProperties() {
-        networkApplicationProperties.addToProperties(properties);
+        setPropertyString(propertyName_ListenerCallingAeTitle, callingAETitle);
     }
 
     public String getCurrentlySelectedQueryTargetAE() {
         return properties.getProperty(propertyName_DicomCurrentlySelectedQueryTargetAE);
-    }
-
-    public void setCurrentlySelectedQueryTargetAE(String ae) {
-        properties.setProperty(propertyName_DicomCurrentlySelectedQueryTargetAE, ae);
     }
 
     // ToDo: Previously this was supported via a checkbox
@@ -303,6 +277,14 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
             }
 
         }
+    }
+
+    private void setPropertyString(final String propertyName, final String propertyValue) {
+        properties.setProperty(propertyName, propertyValue);
+    }
+
+    private void setPropertyInteger(String propertyName, int propertyValue) {
+        properties.setProperty(propertyName, Integer.toString(propertyValue));
     }
 
     private final Optional<String> getOptionalProperty(final String propertyName) {
