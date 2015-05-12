@@ -53,28 +53,26 @@ public class DicomNode extends Observable {
             final File savedImagesFolder = giftCloudProperties.getUploadFolder(reporter);
 
             // Start up DICOM association listener in background for receiving images and responding to echoes ...
-            if (giftCloudProperties.areNetworkPropertiesValid()) {
-                {
-                    int port = giftCloudProperties.getListeningPort();
-                    if (port < 0) {
-                        throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_PORT, "Could not start the Dicom storage SCP service because the port was not set");
-                    }
-                    final Optional<String> ourCalledAETitle = giftCloudProperties.getListenerCalledAETitle();
-                    if (!ourCalledAETitle.isPresent()) {
-                        throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_AE_TITLE, "Could not start the Dicom storage SCP service because the AE title was not set");
-                    }
-
-                    ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port  + " AET " + ourCalledAETitle));
-                    int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
-                    int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
-                    storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(getAe(), port, ourCalledAETitle.get(), savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
-                            srcDatabase == null ? null : srcDatabase.getQueryResponseGeneratorFactory(queryDebugLevel),
-                            srcDatabase == null ? null : srcDatabase.getRetrieveResponseGeneratorFactory(queryDebugLevel),
-                            new OurPresentationContextSelectionPolicy(),
-                            false/*secureTransport*/,
-                            storageSCPDebugLevel);
-                    new Thread(storageSOPClassSCPDispatcher).start();
+            {
+                int port = giftCloudProperties.getListeningPort();
+                if (port < 0) {
+                    throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_PORT, "Could not start the Dicom storage SCP service because the port was not set");
                 }
+                final Optional<String> ourCalledAETitle = giftCloudProperties.getListenerCalledAETitle();
+                if (!ourCalledAETitle.isPresent()) {
+                    throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_AE_TITLE, "Could not start the Dicom storage SCP service because the AE title was not set");
+                }
+
+                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port  + " AET " + ourCalledAETitle));
+                int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
+                int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
+                storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(getAe(), port, ourCalledAETitle.get(), savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
+                        srcDatabase == null ? null : srcDatabase.getQueryResponseGeneratorFactory(queryDebugLevel),
+                        srcDatabase == null ? null : srcDatabase.getRetrieveResponseGeneratorFactory(queryDebugLevel),
+                        new OurPresentationContextSelectionPolicy(),
+                        false/*secureTransport*/,
+                        storageSCPDebugLevel);
+                new Thread(storageSOPClassSCPDispatcher).start();
             }
         } catch (IOException e) {
             throw new DicomNodeStartException("Could not start the Dicom storage SCP service due to the following error: " + e.getLocalizedMessage(), e);
