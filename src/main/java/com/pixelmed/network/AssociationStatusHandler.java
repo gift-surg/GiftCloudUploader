@@ -17,7 +17,7 @@ import java.io.IOException;
 private class OurAssociationStatusHandler extends AssociationStatusHandler {
     public void sendAssociationReleaseIndication(Association a) throws DicomNetworkException, DicomException, IOException {
         if (a != null) {
-            System.err.println("Association "+a.getAssociationNumber()+" from "+a.getCallingAETitle()+" released");
+            System.err.println("Association "+a.getAssociationNumber()+" from "+a.getListenerCallingAETitle()+" released");
         }
     }
 }

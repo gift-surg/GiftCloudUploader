@@ -754,7 +754,7 @@ if (debugLevel > 2) System.err.println(association);
 				while (receiveAndProcessOneRequestMessage(association));
 			}
 			catch (AReleaseException e) {
-//System.err.println("Association.run(): AReleaseException: "+association.getAssociationNumber()+" from "+association.getCallingAETitle()+" released");
+//System.err.println("Association.run(): AReleaseException: "+association.getAssociationNumber()+" from "+association.getListenerCallingAETitle()+" released");
 				if (associationStatusHandler != null) {
 					associationStatusHandler.sendAssociationReleaseIndication(association);
 				}
