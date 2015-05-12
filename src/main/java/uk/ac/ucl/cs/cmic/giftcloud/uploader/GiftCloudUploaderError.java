@@ -6,8 +6,14 @@ public enum GiftCloudUploaderError {
     NO_QUERY_OR_QUERY_FAILED(32, "A query operation must be performed before a retrieve."),
     EMPTY_AE(33, "The PACS AE title has not been set. Please check the settings in the configuration dialog."),
     NETWORK_PROPERTIES_INVALID(34, "The query failed due to a problem with the PACS settings. Please check the settings in the configuration dialog."),
-    QUERY_CANNOT_DETERMINE_PRESENTATION_ADDRESS(35, "The query failed due to a problem with the PACS settings. Please check the settings in the configuration dialog."),
-    QUERY_MODEL_NOT_SUPPORTED(36, "The query failed due to a problem with the PACS settings. Please check the settings in the configuration dialog.");
+    QUERY_CANNOT_DETERMINE_PRESENTATION_ADDRESS(35, "The query failed due to a problem with the PACS settings. Please check the settings in the configuration dialog."),  // TODO: remove
+    QUERY_MODEL_NOT_SUPPORTED(36, "The query failed due to a problem with the PACS settings. Please check the settings in the configuration dialog."),
+    QUERY_NO_HOST(37, "The PACS host name has not been set."),
+    QUERY_NO_LISTENER_CALLING_AE(38, "The listener calling AE title has not been set."),
+    QUERY_NO_PORT(39, "The PACS port has not been set."),
+    QUERY_NO_CALLED_AE_TITLE(40, "The PACS port has not been set."),
+    EMPTY_LISTENER_PORT(51, "The Dicom node listener port has not been set."),
+    EMPTY_LISTENER_AE_TITLE(52, "The Dicom node listener AE title has not been set.");
 
     private final int errorCode;
     private final String userVisibleMessage;
