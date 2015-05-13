@@ -25,6 +25,7 @@ public class GiftCloudSystemTray {
     private final MenuItem hideItem;
     private final MenuItem showItem;
     private final MenuItem importItem;
+    private final MenuItem importFromPacsItem;
     private final MenuItem startUploaderItem;
     private final MenuItem pauseUploaderItem;
 
@@ -67,6 +68,14 @@ public class GiftCloudSystemTray {
         importItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 controller.selectAndImport();
+            }
+        });
+
+        importFromPacsItem = new MenuItem(resourceBundle.getString("systemTrayImportFromPacs"));
+        popup.add(importFromPacsItem);
+        importFromPacsItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                controller.importFromPacs();
             }
         });
 

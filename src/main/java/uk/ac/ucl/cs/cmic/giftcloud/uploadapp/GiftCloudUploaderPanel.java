@@ -65,11 +65,10 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(importPacsButton);
         importPacsButton.addActionListener(new ImportPacsActionListener());
 
-        JButton giftCloudUploadButton = new JButton(resourceBundle.getString("giftCloudUploadButtonLabelText"));
-        giftCloudUploadButton.setToolTipText(resourceBundle.getString("giftCloudUploadButtonToolTipText"));
-        buttonPanel.add(giftCloudUploadButton);
-        giftCloudUploadButton.addActionListener(new GiftCloudUploadActionListener());
-
+        JButton exportButton = new JButton(resourceBundle.getString("exportButtonLabelText"));
+        exportButton.setToolTipText(resourceBundle.getString("exportButtonToolTipText"));
+        buttonPanel.add(exportButton);
+        exportButton.addActionListener(new ExportActionListener());
 
         statusPanel = new StatusPanel();
         reporter.addProgressListener(statusPanel);
@@ -125,6 +124,10 @@ public class GiftCloudUploaderPanel extends JPanel {
         return remoteQueryRetrieveDialog.getQueryRetrieveRemoteView();
     }
 
+    public void showQueryRetrieveDialog() {
+        remoteQueryRetrieveDialog.setVisible(true);
+    }
+
     private class ImportActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
             controller.selectAndImport();
@@ -133,7 +136,13 @@ public class GiftCloudUploaderPanel extends JPanel {
 
     private class ImportPacsActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            remoteQueryRetrieveDialog.setVisible(true);
+            showQueryRetrieveDialog();
+        }
+    }
+
+    private class ExportActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            controller.selectAndExport(currentSourceFilePathSelections);
         }
     }
 

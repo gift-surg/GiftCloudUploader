@@ -143,6 +143,23 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
+    public void selectAndExport(final Vector<String> filesToExport) {
+        try {
+            reporter.showMesageLogger();
+
+            Optional<String> selectDirectory = giftCloudDialogs.selectDirectory(giftCloudProperties.getLastExportDirectory());
+
+            if (selectDirectory.isPresent()) {
+                giftCloudProperties.setLastExportDirectory(selectDirectory.get());
+                export(selectDirectory.get(), filesToExport);
+            }
+        } catch (Exception e) {
+            reporter.updateStatusText("Exporting failed due to the following error: " + e);
+            e.printStackTrace(System.err);
+        }
+    }
+
+    @Override
     public void runImport(String filePath, final Progress progress) {
         new Thread(new ImportWorker(dicomNode, filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, reporter)).start();
     }
@@ -198,6 +215,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // ToDo: this doesn't really deal with changes to the server etc
         pauseUploading();
         startUploading();
+    }
+
+    @Override
+    public void importFromPacs() {
+        giftCloudUploaderPanel.showQueryRetrieveDialog();
     }
 
     private class DicomNodeListener implements Observer {

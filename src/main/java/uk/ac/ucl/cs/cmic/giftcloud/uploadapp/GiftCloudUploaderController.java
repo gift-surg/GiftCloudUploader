@@ -25,6 +25,8 @@ public interface GiftCloudUploaderController {
 
     void export(String exportDirectory, Vector<String> filesToExport);
 
+    void selectAndExport(Vector<String> filesToExport);
+
     void runImport(String filePath, final Progress progress);
 
     void selectAndImport();
@@ -34,4 +36,6 @@ public interface GiftCloudUploaderController {
     void restartDicomService();
 
     void restartUploader();
+
+    void importFromPacs();
 }
