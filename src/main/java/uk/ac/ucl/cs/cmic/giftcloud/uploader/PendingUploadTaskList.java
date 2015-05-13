@@ -62,13 +62,7 @@ public class PendingUploadTaskList {
         return taskList;
     }
 
-    public void notifySuccess(final FileCollection fileCollection) {
-        for (final File file : fileCollection.getFiles()) {
-            notifySuccess(file);
-        }
-    }
-
-    public void notifySuccess(final File file) {
+    public void processFileAfterUpload(final File file) {
         try {
             Optional<PendingUploadTask> task = fileMap.get(file);
             if (task.isPresent()) {
@@ -90,7 +84,13 @@ public class PendingUploadTaskList {
         }
     }
 
-    public void notifyFailure(final FileCollection fileCollection) {
+    public void fileUploadSuccess(FileCollection fileCollection) {
+        for (final File file : fileCollection.getFiles()) {
+            processFileAfterUpload(file);
+        }
+    }
+
+    public void fileUploadFailure(FileCollection fileCollection) {
         failures.add(fileCollection);
     }
 

@@ -1,14 +1,11 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.DicomException;
-import com.pixelmed.display.event.StatusChangeEvent;
-import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.DicomNetworkException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudAppendUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
@@ -203,47 +200,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     private class DicomNodeListener implements Observer {
 
-        private GiftCloudAppendUploadActionListener appendListener = new GiftCloudAppendUploadActionListener();
-
         @Override
         public void update(Observable o, Object arg) {
             final String newFileName = (String)arg;
             giftCloudUploaderPanel.rebuildFileList(dicomNode.getSrcDatabase());
-            appendListener.filesChanged(newFileName);
+            giftCloudUploader.addFileInstance(newFileName);
         }
     }
-
-
-    protected class GiftCloudAppendUploadActionListener implements FileUploadSuccessCallback {
-
-        private Vector<String> filesAlreadyUploaded = new Vector<String>();
-        private Vector<String> failedUploads = new Vector<String>();
-
-
-        @Override
-        public void addFailedUpload(final String fileName) {
-            failedUploads.add(fileName);
-        }
-
-        public void filesChanged(final String fileName) {
-            try {
-                if (filesAlreadyUploaded.contains(fileName) && !failedUploads.contains(fileName)) {
-                    // Do not upload, because file has already been uploaded
-                } else {
-                    Vector<String> filesToUpload = new Vector<String>();
-                    filesToUpload.add(fileName);
-
-                    // ToDo: this is not threadsafe!
-                    Thread activeThread = new Thread(new GiftCloudAppendUploadWorker(filesToUpload, giftCloudUploader, this, reporter));
-                    activeThread.start();
-                    filesAlreadyUploaded.add(fileName);
-                }
-            }
-            catch (Exception e) {
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("GIFT-Cloud upload failed: "+e));
-                e.printStackTrace(System.err);
-            }
-        }
-    }
-
 }

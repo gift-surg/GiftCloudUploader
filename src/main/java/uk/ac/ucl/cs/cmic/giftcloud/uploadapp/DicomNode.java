@@ -168,11 +168,6 @@ public class DicomNode extends Observable {
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Received "+dicomFileName+" from "+callingAETitle+" in "+transferSyntax));
                 try {
                     importFileIntoDatabase(dicomFileName, DatabaseInformationModel.FILE_COPIED);
-                    giftCloudUploader.addFileInstance(dicomFileName);
-//                    giftCloudUploaderPanel.srcDatabasePanel.removeAll();
-//                    new GiftCloudUploaderPanel.OurSourceDatabaseTreeBrowser(srcDatabase, giftCloudUploaderPanel.srcDatabasePanel);
-//                    giftCloudUploaderPanel.srcDatabasePanel.validate();
-
 
 
                     // ToDo: Remove this line so the file doesn't get deleted on exit
