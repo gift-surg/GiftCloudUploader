@@ -39,9 +39,6 @@ public interface Session {
 	 * @param project
      * @return List of unified SessionVariables, in dependency order
 	 */
-	/*
-	List<SessionVariable> unify(Iterable<? extends SessionVariable> vars);
-	*/
 	UploadResult uploadTo(final boolean append, final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException;
 
 	TimeZone getTimeZone();

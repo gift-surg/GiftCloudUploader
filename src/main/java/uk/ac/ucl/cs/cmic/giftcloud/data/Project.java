@@ -57,8 +57,6 @@ public class Project {
 				(ScriptFunction) new IndexedSessionLabelFunction(sessions));
 	}
 
-	public RestServer getRestServerHelper() { return restServer; }
-
 	public Collection<Subject> getSubjects()
 	throws ExecutionException,InterruptedException {
 		final Collection<Subject> s = Sets.newLinkedHashSet();
@@ -115,7 +113,6 @@ public class Project {
 		sessions.cancel(true);
 		subjects.cancel(true);
 		dicomScriptApplicator.cancel(true);
-//		ecatScriptApplicator.cancel(true);
 	}
 
 	/**
