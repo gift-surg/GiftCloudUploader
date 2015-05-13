@@ -35,7 +35,17 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Map<String, String> getListOfSubjects(String projectName) throws IOException, JSONException {
-        return null;
+        if (projectMap.projectExists(projectName)) {
+            final Map<String, String> subjectMap = new HashMap<String, String>();
+            final Set<String> subjectList = projectMap.get(projectName).getListOfSubjects();
+            for (final String subject : subjectList) {
+                subjectMap.put(subject, subject);
+            }
+            return subjectMap;
+
+        } else {
+            throw new GiftCloudHttpException(404, "Project not found", "", "");
+        }
     }
 
     @Override
@@ -60,7 +70,7 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Optional<String> getSubjectPseudonym(String projectName, String ppid) throws IOException {
-        return projectMap.get(projectName).getPseudonym(ppid);
+        return projectMap.projectExists(projectName) ? projectMap.get(projectName).getPseudonym(ppid) : Optional.<String>empty();
     }
 
     @Override
@@ -163,6 +173,10 @@ public class MockRestServer implements RestServer {
             return projectMap.get(projectLabel);
         }
 
+        public boolean projectExists(final String projectLabel) {
+            return projectMap.containsKey(projectLabel);
+        }
+
         class ProjectRecord {
             private String projectLabel;
             private final Map<String, SubjectRecord> subjectMap = new HashMap<String, SubjectRecord>();
@@ -190,6 +204,10 @@ public class MockRestServer implements RestServer {
                 } else {
                     return Optional.empty();
                 }
+            }
+
+            public Set<String> getListOfSubjects() {
+                return subjectMap.keySet();
             }
 
             class SubjectRecord {
