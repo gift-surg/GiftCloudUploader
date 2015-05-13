@@ -23,12 +23,7 @@ public final class SessionVariableValue implements Value {
 
     public SessionVariableValue(final SessionVariable source) {
         this.v = source;
-        if (source instanceof EcatSessionVariable) {
-            final EcatSessionVariable esv = (EcatSessionVariable)source;
-            variables = Collections.unmodifiableSet(esv.getVariables());
-        } else {
-            variables = Collections.emptySet();
-        }
+        variables = Collections.emptySet();
     }
 
     /* (non-Javadoc)

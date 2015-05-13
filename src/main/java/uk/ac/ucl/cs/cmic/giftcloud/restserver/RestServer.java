@@ -2,11 +2,8 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.json.JSONException;
 import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -44,11 +41,7 @@ public interface RestServer {
 
     Set<String> getSiteTracers() throws Exception;
 
-    <ApplicatorT> ApplicatorT getApplicator(String projectName, ScriptApplicatorFactory<ApplicatorT> factory) throws Exception;
-
     String uploadSubject(String projectName, InputStream xmlStream) throws Exception;
-
-    UploadResult uploadToEcat(FileCollection fileCollection, String projectLabel, String subjectLabel, SessionParameters sessionParameters, UploadFailureHandler failureHandler, TimeZone timeZone, GiftCloudReporter logger);
 
     UploadResult closeSession(String uri, SessionParameters sessionParameters, Map<FileCollection, Throwable> failures, Optional<TimeZone> timeZone);
 
@@ -57,8 +50,6 @@ public interface RestServer {
     void createPseudonymIfNotExisting(String projectLabel, String subjectLabel, String pseudonym) throws IOException;
 
     Set<String> appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception;
-
-    void uploadEcat(String projectLabel, String subjectLabel, SessionParameters sessionParameters, String timestamp, String timeZoneId, File file, int fileNumber) throws Exception;
 
     void resetCancellation();
 }

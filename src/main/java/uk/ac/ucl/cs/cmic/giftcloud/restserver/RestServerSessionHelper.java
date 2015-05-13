@@ -25,7 +25,6 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -73,14 +72,6 @@ public class RestServerSessionHelper {
 
     public Set<String> getStringList(final String path) throws IOException {
         return giftCloudSession.request(new HttpRequestWithoutOutput<Set<String>>(HttpConnection.ConnectionType.GET, path, new HttpStringListResponseProcessor(), giftCloudProperties, reporter));
-    }
-
-    public <ApplicatorT> ApplicatorT getApplicator(final String path, final ScriptApplicatorFactory<ApplicatorT> factory) throws IOException {
-        return giftCloudSession.request(new HttpRequestWithoutOutput<ApplicatorT>(HttpConnection.ConnectionType.GET, path, new HttpApplicatorResponseProcessor(factory), giftCloudProperties, reporter));
-    }
-
-    public void uploadEcat(final String path, final String projectName, final String sessionId, final String subjectLabel, final File file) throws IOException {
-        giftCloudSession.request(new EcatUploadPostRequest(path, file, projectName, subjectLabel, sessionId, giftCloudProperties, reporter));
     }
 
     public String getStringFromStream(final String path, final InputStream xmlStream) throws IOException {

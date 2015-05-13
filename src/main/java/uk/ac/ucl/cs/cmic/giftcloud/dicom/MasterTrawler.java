@@ -13,13 +13,12 @@ package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.nrg.io.FileWalkIterator;
-import uk.ac.ucl.cs.cmic.giftcloud.ecat.EcatTrawler;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
-import uk.ac.ucl.cs.cmic.giftcloud.util.ArrayIterator;
 import org.nrg.util.EditProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
+import uk.ac.ucl.cs.cmic.giftcloud.util.ArrayIterator;
 
 import java.io.File;
 import java.util.Collection;
@@ -31,8 +30,7 @@ public class MasterTrawler implements Callable<List<Session>> {
     private final Logger logger = LoggerFactory.getLogger(MasterTrawler.class);
     // TODO: hard-coded? configurable?
     private final Trawler[] trawlers = {
-            new DicomTrawler(),
-            new EcatTrawler(),
+            new DicomTrawler()
     };
     private final Collection<File> roots;
     private final EditProgressMonitor pm;

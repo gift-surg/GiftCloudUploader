@@ -10,12 +10,10 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.data;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.IndexedSessionLabelFunction;
 import org.nrg.dcm.edit.ScriptFunction;
 import uk.ac.ucl.cs.cmic.giftcloud.util.PrearchiveCode;
-import uk.ac.ucl.cs.cmic.giftcloud.ecat.FormatSessionDateFunction;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 
 import java.io.IOException;
@@ -57,19 +55,6 @@ public class Project {
 	getDicomFunctions(final Future<Map<String,String>> sessions) {
 		return Collections.singletonMap("makeSessionLabel",
 				(ScriptFunction) new IndexedSessionLabelFunction(sessions));
-	}
-
-	private static Map<String,? extends org.nrg.ecat.edit.ScriptFunction>
-	getEcatFunctions(final Future<Map<String,String>> sessions, final Session session) {
-		final Map<String,org.nrg.ecat.edit.ScriptFunction> m = Maps.newHashMap();
-		m.put("makeSessionLabel", new uk.ac.ucl.cs.cmic.giftcloud.ecat.IndexedSessionLabelFunction(sessions));
-		m.put("formatSessionDate", new FormatSessionDateFunction(
-				new Callable<Session>() {
-					public Session call() throws Exception {
-						return session;
-					}
-				}));
-		return m;
 	}
 
 	public RestServer getRestServerHelper() { return restServer; }
@@ -118,13 +103,7 @@ public class Project {
         }
     }
 
-	public org.nrg.ecat.edit.ScriptApplicator getEcatScriptApplicator(final Session session)
-	throws InterruptedException,ExecutionException {
-        final Future<org.nrg.ecat.edit.ScriptApplicator> ecatScriptApplicator = executor.submit(new ECATScriptApplicatorRetriever(restServer, name, getEcatFunctions(sessions, session)));
-		return ecatScriptApplicator.get();
-	}
-
-    public Set<String> getPETTracers() throws InterruptedException,ExecutionException {
+	public Set<String> getPETTracers() throws InterruptedException,ExecutionException {
         return petTracers.get();
     }
 

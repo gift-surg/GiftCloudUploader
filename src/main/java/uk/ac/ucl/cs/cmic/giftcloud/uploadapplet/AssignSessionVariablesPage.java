@@ -20,17 +20,16 @@ import org.apache.commons.lang.time.DateUtils;
 import org.netbeans.spi.wizard.Wizard;
 import org.netbeans.spi.wizard.WizardPage;
 import org.netbeans.spi.wizard.WizardPanelNavResult;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.DicomSessionVariable;
 import org.nrg.dcm.SOPModel;
 import org.nrg.dcm.edit.MultipleInitializationException;
-import uk.ac.ucl.cs.cmic.giftcloud.ecat.EcatSessionVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.data.*;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.DicomSessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SessionVariableValue;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.PETTracerRetriever;
 import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
 import uk.ac.ucl.cs.cmic.giftcloud.util.PrearchiveCode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.data.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -417,18 +416,6 @@ public final class AssignSessionVariablesPage extends WizardPage implements Sess
                     }
                     dsv.setIsHidden(true);
                 } catch (MultipleInitializationException exception) {
-                    logger.debug("Got MultipleInitializationException", exception);
-                }
-            } else if (modalityLabel instanceof EcatSessionVariable) {
-                final EcatSessionVariable esv = (EcatSessionVariable) modalityLabel;
-                try {
-                    if (null == tracer) {
-                        esv.setInitialValue(new org.nrg.ecat.edit.ConstantValue(leadModality));
-                    } else {
-                        esv.setInitialValue(new uk.ac.ucl.cs.cmic.giftcloud.ecat.SessionVariableValue(tracer));
-                    }
-                    esv.setIsHidden(true);
-                } catch (org.nrg.ecat.edit.MultipleInitializationException exception) {
                     logger.debug("Got MultipleInitializationException", exception);
                 }
             }

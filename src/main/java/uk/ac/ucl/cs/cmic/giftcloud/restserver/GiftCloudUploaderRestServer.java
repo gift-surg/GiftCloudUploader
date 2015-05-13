@@ -21,13 +21,11 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.nrg.dcm.edit.ScriptApplicator;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
-import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
@@ -166,41 +164,9 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public <ApplicatorT> ApplicatorT getApplicator(final String projectName, final ScriptApplicatorFactory<ApplicatorT> factory) throws Exception {
-        final String uri = "/REST/projects/" + projectName + "/resources/UPLOAD_CONFIG/files/ecat.eas";
-        return restServerSessionHelper.getApplicator(uri, factory);
-    }
-
-    @Override
     public String uploadSubject(final String projectName, final InputStream xmlStream) throws Exception {
         final String uri = "/REST/projects/" + projectName + "/subjects";
         return restServerSessionHelper.getStringFromStream(uri, xmlStream);
-    }
-
-    @Override
-    public UploadResult uploadToEcat(final FileCollection fileCollection, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final UploadFailureHandler failureHandler, final TimeZone timeZone, final GiftCloudReporter logger) {
-
-
-        if (fileCollection.getFileCount() == 0) {
-            reporter.updateStatusText("No ECAT files available to upload");
-            return new UploadResultsFailure("No ECAT files available to upload");
-        }
-
-        final EcatUploader uploader = new EcatUploader(this, fileCollection, projectLabel, subjectLabel, sessionParameters, failureHandler, timeZone, logger);
-
-        final Optional<String> failureMessage = uploader.run();
-        if (failureMessage.isPresent()) {
-            return new UploadResultsFailure(failureMessage.get());
-        }
-
-        final String sessionLabel = sessionParameters.getSessionLabel();
-        reporter.updateStatusText("Creating session " + sessionLabel);
-
-        // No failures, since the upload terminates if a failure occurs.
-        // Alternatively, we could obtain the failures from the uploader, but these are currently of a different type - irrelevant since there are none
-        final Map<FileCollection, Throwable> failures = Maps.newHashMap();
-
-        return closeSession(uploader.getUri(), sessionParameters, failures, Optional.ofNullable(timeZone));
     }
 
 
@@ -434,32 +400,6 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
         ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
         return restServerSessionHelper.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators, progress);
-    }
-
-    @Override
-    public void uploadEcat(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final String timestamp, final String timeZoneId, final File file, final int fileNumber) throws Exception {
-
-        final String visit = sessionParameters.getVisit();
-        final String protocol = sessionParameters.getProtocol();
-        final String sessionLabel = sessionParameters.getSessionLabel();
-
-        final String dataPostURL;
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append(String.format("/data/services/import?dest=/prearchive/projects/%s/%s/%s", projectLabel, timestamp, sessionLabel));
-
-        if (!Strings.isNullOrEmpty(visit)){
-            buffer.append("&VISIT=").append(visit);
-        }
-        if (!Strings.isNullOrEmpty(protocol)){
-            buffer.append("&PROTOCOL=").append(protocol);
-        }
-        if (!Strings.isNullOrEmpty(timeZoneId)){
-            buffer.append("&TIMEZONE=").append(timeZoneId);
-        }
-        buffer.append("&overwrite=append&rename=true&prevent_anon=true&prevent_auto_commit=true&SOURCE=applet");
-        dataPostURL = buffer.toString();
-
-        restServerSessionHelper.uploadEcat(dataPostURL, projectLabel, sessionLabel, subjectLabel, file);
     }
 
 
