@@ -10,8 +10,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -419,31 +417,6 @@ public class GiftCloudConfigurationDialog {
                 remoteAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
             }
         }
-
-        {
-            String serverUrlString = giftCloudServerText.getText();
-            if (!StringUtils.isBlank(serverUrlString)) {
-                try {
-                    new URL(serverUrlString);
-                } catch (MalformedURLException e) {
-                    propertiesOk = false;
-                    giftCloudServerText.setText("\\\\\\BAD\\\\\\");
-                }
-            }
-        }
-
-        {
-            String pacsUrlString = remoteAEHostName.getText();
-            if (!StringUtils.isBlank(pacsUrlString)) {
-                try {
-                    new URL(pacsUrlString);
-                } catch (MalformedURLException e) {
-                    propertiesOk = false;
-                    remoteAEHostName.setText("\\\\\\BAD\\\\\\");
-                }
-            }
-        }
-
         return propertiesOk;
     }
 
