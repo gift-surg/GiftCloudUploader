@@ -52,11 +52,11 @@ public class RestServerSessionHelper {
     }
 
     public Collection<Object> getValues(final String path, final String key) throws IOException, JSONException {
-        return giftCloudSession.request(new HttpRequestWithoutOutput<Collection<Object>>(HttpConnection.ConnectionType.GET, path, new HttpJsonResponseProcessor(new JSONValuesExtractor(key)), giftCloudProperties, reporter));
+        return giftCloudSession.request(new HttpRequestWithoutOutput<Collection<Object>>(HttpConnection.ConnectionType.GET, path, new HttpJsonResponseProcessor<Collection<Object>>(new JSONValuesExtractor(key)), giftCloudProperties, reporter));
     }
 
     public Map<String, String> getAliases(final String path, final String aliasKey, final String idKey) throws IOException, JSONException {
-        return giftCloudSession.request(new HttpRequestWithoutOutput<Map<String, String>>(HttpConnection.ConnectionType.GET, path, new HttpJsonResponseProcessor(new JSONAliasesExtractor(aliasKey, idKey)), giftCloudProperties, reporter));
+        return giftCloudSession.request(new HttpRequestWithoutOutput<Map<String, String>>(HttpConnection.ConnectionType.GET, path, new HttpJsonResponseProcessor<Map<String, String>>(new JSONAliasesExtractor(aliasKey, idKey)), giftCloudProperties, reporter));
     }
 
     public Optional<String> getPpidAlias(final String path, final String aliasKey, final String idKey) throws IOException, JSONException {
@@ -64,7 +64,7 @@ public class RestServerSessionHelper {
     }
 
     public <T> Optional<T> getUsingJsonExtractor(final String query) throws IOException {
-        return giftCloudSession.requestOptional(new HttpRequestWithoutOutput<Optional<T>>(HttpConnection.ConnectionType.GET, query, new HttpJsonResponseProcessor(new JSONConfigurationExtractor()), giftCloudProperties, reporter));
+        return giftCloudSession.requestOptional(new HttpRequestWithoutOutput<T>(HttpConnection.ConnectionType.GET, query, new HttpJsonResponseProcessor<T>(new JSONConfigurationExtractor()), giftCloudProperties, reporter));
     }
 
     public String getString(final String path) throws IOException {
