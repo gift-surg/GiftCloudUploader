@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import javax.swing.*;
 import javax.swing.event.ListDataListener;
+import java.util.Optional;
 
 /**
  * Implements a ComboBoxModel which uses an underlying ComboBoxModel for the elements,
@@ -15,8 +16,9 @@ public class TemporaryProjectListModel implements ComboBoxModel<String> {
     private final ComboBoxModel<String> comboBoxModel;
     private Object selectedItem = null;
 
-    public TemporaryProjectListModel(final ComboBoxModel<String> comboBoxModel) {
+    public TemporaryProjectListModel(final ComboBoxModel<String> comboBoxModel, final Optional<String> initialSelectedItem) {
         this.comboBoxModel = comboBoxModel;
+        setSelectedItem(initialSelectedItem.orElse(""));
     }
 
     @Override

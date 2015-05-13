@@ -180,15 +180,18 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     }
 
     String getProjectName(final GiftCloudServer giftCloudServer) throws IOException {
-        String selectedProjectName = (String) projectListModel.getSelectedItem();
-        if (StringUtils.isEmpty(selectedProjectName)) {
+        final Optional<String> lastProjectName = giftCloudProperties.getLastProject();
+        if (lastProjectName.isPresent() && StringUtils.isNotBlank(lastProjectName.get())) {
+            return lastProjectName.get();
+        } else {
             try {
-                selectedProjectName = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, giftCloudProperties.getLastProject());
+                final String selectedProject = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, lastProjectName);
+                giftCloudProperties.setLastProject(selectedProject);
+                return selectedProject;
             } catch (IOException e) {
                 throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
             }
         }
-        return selectedProjectName;
     }
 
     public void addFileReference(final String mediaFileName) {

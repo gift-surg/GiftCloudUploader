@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.network.ApplicationEntityConfigurationDialog;
+import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -9,6 +10,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -48,7 +51,7 @@ public class GiftCloudConfigurationDialog {
         this.projectListModel = projectListModel;
         this.dicomNode = dicomNode;
         this.giftCloudDialogs = giftCloudDialogs;
-        temporaryDropDownListModel = new TemporaryProjectListModel(projectListModel);
+        temporaryDropDownListModel = new TemporaryProjectListModel(projectListModel, giftCloudProperties.getLastProject());
         componentToCenterDialogOver = owner;
 
         dialog = new JDialog();
@@ -107,12 +110,7 @@ public class GiftCloudConfigurationDialog {
                 giftCloudServerLabel.setToolTipText(resourceBundle.getString("giftCloudServerTextToolTipText"));
                 giftCloudServerPanel.add(giftCloudServerLabel, labelConstraints);
 
-                giftCloudServerText = new AutoSaveTextField(giftCloudProperties.getGiftCloudUrl(), textFieldLengthForGiftCloudServerUrl) {
-                    @Override
-                    void autoSave() {
-                        giftCloudProperties.setGiftCloudUrl(getText());
-                    }
-                };
+                giftCloudServerText = new AutoFocusTextField(giftCloudProperties.getGiftCloudUrl().orElse(""), textFieldLengthForGiftCloudServerUrl);
                 inputConstraints.gridy = 2;
                 giftCloudServerPanel.add(giftCloudServerText, inputConstraints);
             }
@@ -126,7 +124,7 @@ public class GiftCloudConfigurationDialog {
 
                 final Optional<String> serverUrl = giftCloudProperties.getLastUserName();
                 final String initialServerText = serverUrl.isPresent() ? serverUrl.get() : "";
-                giftCloudUsernameText = new JTextField(initialServerText, 16);
+                giftCloudUsernameText = new AutoFocusTextField(initialServerText);
                 inputConstraints.gridy = 3;
                 giftCloudServerPanel.add(giftCloudUsernameText, inputConstraints);
             }
@@ -180,15 +178,9 @@ public class GiftCloudConfigurationDialog {
                 inputConstraints.gridy = 2;
                 final Optional<String> callingAETitleInitialTextOptional = giftCloudProperties.getListenerCallingAETitle();
                 final String callingAETitleInitialText = callingAETitleInitialTextOptional.isPresent() ? callingAETitleInitialTextOptional.get() : "";
-                callingAETitleField = new JTextField(callingAETitleInitialText);
+                callingAETitleField = new AutoFocusTextField(callingAETitleInitialText);
                 listenerPanellayout.setConstraints(callingAETitleField, inputConstraints);
                 listenerPanel.add(callingAETitleField);
-                callingAETitleField.addFocusListener(new java.awt.event.FocusAdapter() {
-                    public void focusGained(java.awt.event.FocusEvent event) {
-                        JTextComponent textComponent = (JTextComponent)(event.getSource());
-                        textComponent.selectAll();
-                    }
-                });
             }
 
             {
@@ -201,15 +193,9 @@ public class GiftCloudConfigurationDialog {
                 inputConstraints.gridy = 3;
                 final Optional<String> calledAETitleInitialTextOptional = giftCloudProperties.getListenerCalledAETitle();
                 final String calledAETitleInitialText = calledAETitleInitialTextOptional.isPresent() ? calledAETitleInitialTextOptional.get() : "";
-                calledAETitleField = new JTextField(calledAETitleInitialText);
+                calledAETitleField = new AutoFocusTextField(calledAETitleInitialText);
                 listenerPanellayout.setConstraints(calledAETitleField, inputConstraints);
                 listenerPanel.add(calledAETitleField);
-                calledAETitleField.addFocusListener(new java.awt.event.FocusAdapter() {
-                    public void focusGained(java.awt.event.FocusEvent event) {
-                        JTextComponent textComponent = (JTextComponent)(event.getSource());
-                        textComponent.selectAll();
-                    }
-                });
             }
             {
                 labelConstraints.gridy = 4;
@@ -221,15 +207,9 @@ public class GiftCloudConfigurationDialog {
                 inputConstraints.gridy = 4;
                 final int port = giftCloudProperties.getListeningPort();
                 final String portValue = Integer.toString(port);
-                listeningPortField = new JTextField(portValue);
+                listeningPortField = new AutoFocusTextField(portValue);
                 listenerPanellayout.setConstraints(listeningPortField, inputConstraints);
                 listenerPanel.add(listeningPortField);
-                listeningPortField.addFocusListener(new java.awt.event.FocusAdapter() {
-                    public void focusGained(java.awt.event.FocusEvent event) {
-                        JTextComponent textComponent = (JTextComponent)(event.getSource());
-                        textComponent.selectAll();
-                    }
-                });
             }
         }
 
@@ -244,62 +224,41 @@ public class GiftCloudConfigurationDialog {
             JSeparator separator = new JSeparator();
             remoteAEPanel.add(separator, separatorConstraint);
 
-            JLabel remotePanelLabel = new JLabel("PACS configuration", SwingConstants.CENTER);
+            JLabel remotePanelLabel = new JLabel(resourceBundle.getString("pacsPanelListenerConfig"), SwingConstants.CENTER);
             remoteAEPanel.add(remotePanelLabel, sectionTitleConstraints);
 
             {
                 labelConstraints.gridy = 2;
-                JLabel remoteAeTitleLabel = new JLabel("PACS AE Title: ", SwingConstants.RIGHT);
-                remoteAeTitleLabel.setToolTipText("The AE Title for the remote PACS system");
+                JLabel remoteAeTitleLabel = new JLabel(resourceBundle.getString("configPanelPacsAeTitle"), SwingConstants.RIGHT);
+                remoteAeTitleLabel.setToolTipText(resourceBundle.getString("configPanelPacsAeTitleTooltip"));
                 remoteAEPanel.add(remoteAeTitleLabel, labelConstraints);
 
-                remoteAETitleField = new JTextField();
                 final Optional<String> pacsAeTitle = giftCloudProperties.getPacsAeTitle();
-                remoteAETitleField.setText(pacsAeTitle.isPresent() ? pacsAeTitle.get() : "");
+                remoteAETitleField = new AutoFocusTextField(pacsAeTitle.isPresent() ? pacsAeTitle.get() : "");
                 inputConstraints.gridy = 2;
                 remoteAEPanel.add(remoteAETitleField, inputConstraints);
-                remoteAETitleField.addFocusListener(new java.awt.event.FocusAdapter() {
-                    public void focusGained(java.awt.event.FocusEvent event) {
-                        JTextComponent textComponent = (JTextComponent)(event.getSource());
-                        textComponent.selectAll();
-                    }
-                });
             }
 
             {
                 labelConstraints.gridy = 3;
-                JLabel remoteAeHostLabel = new JLabel("PACS Host name: ", SwingConstants.RIGHT);
-                remoteAeHostLabel.setToolTipText("The host name for the remote PACS system");
+                JLabel remoteAeHostLabel = new JLabel(resourceBundle.getString("configPanelPacsHostname"), SwingConstants.RIGHT);
+                remoteAeHostLabel.setToolTipText(resourceBundle.getString("configPanelPacsHostnameTooltip"));
                 remoteAEPanel.add(remoteAeHostLabel, labelConstraints);
 
-                remoteAEHostName = new JTextField();
-                remoteAEHostName.setText(giftCloudProperties.getPacsHostName().orElse(""));
+                remoteAEHostName = new AutoFocusTextField(giftCloudProperties.getPacsHostName().orElse(""));
                 inputConstraints.gridy = 3;
                 remoteAEPanel.add(remoteAEHostName, inputConstraints);
-                remoteAEHostName.addFocusListener(new java.awt.event.FocusAdapter() {
-                    public void focusGained(java.awt.event.FocusEvent event) {
-                        JTextComponent textComponent = (JTextComponent)(event.getSource());
-                        textComponent.selectAll();
-                    }
-                });
             }
 
             {
                 labelConstraints.gridy = 4;
-                JLabel remoteAeTitleLabel = new JLabel("PACS port: ", SwingConstants.RIGHT);
-                remoteAeTitleLabel.setToolTipText("The port for the remote PACS system");
+                JLabel remoteAeTitleLabel = new JLabel(resourceBundle.getString("configPanelPacsPort"), SwingConstants.RIGHT);
+                remoteAeTitleLabel.setToolTipText(resourceBundle.getString("configPanelPacsPortTooltip"));
                 remoteAEPanel.add(remoteAeTitleLabel, labelConstraints);
 
-                remoteAEPortField = new JTextField();
-                remoteAEPortField.setText(Integer.toString(giftCloudProperties.getPacsPort()));
+                remoteAEPortField = new AutoFocusTextField(Integer.toString(giftCloudProperties.getPacsPort()));
                 inputConstraints.gridy = 4;
                 remoteAEPanel.add(remoteAEPortField, inputConstraints);
-                remoteAEPortField.addFocusListener(new java.awt.event.FocusAdapter() {
-                    public void focusGained(java.awt.event.FocusEvent event) {
-                        JTextComponent textComponent = (JTextComponent)(event.getSource());
-                        textComponent.selectAll();
-                    }
-                });
             }
         }
 
@@ -412,18 +371,16 @@ public class GiftCloudConfigurationDialog {
     private boolean checkProperties() {
         boolean propertiesOk = true;
 
-        // ToDo: more validatation of all the properties
-
         {
             String calledAETitle = calledAETitleField.getText();
-            if (!ApplicationEntityConfigurationDialog.isValidAETitle(calledAETitle)) {
+            if (!StringUtils.isBlank(calledAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(calledAETitle)) {
                 propertiesOk = false;
                 calledAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
             }
         }
         {
             String callingAETitle = callingAETitleField.getText();
-            if (!ApplicationEntityConfigurationDialog.isValidAETitle(callingAETitle)) {
+            if (!StringUtils.isBlank(callingAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(callingAETitle)) {
                 propertiesOk = false;
                 callingAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
             }
@@ -452,6 +409,38 @@ public class GiftCloudConfigurationDialog {
             } catch (NumberFormatException e) {
                 propertiesOk = false;
                 remoteAEPortField.setText("\\\\\\BAD\\\\\\");
+            }
+        }
+
+        {
+            String remoteAETitle = remoteAETitleField.getText();
+            if (!StringUtils.isBlank(remoteAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(remoteAETitle)) {
+                propertiesOk = false;
+                remoteAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
+            }
+        }
+
+        {
+            String serverUrlString = giftCloudServerText.getText();
+            if (!StringUtils.isBlank(serverUrlString)) {
+                try {
+                    new URL(serverUrlString);
+                } catch (MalformedURLException e) {
+                    propertiesOk = false;
+                    giftCloudServerText.setText("\\\\\\BAD\\\\\\");
+                }
+            }
+        }
+
+        {
+            String pacsUrlString = remoteAEHostName.getText();
+            if (!StringUtils.isBlank(pacsUrlString)) {
+                try {
+                    new URL(pacsUrlString);
+                } catch (MalformedURLException e) {
+                    propertiesOk = false;
+                    remoteAEHostName.setText("\\\\\\BAD\\\\\\");
+                }
             }
         }
 
@@ -496,10 +485,19 @@ public class GiftCloudConfigurationDialog {
         giftCloudProperties.setPacsPort(newPacsPort);
         giftCloudProperties.setPacsAeTitle(newPacsAeTitle);
         giftCloudProperties.setPacsHostName(newPacsHostName);
-        projectListModel.setSelectedItem(temporaryDropDownListModel.getSelectedItem());
+
+        // We only update the last project with a valid value. A null value may indicate the project list hasn't been
+        // set because the server login details are incorrect or some communication error
+        final Object selectedProjectItem = temporaryDropDownListModel.getSelectedItem();
+        if (selectedProjectItem instanceof String) {
+            final String newProject = (String)selectedProjectItem;
+            if (StringUtils.isNotBlank(newProject)) {
+                giftCloudProperties.setLastProject(newProject);
+            }
+        }
 
         try {
-            giftCloudProperties.storeProperties("Edited and saved from user interface");
+            giftCloudProperties.storeProperties("Saved from GiftCloudConfigurationDialog");
         } catch (IOException e) {
 
             // ToDo:
@@ -527,5 +525,26 @@ public class GiftCloudConfigurationDialog {
         dialog.dispose();
     }
 
+    class AutoFocusTextField extends JTextField {
+
+        AutoFocusTextField(String text, int columns) {
+            super(text, columns);
+            addFocusCallback();
+        }
+
+        AutoFocusTextField(final String initialText) {
+            super(initialText);
+            addFocusCallback();
+        }
+
+        private void addFocusCallback() {
+            addFocusListener(new java.awt.event.FocusAdapter() {
+                public void focusGained(java.awt.event.FocusEvent event) {
+                    JTextComponent textComponent = (JTextComponent) (event.getSource());
+                    textComponent.selectAll();
+                }
+            });
+        }
+    }
 
 }
