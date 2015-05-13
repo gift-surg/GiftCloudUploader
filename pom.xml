@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.ac.ucl.cs.cmic.giftcloud</groupId>
-    <artifactId>giftclouduploader</artifactId>
+    <artifactId>GiftCloudUploader</artifactId>
     <name>GIFT-Cloud Uploader</name>
-    <description>Application for uploading data to a GIFT-Cloud server.</description>
-    <url>http://www.cmictig.cs.ucl.ac.uk</url>
-    <version>1.0</version>
+    <description>A simple application to query, retrieve, import, de-identify DICOM instances and upload them securely on to GIFT-Cloud.</description>
+    <url>http://cmictig.cs.ucl.ac.uk</url>
+    <version>1.1.0</version>
     <organization>
-        <name>University College London Translational imaging Group (TIG)</name>
+        <name>Centre for Medical Image Computing (CMIC), University College London (UCL))</name>
         <url>http://cmictig.cs.ucl.ac.uk</url>
     </organization>
     <licenses>
@@ -235,6 +235,11 @@
     </repositories>
 
     <dependencies>
+		<dependency>
+			<groupId>com.apple</groupId>
+			<artifactId>AppleJavaExtensions</artifactId>
+			<version>1.4</version>
+		</dependency>
         <dependency>
             <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
             <artifactId>pixelmed_codec</artifactId>
