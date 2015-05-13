@@ -168,10 +168,6 @@ public class DicomNode extends Observable {
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Received "+dicomFileName+" from "+callingAETitle+" in "+transferSyntax));
                 try {
                     importFileIntoDatabase(dicomFileName, DatabaseInformationModel.FILE_COPIED);
-
-
-                    // ToDo: Remove this line so the file doesn't get deleted on exit
-                    new File(dicomFileName).deleteOnExit();
                 } catch (Exception e) {
                     e.printStackTrace(System.err);
                 }
