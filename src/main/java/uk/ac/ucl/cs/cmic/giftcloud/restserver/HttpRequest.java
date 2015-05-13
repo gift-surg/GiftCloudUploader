@@ -74,7 +74,7 @@ abstract class HttpRequest<T> {
         if (!response.isPresent()) {
             doRequest(baseUrlString, connectionFactory);
         }
-        // The value of the response should now be set to an Optional - if this inner opttional is not set, that indicates a null value
+        // The value of the response should now be set to an Optional - if this inner optional is not set, that indicates a null value
         return response.get().orElse(null);
     }
 
