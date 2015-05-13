@@ -183,12 +183,14 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     public void restartDicomService() {
         try {
             dicomNode.shutdownStorageSCP();
-            dicomNode.activateStorageSCP();
-//            // else do nothing ... we have been modifying the NetworkApplicationInformation inside the existing NetworkApplicationProperties all along
         } catch (Exception e) {
-//            e.printStackTrace(System.err);
+            reporter.silentLogException(e, "Failed to shutdown the dicom node service");
         }
-
+        try {
+            dicomNode.activateStorageSCP();
+        } catch (Exception e) {
+            reporter.silentLogException(e, "Failed to startup the dicom node service");
+        }
     }
 
     @Override
