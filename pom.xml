@@ -32,10 +32,10 @@
     </developers>
 
     <properties>
-        <signing.keystore>${basedir}/keystore</signing.keystore>
-        <signing.alias>****** put here the alias ******</signing.alias>
-        <signing.storepass>****** put here the store pass ******</signing.storepass>
-        <signing.keypass>****** put here the key pass ******</signing.keypass>
+        <jarsigner.keystore>${basedir}/keystore</jarsigner.keystore>
+        <jarsigner.alias>****** put here the alias ******</jarsigner.alias>
+        <jarsigner.storepass>****** put here the store pass ******</jarsigner.storepass>
+        <jarsigner.keypass>****** put here the key pass ******</jarsigner.keypass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -166,8 +166,18 @@
                         <version>2.10.1</version>
                     </plugin>
                     <plugin>
+						<groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-jarsigner-plugin</artifactId>
                         <version>1.4</version>
+						<!-- TODO: comment out the part below for jarsigner to work -->
+						<!-- <executions>
+							<execution>
+								<id>sign</id>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions> -->
                     </plugin>
                 </plugins>
                 <pluginManagement>
@@ -375,11 +385,6 @@
             <groupId>org.nrg</groupId>
             <artifactId>transaction</artifactId>
             <version>1.6.4-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>1.6.2</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
