@@ -53,18 +53,18 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
     @Override
     protected void notifySuccess(BackgroundServiceTaskWrapper<CallableUploader, Future<Set<String>>> taskWrapper) {
         final FileCollection fileCollection = taskWrapper.getTask().getFileCollection();
-        outcomeCallback.notifySuccess(fileCollection);
+        outcomeCallback.fileUploadSuccess(fileCollection);
     }
 
     @Override
     protected void notifyFailure(BackgroundServiceTaskWrapper<CallableUploader, Future<Set<String>>> taskWrapper) {
         final FileCollection fileCollection = taskWrapper.getTask().getFileCollection();
-        outcomeCallback.notifyFailure(fileCollection);
+        outcomeCallback.fileUploadFailure(fileCollection);
     }
 
     interface BackgroundUploadOutcomeCallback {
-        void notifySuccess(final FileCollection fileCollection);
-        void notifyFailure(final FileCollection fileCollection);
+        void fileUploadSuccess(final FileCollection fileCollection);
+        void fileUploadFailure(final FileCollection fileCollection);
 
     }
 }

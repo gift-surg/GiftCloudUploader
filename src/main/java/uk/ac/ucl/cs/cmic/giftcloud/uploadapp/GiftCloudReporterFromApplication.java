@@ -87,7 +87,7 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
             System.err.println("javascript close failed");
             // this usually means we're in a non-browser applet viewer
         } else {
-            context.call("close", (Object) null);
+            context.call("close", (Object[]) null);
         }
     }
 

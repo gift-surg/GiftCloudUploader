@@ -76,26 +76,20 @@ public class QueryRetrieveController {
     }
 
     QueryInformationModel createRemoteQueryInformationModel() throws GiftCloudException {
-        final String remoteAEForQuery = giftCloudProperties.getCurrentlySelectedQueryTargetAE();
-        if (StringUtils.isBlank(remoteAEForQuery)) {
-            throw new GiftCloudException(GiftCloudUploaderError.EMPTY_AE);
+        final Optional<String> queryCallingAETitle = giftCloudProperties.getListenerCallingAETitle();
+        if (!queryCallingAETitle.isPresent() || StringUtils.isBlank(queryCallingAETitle.get())) {
+            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_LISTENER_CALLING_AE, "No listener calling AE host has been set");
         }
 
-            final Optional<String> queryCallingAETitle = giftCloudProperties.getListenerCallingAETitle();
-            if (!queryCallingAETitle.isPresent() || StringUtils.isBlank(queryCallingAETitle.get())) {
-                throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_LISTENER_CALLING_AE, "No listener calling AE host has been set");
-            }
+        final Optional<String> queryCalledAETitle = giftCloudProperties.getPacsAeTitle();
+        final Optional<String> queryHost = giftCloudProperties.getPacsHostName();
+        final int queryPort = giftCloudProperties.getPacsPort();
+        final Optional<String> queryModel = giftCloudProperties.getPacsQueryModel();
+        final int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
 
-
-            final Optional<String> queryCalledAETitle = giftCloudProperties.getPacsAeTitle();
-            final Optional<String> queryHost = giftCloudProperties.getPacsHostName();
-            final int queryPort = giftCloudProperties.getPacsPort();
-            final Optional<String> queryModel = giftCloudProperties.getPacsQueryModel();
-            final int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
-
-            if (!queryHost.isPresent() || StringUtils.isBlank(queryHost.get())) {
-                throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_HOST, "No PACS host has been set");
-            }
+        if (!queryHost.isPresent() || StringUtils.isBlank(queryHost.get())) {
+            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_HOST, "No PACS host has been set");
+        }
 
         if (!queryCalledAETitle.isPresent() || StringUtils.isBlank(queryCalledAETitle.get())) {
             throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_CALLED_AE_TITLE, "No PACS called AE title has been set");
@@ -104,7 +98,7 @@ public class QueryRetrieveController {
         if (!queryModel.isPresent() || NetworkApplicationProperties.isStudyRootQueryModel(queryModel.get())) {
             return new StudyRootQueryInformationModel(queryHost.get(), queryPort, queryCalledAETitle.get(), queryCallingAETitle.get(), queryDebugLevel);
         } else {
-            throw new GiftCloudException(GiftCloudUploaderError.QUERY_MODEL_NOT_SUPPORTED, "The query model is not supported for remote query AE:" + remoteAEForQuery);
+            throw new GiftCloudException(GiftCloudUploaderError.QUERY_MODEL_NOT_SUPPORTED, "The query model is not supported for remote query AE:" + queryCalledAETitle.get());
         }
     }
 

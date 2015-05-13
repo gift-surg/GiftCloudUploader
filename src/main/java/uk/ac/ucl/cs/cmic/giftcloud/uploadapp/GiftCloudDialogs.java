@@ -8,6 +8,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Vector;
+import java.util.concurrent.CancellationException;
 
 public class GiftCloudDialogs {
 
@@ -98,7 +99,16 @@ public class GiftCloudDialogs {
 
         final String defaultSelection = projectMap.contains(lastProjectName) ? lastProjectName : null;
 
-        return (String)JOptionPane.showInputDialog(component, "Please select a project to which data will be uploaded.", "GIFT-Cloud", JOptionPane.QUESTION_MESSAGE, null, projectStringArray, defaultSelection);
+        final Object returnValue = JOptionPane.showInputDialog(component, "Please select a project to which data will be uploaded.", "GIFT-Cloud", JOptionPane.QUESTION_MESSAGE, null, projectStringArray, defaultSelection);
+
+        if (returnValue == null) {
+            throw new CancellationException("User cancelled project selection during upload");
+        }
+
+        if (!(returnValue instanceof String)) {
+            throw new RuntimeException("Bad return type");
+        }
+        return (String)returnValue;
     }
 
     class SelectedPathAndFile {

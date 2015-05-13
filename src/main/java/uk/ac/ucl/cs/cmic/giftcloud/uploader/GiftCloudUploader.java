@@ -161,34 +161,19 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         }
     }
 
-    public boolean appendToGiftCloud(Vector<String> paths) throws IOException {
-
-        try {
-            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-
-            // Allow user to log in again if they have previously cancelled a login dialog
-            giftCloudServer.resetCancellation();
-
-            final String projectName = getProjectName(giftCloudServer);
-
-            return autoUploader.appendToGiftCloud(giftCloudServer, paths, projectName);
-
-        } catch (Throwable throwable) {
-
-            return false;
-        }
-    }
-
     String getProjectName(final GiftCloudServer giftCloudServer) throws IOException {
-        String selectedProjectName = (String) projectListModel.getSelectedItem();
-        if (StringUtils.isEmpty(selectedProjectName)) {
+        final Optional<String> lastProjectName = giftCloudProperties.getLastProject();
+        if (lastProjectName.isPresent() && StringUtils.isNotBlank(lastProjectName.get())) {
+            return lastProjectName.get();
+        } else {
             try {
-                selectedProjectName = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, giftCloudProperties.getLastProject());
+                final String selectedProject = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, lastProjectName);
+                giftCloudProperties.setLastProject(selectedProject);
+                return selectedProject;
             } catch (IOException e) {
                 throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
             }
         }
-        return selectedProjectName;
     }
 
     public void addFileReference(final String mediaFileName) {
@@ -222,13 +207,13 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     }
 
     @Override
-    public void notifySuccess(final FileCollection fileCollection) {
-//        pendingUploadTaskList.notifySuccess(fileCollection);
+    public void fileUploadSuccess(final FileCollection fileCollection) {
+        pendingUploadList.fileUploadSuccess(fileCollection);
     }
 
     @Override
-    public void notifyFailure(final FileCollection fileCollection) {
-//        pendingUploadTaskList.notifyFailure(fileCollection);
+    public void fileUploadFailure(final FileCollection fileCollection) {
+        pendingUploadList.fileUploadFailure(fileCollection);
     }
 
     public void addExistingFilesToUploadQueue() {

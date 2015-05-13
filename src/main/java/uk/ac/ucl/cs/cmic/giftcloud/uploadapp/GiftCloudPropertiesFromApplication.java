@@ -12,7 +12,6 @@ import java.util.*;
 
 public class GiftCloudPropertiesFromApplication extends Observable implements GiftCloudProperties {
 
-    protected static String propertyName_DicomCurrentlySelectedQueryTargetAE = "Dicom.CurrentlySelectedQueryTargetAE";
     protected static String KEYSTORE_UPLOAD_PASSWORD_KEY = "GiftCloud.UploadPassword";
 
     private Properties properties;
@@ -210,10 +209,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
 
     public void setCallingAETitle(String callingAETitle) {
         setPropertyString(propertyName_ListenerCallingAeTitle, callingAETitle);
-    }
-
-    public String getCurrentlySelectedQueryTargetAE() {
-        return properties.getProperty(propertyName_DicomCurrentlySelectedQueryTargetAE);
     }
 
     // ToDo: Previously this was supported via a checkbox
