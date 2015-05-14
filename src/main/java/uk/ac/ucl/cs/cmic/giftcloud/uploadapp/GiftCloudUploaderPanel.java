@@ -70,7 +70,7 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(exportButton);
         exportButton.addActionListener(new ExportActionListener());
 
-        statusPanel = new StatusPanel();
+        statusPanel = new StatusPanel(controller);
         reporter.addProgressListener(statusPanel);
 
         {

@@ -17,8 +17,10 @@ public class StatusPanel extends JPanel implements Progress {
     private final JLabel statusBar;
     private final StatusBarManager statusBarManager;		// maintain a strong reference else weak reference to listener gets nulled when garbage collected
     private boolean isCancelled = false;
+    private GiftCloudUploaderController controller;
 
-    StatusPanel() {
+    StatusPanel(final GiftCloudUploaderController controller) {
+        this.controller = controller;
         statusBarManager = new StatusBarManager(getBuildDate()+" "+getReleaseString());
         statusBar = getStatusBar();
         GridBagLayout statusBarPanelLayout = new GridBagLayout();
@@ -29,8 +31,7 @@ public class StatusPanel extends JPanel implements Progress {
             statusBarConstraints.fill = GridBagConstraints.BOTH;
             statusBarConstraints.anchor = GridBagConstraints.WEST;
             statusBarConstraints.gridwidth = GridBagConstraints.RELATIVE;
-            statusBarPanelLayout.setConstraints(statusBar, statusBarConstraints);
-            add(statusBar);
+            add(statusBar, statusBarConstraints);
         }
         {
             progressBar = new JProgressBar();		// local not class scope; helps detect when being accessed other than through SafeProgressBarUpdaterThread
@@ -40,18 +41,29 @@ public class StatusPanel extends JPanel implements Progress {
             progressBarConstraints.fill = GridBagConstraints.BOTH;
             progressBarConstraints.anchor = GridBagConstraints.EAST;
             progressBarConstraints.gridwidth = GridBagConstraints.REMAINDER;
-            statusBarPanelLayout.setConstraints(progressBar,progressBarConstraints);
-            add(progressBar);
+            add(progressBar, progressBarConstraints);
 
             progressBarUpdater = new SafeProgressBarUpdaterThread(progressBar);
         }
         {
-            JButton cancelButton = new JButton("Cancel");
-            cancelButton.setToolTipText("Cancel current task");
-            add(cancelButton);
-            cancelButton.addActionListener(new CancelActionListener());
+            JButton closeButton = new JButton("Close");
+            closeButton.setToolTipText("Close the uploader window");
+            add(closeButton);
+            GridBagConstraints closeButtonConstraints = new GridBagConstraints();
+            closeButtonConstraints.weightx = 1;
+            closeButtonConstraints.fill = GridBagConstraints.BOTH;
+            closeButtonConstraints.anchor = GridBagConstraints.EAST;
+            closeButtonConstraints.gridwidth = GridBagConstraints.RELATIVE;
+            closeButton.addActionListener(new CloseActionListener());
 
         }
+//        {
+//            JButton cancelButton = new JButton("Cancel");
+//            cancelButton.setToolTipText("Cancel current task");
+//            add(cancelButton);
+//            cancelButton.addActionListener(new CancelActionListener());
+//
+//        }
     }
 
     @Override
@@ -132,11 +144,14 @@ public class StatusPanel extends JPanel implements Progress {
 
     protected class CancelActionListener implements ActionListener {
 
-        public CancelActionListener() {
-        }
-
         public void actionPerformed(ActionEvent event) {
             Cancel();
+        }
+    }
+    protected class CloseActionListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent event) {
+            controller.hide();
         }
     }
 
