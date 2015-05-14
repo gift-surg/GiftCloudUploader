@@ -166,18 +166,18 @@
                         <version>2.10.1</version>
                     </plugin>
                     <plugin>
-						<groupId>org.apache.maven.plugins</groupId>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-jarsigner-plugin</artifactId>
                         <version>1.4</version>
-						<!-- TODO: comment out the part below for jarsigner to work -->
-						<!-- <executions>
-							<execution>
-								<id>sign</id>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions> -->
+                        <!-- TODO: comment out the part below for jarsigner to work -->
+                        <!-- <executions>
+                            <execution>
+                                <id>sign</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions> -->
                     </plugin>
                 </plugins>
                 <pluginManagement>
@@ -218,58 +218,58 @@
                 </resources>
             </build>
         </profile>
-		<profile>
-			<id>Webstart</id>
-			
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>webstart-maven-plugin</artifactId>
-						<version>1.0-beta-5</version>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>jnlp</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<libPath>lib</libPath>
-							<filenameMapping>simple</filenameMapping>
-							
-							<jnlp>
-								<!-- we play with the resource path and template relative path to test MOJO-391 -->
-								<!--inputTemplateResourcePath>${project.basedir}/src/</inputTemplateResourcePath>
-								<inputTemplate>jnlp/template.vm</inputTemplate-->
-								<outputFile>webstart.jnlp</outputFile>
-								<mainClass>uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderApp</mainClass>
-							</jnlp>
-							
-							<!-- SIGNING -->
-							<!-- defining this will automatically sign the jar and its dependencies -->
-							<sign>
-								<keystore>***** path/to/your/keystore/file *****</keystore>
-								<storetype>***** put the store type, e.g. PKCS12 *****</storetype>
-								<keypass>***** yourKeysPassword *****</keypass>
-								<storepass>***** yourKeystoresPassword *****</storepass>
-								<!--sigfile>m2m2m2</sigfile-->
-								<alias>***** AnAliasForSigning *****</alias>
-								<validity>***** validity of your signed resources, e.g. 360 *****</validity>
+        <profile>
+            <id>Webstart</id>
+            
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>webstart-maven-plugin</artifactId>
+                        <version>1.0-beta-5</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jnlp</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <libPath>lib</libPath>
+                            <filenameMapping>simple</filenameMapping>
+                            
+                            <jnlp>
+                                <!-- we play with the resource path and template relative path to test MOJO-391 -->
+                                <!--inputTemplateResourcePath>${project.basedir}/src/</inputTemplateResourcePath>
+                                <inputTemplate>jnlp/template.vm</inputTemplate-->
+                                <outputFile>webstart.jnlp</outputFile>
+                                <mainClass>uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderApp</mainClass>
+                            </jnlp>
+                            
+                            <!-- SIGNING -->
+                            <!-- defining this will automatically sign the jar and its dependencies -->
+                            <sign>
+                                <keystore>***** path/to/your/keystore/file *****</keystore>
+                                <storetype>***** put the store type, e.g. PKCS12 *****</storetype>
+                                <keypass>***** yourKeysPassword *****</keypass>
+                                <storepass>***** yourKeystoresPassword *****</storepass>
+                                <!--sigfile>m2m2m2</sigfile-->
+                                <alias>***** AnAliasForSigning *****</alias>
+                                <validity>***** validity of your signed resources, e.g. 360 *****</validity>
 
-								<verify>true</verify>
+                                <verify>true</verify>
 
-								<keystoreConfig>
-									<delete>false</delete>
-									<gen>false</gen>
-								</keystoreConfig>
-							</sign>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
+                                <keystoreConfig>
+                                    <delete>false</delete>
+                                    <gen>false</gen>
+                                </keystoreConfig>
+                            </sign>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <repositories>
@@ -294,19 +294,19 @@
             <name>dcm4che Repository</name>
             <url>http://www.dcm4che.org/maven2</url>
         </repository>
-		<repository>
-			<id>org.codehaus.mojo</id>
-			<name>Mojo repository</name>
-			<url>http://repo1.maven.org/maven2/org/codehaus/mojo/</url>
-		</repository>
+        <repository>
+            <id>org.codehaus.mojo</id>
+            <name>Mojo repository</name>
+            <url>http://repo1.maven.org/maven2/org/codehaus/mojo/</url>
+        </repository>
     </repositories>
 
     <dependencies>
-		<dependency>
-			<groupId>com.apple</groupId>
-			<artifactId>AppleJavaExtensions</artifactId>
-			<version>1.4</version>
-		</dependency>
+        <dependency>
+            <groupId>com.apple</groupId>
+            <artifactId>AppleJavaExtensions</artifactId>
+            <version>1.4</version>
+        </dependency>
         <dependency>
             <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
             <artifactId>pixelmed_codec</artifactId>
