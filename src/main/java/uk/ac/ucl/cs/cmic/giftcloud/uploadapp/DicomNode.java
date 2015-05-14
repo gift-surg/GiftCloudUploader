@@ -125,7 +125,7 @@ public class DicomNode extends Observable {
         return srcDatabase;
     }
 
-    public void importFileIntoDatabase(String dicomFileName,String fileReferenceType) throws FileNotFoundException, IOException, DicomException {
+    public void importFileIntoDatabase(String dicomFileName,String fileReferenceType) throws IOException, DicomException {
         ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Importing: "+dicomFileName));
         FileInputStream fis = new FileInputStream(dicomFileName);
         DicomInputStream i = new DicomInputStream(new BufferedInputStream(fis));
@@ -168,6 +168,8 @@ public class DicomNode extends Observable {
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Received "+dicomFileName+" from "+callingAETitle+" in "+transferSyntax));
                 try {
                     importFileIntoDatabase(dicomFileName, DatabaseInformationModel.FILE_COPIED);
+                    giftCloudUploader.addFileInstance(dicomFileName);
+
                 } catch (Exception e) {
                     e.printStackTrace(System.err);
                 }

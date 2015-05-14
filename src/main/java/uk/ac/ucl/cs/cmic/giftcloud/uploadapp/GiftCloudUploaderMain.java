@@ -41,8 +41,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
 
         // Initialise the main GIFT-Cloud class
-        giftCloudUploader = new GiftCloudUploader(restServerFactory, giftCloudProperties, reporter);
-        giftCloudUploader.addExistingFilesToUploadQueue();
+        final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
+        giftCloudUploader = new GiftCloudUploader(restServerFactory, pendingUploadFolder, giftCloudProperties, reporter);
 
         dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"), giftCloudUploader, reporter);
         dicomNode.addObserver(new DicomNodeListener());
@@ -53,6 +53,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         } catch (DicomNetworkException e) {
             System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
         }
+
 
         giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, reporter);
@@ -69,6 +70,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             reporter.warnUser("A system tray icon could not be created. The GIFT-Cloud uploader will start in visible mode.");
             show();
         }
+
+        addExistingFilesToUploadQueue(pendingUploadFolder);
 
         new Thread(new Runnable() {
             @Override
@@ -165,13 +168,14 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void runImport(String filePath, final Progress progress) {
-        new Thread(new ImportWorker(dicomNode, filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, reporter)).start();
+    public void runImport(String filePath, final boolean importAsReference, final Progress progress) {
+        new Thread(new ImportWorker(dicomNode, filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, reporter)).start();
     }
 
     @Override
     public void selectAndImport() {
         try {
+            reporter.setWaitCursor();
             reporter.showMesageLogger();
 
             Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
@@ -179,11 +183,13 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             if (selectFileOrDirectory.isPresent()) {
                 giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
                 String filePath = selectFileOrDirectory.get().getSelectedFile();
-                runImport(filePath, reporter);
+                runImport(filePath, true, reporter);
             }
         } catch (Exception e) {
             reporter.updateStatusText("Importing failed due to the following error: " + e);
             e.printStackTrace(System.err);
+        } finally {
+            reporter.restoreCursor();
         }
     }
 
@@ -227,14 +233,15 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudUploaderPanel.showQueryRetrieveDialog();
     }
 
+    private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
+        runImport(pendingUploadFolder.getAbsolutePath(), false, reporter);
+    }
 
     private class DicomNodeListener implements Observer {
 
         @Override
         public void update(Observable o, Object arg) {
-            final String newFileName = (String)arg;
             giftCloudUploaderPanel.rebuildFileList(dicomNode.getSrcDatabase());
-            giftCloudUploader.addFileInstance(newFileName);
         }
     }
 }

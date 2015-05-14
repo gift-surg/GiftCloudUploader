@@ -19,10 +19,10 @@ public class PendingUploadTaskList {
     private GiftCloudReporter reporter;
     private final List<FileCollection> failures = new ArrayList<FileCollection>();
 
-    public PendingUploadTaskList(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    public PendingUploadTaskList(final GiftCloudProperties giftCloudProperties, final File pendingUploadFolder, final GiftCloudReporter reporter) {
         this.reporter = reporter;
         taskList = new BackgroundBlockingQueueTaskList<PendingUploadTask>();
-        pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
+        this.pendingUploadFolder = pendingUploadFolder;
     }
 
     public void addFileReference(final String fileReference, final Optional<String> projectName) throws IOException {

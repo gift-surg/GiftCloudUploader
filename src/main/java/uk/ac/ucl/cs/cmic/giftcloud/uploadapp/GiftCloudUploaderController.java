@@ -27,7 +27,7 @@ public interface GiftCloudUploaderController {
 
     void selectAndExport(Vector<String> filesToExport);
 
-    void runImport(String filePath, final Progress progress);
+    void runImport(String filePath, final boolean importAsReference, final Progress progress);
 
     void selectAndImport();
 

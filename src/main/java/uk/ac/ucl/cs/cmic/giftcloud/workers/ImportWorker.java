@@ -14,14 +14,16 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 public class ImportWorker implements Runnable {
     private DicomNode dicomNode;
     private GiftCloudUploader giftCloudUploader;
+    private boolean importAsReference;
     private GiftCloudReporterFromApplication reporter;
     private MediaImporter importer;
     private String pathName;
     private Progress progress;
 
-    public ImportWorker(final DicomNode dicomNode, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final GiftCloudReporterFromApplication reporter) {
+    public ImportWorker(final DicomNode dicomNode, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporterFromApplication reporter) {
         this.dicomNode = dicomNode;
         this.giftCloudUploader = giftCloudUploader;
+        this.importAsReference = importAsReference;
         this.reporter = reporter;
         this.progress = progress;
         importer = new OurMediaImporter(reporter, acceptAnyTransferSyntax);
@@ -29,7 +31,6 @@ public class ImportWorker implements Runnable {
     }
 
     public void run() {
-        reporter.setWaitCursor();
         reporter.sendLn("Import starting");
         reporter.startProgressBar();
 
@@ -39,19 +40,10 @@ public class ImportWorker implements Runnable {
             reporter.updateStatusText("Importing failed: " + e);
             e.printStackTrace(System.err);
         }
-//			srcDatabasePanel.removeAll();
-//			try {
-//				new OurSourceDatabaseTreeBrowser(srcDatabase,srcDatabasePanel);
-//			} catch (Exception e) {
-//				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Refresh source database browser failed: "+e));
-//				e.printStackTrace(System.err);
-//			}
-//			srcDatabasePanel.validate();
 
         reporter.endProgressBar();
         reporter.updateStatusText("Done importing");
         // importer sends its own completion message to log, so do not need another one
-        reporter.restoreCursor();
     }
 
 
@@ -65,9 +57,15 @@ public class ImportWorker implements Runnable {
 
         protected void doSomethingWithDicomFileOnMedia(String mediaFileName) {
             try {
-                logger.sendLn("Importing DICOM file: "+mediaFileName);
-                dicomNode.importFileIntoDatabase(mediaFileName, DatabaseInformationModel.FILE_REFERENCED);
-                giftCloudUploader.addFileReference(mediaFileName);
+                logger.sendLn("Importing DICOM file: " + mediaFileName);
+
+                if (importAsReference) {
+                    dicomNode.importFileIntoDatabase(mediaFileName, DatabaseInformationModel.FILE_REFERENCED);
+                    giftCloudUploader.addFileReference(mediaFileName);
+                } else {
+                    dicomNode.importFileIntoDatabase(mediaFileName, DatabaseInformationModel.FILE_COPIED);
+                    giftCloudUploader.addFileInstance(mediaFileName);
+                }
             }
             catch (Exception e) {
                 e.printStackTrace(System.err);

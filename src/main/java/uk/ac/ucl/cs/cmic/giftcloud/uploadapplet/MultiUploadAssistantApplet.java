@@ -25,6 +25,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -58,8 +59,9 @@ public class MultiUploadAssistantApplet extends JApplet {
             multiUploadParameters = Optional.of(new MultiUploadAppletParameters(this, reporter.get()));
 
             GiftCloudPropertiesFromApplet giftCloudPropertiesFromApplet = new GiftCloudPropertiesFromApplet(multiUploadParameters.get(), resourceBundle);
+            final File pendingUploadFolder = giftCloudPropertiesFromApplet.getUploadFolder(reporter.get());
 
-            giftCloudUploader = Optional.of(new GiftCloudUploader(new GiftCloudUploaderRestServerFactory(), giftCloudPropertiesFromApplet, reporter.get()));
+            giftCloudUploader = Optional.of(new GiftCloudUploader(new GiftCloudUploaderRestServerFactory(), pendingUploadFolder, giftCloudPropertiesFromApplet, reporter.get()));
 
         } catch (Throwable t) {
             if (reporter.isPresent()) {

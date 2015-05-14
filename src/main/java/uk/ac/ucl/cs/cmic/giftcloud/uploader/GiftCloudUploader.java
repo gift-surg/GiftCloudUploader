@@ -15,6 +15,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 import javax.security.sasl.AuthenticationException;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
@@ -33,14 +34,14 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
-    public GiftCloudUploader(final RestServerFactory restServerFactory, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final RestServerFactory restServerFactory, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         this.giftCloudProperties = giftCloudProperties;
         this.container = reporter.getContainer();
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
         serverFactory = new GiftCloudServerFactory(restServerFactory, giftCloudProperties, projectListModel, reporter);
         autoUploader = new GiftCloudAutoUploader(serverFactory, reporter);
-        pendingUploadList = new PendingUploadTaskList(giftCloudProperties, reporter);
+        pendingUploadList = new PendingUploadTaskList(giftCloudProperties, pendingUploadFolder, reporter);
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
 
         final int numThreads = 1;
@@ -208,6 +209,8 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     public void addExistingFilesToUploadQueue() {
         pendingUploadList.addExistingFiles();
+
+
     }
 
     public boolean requestProjectNameIfNotSet() throws IOException {
