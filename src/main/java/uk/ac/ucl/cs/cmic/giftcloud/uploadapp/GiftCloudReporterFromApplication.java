@@ -58,6 +58,7 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
         configureLogging();
         messageLogger = new DialogMessageLogger("GIFT-Cloud Log", 512, 384, false/*exitApplicationOnClose*/, false/*visible*/);
         cursorChanger = new SafeCursorChanger(container);
+        cursorChanger.saveCursor();
     }
 
     private void errorBox(final String errorMessage, final Optional<String> additionalText) {
