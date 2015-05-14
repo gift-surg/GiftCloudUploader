@@ -386,12 +386,12 @@
         <dependency>
             <groupId>org.nrg</groupId>
             <artifactId>dicom-xnat-sop</artifactId>
-            <version>1.6.4-SNAPSHOT</version>
+            <version>1.6.4</version>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
             <artifactId>dicom-xnat-util</artifactId>
-            <version>1.6.4-SNAPSHOT</version>
+            <version>1.6.4</version>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
@@ -436,12 +436,12 @@
         <dependency>
             <groupId>org.nrg</groupId>
             <artifactId>framework</artifactId>
-            <version>1.6.4-SNAPSHOT</version>
+            <version>1.6.4</version>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
             <artifactId>transaction</artifactId>
-            <version>1.6.4-SNAPSHOT</version>
+            <version>1.6.4</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
