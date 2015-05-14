@@ -41,7 +41,6 @@ abstract class HttpRequest<T> {
     // The response value could be null. As you can't store a null value in an Optional, we use an Optional of Optional.
     // The outer Optional determines if a response has been set. The inner Optional determines whether this response is null or a value
     private Optional<Optional<T>> response = Optional.empty();
-
     private final HttpResponseProcessor<T> responseProcessor;
     private final GiftCloudReporter reporter;
     private final String userAgentString;
@@ -75,7 +74,9 @@ abstract class HttpRequest<T> {
             doRequest(baseUrlString, connectionFactory);
         }
         // The value of the response should now be set to an Optional - if this inner optional is not set, that indicates a null value
-        return response.get().orElse(null);
+        final Optional<T> responseResult = response.get();
+        final T returnValue = responseResult.orElse(null);
+        return returnValue;
     }
 
     /**

@@ -18,6 +18,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Map;
 import java.util.Optional;
 
 class GiftCloudSession {
@@ -31,14 +32,14 @@ class GiftCloudSession {
         giftCloudAuthentication = new GiftCloudAuthentication(baseUrlString, connectionFactory, giftCloudProperties, new GiftCloudLoginAuthenticator(reporter.getContainer(), giftCloudProperties), reporter);
     }
 
-    <T> T request(final HttpRequest request) throws IOException {
+    <T> T request(final HttpRequest<T> request) throws IOException {
         // First, set up an authenticated session if one has not already been established.
         // This will attempt to connect using the existing cookieWrapper and user credentials.
         // If these do not exist or fail, then the user will be prompted for a user name and password, up to the number of times set in MAX_NUM_LOGIN_ATTEMPTS
         giftCloudAuthentication.tryAuthentication();
 
         try {
-            return (T) request.getResponse(baseUrlString, giftCloudAuthentication.getAuthenticatedConnectionFactory());
+            return request.getResponse(baseUrlString, giftCloudAuthentication.getAuthenticatedConnectionFactory());
 
         } catch (AuthorisationFailureException exception) {
 
@@ -46,20 +47,37 @@ class GiftCloudSession {
             giftCloudAuthentication.forceAuthentication();
 
             // Then try and connect again. We allow any further AuthorisationFailureException to fall through
-            return (T) request.getResponse(baseUrlString, giftCloudAuthentication.getAuthenticatedConnectionFactory());
+            return request.getResponse(baseUrlString, giftCloudAuthentication.getAuthenticatedConnectionFactory());
 
         }
     }
 
-    <T> Optional<T> requestOptional(final HttpRequest request) throws IOException {
+    Optional<String> requestOptionalString(final HttpRequest<String> request) throws IOException {
         try {
-            final T result = request(request);
+            final String result = request(request);
             return Optional.of(result);
         } catch (GiftCloudHttpException exception) {
 
             // 404 indicates the requested resource doesn't exist
             if (exception.getResponseCode() == 404) {
-                return Optional.empty();
+                final Optional<String> returnValue = Optional.empty();
+                return returnValue;
+            } else {
+                throw exception;
+            }
+        }
+    }
+
+    Optional<Map<String, String>> requestOptionalMap(final HttpRequest<Map<String, String>> request) throws IOException {
+        try {
+            final Map<String, String> result = request(request);
+            return Optional.of(result);
+        } catch (GiftCloudHttpException exception) {
+
+            // 404 indicates the requested resource doesn't exist
+            if (exception.getResponseCode() == 404) {
+                final Optional<Map<String, String>> returnValue = Optional.empty();
+                return returnValue;
             } else {
                 throw exception;
             }

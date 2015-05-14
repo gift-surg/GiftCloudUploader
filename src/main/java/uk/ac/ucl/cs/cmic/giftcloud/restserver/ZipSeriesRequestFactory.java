@@ -4,6 +4,8 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
+import java.util.Set;
+
 /**
  * Used to create the appropriate HttpRequest for uploading one or more files as a zip file
  */
@@ -40,7 +42,7 @@ class ZipSeriesRequestFactory {
      * @param progress a callback for providing upload progress feedback
      * @return an HttpRequest object which can be used to perform the zipping and uploading
      */
-    static HttpRequestWithOutput build(
+    static HttpRequestWithOutput<Set<String>> build(
             final HttpConnectionWrapper.ConnectionType connectionType,
             final ZipStreaming zipStreaming,
             final String url,

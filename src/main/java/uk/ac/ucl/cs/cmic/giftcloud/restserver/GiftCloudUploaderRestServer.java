@@ -121,9 +121,9 @@ public class GiftCloudUploaderRestServer implements RestServer {
     @Override
     public synchronized Optional<String> getSiteWideAnonScript() throws IOException {
         if (!siteWideAnonScriptHasBeenRetrieved) {
-            final Optional<String> result = restServerSessionHelper.getUsingJsonExtractor("/data/config/anon/script?format=json");
+            final Optional<String> result = restServerSessionHelper.getStringUsingJsonExtractor("/data/config/anon/script?format=json");
             if (result.isPresent() && StringUtils.isNotBlank(result.get())) {
-                siteWideAnonScript = Optional.of(result.get());
+                siteWideAnonScript = result;
             }
 
             siteWideAnonScriptHasBeenRetrieved = true;
@@ -136,13 +136,13 @@ public class GiftCloudUploaderRestServer implements RestServer {
     @Override
     public Optional<Map<String, String>> getSitewideSeriesImportFilter() throws IOException, JSONException {
         final String uri = "/data/config/seriesImportFilter/config?format=json";
-        return restServerSessionHelper.getUsingJsonExtractor(uri);
+        return restServerSessionHelper.getMapUsingJsonExtractor(uri);
     }
 
     @Override
     public Optional<Map<String, String>> getProjectSeriesImportFilter(String projectName) throws IOException, JSONException {
         final String uri = "/data/projects/" + projectName + "/config/seriesImportFilter/config?format=json";
-        return restServerSessionHelper.getUsingJsonExtractor(uri);
+        return restServerSessionHelper.getMapUsingJsonExtractor(uri);
     }
 
     @Override
