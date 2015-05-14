@@ -178,13 +178,8 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     public void addFileReference(final String mediaFileName) {
         try {
-            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-
-            // Allow user to log in again if they have previously cancelled a login dialog
-            giftCloudServer.resetCancellation();
-
-            final String projectName = getProjectName(giftCloudServer);
-            pendingUploadList.addFileReference(mediaFileName, Optional.of(projectName));
+            final Optional<String> projectName = giftCloudProperties.getLastProject();
+            pendingUploadList.addFileReference(mediaFileName, projectName);
 
         } catch (Throwable throwable) {
             // ToDo
@@ -193,13 +188,8 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     public void addFileInstance(final String dicomFileName) {
         try {
-            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-
-            // Allow user to log in again if they have previously cancelled a login dialog
-            giftCloudServer.resetCancellation();
-
-            final String projectName = getProjectName(giftCloudServer);
-            pendingUploadList.addFileInstance(dicomFileName, Optional.of(projectName));
+            final Optional<String> projectName = giftCloudProperties.getLastProject();
+            pendingUploadList.addFileInstance(dicomFileName, projectName);
 
         } catch (Throwable throwable) {
             // ToDo
@@ -218,6 +208,25 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     public void addExistingFilesToUploadQueue() {
         pendingUploadList.addExistingFiles();
+    }
+
+    public boolean requestProjectNameIfNotSet() throws IOException {
+
+        final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
+
+        final Optional<String> lastProjectName = giftCloudProperties.getLastProject();
+        if (lastProjectName.isPresent() && StringUtils.isNotBlank(lastProjectName.get())) {
+            return true;
+        } else {
+            try {
+                final String selectedProject = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, lastProjectName);
+                giftCloudProperties.setLastProject(selectedProject);
+                return true;
+            } catch (IOException e) {
+                reporter.silentLogException(e, "Unable to retrieve project list due to following error: " + e.getMessage());
+                return false;
+            }
+        }
     }
 
     private void cleanup(final long maxWaitTimeMs) {
