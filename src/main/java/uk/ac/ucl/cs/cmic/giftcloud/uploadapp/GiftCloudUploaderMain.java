@@ -70,8 +70,13 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             show();
         }
 
-        // Attempt to authenticate
-        giftCloudUploader.tryAuthentication();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Attempt to authenticate
+                giftCloudUploader.tryAuthentication();
+            }
+        }).start();
 
     }
 
@@ -221,6 +226,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     public void importFromPacs() {
         giftCloudUploaderPanel.showQueryRetrieveDialog();
     }
+
 
     private class DicomNodeListener implements Observer {
 
