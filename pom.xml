@@ -11,7 +11,7 @@
     <url>http://cmictig.cs.ucl.ac.uk</url>
     <version>1.1.0</version>
     <organization>
-        <name>Centre for Medical Image Computing (CMIC), University College London (UCL))</name>
+        <name>Centre for Medical Image Computing (CMIC), University College London (UCL)</name>
         <url>http://cmictig.cs.ucl.ac.uk</url>
     </organization>
     <licenses>
@@ -218,6 +218,58 @@
                 </resources>
             </build>
         </profile>
+		<profile>
+			<id>Webstart</id>
+			
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>webstart-maven-plugin</artifactId>
+						<version>1.0-beta-5</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jnlp</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<libPath>lib</libPath>
+							<filenameMapping>simple</filenameMapping>
+							
+							<jnlp>
+								<!-- we play with the resource path and template relative path to test MOJO-391 -->
+								<!--inputTemplateResourcePath>${project.basedir}/src/</inputTemplateResourcePath>
+								<inputTemplate>jnlp/template.vm</inputTemplate-->
+								<outputFile>webstart.jnlp</outputFile>
+								<mainClass>uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderApp</mainClass>
+							</jnlp>
+							
+							<!-- SIGNING -->
+							<!-- defining this will automatically sign the jar and its dependencies -->
+							<sign>
+								<keystore>***** path/to/your/keystore/file *****</keystore>
+								<storetype>***** put the store type, e.g. PKCS12 *****</storetype>
+								<keypass>***** yourKeysPassword *****</keypass>
+								<storepass>***** yourKeystoresPassword *****</storepass>
+								<!--sigfile>m2m2m2</sigfile-->
+								<alias>***** AnAliasForSigning *****</alias>
+								<validity>***** validity of your signed resources, e.g. 360 *****</validity>
+
+								<verify>true</verify>
+
+								<keystoreConfig>
+									<delete>false</delete>
+									<gen>false</gen>
+								</keystoreConfig>
+							</sign>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
     </profiles>
 
     <repositories>
@@ -242,6 +294,11 @@
             <name>dcm4che Repository</name>
             <url>http://www.dcm4che.org/maven2</url>
         </repository>
+		<repository>
+			<id>org.codehaus.mojo</id>
+			<name>Mojo repository</name>
+			<url>http://repo1.maven.org/maven2/org/codehaus/mojo/</url>
+		</repository>
     </repositories>
 
     <dependencies>
@@ -400,7 +457,7 @@
         <dependency>
             <groupId>dcm4che</groupId>
             <artifactId>dcm4che-net</artifactId>
-            <version>2.0.29-INTERMEDIATE.v20150501_1416</version>
+            <version>2.0.28</version>
         </dependency>
         <dependency>
             <groupId>dcm4che</groupId>
