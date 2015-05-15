@@ -8,7 +8,7 @@
     <artifactId>GiftCloudUploader</artifactId>
     <name>GIFT-Cloud Uploader</name>
     <description>A simple application to query, retrieve, import, de-identify DICOM instances and upload them securely on to GIFT-Cloud.</description>
-    <url>http://cmictig.cs.ucl.ac.uk</url>
+    <url>${gc.url}</url>
     <version>1.1.0</version>
     <organization>
         <name>Centre for Medical Image Computing (CMIC), University College London (UCL)</name>
@@ -250,13 +250,13 @@
                             <!-- SIGNING -->
                             <!-- defining this will automatically sign the jar and its dependencies -->
                             <sign>
-                                <keystore>***** path/to/your/keystore/file *****</keystore>
-                                <storetype>***** put the store type, e.g. PKCS12 *****</storetype>
-                                <keypass>***** yourKeysPassword *****</keypass>
-                                <storepass>***** yourKeystoresPassword *****</storepass>
+                                <keystore>${gc.keystore}</keystore>
+                                <storetype>${gc.storetype}</storetype>
+                                <keypass>${gc.keypass}</keypass>
+                                <storepass>${gc.storepass}</storepass>
                                 <!--sigfile>m2m2m2</sigfile-->
-                                <alias>***** AnAliasForSigning *****</alias>
-                                <validity>***** validity of your signed resources, e.g. 360 *****</validity>
+                                <alias>${gc.alias}</alias>
+                                <validity>${gc.validity}</validity>
 
                                 <verify>true</verify>
 
