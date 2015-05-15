@@ -3,32 +3,16 @@
 package com.pixelmed.display;
 
 import com.pixelmed.utils.MessageLogger;
-import com.pixelmed.utils.ThreadUtilities;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.text.Caret;
+import javax.swing.text.DefaultCaret;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-
-import javax.swing.border.Border;
-
-import javax.swing.text.Caret;
-import javax.swing.text.DefaultCaret;
 
 /**
  * <p>A class to write log and status messages to a scrolling text area in a dialog box.</p>
@@ -74,11 +58,9 @@ public class DialogMessageLogger implements MessageLogger {
 	 */
 	public DialogMessageLogger(String titleMessage,int width,int height,boolean exitApplicationOnClose,boolean visible) {
 		if (java.awt.EventQueue.isDispatchThread()) {
-System.err.println("DialogMessageLogger(): constructing on EDT");
 			createGUI(titleMessage,width,height,exitApplicationOnClose,visible);
 		}
 		else {
-System.err.println("DialogMessageLogger(): constructing on non-EDT");
 			java.awt.EventQueue.invokeLater(new CreateGUIRunnable(titleMessage,width,height,exitApplicationOnClose,visible));
 		}
 	}
