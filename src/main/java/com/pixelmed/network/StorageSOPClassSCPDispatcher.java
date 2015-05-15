@@ -444,6 +444,7 @@ if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": Storag
 			}
 		}
 		catch (IOException e) {
+			// ToDo: need to report this back to the user
 			e.printStackTrace(System.err);
 		}
 		try {
