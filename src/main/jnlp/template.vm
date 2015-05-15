@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- JNLP File for GIFT-Cloud Uploader, mostly adapted from http://www.dclunie.com/pixelmed/software/webstart/DicomCleaner.jnlp -->
-<!--jnlp
-  codebase="https://gift-cloud.cs.ucl.ac.uk/uploader/"
-  href="webstart.jnlp"-->
 <jnlp
-  codebase="$project.Url"
+  codebase="$project.Url/uploader/"
   href="$outputFile">
   <information>
     <title>$project.name</title>
