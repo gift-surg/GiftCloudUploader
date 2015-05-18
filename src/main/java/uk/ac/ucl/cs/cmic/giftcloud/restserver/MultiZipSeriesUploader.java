@@ -75,6 +75,7 @@ public class MultiZipSeriesUploader {
     public Optional<String> run(final GiftCloudReporter logger) {
 
         final ProgressHandleWrapper progress = new ProgressHandleWrapper(reporter);
+        progress.setBusy("Uploading");
         while (progress.isRunning() && !uploaders.isEmpty()) {
             final Future<Set<String>> future;
             try {
