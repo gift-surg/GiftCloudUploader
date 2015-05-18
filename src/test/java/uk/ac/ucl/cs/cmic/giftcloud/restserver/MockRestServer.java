@@ -16,6 +16,10 @@ public class MockRestServer implements RestServer {
     public MockRestServer(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) {
     }
 
+    public void addTestProject(final String projectName) {
+        projectMap.add(projectName);
+    }
+
     @Override
     public void tryAuthentication() throws IOException {
 
@@ -73,12 +77,12 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Collection<?> getScriptStatus(String projectName) throws IOException {
-        return null;
+        return new ArrayList<Object>();
     }
 
     @Override
     public Collection<?> getScripts(String projectName) throws IOException {
-        return null;
+        return new ArrayList<Object>();
     }
 
     @Override
@@ -113,17 +117,19 @@ public class MockRestServer implements RestServer {
 
     @Override
     public String uploadSubject(String projectName, InputStream xmlStream) throws Exception {
-        return null;
+        return UUID.randomUUID().toString();
     }
 
     @Override
     public UploadResult closeSession(String uri, SessionParameters sessionParameters, Map<FileCollection, Throwable> failures, Optional<TimeZone> timeZone) {
-        return null;
+        return new UploadResult(true);
     }
 
     @Override
     public Set<String> uploadZipFile(String projectLabel, String subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
-        return null;
+        final Set<String> uids = new HashSet<String>();
+        uids.add(UUID.randomUUID().toString());
+        return uids;
     }
 
     @Override
@@ -136,7 +142,9 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Set<String> appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
-        return null;
+        final Set<String> uids = new HashSet<String>();
+        uids.add(UUID.randomUUID().toString());
+        return uids;
     }
 
     @Override
@@ -154,6 +162,10 @@ public class MockRestServer implements RestServer {
 
         public ProjectRecord get(final String projectLabel) {
             return projectMap.get(projectLabel);
+        }
+
+        public void add(final String projectName) {
+            projectMap.put(projectName, new ProjectRecord(projectName));
         }
 
         public boolean projectExists(final String projectLabel) {
