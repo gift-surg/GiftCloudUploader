@@ -1,4 +1,4 @@
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -7,6 +7,10 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.UploadAbortedException;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesAppendUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadStatisticsReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
@@ -75,7 +79,6 @@ public class MultiZipSeriesUploader {
     public Optional<String> run(final GiftCloudReporter logger) {
 
         final ProgressHandleWrapper progress = new ProgressHandleWrapper(reporter);
-        progress.setBusy("Uploading");
         while (progress.isRunning() && !uploaders.isEmpty()) {
             final Future<Set<String>> future;
             try {
