@@ -30,6 +30,7 @@ public class ProgressHandleWrapper implements ResultProgressHandle {
     @Override
     public void setBusy(String description) {
         progress.startProgressBar();
+        progress.updateStatusText(description);
         isRunning = true;
     }
 
