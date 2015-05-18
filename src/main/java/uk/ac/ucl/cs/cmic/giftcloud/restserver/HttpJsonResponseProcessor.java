@@ -23,7 +23,7 @@ import java.io.InputStream;
 class HttpJsonResponseProcessor<T> extends HttpResponseProcessor<T> {
     private final JSONDecoder<T> decoder;
 
-    HttpJsonResponseProcessor(final JSONDecoder decoder) {
+    HttpJsonResponseProcessor(final JSONDecoder<T> decoder) {
         this.decoder = decoder;
     }
 

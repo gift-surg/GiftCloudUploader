@@ -59,15 +59,11 @@ public class RestServerSessionHelper {
     }
 
     public Optional<String> getPpidAlias(final String path, final String aliasKey, final String idKey) throws IOException, JSONException {
-        return giftCloudSession.requestOptionalString(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.GET, path, new HttpJsonPpidResponseProcessor(new JSONAliasesExtractor(aliasKey, idKey)), giftCloudProperties, reporter));
+        return giftCloudSession.requestOptional(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.GET, path, new HttpJsonPpidResponseProcessor(new JSONAliasesExtractor(aliasKey, idKey)), giftCloudProperties, reporter));
     }
 
-    public Optional<Map<String, String>> getMapUsingJsonExtractor(final String query) throws IOException {
-        return giftCloudSession.requestOptionalMap(new HttpRequestWithoutOutput<Map<String, String>>(HttpConnection.ConnectionType.GET, query, new HttpJsonResponseProcessor<Map<String, String>>(new JSONConfigurationExtractor()), giftCloudProperties, reporter));
-    }
-
-    public Optional<String> getStringUsingJsonExtractor(final String query) throws IOException {
-        return giftCloudSession.requestOptionalString(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.GET, query, new HttpJsonResponseProcessor<String>(new JSONConfigurationExtractor()), giftCloudProperties, reporter));
+    public <T> Optional<T> getUsingJsonExtractor(final String query) throws IOException {
+        return giftCloudSession.requestOptionalFromOptional(new HttpRequestWithoutOutput<Optional<T>>(HttpConnection.ConnectionType.GET, query, new HttpJsonResponseProcessor<Optional<T>>(new JSONConfigurationExtractor()), giftCloudProperties, reporter));
     }
 
     public String getString(final String path) throws IOException {

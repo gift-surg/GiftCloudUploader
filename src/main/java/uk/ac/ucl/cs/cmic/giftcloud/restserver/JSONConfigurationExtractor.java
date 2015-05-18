@@ -33,7 +33,7 @@ import java.util.Optional;
 /**
  * Turns a JSON object from the XNAT configuration service into a map.
  */
-final class JSONConfigurationExtractor implements JSONDecoder<Optional<Object>> {
+final class JSONConfigurationExtractor<T> implements JSONDecoder<Optional<T>> {
 
     private final HashMap<String, Object> map = new HashMap<String, Object>();
 
@@ -66,11 +66,13 @@ final class JSONConfigurationExtractor implements JSONDecoder<Optional<Object>> 
         }
     }
 
-    public Optional<Object> getResult() {
+    public Optional<T> getResult() {
         if (map.containsKey("status") && map.get("status").equals("enabled") && map.containsKey("contents")) {
-            return Optional.of(map.get("contents"));
+            final T returnValue = (T)map.get("contents");
+            return Optional.of(returnValue);
         } else {
-            return Optional.empty();
+            final Optional<T> returnValue = Optional.empty();
+            return returnValue;
         }
     }
 }
