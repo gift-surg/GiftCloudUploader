@@ -151,7 +151,7 @@ public class SeriesZipper {
                 }
                 final TransferSyntax ts = tsOriginal.deflated() ? TransferSyntax.ExplicitVRLittleEndian : tsOriginal;
                 
-                zos.putNextEntry(new ZipEntry(removeCompressionSuffix(f.getPath())));
+                zos.putNextEntry(new ZipEntry(removeCompressionSuffix(f.getName())));
                 @SuppressWarnings("resource")
                 final DicomOutputStream dos = new DicomOutputStream(zos);
                 dos.setAutoFinish(false);          // Don't let DicomOutputStream finish the ZipOutputStream.
