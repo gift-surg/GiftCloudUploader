@@ -37,7 +37,6 @@ public interface Session {
 
 	List<FileCollection> getFiles();
 
-
 	/**
 	 * Unify the provided SessionVariables into the script-defined variables.
 	 * @param vars variables originating from outside scripts
@@ -45,8 +44,6 @@ public interface Session {
      * @return List of unified SessionVariables, in dependency order
 	 */
 	UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException;
-
-	void appendTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException;
 
 	TimeZone getTimeZone();
 

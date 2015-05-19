@@ -57,7 +57,7 @@ public class GiftCloudServer {
         }
     }
 
-    public RestServer getRestServerHelper() {
+    public RestServer getRestServer() {
         return restServer;
     }
 
@@ -102,12 +102,12 @@ public class GiftCloudServer {
         return restServer.closeSession(uri, sessionParameters, uploader.getFailures(), timeZone);
     }
 
-    public void appendToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) throws IOException {
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(true, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
-       final Optional<String> failureMessage = uploader.run(logger);
-        if (failureMessage.isPresent()) {
-            throw new IOException("Uploading failed due to the following reason:" + failureMessage.get());
-        }
+    public Set<String> uploadZipFile(String projectLabel, String subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
+        return restServer.uploadZipFile(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators, progress);
+    }
+
+    public void appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
+        restServer.appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress);
     }
 
     public void createPseudonymIfNotExisting(final String projectName, final String subjectName, final String hashedPatientId) throws IOException {

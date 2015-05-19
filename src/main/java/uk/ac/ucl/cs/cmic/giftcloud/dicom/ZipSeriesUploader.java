@@ -41,7 +41,7 @@ public class ZipSeriesUploader extends CallableUploader {
 
     @Override
     public Set<String> call() throws Exception {
-        return server.getRestServerHelper().uploadZipFile(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators, progress);
+        return server.uploadZipFile(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators, progress);
     }
 
     public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {

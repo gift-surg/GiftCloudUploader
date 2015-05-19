@@ -82,7 +82,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
             giftCloudServerUrl = giftCloudServer.getGiftCloudServerUrl();
 
             final Dimension windowSize = new Dimension(300, 300);
-            new MultiUploadWizard(giftCloudServer, giftCloudServer.getRestServerHelper(), windowSize, multiUploadParameters, giftCloudServer.getGiftCloudServerUrl(), reporter);
+            new MultiUploadWizard(giftCloudServer, giftCloudServer.getRestServer(), windowSize, multiUploadParameters, giftCloudServer.getGiftCloudServerUrl(), reporter);
             return true;
 
         } catch (CancellationException e) {

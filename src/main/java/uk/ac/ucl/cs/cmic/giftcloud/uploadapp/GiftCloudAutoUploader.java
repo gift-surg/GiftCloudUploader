@@ -13,6 +13,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.SubjectAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.MultiZipSeriesUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
@@ -21,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.*;
 
 public class GiftCloudAutoUploader {
 
@@ -90,8 +90,6 @@ public class GiftCloudAutoUploader {
         final EditProgressMonitorWrapper progressWrapper = new EditProgressMonitorWrapper(reporter);
         final List<Session> sessions = new MasterTrawler(progressWrapper, fileList, filter).call();
 
-        final ExecutorService executorService = Executors.newCachedThreadPool();
-
         // Get a list of subjects from the server
         Map<String, String> subjectMapFromServer;
         Map<String, String> sessionMapFromServer;
@@ -103,20 +101,18 @@ public class GiftCloudAutoUploader {
             throw new IOException("Uploading could not be performed. The subject and session map could not be obtained due to the following error: " + e.getMessage(), e);
         }
 
-        final Project project = new Project(projectName, server.getRestServerHelper());
-        final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-
-
+        final Project project = new Project(projectName, server.getRestServer());
+        final Iterable<ScriptApplicator> projectApplicators = project.getDicomScriptApplicators();
 
         for (final Session session : sessions) {
 
-            addSessionToUploadList(server, project, applicators, projectName, executorService, subjectMapFromServer, sessionMapFromServer, session);
+            addSessionToUploadList(server, project, projectApplicators, projectName, subjectMapFromServer, sessionMapFromServer, session);
         }
 
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> applicators, final String projectName, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
+    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
         final String patientId = session.getPatientId();
         final String studyUid = session.getStudyUid();
         final String seriesUid = session.getSeriesUid();
@@ -138,7 +134,6 @@ public class GiftCloudAutoUploader {
         final LinkedList<SessionVariable> sessionVariables = Lists.newLinkedList(session.getVariables(project, session));
         sessionParameters.setSessionVariables(sessionVariables);
 
-
         final String finalSubjectName = subjectName;
 
         final List<FileCollection> fileCollections = session.getFiles();
@@ -150,29 +145,10 @@ public class GiftCloudAutoUploader {
 
         final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
 
-
-        Future<Void> upload = executorService.submit(new Callable<Void>() {
-            public Void call() throws IOException {
-                try {
-                    server.appendToStudy(fileCollections, xnatModalityParams, applicators, projectName, finalSubjectName, sessionParameters, reporter);
-
-                    return null;
-                } catch (CancellationException exception) {
-                    // Cancellation is the only type of exception for which we don't attempt to upload any more files
-                    throw exception;
-                }
-                // We let other exceptions fall through and cause an ExecutionException
-            }
-        });
-
-        try {
-            upload.get();
-        } catch (InterruptedException e) {
-            final Throwable cause = e.getCause();
-            throw new IOException("Uploading was interrupted due to the following error: " + cause.getMessage(), cause);
-        } catch (ExecutionException e) {
-            final Throwable cause = e.getCause();
-            throw new IOException("Uploading failed due to the following error: " + cause.getMessage(), cause);
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(true, fileCollections, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, reporter, server);
+        final Optional<String> failureMessage = uploader.run(reporter);
+        if (failureMessage.isPresent()) {
+            throw new IOException("Uploading failed due to the following reason:" + failureMessage.get());
         }
     }
 

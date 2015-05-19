@@ -37,7 +37,7 @@ public class ZipSeriesAppendUploader extends CallableUploader {
     }
 
     public Set<String> call() throws Exception {
-        server.getRestServerHelper().appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress);
+        server.appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress);
         return new HashSet<String>();
     }
 

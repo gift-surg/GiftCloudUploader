@@ -280,23 +280,6 @@ public class Study extends MapEntity implements Entity, Session {
         return server.uploadToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, reporter);
     }
 
-    @Override
-    public void appendTo(String projectLabel, String subjectLabel, GiftCloudServer server, SessionParameters sessionParameters, Project project, UploadFailureHandler failureHandler, GiftCloudReporter reporter) throws IOException {
-        final List<FileCollection> fileCollections = getFiles();
-
-        if (fileCollections.isEmpty()) {
-            reporter.updateStatusText("No files were selected for upload");
-            throw new IOException("No files were selected for upload");
-        }
-
-        final XnatModalityParams xnatModalityParams = getXnatModalityParams();
-
-        final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-
-        server.appendToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, reporter);
-
-    }
-
     public List<FileCollection> getFiles() {
         final List<Series> uploads = Lists.newArrayList(Iterables.filter(series, new Predicate<Series>() {
             public boolean apply(final Series s) {
