@@ -103,16 +103,20 @@ public class GiftCloudAutoUploader {
             throw new IOException("Uploading could not be performed. The subject and session map could not be obtained due to the following error: " + e.getMessage(), e);
         }
 
+        final Project project = new Project(projectName, server.getRestServerHelper());
+        final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
+
+
 
         for (final Session session : sessions) {
 
-            addSessionToUploadList(server, projectName, executorService, subjectMapFromServer, sessionMapFromServer, session);
+            addSessionToUploadList(server, project, applicators, projectName, executorService, subjectMapFromServer, sessionMapFromServer, session);
         }
 
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final String projectName, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
+    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> applicators, final String projectName, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
         final String patientId = session.getPatientId();
         final String studyUid = session.getStudyUid();
         final String seriesUid = session.getSeriesUid();
@@ -131,26 +135,25 @@ public class GiftCloudAutoUploader {
         sessionParameters.setNumberOfThreads(1);
         sessionParameters.setUsedFixedSize(true);
 
-        final Project project = new Project(projectName, server.getRestServerHelper());
-
         final LinkedList<SessionVariable> sessionVariables = Lists.newLinkedList(session.getVariables(project, session));
         sessionParameters.setSessionVariables(sessionVariables);
 
 
         final String finalSubjectName = subjectName;
 
+        final List<FileCollection> fileCollections = session.getFiles();
+
+        if (fileCollections.isEmpty()) {
+            reporter.updateStatusText("No files were selected for upload");
+            throw new IOException("No files were selected for upload");
+        }
+
+        final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
+
+
         Future<Void> upload = executorService.submit(new Callable<Void>() {
             public Void call() throws IOException {
                 try {
-                    final List<FileCollection> fileCollections = session.getFiles();
-
-                    if (fileCollections.isEmpty()) {
-                        reporter.updateStatusText("No files were selected for upload");
-                        throw new IOException("No files were selected for upload");
-                    }
-
-                    final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
-                    final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
                     server.appendToStudy(fileCollections, xnatModalityParams, applicators, projectName, finalSubjectName, sessionParameters, reporter);
 
                     return null;
