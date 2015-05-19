@@ -64,12 +64,13 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudMainFrame.addListener(systemTrayController.new MainWindowVisibilityListener());
         giftCloudUploader.getBackgroundAddToUploaderService().addListener(systemTrayController.new BackgroundAddToUploaderServiceListener());
 
-        if (systemTrayController.isPresent()) {
-            hide();
-        } else {
-            reporter.warnUser("A system tray icon could not be created. The GIFT-Cloud uploader will start in visible mode.");
-            show();
-        }
+        show();
+//        if (systemTrayController.isPresent()) {
+//            hide();
+//        } else {
+//            reporter.warnUser("A system tray icon could not be created. The GIFT-Cloud uploader will start in visible mode.");
+//            show();
+//        }
 
         addExistingFilesToUploadQueue(pendingUploadFolder);
 
