@@ -27,8 +27,7 @@ public class MultiZipSeriesUploader {
     private final Set<String> uris = Sets.newLinkedHashSet();
 
     private final BackgroundCompletionServiceTaskList<Set<String>, FileCollection> uploaderTaskList;
-
-
+    private final boolean useFixedSize = true;
     private boolean append;
     private final GiftCloudReporter reporter;
 
@@ -42,7 +41,6 @@ public class MultiZipSeriesUploader {
         reporter.startProgressBar(fileCount);
         reporter.updateStatusText("Building sessionLabel manifest");
 
-        final boolean useFixedSize = sessionParameters.getUseFixedSize();
         final int nThreads = sessionParameters.getNumberOfThreads();
         uploaderTaskList = new BackgroundCompletionServiceTaskList<Set<String>, FileCollection>(nThreads);
 
@@ -52,11 +50,13 @@ public class MultiZipSeriesUploader {
         final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
         for (final FileCollection s : uploads) {
             stats.addToSend(s.getSize());
-            final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, s, applicators, stats, server);
-            uploaderTaskList.addNewTask(uploader);
+            addFile(server, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, callableUploaderFactory, stats, s);
         }
+    }
 
-
+    private void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, UploadStatisticsReporter stats, FileCollection fileCollection) {
+        final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, fileCollection, applicators, stats, server);
+        uploaderTaskList.addNewTask(uploader);
     }
 
     private static CallableUploader.CallableUploaderFactory getZipSeriesUploaderFactory(final boolean append) {
