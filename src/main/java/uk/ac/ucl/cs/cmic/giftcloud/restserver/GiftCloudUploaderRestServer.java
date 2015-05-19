@@ -386,10 +386,10 @@ public class GiftCloudUploaderRestServer implements RestServer {
             createScanIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionParameters.getScanLabel(), scanCreateParams);
         }
 
-        final String collectionLabel = xnatModalityParams.getCollectionString();
+        final String collectionLabel = sessionParameters.getScanLabel();
 
         {
-            final String scanCollectionCreateParams = "?format=" + xnatModalityParams.getFormatString() + "&xsi:type=" + xnatModalityParams.getXnatScanTag();
+            final String scanCollectionCreateParams = "?xsiType=xnat:resourceCatalog" + "&format=" + xnatModalityParams.getFormatString();
             createScanCollectionIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionParameters.getScanLabel(), collectionLabel, scanCollectionCreateParams);
         }
 
