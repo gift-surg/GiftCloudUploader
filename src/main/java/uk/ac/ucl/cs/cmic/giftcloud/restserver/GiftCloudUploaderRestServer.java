@@ -372,7 +372,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public Set<String> appendZipFileToExistingScan(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
+    public void appendZipFileToExistingScan(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
 
         createSubjectIfNotExisting(projectLabel, subjectLabel);
 
@@ -399,7 +399,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
         final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getSessionLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" + collectionLabel + "/files/" + firstFile.getName() + ".zip" + uriParams;
 
         ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
-        return restServerSessionHelper.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators, progress);
+        restServerSessionHelper.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators, progress);
     }
 
 

@@ -8,7 +8,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SubjectAliasMap;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServerFactory;
@@ -110,13 +109,13 @@ public class GiftCloudAutoUploader {
 
         for (final Session session : sessions) {
 
-            UploadResult uploadSuccess = addSessionToUploadList(server, projectName, append, executorService, subjectMapFromServer, sessionMapFromServer, session);
+            addSessionToUploadList(server, projectName, append, executorService, subjectMapFromServer, sessionMapFromServer, session);
         }
 
         return true;
     }
 
-    private UploadResult addSessionToUploadList(final GiftCloudServer server, final String projectName, final boolean append, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
+    private void addSessionToUploadList(final GiftCloudServer server, final String projectName, final boolean append, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
         final String patientId = session.getPatientId();
         final String studyUid = session.getStudyUid();
         final String seriesUid = session.getSeriesUid();
@@ -143,12 +142,11 @@ public class GiftCloudAutoUploader {
 
         final String finalSubjectName = subjectName;
 
-        Future<UploadResult> upload = executorService.submit(new Callable<UploadResult>() {
-            public UploadResult call() throws IOException {
+        Future<Void> upload = executorService.submit(new Callable<Void>() {
+            public Void call() throws IOException {
                 try {
-                    UploadResult returnValue;
-                    returnValue = session.uploadTo(append, projectName, finalSubjectName, server, sessionParameters, project, new SwingUploadFailureHandler(), reporter);
-                    return returnValue;
+                    session.uploadTo(append, projectName, finalSubjectName, server, sessionParameters, project, new SwingUploadFailureHandler(), reporter);
+                    return null;
                 } catch (CancellationException exception) {
                     // Cancellation is the only type of exception for which we don't attempt to upload any more files
                     throw exception;
@@ -158,7 +156,7 @@ public class GiftCloudAutoUploader {
         });
 
         try {
-            return upload.get();
+            upload.get();
         } catch (InterruptedException e) {
             final Throwable cause = e.getCause();
             throw new IOException("Uploading was interrupted due to the following error: " + cause.getMessage(), cause);

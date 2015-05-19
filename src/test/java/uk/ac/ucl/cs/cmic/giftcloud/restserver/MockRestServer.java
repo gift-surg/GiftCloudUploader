@@ -141,10 +141,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Set<String> appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
-        final Set<String> uids = new HashSet<String>();
-        uids.add(UUID.randomUUID().toString());
-        return uids;
+    public void appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
     }
 
     @Override

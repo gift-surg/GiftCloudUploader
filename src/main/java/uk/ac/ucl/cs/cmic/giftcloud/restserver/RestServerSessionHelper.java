@@ -82,8 +82,8 @@ public class RestServerSessionHelper {
         return giftCloudSession.request(new JSONRequestConnectionProcessor(sessionParameters, path, giftCloudProperties, reporter));
     }
 
-    public Set<String> appendFileUsingZipUpload(final String relativeUrl, final ZipSeriesRequestFactory.ZipStreaming zipStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws IOException {
-        return giftCloudSession.request(ZipSeriesRequestFactory.build(HttpConnection.ConnectionType.PUT, zipStreaming, relativeUrl, fileCollection, applicators, progress, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter));
+    public void appendFileUsingZipUpload(final String relativeUrl, final ZipSeriesRequestFactory.ZipStreaming zipStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws IOException {
+        giftCloudSession.request(ZipSeriesRequestFactory.build(HttpConnection.ConnectionType.PUT, zipStreaming, relativeUrl, fileCollection, applicators, progress, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter));
     }
 
     public Set<String> uploadSeriesUsingZipUpload(final String relativeUrl, final ZipSeriesRequestFactory.ZipStreaming zipStreaming, final FileCollection fileCollection, final Iterable<ScriptApplicator> applicators, final UploadStatisticsReporter progress) throws IOException {

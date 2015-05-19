@@ -102,6 +102,14 @@ public class GiftCloudServer {
         return restServer.closeSession(uri, sessionParameters, uploader.getFailures(), timeZone);
     }
 
+    public void appendToStudy(final boolean append, List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) throws IOException {
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(append, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
+       final Optional<String> failureMessage = uploader.run(logger);
+        if (failureMessage.isPresent()) {
+            throw new IOException("Uploading failed due to the following reason:" + failureMessage.get());
+        }
+    }
+
     public void createPseudonymIfNotExisting(final String projectName, final String subjectName, final String hashedPatientId) throws IOException {
         restServer.createPseudonymIfNotExisting(projectName, subjectName, hashedPatientId);
     }
