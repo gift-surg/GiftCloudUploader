@@ -26,6 +26,13 @@ class BackgroundCompletionServiceTaskList<T, U> extends BackgroundServiceTaskLis
         return uploaderResultMap.remove(future);
     }
 
+    public final void cancelAllAndShutdown() {
+        executor.shutdownNow();
+        for (final Map.Entry<Future<T>, BackgroundServiceTaskWrapper<CallableWithParameter<T, U>, Future<T>>> mapEntry : uploaderResultMap.entrySet()) {
+            mapEntry.getKey().cancel(true);
+        }
+    }
+
     @Override
     protected final boolean isEmpty() {
         return uploaderResultMap.isEmpty();
