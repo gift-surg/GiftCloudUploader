@@ -45,7 +45,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
         final int numThreads = 1;
         final ProgressHandleWrapper progressHandleWrapper = new ProgressHandleWrapper(reporter);
-        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), progressHandleWrapper, this, reporter);
+        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), this, reporter);
 
         // Add a shutdown hook for graceful exit
         Runtime.getRuntime().addShutdownHook(new Thread() {

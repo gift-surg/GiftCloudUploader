@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-public class GiftCloudAutoUploader {
+public class GiftCloudAutoUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
 
     private final GiftCloudReporter reporter;
 
@@ -145,19 +145,16 @@ public class GiftCloudAutoUploader {
         final int nThreads = sessionParameters.getNumberOfThreads();
         final BackgroundCompletionServiceTaskList uploaderTaskList = new BackgroundCompletionServiceTaskList<Set<String>, FileCollection>(nThreads);
 
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploaderTaskList, true, fileCollections, reporter);
+        BackgroundUploader uploader = new BackgroundUploader(uploaderTaskList, this, reporter);
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
+
+        uploader.addFiles(server, fileCollections, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, callableUploaderFactory, stats);
+
         for (final FileCollection s : fileCollections) {
             stats.addToSend(s.getSize());
-            uploader.addFile(server, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, callableUploaderFactory, stats, s);
         }
 
-
-
-        final Optional<String> failureMessage = uploader.run(reporter);
-        if (failureMessage.isPresent()) {
-            throw new IOException("Uploading failed due to the following reason:" + failureMessage.get());
-        }
+        uploader.start();
     }
 
     private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {
@@ -207,6 +204,16 @@ public class GiftCloudAutoUploader {
             sessionsAlreadyUploaded.put(seriesUid, scanName);
         }
         return scanName;
+    }
+
+    @Override
+    public void fileUploadSuccess(FileCollection fileCollection) {
+
+    }
+
+    @Override
+    public void fileUploadFailure(FileCollection fileCollection) {
+
     }
 
     /**
