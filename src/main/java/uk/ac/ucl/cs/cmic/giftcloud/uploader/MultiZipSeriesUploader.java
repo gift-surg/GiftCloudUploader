@@ -29,20 +29,10 @@ public class MultiZipSeriesUploader {
     private boolean append;
     private final GiftCloudReporter reporter;
 
-    public MultiZipSeriesUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final boolean append, final List<FileCollection> uploads, final XnatModalityParams xnatModalityParams, final Iterable<ScriptApplicator> applicators, final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final GiftCloudReporter reporter, final GiftCloudServer server) {
+    public MultiZipSeriesUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final boolean append, final List<FileCollection> uploads, final GiftCloudReporter reporter) {
         this.backgroundCompletionServiceTaskList = backgroundCompletionServiceTaskList;
         this.append = append;
         this.reporter = reporter;
-
-
-        int fileCount = getFileCountFromFileCollection(uploads);
-        reporter.startProgressBar(fileCount);
-        reporter.updateStatusText("Building sessionLabel manifest");
-
-
-        reporter.updateStatusText("Preparing upload...");
-        reporter.trace("creating thread pool and executors");
-        reporter.trace("submitting uploaders for {}", uploads);
     }
 
     public void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, UploadStatisticsReporter stats, FileCollection fileCollection) {
@@ -104,12 +94,5 @@ public class MultiZipSeriesUploader {
             uris.addAll(us);
         }
 
-    }
-    private static int getFileCountFromFileCollection(final List<FileCollection> fileCollections) {
-        int count = 0;
-        for (final FileCollection fileCollection : fileCollections) {
-            count += fileCollection.getFileCount();
-        }
-        return count;
     }
 }

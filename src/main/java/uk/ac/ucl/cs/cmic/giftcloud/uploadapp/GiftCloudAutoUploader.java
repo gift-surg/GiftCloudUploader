@@ -145,7 +145,7 @@ public class GiftCloudAutoUploader {
         final int nThreads = sessionParameters.getNumberOfThreads();
         final BackgroundCompletionServiceTaskList uploaderTaskList = new BackgroundCompletionServiceTaskList<Set<String>, FileCollection>(nThreads);
 
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploaderTaskList, true, fileCollections, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, reporter, server);
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploaderTaskList, true, fileCollections, reporter);
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
         for (final FileCollection s : fileCollections) {
             stats.addToSend(s.getSize());

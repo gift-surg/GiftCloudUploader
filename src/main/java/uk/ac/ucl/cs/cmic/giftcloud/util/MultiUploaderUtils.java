@@ -241,4 +241,13 @@ public class MultiUploaderUtils {
         }
     }
 
+    public static int getFileCountFromFileCollection(final List<FileCollection> fileCollections) {
+        int count = 0;
+        for (final FileCollection fileCollection : fileCollections) {
+            count += fileCollection.getFileCount();
+        }
+        return count;
+    }
+
+
 }

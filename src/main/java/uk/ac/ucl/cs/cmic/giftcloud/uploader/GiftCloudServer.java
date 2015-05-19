@@ -5,6 +5,7 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -96,9 +97,17 @@ public class GiftCloudServer {
     public UploadResult uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) {
         final int nThreads = sessionParameters.getNumberOfThreads();
         final BackgroundCompletionServiceTaskList uploaderTaskList = new BackgroundCompletionServiceTaskList<Set<String>, FileCollection>(nThreads);
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploaderTaskList, false, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploaderTaskList, false, fileCollections, logger);
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
         final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
+
+        int fileCount = MultiUploaderUtils.getFileCountFromFileCollection(fileCollections);
+        reporter.startProgressBar(fileCount);
+        reporter.updateStatusText("Building sessionLabel manifest");
+        reporter.updateStatusText("Preparing upload...");
+        reporter.trace("creating thread pool and executors");
+        reporter.trace("submitting uploaders for {}", fileCollections);
+
         for (final FileCollection s : fileCollections) {
             stats.addToSend(s.getSize());
             uploader.addFile(this, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, callableUploaderFactory, stats, s);
