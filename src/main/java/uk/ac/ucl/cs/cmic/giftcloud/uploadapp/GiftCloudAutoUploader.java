@@ -19,8 +19,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-public class GiftCloudAutoUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
+public class GiftCloudAutoUploader {
 
+    private BackgroundUploader backgroundUploader;
     private final GiftCloudReporter reporter;
 
     // Create a map of subjects and sessions we have already uploaded
@@ -50,8 +51,9 @@ public class GiftCloudAutoUploader implements BackgroundUploader.BackgroundUploa
      * @para serverFactory
      * @param reporter
      */
-    public GiftCloudAutoUploader(final GiftCloudServerFactory serverFactory, final GiftCloudReporter reporter) {
+    public GiftCloudAutoUploader(final GiftCloudServerFactory serverFactory, final BackgroundUploader backgroundUploader, final GiftCloudReporter reporter) {
         this.serverFactory = serverFactory;
+        this.backgroundUploader = backgroundUploader;
         this.reporter = reporter;
         subjectAliasMap = new SubjectAliasMap();
     }
@@ -145,16 +147,15 @@ public class GiftCloudAutoUploader implements BackgroundUploader.BackgroundUploa
         final int nThreads = sessionParameters.getNumberOfThreads();
         final BackgroundCompletionServiceTaskList uploaderTaskList = new BackgroundCompletionServiceTaskList<Set<String>, FileCollection>(nThreads);
 
-        BackgroundUploader uploader = new BackgroundUploader(uploaderTaskList, this, reporter);
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
 
-        uploader.addFiles(server, fileCollections, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, callableUploaderFactory, stats);
+        backgroundUploader.addFiles(server, fileCollections, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, callableUploaderFactory, stats);
 
         for (final FileCollection s : fileCollections) {
             stats.addToSend(s.getSize());
         }
 
-        uploader.start();
+        backgroundUploader.start();
     }
 
     private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {
@@ -204,16 +205,6 @@ public class GiftCloudAutoUploader implements BackgroundUploader.BackgroundUploa
             sessionsAlreadyUploaded.put(seriesUid, scanName);
         }
         return scanName;
-    }
-
-    @Override
-    public void fileUploadSuccess(FileCollection fileCollection) {
-
-    }
-
-    @Override
-    public void fileUploadFailure(FileCollection fileCollection) {
-
     }
 
     /**

@@ -39,13 +39,13 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
         serverFactory = new GiftCloudServerFactory(restServerFactory, giftCloudProperties, projectListModel, reporter);
-        autoUploader = new GiftCloudAutoUploader(serverFactory, reporter);
         pendingUploadList = new PendingUploadTaskList(giftCloudProperties, pendingUploadFolder, reporter);
-        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
 
         final int numThreads = 1;
         final ProgressHandleWrapper progressHandleWrapper = new ProgressHandleWrapper(reporter);
         backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), this, reporter);
+        autoUploader = new GiftCloudAutoUploader(serverFactory, backgroundUploader, reporter);
+        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
 
         // Add a shutdown hook for graceful exit
         Runtime.getRuntime().addShutdownHook(new Thread() {
