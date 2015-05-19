@@ -265,7 +265,7 @@ public class Study extends MapEntity implements Entity, Session {
      * (non-Javadoc)
      * @see Session#uploadTo(java.util.Map, UploadFailureHandler, org.netbeans.spi.wizard.ResultProgressHandle)
      */
-    public UploadResult uploadTo(final boolean append, final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException {
+    public UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException {
         final List<FileCollection> fileCollections = getFiles();
 
         if (fileCollections.isEmpty()) {
@@ -277,11 +277,11 @@ public class Study extends MapEntity implements Entity, Session {
 
         final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
 
-        return server.uploadToStudy(append, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, reporter);
+        return server.uploadToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, reporter);
     }
 
     @Override
-    public void appendTo(boolean append, String projectLabel, String subjectLabel, GiftCloudServer server, SessionParameters sessionParameters, Project project, UploadFailureHandler failureHandler, GiftCloudReporter reporter) throws IOException {
+    public void appendTo(String projectLabel, String subjectLabel, GiftCloudServer server, SessionParameters sessionParameters, Project project, UploadFailureHandler failureHandler, GiftCloudReporter reporter) throws IOException {
         final List<FileCollection> fileCollections = getFiles();
 
         if (fileCollections.isEmpty()) {
@@ -293,7 +293,7 @@ public class Study extends MapEntity implements Entity, Session {
 
         final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
 
-        server.appendToStudy(append, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, reporter);
+        server.appendToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, reporter);
 
     }
 

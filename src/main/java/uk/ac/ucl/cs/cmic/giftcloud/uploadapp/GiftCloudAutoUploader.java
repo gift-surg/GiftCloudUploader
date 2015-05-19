@@ -145,7 +145,7 @@ public class GiftCloudAutoUploader {
         Future<Void> upload = executorService.submit(new Callable<Void>() {
             public Void call() throws IOException {
                 try {
-                    session.uploadTo(append, projectName, finalSubjectName, server, sessionParameters, project, new SwingUploadFailureHandler(), reporter);
+                    session.appendTo(projectName, finalSubjectName, server, sessionParameters, project, new SwingUploadFailureHandler(), reporter);
                     return null;
                 } catch (CancellationException exception) {
                     // Cancellation is the only type of exception for which we don't attempt to upload any more files

@@ -81,8 +81,8 @@ public class GiftCloudServer {
         return restServer.getProjectSeriesImportFilter(projectName);
     }
 
-    public UploadResult uploadToStudy(final boolean append, List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) {
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(append, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
+    public UploadResult uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) {
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(false, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
 
         final Optional<String> failureMessage = uploader.run(logger);
         if (failureMessage.isPresent()) {
@@ -102,8 +102,8 @@ public class GiftCloudServer {
         return restServer.closeSession(uri, sessionParameters, uploader.getFailures(), timeZone);
     }
 
-    public void appendToStudy(final boolean append, List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) throws IOException {
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(append, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
+    public void appendToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) throws IOException {
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(true, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
        final Optional<String> failureMessage = uploader.run(logger);
         if (failureMessage.isPresent()) {
             throw new IOException("Uploading failed due to the following reason:" + failureMessage.get());
