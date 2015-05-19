@@ -10,8 +10,10 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.data;
 
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -33,6 +35,9 @@ public interface Session {
     String getStudyUid();
     String getSeriesUid();
 
+	List<FileCollection> getFiles();
+
+
 	/**
 	 * Unify the provided SessionVariables into the script-defined variables.
 	 * @param vars variables originating from outside scripts
@@ -44,4 +49,6 @@ public interface Session {
 	void appendTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException;
 
 	TimeZone getTimeZone();
+
+	XnatModalityParams getXnatModalityParams();
 }

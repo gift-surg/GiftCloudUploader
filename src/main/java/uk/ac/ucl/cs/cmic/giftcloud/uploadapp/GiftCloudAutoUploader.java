@@ -2,19 +2,20 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SubjectAliasMap;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingUploadFailureHandler;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
-import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,10 +82,6 @@ public class GiftCloudAutoUploader {
             throw new IOException("Error encountered retrieving series import filters", exception);
         }
 
-
-
-        final ProgressHandleWrapper progressHandleWrapper = new ProgressHandleWrapper(reporter);
-
         final Vector<File> fileList = new Vector<File>();
         for (final String path : paths) {
             fileList.add(new File(path));
@@ -109,13 +106,13 @@ public class GiftCloudAutoUploader {
 
         for (final Session session : sessions) {
 
-            addSessionToUploadList(server, projectName, append, executorService, subjectMapFromServer, sessionMapFromServer, session);
+            addSessionToUploadList(server, projectName, executorService, subjectMapFromServer, sessionMapFromServer, session);
         }
 
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final String projectName, final boolean append, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
+    private void addSessionToUploadList(final GiftCloudServer server, final String projectName, ExecutorService executorService, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
         final String patientId = session.getPatientId();
         final String studyUid = session.getStudyUid();
         final String seriesUid = session.getSeriesUid();
@@ -145,7 +142,17 @@ public class GiftCloudAutoUploader {
         Future<Void> upload = executorService.submit(new Callable<Void>() {
             public Void call() throws IOException {
                 try {
-                    session.appendTo(projectName, finalSubjectName, server, sessionParameters, project, new SwingUploadFailureHandler(), reporter);
+                    final List<FileCollection> fileCollections = session.getFiles();
+
+                    if (fileCollections.isEmpty()) {
+                        reporter.updateStatusText("No files were selected for upload");
+                        throw new IOException("No files were selected for upload");
+                    }
+
+                    final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
+                    final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
+                    server.appendToStudy(fileCollections, xnatModalityParams, applicators, projectName, finalSubjectName, sessionParameters, reporter);
+
                     return null;
                 } catch (CancellationException exception) {
                     // Cancellation is the only type of exception for which we don't attempt to upload any more files
