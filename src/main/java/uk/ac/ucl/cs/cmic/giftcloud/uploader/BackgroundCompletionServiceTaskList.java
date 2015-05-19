@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
-class BackgroundCompletionServiceTaskList<T, U> extends BackgroundServiceTaskList<CallableWithParameter<T, U>, Future<T>> {
+public class BackgroundCompletionServiceTaskList<T, U> extends BackgroundServiceTaskList<CallableWithParameter<T, U>, Future<T>> {
     private final CompletionService<T> completionService;
     private final Map<Future<T>, BackgroundServiceTaskWrapper<CallableWithParameter<T, U>, Future<T>>> uploaderResultMap = new HashMap<Future<T>, BackgroundServiceTaskWrapper<CallableWithParameter<T, U>, Future<T>>>();
     private final ExecutorService executor;
 
-    BackgroundCompletionServiceTaskList(final int numThreads) {
+    public BackgroundCompletionServiceTaskList(final int numThreads) {
         executor = Executors.newFixedThreadPool(numThreads);
         completionService = new ExecutorCompletionService<T>(executor);
     }

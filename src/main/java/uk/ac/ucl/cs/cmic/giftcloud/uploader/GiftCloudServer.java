@@ -94,7 +94,9 @@ public class GiftCloudServer {
      * @return
      */
     public UploadResult uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) {
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(false, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
+        final int nThreads = sessionParameters.getNumberOfThreads();
+        final BackgroundCompletionServiceTaskList uploaderTaskList = new BackgroundCompletionServiceTaskList<Set<String>, FileCollection>(nThreads);
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploaderTaskList, false, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
         final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
         for (final FileCollection s : fileCollections) {

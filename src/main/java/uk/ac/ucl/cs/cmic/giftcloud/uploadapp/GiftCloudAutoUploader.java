@@ -9,10 +9,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.MultiZipSeriesUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.ZipSeriesUploaderFactorySelector;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
@@ -145,7 +142,10 @@ public class GiftCloudAutoUploader {
         final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
 
         final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(true, fileCollections, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, reporter, server);
+        final int nThreads = sessionParameters.getNumberOfThreads();
+        final BackgroundCompletionServiceTaskList uploaderTaskList = new BackgroundCompletionServiceTaskList<Set<String>, FileCollection>(nThreads);
+
+        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploaderTaskList, true, fileCollections, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, reporter, server);
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
         for (final FileCollection s : fileCollections) {
             stats.addToSend(s.getSize());
