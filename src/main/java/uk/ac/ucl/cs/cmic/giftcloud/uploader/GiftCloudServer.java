@@ -81,8 +81,26 @@ public class GiftCloudServer {
         return restServer.getProjectSeriesImportFilter(projectName);
     }
 
+    /**
+     * Legacy method for uploading using the applet wizard
+     *
+     * @param fileCollections
+     * @param xnatModalityParams
+     * @param applicators
+     * @param projectLabel
+     * @param subjectLabel
+     * @param sessionParameters
+     * @param logger
+     * @return
+     */
     public UploadResult uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) {
         MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(false, fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, logger, this);
+        final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
+        final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
+        for (final FileCollection s : fileCollections) {
+            stats.addToSend(s.getSize());
+            uploader.addFile(this, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, callableUploaderFactory, stats, s);
+        }
 
         final Optional<String> failureMessage = uploader.run(logger);
         if (failureMessage.isPresent()) {

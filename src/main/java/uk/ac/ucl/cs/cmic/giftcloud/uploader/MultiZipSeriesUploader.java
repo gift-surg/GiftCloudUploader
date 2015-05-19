@@ -4,8 +4,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesAppendUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.ZipSeriesUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadStatisticsReporter;
@@ -35,7 +33,6 @@ public class MultiZipSeriesUploader {
         this.append = append;
         this.reporter = reporter;
 
-        final CallableUploader.CallableUploaderFactory callableUploaderFactory = getZipSeriesUploaderFactory(append);
 
         int fileCount = getFileCountFromFileCollection(uploads);
         reporter.startProgressBar(fileCount);
@@ -47,24 +44,11 @@ public class MultiZipSeriesUploader {
         reporter.updateStatusText("Preparing upload...");
         reporter.trace("creating thread pool and executors");
         reporter.trace("submitting uploaders for {}", uploads);
-        final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
-        for (final FileCollection s : uploads) {
-            stats.addToSend(s.getSize());
-            addFile(server, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, callableUploaderFactory, stats, s);
-        }
     }
 
-    private void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, UploadStatisticsReporter stats, FileCollection fileCollection) {
+    public void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, UploadStatisticsReporter stats, FileCollection fileCollection) {
         final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, fileCollection, applicators, stats, server);
         uploaderTaskList.addNewTask(uploader);
-    }
-
-    private static CallableUploader.CallableUploaderFactory getZipSeriesUploaderFactory(final boolean append) {
-        if (append) {
-            return new ZipSeriesAppendUploader.ZipSeriesAppendUploaderFactory();
-        } else {
-            return new ZipSeriesUploader.ZipSeriesUploaderFactory();
-        }
     }
 
     public Map<FileCollection, Throwable> getFailures() {

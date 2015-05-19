@@ -8,12 +8,11 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SubjectAliasMap;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.MultiZipSeriesUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.ZipSeriesUploaderFactorySelector;
 import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
@@ -145,7 +144,16 @@ public class GiftCloudAutoUploader {
 
         final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
 
+        final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
         MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(true, fileCollections, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, reporter, server);
+        final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
+        for (final FileCollection s : fileCollections) {
+            stats.addToSend(s.getSize());
+            uploader.addFile(server, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, callableUploaderFactory, stats, s);
+        }
+
+
+
         final Optional<String> failureMessage = uploader.run(reporter);
         if (failureMessage.isPresent()) {
             throw new IOException("Uploading failed due to the following reason:" + failureMessage.get());
