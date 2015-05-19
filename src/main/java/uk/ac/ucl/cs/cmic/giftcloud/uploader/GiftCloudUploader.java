@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 
 public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
@@ -46,7 +45,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
         final int numThreads = 1;
         final ProgressHandleWrapper progressHandleWrapper = new ProgressHandleWrapper(reporter);
-        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<Callable<Set<String>>>(numThreads), progressHandleWrapper, this, reporter);
+        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), progressHandleWrapper, this, reporter);
 
         // Add a shutdown hook for graceful exit
         Runtime.getRuntime().addShutdownHook(new Thread() {

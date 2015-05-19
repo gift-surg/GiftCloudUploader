@@ -18,14 +18,14 @@ import com.google.common.collect.ImmutableList;
 import org.dcm4che2.data.Tag;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.CallableWithParameter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
 import java.util.Collections;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
 
-public abstract class CallableUploader implements Callable<Set<String>> {
+public abstract class CallableUploader implements CallableWithParameter<Set<String>, FileCollection> {
     protected final String projectLabel;
     protected final String subjectLabel;
     protected final SessionParameters sessionParameters;
@@ -65,8 +65,13 @@ public abstract class CallableUploader implements Callable<Set<String>> {
         return fileCollection;
     }
 
-    public static interface CallableUploaderFactory {
-        public CallableUploader create(
+    public final FileCollection getParameter() {
+        return fileCollection;
+    }
+
+
+    public interface CallableUploaderFactory {
+        CallableUploader create(
                 final String projectLabel,
                 final String subjectLabel,
                 final SessionParameters sessionParameters,
