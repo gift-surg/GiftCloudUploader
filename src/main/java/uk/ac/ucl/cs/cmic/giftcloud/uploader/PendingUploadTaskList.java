@@ -7,7 +7,10 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Maintains lists of files that are waiting to be uploaded
@@ -62,21 +65,15 @@ public class PendingUploadTaskList {
         return taskList;
     }
 
+    /**
+     * Called after a file or set of files have been successfully uploaded to the server. Files stored in the local
+     * "waiting for upload" folder will be deleted.
+     * @param file
+     */
     public void processFileAfterUpload(final File file) {
         try {
-            Optional<PendingUploadTask> task = fileMap.get(file);
+            final Optional<PendingUploadTask> task = fileMap.get(file);
             if (task.isPresent()) {
-                PendingUploadTask pendingTask = task.get();
-                switch (pendingTask.getDeleteAfterUpload()) {
-                    case DELETE_AFTER_UPLOAD:
-                        try {
-                            if (!file.delete()) {
-                                reporter.silentWarning("The file " + file.getAbsolutePath() + " reported a successful upload, but could not be deleted");
-                            }
-                        } catch (Throwable t) {
-                            reporter.silentLogException(t, "The file " + file.getAbsolutePath() + " reported a successful upload, but could not be deleted due to the following error: " + t.getLocalizedMessage());
-                        }
-                }
                 fileMap.safeRemove(file);
             }
         } catch (IOException e) {

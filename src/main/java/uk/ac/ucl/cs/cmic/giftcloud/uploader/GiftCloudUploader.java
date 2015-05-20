@@ -1,11 +1,14 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import com.pixelmed.database.DatabaseInformationModel;
+import com.pixelmed.dicom.DicomException;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.LocalWaitingForUploadDatabase;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadWizard;
@@ -23,6 +26,7 @@ import java.util.Vector;
 import java.util.concurrent.CancellationException;
 
 public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
+    private LocalWaitingForUploadDatabase uploadDatabase;
     private final GiftCloudProperties giftCloudProperties;
     private final Container container;
     private final PendingUploadTaskList pendingUploadList;
@@ -33,7 +37,8 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
-    public GiftCloudUploader(final RestServerFactory restServerFactory, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+        this.uploadDatabase = uploadDatabase;
         this.giftCloudProperties = giftCloudProperties;
         this.container = reporter.getContainer();
         this.reporter = reporter;
@@ -176,7 +181,19 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         }
     }
 
-    public void addFileReference(final String mediaFileName) {
+    public void importFile(String dicomFileName,String fileReferenceType) throws IOException, DicomException {
+        uploadDatabase.importFileIntoDatabase(dicomFileName, fileReferenceType);
+
+        if (fileReferenceType.equals(DatabaseInformationModel.FILE_COPIED)) {
+            addFileInstance(dicomFileName);
+        } else if (fileReferenceType.equals(DatabaseInformationModel.FILE_REFERENCED)) {
+            addFileReference(dicomFileName);
+        } else {
+            throw new RuntimeException("Unexpected file reference type");
+        }
+    }
+
+    private void addFileReference(final String mediaFileName) {
         try {
             final Optional<String> projectName = giftCloudProperties.getLastProject();
             pendingUploadList.addFileReference(mediaFileName, projectName);
@@ -186,7 +203,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         }
     }
 
-    public void addFileInstance(final String dicomFileName) {
+    private void addFileInstance(final String dicomFileName) {
         try {
             final Optional<String> projectName = giftCloudProperties.getLastProject();
             pendingUploadList.addFileInstance(dicomFileName, projectName);
@@ -199,6 +216,9 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     @Override
     public void fileUploadSuccess(final FileCollection fileCollection) {
         pendingUploadList.fileUploadSuccess(fileCollection);
+        for (final File file : fileCollection.getFiles()) {
+            uploadDatabase.deleteFileFromDatabase(file);
+        }
     }
 
     @Override
@@ -208,8 +228,6 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     public void addExistingFilesToUploadQueue() {
         pendingUploadList.addExistingFiles();
-
-
     }
 
     public boolean requestProjectNameIfNotSet() throws IOException {

@@ -1,8 +1,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.database.DatabaseInformationModel;
-import com.pixelmed.database.PatientStudySeriesConcatenationInstanceModel;
-import com.pixelmed.dicom.*;
+import com.pixelmed.dicom.DicomException;
+import com.pixelmed.dicom.StoredFilePathStrategy;
+import com.pixelmed.dicom.TransferSyntax;
 import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.*;
@@ -13,26 +14,24 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
-public class DicomNode extends Observable {
+public class DicomNode {
 
     private StorageSOPClassSCPDispatcher storageSOPClassSCPDispatcher;
+    private GiftCloudUploader uploader;
     private GiftCloudPropertiesFromApplication giftCloudProperties;
     private GiftCloudReporter reporter;
-    private DatabaseInformationModel srcDatabase;
-    protected Map<String,Date> earliestDatesIndexedBySourceFilePath = new HashMap<String,Date>();
-    private final GiftCloudUploader giftCloudUploader;
+    private DatabaseInformationModel databaseInformationModel;
 
 
-    public DicomNode(final GiftCloudPropertiesFromApplication giftCloudProperties, final String databaseRootTitle, final GiftCloudUploader giftCloudUploader, final GiftCloudReporter reporter) throws DicomException {
+    public DicomNode(final GiftCloudUploader uploader, final GiftCloudPropertiesFromApplication giftCloudProperties, final LocalWaitingForUploadDatabase localWaitingForUploadDatabase, final GiftCloudReporter reporter) throws DicomException {
+        this.uploader = uploader;
         this.giftCloudProperties = giftCloudProperties;
-        this.giftCloudUploader = giftCloudUploader;
+        this.databaseInformationModel = localWaitingForUploadDatabase.getSrcDatabase();
         this.reporter = reporter;
-
-        // Start database for the "source" instances.
-        srcDatabase = new PatientStudySeriesConcatenationInstanceModel("mem:src", null, databaseRootTitle);
 
         // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -67,8 +66,8 @@ public class DicomNode extends Observable {
                 int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
                 int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
                 storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(getAe(), port, ourCalledAETitle.get(), savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
-                        srcDatabase == null ? null : srcDatabase.getQueryResponseGeneratorFactory(queryDebugLevel),
-                        srcDatabase == null ? null : srcDatabase.getRetrieveResponseGeneratorFactory(queryDebugLevel),
+                        databaseInformationModel == null ? null : databaseInformationModel.getQueryResponseGeneratorFactory(queryDebugLevel),
+                        databaseInformationModel == null ? null : databaseInformationModel.getRetrieveResponseGeneratorFactory(queryDebugLevel),
                         new OurPresentationContextSelectionPolicy(),
                         false/*secureTransport*/,
                         storageSCPDebugLevel);
@@ -121,38 +120,6 @@ public class DicomNode extends Observable {
         }
     }
 
-    public DatabaseInformationModel getSrcDatabase() {
-        return srcDatabase;
-    }
-
-    public void importFileIntoDatabase(String dicomFileName,String fileReferenceType) throws IOException, DicomException {
-        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Importing: "+dicomFileName));
-        FileInputStream fis = new FileInputStream(dicomFileName);
-        DicomInputStream i = new DicomInputStream(new BufferedInputStream(fis));
-        AttributeList list = new AttributeList();
-        list.read(i, TagFromName.PixelData);
-        i.close();
-        fis.close();
-        srcDatabase.insertObject(list,dicomFileName,fileReferenceType);
-        if (earliestDatesIndexedBySourceFilePath != null) {
-            Date earliestInObject = ClinicalTrialsAttributes.findEarliestDateTime(list);
-            if (earliestInObject != null) {
-                earliestDatesIndexedBySourceFilePath.put(dicomFileName,earliestInObject);
-            }
-        }
-
-        // Send a notification that the database has changed
-        setChanged();
-        notifyObservers(dicomFileName);
-    }
-
-    public void removeFileFromEasliestDatesIndex(String fileName) {
-        if (earliestDatesIndexedBySourceFilePath != null) {
-            earliestDatesIndexedBySourceFilePath.remove(fileName);
-        }
-    }
-
-
     class OurPresentationContextSelectionPolicy extends UnencapsulatedExplicitStoreFindMoveGetPresentationContextSelectionPolicy {
         OurPresentationContextSelectionPolicy() {
             super();
@@ -167,18 +134,13 @@ public class DicomNode extends Observable {
             if (dicomFileName != null) {
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Received "+dicomFileName+" from "+callingAETitle+" in "+transferSyntax));
                 try {
-                    importFileIntoDatabase(dicomFileName, DatabaseInformationModel.FILE_COPIED);
-                    giftCloudUploader.addFileInstance(dicomFileName);
-
+                    uploader.importFile(dicomFileName, DatabaseInformationModel.FILE_COPIED);
                 } catch (Exception e) {
                     e.printStackTrace(System.err);
                 }
             }
-
         }
     }
-
-
 
     // we will (grudgingly) accept JPEGBaseline, since we know the JRE can natively decode it without JIIO extensions present,
     // so will work by decompressing during attribute list read for cleaning

@@ -7,12 +7,12 @@ import com.pixelmed.dicom.TransferSyntax;
 import com.pixelmed.utils.CapabilitiesAvailable;
 import com.pixelmed.utils.MessageLogger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.LocalWaitingForUploadDatabase;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 
 public class ImportWorker implements Runnable {
-    private DicomNode dicomNode;
+    private LocalWaitingForUploadDatabase uploadDatabase;
     private GiftCloudUploader giftCloudUploader;
     private boolean importAsReference;
     private GiftCloudReporterFromApplication reporter;
@@ -20,8 +20,8 @@ public class ImportWorker implements Runnable {
     private String pathName;
     private Progress progress;
 
-    public ImportWorker(final DicomNode dicomNode, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporterFromApplication reporter) {
-        this.dicomNode = dicomNode;
+    public ImportWorker(final LocalWaitingForUploadDatabase uploadDatabase, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporterFromApplication reporter) {
+        this.uploadDatabase = uploadDatabase;
         this.giftCloudUploader = giftCloudUploader;
         this.importAsReference = importAsReference;
         this.reporter = reporter;
@@ -60,11 +60,9 @@ public class ImportWorker implements Runnable {
                 logger.sendLn("Importing DICOM file: " + mediaFileName);
 
                 if (importAsReference) {
-                    dicomNode.importFileIntoDatabase(mediaFileName, DatabaseInformationModel.FILE_REFERENCED);
-                    giftCloudUploader.addFileReference(mediaFileName);
+                    giftCloudUploader.importFile(mediaFileName, DatabaseInformationModel.FILE_REFERENCED);
                 } else {
-                    dicomNode.importFileIntoDatabase(mediaFileName, DatabaseInformationModel.FILE_COPIED);
-                    giftCloudUploader.addFileInstance(mediaFileName);
+                    giftCloudUploader.importFile(mediaFileName, DatabaseInformationModel.FILE_COPIED);
                 }
             }
             catch (Exception e) {

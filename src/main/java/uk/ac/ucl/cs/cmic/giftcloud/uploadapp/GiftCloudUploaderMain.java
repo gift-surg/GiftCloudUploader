@@ -21,6 +21,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final GiftCloudMainFrame giftCloudMainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
     private final DicomNode dicomNode;
+    private final LocalWaitingForUploadDatabase uploadDatabase;
     private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
     private GiftCloudConfigurationDialog configurationDialog = null;
@@ -42,10 +43,12 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         // Initialise the main GIFT-Cloud class
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
-        giftCloudUploader = new GiftCloudUploader(restServerFactory, pendingUploadFolder, giftCloudProperties, reporter);
 
-        dicomNode = new DicomNode(giftCloudProperties, resourceBundle.getString("DatabaseRootTitleForOriginal"), giftCloudUploader, reporter);
-        dicomNode.addObserver(new DicomNodeListener());
+        uploadDatabase = new LocalWaitingForUploadDatabase(resourceBundle.getString("DatabaseRootTitleForOriginal"), reporter);
+        giftCloudUploader = new GiftCloudUploader(restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, reporter);
+        uploadDatabase.addObserver(new DatabaseListener());
+        dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploadDatabase, reporter);
+
         try {
             dicomNode.activateStorageSCP();
         } catch (DicomNode.DicomNodeStartException e) {
@@ -55,7 +58,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
 
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, dicomNode.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, uploadDatabase.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
@@ -172,7 +175,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     @Override
     public void runImport(String filePath, final boolean importAsReference, final Progress progress) {
-        new Thread(new ImportWorker(dicomNode, filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, reporter)).start();
+        new Thread(new ImportWorker(uploadDatabase, filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, reporter)).start();
     }
 
     @Override
@@ -240,11 +243,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         runImport(pendingUploadFolder.getAbsolutePath(), false, reporter);
     }
 
-    private class DicomNodeListener implements Observer {
+    private class DatabaseListener implements Observer {
 
         @Override
         public void update(Observable o, Object arg) {
-            giftCloudUploaderPanel.rebuildFileList(dicomNode.getSrcDatabase());
+            giftCloudUploaderPanel.rebuildFileList(uploadDatabase.getSrcDatabase());
         }
     }
 }
