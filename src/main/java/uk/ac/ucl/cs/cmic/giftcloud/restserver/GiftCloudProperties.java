@@ -13,8 +13,7 @@ public interface GiftCloudProperties {
     String propertyName_GiftCloudLocalUploadFolder = "GiftCloud_LocalUploadFolder";
     String propertyName_LastImportDirectory = "LastImportDirectory";
     String propertyName_LastExportDirectory = "LastExportDirectory";
-    String propertyName_ListenerCallingAeTitle = "GiftCloud_ListenerCallingAeTitle";
-    String propertyName_ListenerCalledAeTitle = "GiftCloud_ListenerCalledAeTitle";
+    String propertyName_ListenerAeTitle = "GiftCloud_ListenerAeTitle";
     String propertyName_ListenerPort = "GiftCloud_ListenerPort";
     String propertyName_PacsAeTitle = "GiftCloud_RemoteAeTitle";
     String propertyName_PacsHostName = "GiftCloud_RemoteHostName";

@@ -46,7 +46,7 @@ public class StatusPanel extends JPanel implements Progress {
             progressBarUpdater = new SafeProgressBarUpdaterThread(progressBar);
         }
         {
-            JButton closeButton = new JButton("Close");
+            JButton closeButton = new JButton("Hide uploading window");
             closeButton.setToolTipText("Close the uploader window");
             add(closeButton);
             GridBagConstraints closeButtonConstraints = new GridBagConstraints();

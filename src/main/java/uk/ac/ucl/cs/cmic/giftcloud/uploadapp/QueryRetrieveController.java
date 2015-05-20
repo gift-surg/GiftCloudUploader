@@ -76,11 +76,7 @@ public class QueryRetrieveController {
     }
 
     QueryInformationModel createRemoteQueryInformationModel() throws GiftCloudException {
-        final Optional<String> queryCallingAETitle = giftCloudProperties.getListenerCallingAETitle();
-        if (!queryCallingAETitle.isPresent() || StringUtils.isBlank(queryCallingAETitle.get())) {
-            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_LISTENER_CALLING_AE, "No listener calling AE host has been set");
-        }
-
+        final String queryAETitle = giftCloudProperties.getListenerAETitle();
         final Optional<String> queryCalledAETitle = giftCloudProperties.getPacsAeTitle();
         final Optional<String> queryHost = giftCloudProperties.getPacsHostName();
         final int queryPort = giftCloudProperties.getPacsPort();
@@ -96,7 +92,7 @@ public class QueryRetrieveController {
         }
 
         if (!queryModel.isPresent() || NetworkApplicationProperties.isStudyRootQueryModel(queryModel.get())) {
-            return new StudyRootQueryInformationModel(queryHost.get(), queryPort, queryCalledAETitle.get(), queryCallingAETitle.get(), queryDebugLevel);
+            return new StudyRootQueryInformationModel(queryHost.get(), queryPort, queryCalledAETitle.get(), queryAETitle, queryDebugLevel);
         } else {
             throw new GiftCloudException(GiftCloudUploaderError.QUERY_MODEL_NOT_SUPPORTED, "The query model is not supported for remote query AE:" + queryCalledAETitle.get());
         }

@@ -180,16 +180,12 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         return sessionCookie;
     }
 
-    public Optional<String> getListenerCallingAETitle() {
-        return getOptionalProperty(propertyName_ListenerCallingAeTitle);
-    }
-
     public int getQueryDebugLevel() {
         return getIntegerWithDefault(propertyName_QueryDebugLevel, 0);
     }
 
-    public Optional<String> getListenerCalledAETitle() {
-        return getOptionalProperty(propertyName_ListenerCalledAeTitle);
+    public String getListenerAETitle() {
+        return getStringWithDefault(propertyName_ListenerAeTitle, "GiftUploader");
     }
 
     public int getListeningPort() {
@@ -208,12 +204,8 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         setPropertyInteger(propertyName_ListenerPort, listeningPort);
     }
 
-    public void setCalledAETitle(final String calledAETitle) {
-        setPropertyString(propertyName_ListenerCalledAeTitle, calledAETitle);
-    }
-
-    public void setCallingAETitle(String callingAETitle) {
-        setPropertyString(propertyName_ListenerCallingAeTitle, callingAETitle);
+    public void setListenerAETitle(final String calledAETitle) {
+        setPropertyString(propertyName_ListenerAeTitle, calledAETitle);
     }
 
     // ToDo: Previously this was supported via a checkbox
@@ -330,6 +322,15 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
             } catch (NumberFormatException e) {
                 return defaultValue;
             }
+        } else {
+            return defaultValue;
+        }
+    }
+
+    private String getStringWithDefault(final String propertyName, final String defaultValue) {
+        final String propertyValue = getPropertyValue(propertyName);
+        if (StringUtils.isNotBlank(propertyValue)) {
+            return propertyValue;
         } else {
             return defaultValue;
         }

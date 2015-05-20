@@ -57,15 +57,12 @@ public class DicomNode {
                 if (port < 0) {
                     throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_PORT, "Could not start the Dicom storage SCP service because the port was not set");
                 }
-                final Optional<String> ourCalledAETitle = giftCloudProperties.getListenerCalledAETitle();
-                if (!ourCalledAETitle.isPresent()) {
-                    throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_AE_TITLE, "Could not start the Dicom storage SCP service because the AE title was not set");
-                }
+                final String ourAETitle = giftCloudProperties.getListenerAETitle();
 
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port  + " AET " + ourCalledAETitle));
+                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port  + " AET " + ourAETitle));
                 int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
                 int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
-                storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(getAe(), port, ourCalledAETitle.get(), savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
+                storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(getAe(), port, ourAETitle, savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
                         databaseInformationModel == null ? null : databaseInformationModel.getQueryResponseGeneratorFactory(queryDebugLevel),
                         databaseInformationModel == null ? null : databaseInformationModel.getRetrieveResponseGeneratorFactory(queryDebugLevel),
                         new OurPresentationContextSelectionPolicy(),

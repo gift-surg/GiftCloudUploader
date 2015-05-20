@@ -31,8 +31,7 @@ public class GiftCloudConfigurationDialog {
     private final JTextField giftCloudServerText;
     private final JTextField giftCloudUsernameText;
     private final JPasswordField giftCloudPasswordText;
-    private JTextField calledAETitleField;
-    private JTextField callingAETitleField;
+    private JTextField listeningAETitleField;
     private JTextField listeningPortField;
     private JTextField remoteAETitleField;
     private JTextField remoteAEHostName;
@@ -168,41 +167,25 @@ public class GiftCloudConfigurationDialog {
 
             {
                 labelConstraints.gridy = 2;
-                JLabel callingAETitleJLabel = new JLabel(resourceBundle.getString("configPanelListenerCallingAe"), SwingConstants.RIGHT);
-                callingAETitleJLabel.setToolTipText(resourceBundle.getString("configPanelListenerCallingAeToolTip"));
-                listenerPanellayout.setConstraints(callingAETitleJLabel, labelConstraints);
-                listenerPanel.add(callingAETitleJLabel);
+                JLabel listeningAETitleJLabel = new JLabel(resourceBundle.getString("configPanelListenerAe"), SwingConstants.RIGHT);
+                listeningAETitleJLabel.setToolTipText(resourceBundle.getString("configPanelListenerAeToolTip"));
+                listenerPanellayout.setConstraints(listeningAETitleJLabel, labelConstraints);
+                listenerPanel.add(listeningAETitleJLabel);
 
                 inputConstraints.gridy = 2;
-                final Optional<String> callingAETitleInitialTextOptional = giftCloudProperties.getListenerCallingAETitle();
-                final String callingAETitleInitialText = callingAETitleInitialTextOptional.isPresent() ? callingAETitleInitialTextOptional.get() : "";
-                callingAETitleField = new AutoFocusTextField(callingAETitleInitialText);
-                listenerPanellayout.setConstraints(callingAETitleField, inputConstraints);
-                listenerPanel.add(callingAETitleField);
+                final String listeningAETitleInitialText = giftCloudProperties.getListenerAETitle();
+                listeningAETitleField = new AutoFocusTextField(listeningAETitleInitialText);
+                listenerPanellayout.setConstraints(listeningAETitleField, inputConstraints);
+                listenerPanel.add(listeningAETitleField);
             }
-
             {
                 labelConstraints.gridy = 3;
-                JLabel calledAETitleJLabel = new JLabel(resourceBundle.getString("configPanelListenerCalledAe"), SwingConstants.RIGHT);
-                calledAETitleJLabel.setToolTipText(resourceBundle.getString("configPanelListenerCalledAeToolTip"));
-                listenerPanellayout.setConstraints(calledAETitleJLabel, labelConstraints);
-                listenerPanel.add(calledAETitleJLabel);
-
-                inputConstraints.gridy = 3;
-                final Optional<String> calledAETitleInitialTextOptional = giftCloudProperties.getListenerCalledAETitle();
-                final String calledAETitleInitialText = calledAETitleInitialTextOptional.isPresent() ? calledAETitleInitialTextOptional.get() : "";
-                calledAETitleField = new AutoFocusTextField(calledAETitleInitialText);
-                listenerPanellayout.setConstraints(calledAETitleField, inputConstraints);
-                listenerPanel.add(calledAETitleField);
-            }
-            {
-                labelConstraints.gridy = 4;
                 JLabel listeningPortJLabel = new JLabel(resourceBundle.getString("configPanelListenerPort"), SwingConstants.RIGHT);
                 listeningPortJLabel.setToolTipText(resourceBundle.getString("configPanelListenerPortToolTip"));
                 listenerPanellayout.setConstraints(listeningPortJLabel, labelConstraints);
                 listenerPanel.add(listeningPortJLabel);
 
-                inputConstraints.gridy = 4;
+                inputConstraints.gridy = 3;
                 final int port = giftCloudProperties.getListeningPort();
                 final String portValue = Integer.toString(port);
                 listeningPortField = new AutoFocusTextField(portValue);
@@ -370,17 +353,10 @@ public class GiftCloudConfigurationDialog {
         boolean propertiesOk = true;
 
         {
-            String calledAETitle = calledAETitleField.getText();
-            if (!StringUtils.isBlank(calledAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(calledAETitle)) {
+            String listeningAETitle = listeningAETitleField.getText();
+            if (!StringUtils.isBlank(listeningAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(listeningAETitle)) {
                 propertiesOk = false;
-                calledAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
-            }
-        }
-        {
-            String callingAETitle = callingAETitleField.getText();
-            if (!StringUtils.isBlank(callingAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(callingAETitle)) {
-                propertiesOk = false;
-                callingAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
+                listeningAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
             }
         }
         {
@@ -424,8 +400,7 @@ public class GiftCloudConfigurationDialog {
 
         // Extract out all the new values (this makes the code a little clearer below)
         final int newListeningPortValue = Integer.parseInt(listeningPortField.getText());
-        final String newListeningCalledAeTitle = calledAETitleField.getText();
-        final String newListeningCallingAeTitle = callingAETitleField.getText();
+        final String newListeningAeTitle = listeningAETitleField.getText();
         final String newGiftCloudUrl = giftCloudServerText.getText();
         final String newGiftCloudUserName = giftCloudUsernameText.getText();
         final char[] newGiftCloudPassword = giftCloudPasswordText.getPassword();
@@ -436,8 +411,7 @@ public class GiftCloudConfigurationDialog {
         // Determine whether to restart the listener service based on changes to the listener or PACS properties
         final boolean restartDicomNode =
                 giftCloudProperties.getListeningPort() != newListeningPortValue ||
-                !newListeningCalledAeTitle.equals(giftCloudProperties.getListenerCalledAETitle().orElse("")) ||
-                !newListeningCallingAeTitle.equals(giftCloudProperties.getListenerCallingAETitle().orElse("")) ||
+                !newListeningAeTitle.equals(giftCloudProperties.getListenerAETitle()) ||
                 giftCloudProperties.getPacsPort() != newPacsPort ||
                 !newPacsAeTitle.equals(giftCloudProperties.getPacsAeTitle().orElse("")) ||
                 !newPacsHostName.equals(giftCloudProperties.getPacsHostName().orElse(""));
@@ -450,8 +424,7 @@ public class GiftCloudConfigurationDialog {
 
         // Change the properties (must be done after we access the current values to check for changes)
         giftCloudProperties.setListeningPort(newListeningPortValue);
-        giftCloudProperties.setCalledAETitle(newListeningCalledAeTitle);
-        giftCloudProperties.setCallingAETitle(newListeningCallingAeTitle);
+        giftCloudProperties.setListenerAETitle(newListeningAeTitle);
         giftCloudProperties.setGiftCloudUrl(newGiftCloudUrl);
         giftCloudProperties.setLastUserName(newGiftCloudUserName);
         giftCloudProperties.setLastPassword(newGiftCloudPassword);
