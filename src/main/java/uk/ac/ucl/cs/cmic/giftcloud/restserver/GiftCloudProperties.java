@@ -20,6 +20,7 @@ public interface GiftCloudProperties {
     String propertyName_PacsHostName = "GiftCloud_RemoteHostName";
     String propertyName_PacsQueryModel = "GiftCloud_RemoteQueryModel";
     String propertyName_PacsPrimaryDeviceType = "GiftCloud_RemotePrimaryDeviceType";
+    String propertyName_HideWindowOnStartup = "GiftCloud_HideWindowOnStartup";
     String propertyName_PacsPort = "GiftCloud_RemotePort";
     String propertyName_Shutdowntimeout = "GiftCloud_ShutdownTimeout";
     String propertyName_QueryDebugLevel = "GiftCloud_QueryDebugLevel";
@@ -63,4 +64,6 @@ public interface GiftCloudProperties {
     Optional<String> getPacsQueryModel();
 
     Optional<String> getPacsPrimaryDeviceType();
+
+    Optional<Boolean> getHideWindowOnStartup();
 }

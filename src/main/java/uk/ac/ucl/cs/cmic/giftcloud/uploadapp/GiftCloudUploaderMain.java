@@ -64,13 +64,15 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudMainFrame.addListener(systemTrayController.new MainWindowVisibilityListener());
         giftCloudUploader.getBackgroundAddToUploaderService().addListener(systemTrayController.new BackgroundAddToUploaderServiceListener());
 
-        show();
-//        if (systemTrayController.isPresent()) {
-//            hide();
-//        } else {
-//            reporter.warnUser("A system tray icon could not be created. The GIFT-Cloud uploader will start in visible mode.");
-//            show();
-//        }
+        final Optional<Boolean> hideWindowOnStartupProperty = giftCloudProperties.getHideWindowOnStartup();
+
+        // We hide the main window only if specified in the preferences, AND if the system tray is supported
+        final boolean hideMainWindow = hideWindowOnStartupProperty.isPresent() && hideWindowOnStartupProperty.get() && systemTrayController.isPresent();
+        if (hideMainWindow) {
+            hide();
+        } else {
+            show();
+        }
 
         addExistingFilesToUploadQueue(pendingUploadFolder);
 

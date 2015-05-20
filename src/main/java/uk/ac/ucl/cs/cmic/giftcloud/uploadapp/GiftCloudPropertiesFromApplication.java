@@ -148,6 +148,11 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     @Override
+    public Optional<Boolean> getHideWindowOnStartup() {
+        return getOptionalBoolean(propertyName_HideWindowOnStartup);
+    }
+
+    @Override
     public Optional<char[]> getLastPassword() {
         if (passwordStore.isPresent()) {
             try {
@@ -286,6 +291,19 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         final String propertyValue = getPropertyValue(propertyName);
         if (StringUtils.isNotBlank(propertyValue)) {
             return Optional.of(propertyValue);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private final Optional<Boolean> getOptionalBoolean(final String propertyName) {
+        final String propertyValue = getPropertyValue(propertyName);
+        if (StringUtils.isNotBlank(propertyValue)) {
+            try {
+                return Optional.of(Boolean.parseBoolean(propertyValue));
+            } catch (Throwable t) {
+                return Optional.empty();
+            }
         } else {
             return Optional.empty();
         }
