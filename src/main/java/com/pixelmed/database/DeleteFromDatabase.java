@@ -6,9 +6,6 @@ import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.InformationEntity;
 
 import java.io.File;
-
-import java.lang.reflect.Constructor;
-
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +23,11 @@ public class DeleteFromDatabase {
 	public static void deleteRecordChildrenAndFilesByUniqueKey(DatabaseInformationModel d,String ieName,String keyValue) throws DicomException {
 		InformationEntity ie = InformationEntity.fromString(ieName);	// already handles upper or lower case
 		deleteRecordChildrenAndFilesByUniqueKey(d,ie,keyValue);
+	}
+
+	public static void deleteRecordChildrenAndFilesByFilename(final DatabaseInformationModel databaseInformationModel, final String fileName) throws DicomException {
+		String sopInstanceUid = findPrimaryKeyForFilename(databaseInformationModel, fileName);
+		deleteRecordChildrenAndFilesByUniqueKey(databaseInformationModel, InformationEntity.INSTANCE, sopInstanceUid);
 	}
 
 	/**
@@ -69,6 +71,11 @@ System.err.println("Deleting "+ie+" "+localPrimaryKeyValue+" "+keyValue);
 	}
 	
 
+	public static String findPrimaryKeyForFilename(DatabaseInformationModel d, final String fileName) throws DicomException {
+		Map<String,String> result = d.findAllAttributeValuesForSelectedFilename(fileName);
+		return result.get("SOPINSTANCEUID");
+	}
+
 	/**
 	 * <p>Remove the database entry, all its children and any copied files.</p>
 	 *
@@ -89,7 +96,6 @@ System.err.println("Deleting "+ie+" "+localPrimaryKeyValue+" "+keyValue);
 							String fileReferenceType = result.get(d.getLocalFileReferenceTypeColumnName(ie));
 							if (fileReferenceType != null && fileReferenceType.equals(DatabaseInformationModel.FILE_COPIED)) {
 								try {
-System.err.println("Deleting file "+fileName);
 									if (!new File(fileName).delete()) {
 										System.err.println("Failed to delete local copy of file "+fileName);
 									}
@@ -109,7 +115,6 @@ System.err.println("Deleting file "+fileName);
 						List<Map<String,String>> results = d.findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedParent(childIE,localPrimaryKeyValue);
 						if (results == null || results.size() == 0) {
 							// could be because model supports concatenations but this series has no concatentations, so check for instance children of series ...
-System.err.println("No result for "+childIE+", so checking without concatenations");
 							childIE = d.getChildTypeForParent(ie,false/*concatenation*/);
 							childLocalPrimaryKeyColumnName = d.getLocalPrimaryKeyColumnName(childIE);
 							results = d.findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedParent(childIE,localPrimaryKeyValue);
@@ -123,7 +128,6 @@ System.err.println("No result for "+childIE+", so checking without concatenation
 					}
 
 					// now delete ourselves ...
-System.err.println("Deleting "+ie+" "+localPrimaryKeyValue);
 					d.deleteRecord(ie,localPrimaryKeyValue);
 				}
 				else {
@@ -138,7 +142,9 @@ System.err.println("Deleting "+ie+" "+localPrimaryKeyValue);
 			throw new DicomException("Unrecognized Information Entity");
 		}
 	}
-	
+
+
+
 	/**
 	 * <p>Remove the database entry, all its children and any copied files.</p>
 	 *

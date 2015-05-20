@@ -1189,6 +1189,41 @@ public abstract class DatabaseInformationModel {
 		return map;
 	}
 
+	public Map findAllAttributeValuesForSelectedFilename(String fileName) throws DicomException {
+		TreeMap map = new TreeMap();
+		final InformationEntity ie = InformationEntity.INSTANCE;
+		try {
+			String tableName = getTableNameForInformationEntity(ie);
+			StringBuffer b = new StringBuffer();
+			b.append("SELECT * FROM ");
+			b.append(tableName);
+			if (fileName != null) {
+				b.append(" WHERE ");
+				b.append(localFileName);
+				//b.append(" LIKE \'");
+				b.append(" = \'");
+				b.append(fileName);
+				b.append("\'");
+			}
+			b.append(";");
+			Statement s = databaseConnection.createStatement();
+			ResultSet r = s.executeQuery(b.toString());
+			ResultSetMetaData md = r.getMetaData();
+			int numberOfColumns = md.getColumnCount();
+			if (r.next()) {							// there should be exactly one
+				for (int i=1; i<=numberOfColumns; ++i) {
+					String key = md.getColumnName(i);	// will be upper case
+					String value = r.getString(i);
+					map.put(key,value);
+				}
+			}
+			s.close();
+		} catch (Exception e) {
+			e.printStackTrace(System.err);
+			throw new DicomException("Cannot perform selection: "+e);
+		}
+		return map;
+	}
 	/**
 	 * <p>For a particular instance of an information entity, get the value of the selected column in the entity's database table.</p>
 	 *

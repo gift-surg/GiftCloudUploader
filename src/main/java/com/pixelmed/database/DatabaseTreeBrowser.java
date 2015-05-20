@@ -215,6 +215,39 @@ public class DatabaseTreeBrowser {
 	}
 
 	/**
+	 */
+	public static void deleteRecordsForFilename(final DatabaseTreeRecord r, final Vector<String> fileNames, final Vector<InformationEntity> ies) {
+		deleteRecordsForFilenameRecursive(r, fileNames, ies, false);
+	}
+
+	private static void deleteRecordsForFilenameRecursive(final DatabaseTreeRecord r, final Vector<String> fileNames, final Vector<InformationEntity> ies, boolean parentWillBeDeleted) {
+		final InformationEntity ie = r.getInformationEntity();
+		boolean deleteThis = parentWillBeDeleted;
+		if (ie == InformationEntity.INSTANCE) {
+			final String fileName = r.getLocalFileNameValue();
+
+			if (fileName != null && fileNames.contains(fileName)) {
+				deleteThis = true;
+				ies.add(ie);
+			}
+
+		}
+		Enumeration children = r.children();
+		if (children != null) {
+			while (children.hasMoreElements()) {
+				DatabaseTreeRecord child = (DatabaseTreeRecord)(children.nextElement());
+				if (child != null) {
+					deleteRecordsForFilenameRecursive(child, fileNames, ies, deleteThis);
+				}
+			}
+		}
+
+		if (deleteThis) {
+			r.removeFromParent();
+		}
+	}
+
+	/**
 	 * <p>By default this method populates the tabular attribute browser when an entity is selected in the tree browser.</p>
 	 *
 	 * <p>Override this method to perform application-specific behavior, perhaps if not all attributes
