@@ -70,6 +70,12 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(exportButton);
         exportButton.addActionListener(new ExportActionListener());
 
+//        JButton refreshButton = new JButton(resourceBundle.getString("refreshButtonLabelText"));
+//        refreshButton.setToolTipText(resourceBundle.getString("refreshButtonToolTipText"));
+//        buttonPanel.add(refreshButton);
+//        refreshButton.addActionListener(new RefreshActionListener());
+
+
         statusPanel = new StatusPanel(controller);
         reporter.addProgressListener(statusPanel);
 
@@ -143,6 +149,12 @@ public class GiftCloudUploaderPanel extends JPanel {
     private class ExportActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             controller.selectAndExport(currentSourceFilePathSelections);
+        }
+    }
+
+    private class RefreshActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            controller.refreshFileList();
         }
     }
 

@@ -38,4 +38,6 @@ public interface GiftCloudUploaderController {
     void restartUploader();
 
     void importFromPacs();
+
+    void refreshFileList();
 }

@@ -240,15 +240,63 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudUploaderPanel.showQueryRetrieveDialog();
     }
 
+    @Override
+    public void refreshFileList() {
+        giftCloudUploaderPanel.rebuildFileList(uploadDatabase.getSrcDatabase());
+    }
+
     private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
         runImport(pendingUploadFolder.getAbsolutePath(), false, reporter);
     }
 
-    private class DatabaseListener implements Observer {
+    private class DatabaseListener implements Observer, Runnable {
+        private boolean updateIsPending = false;
+        private Thread thread = null;
+
+        public DatabaseListener() {
+            // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    cancelThread();
+                }
+            });
+
+        }
+
+        private synchronized void cancelThread() {
+            thread.interrupt();
+        }
 
         @Override
         public void update(Observable o, Object arg) {
+            signalUpdateRequired();
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(1000);
+                resetUpdateStatus();
+                doUpdate();
+            } catch (InterruptedException e) {
+                resetUpdateStatus();
+            }
+        }
+
+        private void doUpdate() {
             giftCloudUploaderPanel.rebuildFileList(uploadDatabase.getSrcDatabase());
+        }
+
+        private synchronized void signalUpdateRequired() {
+            if (!updateIsPending) {
+                updateIsPending = true;
+                thread = new Thread(this);
+                thread.start();
+            }
+        }
+
+        private synchronized void resetUpdateStatus() {
+            updateIsPending = false;
         }
     }
 }
