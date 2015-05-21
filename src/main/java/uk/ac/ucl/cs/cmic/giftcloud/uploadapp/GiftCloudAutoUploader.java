@@ -134,8 +134,6 @@ public class GiftCloudAutoUploader {
         final LinkedList<SessionVariable> sessionVariables = Lists.newLinkedList(session.getVariables(project, session));
         sessionParameters.setSessionVariables(sessionVariables);
 
-        final String finalSubjectName = subjectName;
-
         final List<FileCollection> fileCollections = session.getFiles();
 
         if (fileCollections.isEmpty()) {
@@ -146,18 +144,14 @@ public class GiftCloudAutoUploader {
         final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
 
         final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
-        final int nThreads = sessionParameters.getNumberOfThreads();
-        final BackgroundCompletionServiceTaskList uploaderTaskList = new BackgroundCompletionServiceTaskList<Set<String>, FileCollection>(nThreads);
 
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
 
-        backgroundUploader.addFiles(server, fileCollections, xnatModalityParams, projectApplicators, projectName, finalSubjectName, sessionParameters, callableUploaderFactory, stats);
+        backgroundUploader.addFiles(server, fileCollections, xnatModalityParams, projectApplicators, projectName, subjectName, sessionParameters, callableUploaderFactory, stats);
 
         for (final FileCollection s : fileCollections) {
             stats.addToSend(s.getSize());
         }
-
-        backgroundUploader.start();
     }
 
     private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId, final String patientName) throws IOException {
