@@ -152,6 +152,7 @@ public class GiftCloudAutoUploader {
         for (final FileCollection s : fileCollections) {
             stats.addToSend(s.getSize());
         }
+        backgroundUploader.start();
     }
 
     private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId, final String patientName) throws IOException {
