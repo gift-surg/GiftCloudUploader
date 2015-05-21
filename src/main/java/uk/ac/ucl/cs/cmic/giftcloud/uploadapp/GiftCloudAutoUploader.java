@@ -41,7 +41,7 @@ public class GiftCloudAutoUploader {
     private final NameGenerator sessionNameGenerator = new NameGenerator(autoSessionNamePrefix, autoSessionNameStartNumber);
     private final NameGenerator scanNameGenerator = new NameGenerator(autoScanNamePrefix, autoScanNameStartNumber);
 
-    private final SubjectAliasMap subjectAliasMap;
+    private final SubjectAliasStore subjectAliasStore;
     private GiftCloudServerFactory serverFactory;
 
 
@@ -55,7 +55,7 @@ public class GiftCloudAutoUploader {
         this.serverFactory = serverFactory;
         this.backgroundUploader = backgroundUploader;
         this.reporter = reporter;
-        subjectAliasMap = new SubjectAliasMap();
+        subjectAliasStore = new SubjectAliasStore();
     }
 
     public boolean uploadToGiftCloud(final GiftCloudServer server, final Vector<String> paths, final String projectName) throws IOException {
@@ -159,12 +159,12 @@ public class GiftCloudAutoUploader {
     }
 
     private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {
-        final Optional<String> subjectAlias = subjectAliasMap.getSubjectAlias(server, projectName, patientId);
+        final Optional<String> subjectAlias = subjectAliasStore.getSubjectAlias(server, projectName, patientId);
         if (subjectAlias.isPresent()) {
             return subjectAlias.get();
         } else {
             final String subjectName = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
-            subjectAliasMap.addSubjectAlias(server, projectName, patientId, subjectName);
+            subjectAliasStore.addSubjectAlias(server, projectName, patientId, subjectName);
             return subjectName;
         }
     }

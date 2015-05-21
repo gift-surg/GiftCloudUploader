@@ -18,7 +18,7 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
  *
  * This class is threadsafe
  */
-public class SubjectAliasMap {
+public class SubjectAliasStore {
 
     private final Map<String, Map<String, String>> projectMap = new HashMap<String, Map<String, String>>();
 
@@ -26,7 +26,7 @@ public class SubjectAliasMap {
     private Object synchronizationLock = new Object();
 
 
-    public SubjectAliasMap() {
+    public SubjectAliasStore() {
     }
 
     /** Returns the pseudonymised XNAT subject name for the given patient ID
