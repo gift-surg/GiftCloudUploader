@@ -54,11 +54,12 @@ public class Study extends MapEntity implements Entity, Session {
     private final Logger logger = LoggerFactory.getLogger(Study.class);
     private final Registry<Series> series = new MapRegistry<Series>(new TreeMap<Series, Series>());
     private final Date dateTime;
-    private final String patientId; // This is not stored
-    private final String studyUid; // This is not stored
-    private final String seriesUid; // This is not stored
+    private final String patientId;
+    private final String patientName;
+    private final String studyUid;
+    private final String seriesUid;
 
-    private Study(final String uid, final Date dateTime, final String id, final String accessionNumber, final String description, final String patientId, final String seriesInstanceUid, final String studyInstanceUid) {
+    private Study(final String uid, final Date dateTime, final String id, final String accessionNumber, final String description, final String patientId, final String patientName, final String seriesInstanceUid, final String studyInstanceUid) {
         put(Tag.StudyInstanceUID, uid);
         this.dateTime = dateTime;
         if (null != dateTime) {
@@ -69,6 +70,7 @@ public class Study extends MapEntity implements Entity, Session {
         put(Tag.AccessionNumber, accessionNumber);
         put(Tag.StudyDescription, description);
         this.patientId = patientId;
+        this.patientName = patientName;
         this.seriesUid = seriesInstanceUid;
         this.studyUid = studyInstanceUid;
     }
@@ -80,6 +82,7 @@ public class Study extends MapEntity implements Entity, Session {
                 o.getString(Tag.AccessionNumber),
                 o.getString(Tag.StudyDescription),
                 o.getString(Tag.PatientID),
+                o.getString(Tag.PatientName),
                 o.getString(Tag.SeriesInstanceUID),
                 o.getString(Tag.StudyInstanceUID));
     }
@@ -89,6 +92,10 @@ public class Study extends MapEntity implements Entity, Session {
         return patientId;
     }
 
+    @Override
+    public String getPatientName() {
+        return patientName;
+    }
 
     @Override
     public String getStudyUid() {

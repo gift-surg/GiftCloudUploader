@@ -32,6 +32,7 @@ public interface Session {
 	String getFormat();
 	List<SessionVariable> getVariables(final Project project, final Session session);
     String getPatientId();
+	String getPatientName();
     String getStudyUid();
     String getSeriesUid();
 
@@ -39,7 +40,6 @@ public interface Session {
 
 	/**
 	 * Unify the provided SessionVariables into the script-defined variables.
-	 * @param vars variables originating from outside scripts
 	 * @param project
      * @return List of unified SessionVariables, in dependency order
 	 */

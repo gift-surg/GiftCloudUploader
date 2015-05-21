@@ -113,6 +113,7 @@ public class GiftCloudAutoUploader {
 
     private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
         final String patientId = session.getPatientId();
+        final String patientName = session.getPatientName();
         final String studyUid = session.getStudyUid();
         final String seriesUid = session.getSeriesUid();
 
