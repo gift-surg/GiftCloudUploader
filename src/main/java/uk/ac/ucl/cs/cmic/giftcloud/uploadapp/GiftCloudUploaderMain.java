@@ -84,6 +84,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             public void run() {
                 // Attempt to authenticate
                 giftCloudUploader.tryAuthentication();
+                startUploading();
             }
         }).start();
 
