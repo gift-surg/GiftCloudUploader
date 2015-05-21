@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.apache.commons.lang.StringUtils;
 import org.nrg.dcm.edit.ScriptApplicator;
+import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
@@ -19,6 +20,7 @@ public class GiftCloudServer {
     private final GiftCloudReporter reporter;
     private final RestServer restServer;
     private final URI giftCloudUri;
+    private final ProjectCache projectCache;
 
     public GiftCloudServer(final RestServerFactory restServerFactory, final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudServerUrlString = giftCloudServerUrlString;
@@ -35,6 +37,7 @@ public class GiftCloudServer {
         }
 
         restServer = restServerFactory.create(giftCloudServerUrlString, giftCloudProperties, reporter);
+        projectCache = new ProjectCache(restServer);
     }
 
     public void tryAuthentication() throws IOException {
@@ -43,6 +46,10 @@ public class GiftCloudServer {
 
     public Vector<Object> getListOfProjects() throws IOException {
         return restServer.getListOfProjects();
+    }
+
+    public Project getProject(final String projectName) {
+        return projectCache.getProject(projectName);
     }
 
     public void resetCancellation() {

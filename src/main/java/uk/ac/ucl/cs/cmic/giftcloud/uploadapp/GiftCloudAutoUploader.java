@@ -99,7 +99,8 @@ public class GiftCloudAutoUploader {
             throw new IOException("Uploading could not be performed. The subject and session map could not be obtained due to the following error: " + e.getMessage(), e);
         }
 
-        final Project project = new Project(projectName, server.getRestServer());
+        final Project project = server.getProject(projectName);
+
         final Iterable<ScriptApplicator> projectApplicators = project.getDicomScriptApplicators();
 
         for (final Session session : sessions) {
