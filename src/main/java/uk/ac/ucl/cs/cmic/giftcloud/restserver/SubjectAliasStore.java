@@ -5,8 +5,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
@@ -20,7 +18,7 @@ import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
  */
 public class SubjectAliasStore {
 
-    private final Map<String, Map<String, String>> projectMap = new HashMap<String, Map<String, String>>();
+    private final ProjectSubjectAliasMap projectMap = new ProjectSubjectAliasMap();
 
     // Ensure synchronisation between adding and retrieving hashed patient IDs
     private Object synchronizationLock = new Object();
@@ -35,7 +33,7 @@ public class SubjectAliasStore {
      * ID does not already exist, or if it does not exist locally and the XNAT server does not support pseudonymisations
      * @throws IOException if communication with the server failed
      */
-    public Optional<String> getSubjectAlias(final GiftCloudServer server, final String projectName, final String patientId) throws IOException {
+    public Optional<String> getSubjectAlias(final GiftCloudServer server, final String projectName, final String patientId, final String patientName) throws IOException {
 
 
         if (StringUtils.isBlank(projectName)) {
@@ -47,7 +45,7 @@ public class SubjectAliasStore {
         }
 
         // Get the map for this project
-        final Map<String, String> hashedIdToSubjectMap = getMapForProject(projectName);
+        final ProjectSubjectAliasMap.AliasMap aliasMapForProject = projectMap.getAliasMapForProject(projectName);
 
         // First hash the patient ID
         final String hashedPatientId = OneWayHash.hashUid(patientId);
@@ -56,15 +54,15 @@ public class SubjectAliasStore {
         synchronized (synchronizationLock) {
 
             // If the hashed ID is in our local session cache then return the subject identifier
-            if (hashedIdToSubjectMap.containsKey(hashedPatientId)) {
-                return Optional.of(hashedIdToSubjectMap.get(hashedPatientId));
+            if (aliasMapForProject.containsKey(hashedPatientId)) {
+                return Optional.of(aliasMapForProject.getAlias(hashedPatientId));
             }
 
             try {
                 // Check if a mapping already exists on the XNAT server
                 final Optional<String> subjectAliasFromServer = server.getSubjectPseudonym(projectName, hashedPatientId);
                 if (subjectAliasFromServer.isPresent()) {
-                    hashedIdToSubjectMap.put(hashedPatientId, subjectAliasFromServer.get());
+                    aliasMapForProject.addAlias(hashedPatientId, subjectAliasFromServer.get(), patientId);
                     return Optional.of(subjectAliasFromServer.get());
                 }
 
@@ -83,10 +81,10 @@ public class SubjectAliasStore {
 
     /** Create a new mapping between patient ID and XNAT subject name
      * @param patientId the DICOM patient ID. Must not be blank or null.
-     * @param subjectName the new XNAT subject identifier to be mapped to this patient ID
+     * @param subjectAlias the new XNAT subject identifier to be mapped to this patient ID
      * @throws IOException if communication with the XNAT server failed
      */
-    public void addSubjectAlias(final GiftCloudServer server, final String projectName, final String patientId, final String subjectName) throws IOException {
+    public void addSubjectAlias(final GiftCloudServer server, final String projectName, final String patientId, final String subjectAlias, final String patientName) throws IOException {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -96,12 +94,12 @@ public class SubjectAliasStore {
             throw new IllegalArgumentException("A patient ID must be specified.");
         }
 
-        if (StringUtils.isBlank(subjectName)) {
+        if (StringUtils.isBlank(subjectAlias)) {
             throw new IllegalArgumentException("A subject name must be specified.");
         }
 
         // Get the map for this project
-        final Map<String, String> hashedIdToSubjectMap = getMapForProject(projectName);
+        final ProjectSubjectAliasMap.AliasMap aliasMapForProject = projectMap.getAliasMapForProject(projectName);
 
         // Hash the patient ID
         final String hashedPatientId = OneWayHash.hashUid(patientId);
@@ -111,7 +109,7 @@ public class SubjectAliasStore {
 
             // Add the hashed patient ID to the XNAT subject
             try {
-                server.createPseudonymIfNotExisting(projectName, subjectName, hashedPatientId);
+                server.createPseudonymIfNotExisting(projectName, subjectAlias, hashedPatientId);
 
             } catch (GiftCloudHttpException exception) {
                 // 400 indicates the hashed patient ID request is not supported by the server.
@@ -123,14 +121,8 @@ public class SubjectAliasStore {
             }
 
             // Cache in our local map
-            hashedIdToSubjectMap.put(hashedPatientId, subjectName);
+            aliasMapForProject.addAlias(hashedPatientId, subjectAlias, patientId);
         }
     }
 
-    private Map<String, String> getMapForProject(final String projectName) {
-        if (!projectMap.containsKey(projectName)) {
-            projectMap.put(projectName, new HashMap<String, String>());
-        }
-        return projectMap.get(projectName);
-    }
 }

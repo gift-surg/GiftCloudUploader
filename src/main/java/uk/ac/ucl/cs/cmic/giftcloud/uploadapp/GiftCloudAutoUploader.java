@@ -117,7 +117,7 @@ public class GiftCloudAutoUploader {
         final String studyUid = session.getStudyUid();
         final String seriesUid = session.getSeriesUid();
 
-        final String subjectName = getSubjectName(server, projectName, subjectMapFromServer, patientId);
+        final String subjectName = getSubjectName(server, projectName, subjectMapFromServer, patientId, patientName);
         final String sessionName = getSessionName(server, studyUid, sessionMapFromServer);
         final String scanName = getScanName(seriesUid, sessionMapFromServer);
 
@@ -160,14 +160,14 @@ public class GiftCloudAutoUploader {
         backgroundUploader.start();
     }
 
-    private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId) throws IOException {
-        final Optional<String> subjectAlias = subjectAliasStore.getSubjectAlias(server, projectName, patientId);
-        if (subjectAlias.isPresent()) {
-            return subjectAlias.get();
+    private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId, final String patientName) throws IOException {
+        final Optional<String> existingSubjectAlias = subjectAliasStore.getSubjectAlias(server, projectName, patientId, patientName);
+        if (existingSubjectAlias.isPresent()) {
+            return existingSubjectAlias.get();
         } else {
-            final String subjectName = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
-            subjectAliasStore.addSubjectAlias(server, projectName, patientId, subjectName);
-            return subjectName;
+            final String newSubjectAlias = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
+            subjectAliasStore.addSubjectAlias(server, projectName, patientId, newSubjectAlias, patientName);
+            return newSubjectAlias;
         }
     }
 
