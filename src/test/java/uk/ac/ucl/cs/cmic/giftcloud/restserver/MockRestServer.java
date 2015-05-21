@@ -52,12 +52,12 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Map<String, String> getListOfSessions(String projectName) throws IOException, JSONException {
-        return null;
+        return new HashMap<String, String>();
     }
 
     @Override
     public Map<String, String> getListOfScans(String projectName, String subjectName, String sessionName) throws IOException, JSONException {
-        return null;
+        return new HashMap<String, String>();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Map<String, String> getListOfResources(String projectName, String subjectName, String sessionName, String scanName) throws IOException, JSONException {
-        return null;
+        return new HashMap<String, String>();
     }
 
     @Override
@@ -102,17 +102,17 @@ public class MockRestServer implements RestServer {
 
     @Override
     public String getPreArcCode(String projectName) throws Exception {
-        return null;
+        return "";
     }
 
     @Override
     public Set<String> getProjectTracers(String projectName) throws Exception {
-        return null;
+        return new HashSet<String>();
     }
 
     @Override
     public Set<String> getSiteTracers() throws Exception {
-        return null;
+        return new HashSet<String>();
     }
 
     @Override
@@ -142,6 +142,7 @@ public class MockRestServer implements RestServer {
 
     @Override
     public void appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
+        System.out.println("Appending file for " + fileCollection);
     }
 
     @Override
