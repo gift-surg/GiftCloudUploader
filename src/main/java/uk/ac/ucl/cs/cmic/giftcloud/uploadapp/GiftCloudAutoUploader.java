@@ -143,15 +143,9 @@ public class GiftCloudAutoUploader {
 
         final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
 
-        final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
-
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
 
-        backgroundUploader.addFiles(server, fileCollections, xnatModalityParams, projectApplicators, projectName, subjectName, sessionParameters, callableUploaderFactory, stats);
-
-        for (final FileCollection s : fileCollections) {
-            stats.addToSend(s.getSize());
-        }
+        backgroundUploader.addFiles(server, fileCollections, xnatModalityParams, projectApplicators, projectName, subjectName, sessionParameters, callableUploaderFactory);
         backgroundUploader.start();
     }
 

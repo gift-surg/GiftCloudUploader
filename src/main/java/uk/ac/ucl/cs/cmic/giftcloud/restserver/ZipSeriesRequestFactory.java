@@ -39,7 +39,6 @@ class ZipSeriesRequestFactory {
      * @param url the location to which the files will be uploaded
      * @param fileCollection the set of file paths to be zipped and uploaded
      * @param applicators Dicom anonymisation scripts to be applied to the files
-     * @param progress a callback for providing upload progress feedback
      * @return an HttpRequest object which can be used to perform the zipping and uploading
      */
     static HttpRequestWithOutput<Set<String>> build(
@@ -48,15 +47,14 @@ class ZipSeriesRequestFactory {
             final String url,
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
-            final UploadStatisticsReporter progress,
             final HttpResponseProcessor responseProcessor,
             final GiftCloudProperties giftCloudProperties,
             final GiftCloudReporter reporter) {
         switch (zipStreaming) {
             case Chunked:
-                return new ZipSeriesRequestChunked(connectionType, url, fileCollection, applicators, progress, responseProcessor, giftCloudProperties, reporter);
+                return new ZipSeriesRequestChunked(connectionType, url, fileCollection, applicators, responseProcessor, giftCloudProperties, reporter);
             case FixedSize:
-                return new ZipSeriesRequestFixedSize(connectionType, url, fileCollection, applicators, progress, responseProcessor, giftCloudProperties, reporter);
+                return new ZipSeriesRequestFixedSize(connectionType, url, fileCollection, applicators, responseProcessor, giftCloudProperties, reporter);
             default:
                 throw new RuntimeException("Unknown enum value");
         }

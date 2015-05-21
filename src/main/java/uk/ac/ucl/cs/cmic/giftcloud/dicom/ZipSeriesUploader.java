@@ -34,14 +34,13 @@ public class ZipSeriesUploader extends CallableUploader {
             final boolean useFixedSizeStreaming,
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
-            final UploadStatisticsReporter progress,
             final GiftCloudServer server) {
-        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, server);
+        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, server);
     }
 
     @Override
     public Set<String> call() throws Exception {
-        return server.uploadZipFile(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators, progress);
+        return server.uploadZipFile(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators);
     }
 
     public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {
@@ -53,9 +52,8 @@ public class ZipSeriesUploader extends CallableUploader {
                 final boolean useFixedSizeStreaming,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
-                final UploadStatisticsReporter progress,
                 final GiftCloudServer server) {
-            return new ZipSeriesUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, server);
+            return new ZipSeriesUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, server);
         }
     }
 }

@@ -30,21 +30,18 @@ class ZipSeriesRequestFixedSize extends HttpRequestWithOutput<Set<String>> {
     private final Logger logger = LoggerFactory.getLogger(ZipSeriesRequestFixedSize.class);
     private final FileCollection fileCollection;
     private final SeriesZipper zipper;
-    private final UploadStatisticsReporter progress;
     private File temporaryZipFile = null;
 
     ZipSeriesRequestFixedSize(final HttpConnectionWrapper.ConnectionType connectionType,
                               final String url,
                               final FileCollection fileCollection,
                               final Iterable<ScriptApplicator> applicators,
-                              final UploadStatisticsReporter progress,
                               final HttpResponseProcessor responseProcessor,
                               final GiftCloudProperties giftCloudProperties,
                               final GiftCloudReporter reporter) {
         super(connectionType, url, responseProcessor, giftCloudProperties, reporter);
         this.fileCollection = fileCollection;
         this.zipper = new SeriesZipper(applicators);
-        this.progress = progress;
     }
 
 
@@ -93,7 +90,6 @@ class ZipSeriesRequestFixedSize extends HttpRequestWithOutput<Set<String>> {
         for (int total = 0; (chunk = fis.read(buf)) != -1; total += chunk) {
             logger.trace("copying {} / {}", total, zipFileSize);
             long adjustedChunkSize = (long) (chunk * zipRatio);
-            progress.addSent(adjustedChunkSize);
             os.write(buf, 0, chunk);
         }
     }

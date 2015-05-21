@@ -19,14 +19,13 @@ public class ZipSeriesRequestFactoryTest {
         final GiftCloudReporter reporter = mock(GiftCloudReporter.class);
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
         final Iterable<ScriptApplicator> applicators = new ArrayList<ScriptApplicator>();
-        final UploadStatisticsReporter progress = mock(UploadStatisticsReporter.class);
         {
-            final HttpRequestWithOutput requestFixedSize = ZipSeriesRequestFactory.build(HttpConnection.ConnectionType.POST, ZipSeriesRequestFactory.ZipStreaming.FixedSize, url, fileCollection, applicators, progress, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter);
+            final HttpRequestWithOutput requestFixedSize = ZipSeriesRequestFactory.build(HttpConnection.ConnectionType.POST, ZipSeriesRequestFactory.ZipStreaming.FixedSize, url, fileCollection, applicators, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter);
             Assert.assertTrue(requestFixedSize instanceof ZipSeriesRequestFixedSize);
         }
 
         {
-            final HttpRequestWithOutput requestChunked = ZipSeriesRequestFactory.build(HttpConnection.ConnectionType.POST, ZipSeriesRequestFactory.ZipStreaming.Chunked, url, fileCollection, applicators, progress, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter);
+            final HttpRequestWithOutput requestChunked = ZipSeriesRequestFactory.build(HttpConnection.ConnectionType.POST, ZipSeriesRequestFactory.ZipStreaming.Chunked, url, fileCollection, applicators, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter);
             Assert.assertTrue(requestChunked instanceof ZipSeriesRequestChunked);
         }
     }

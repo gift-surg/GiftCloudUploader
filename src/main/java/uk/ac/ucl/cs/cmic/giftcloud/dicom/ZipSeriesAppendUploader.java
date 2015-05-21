@@ -31,13 +31,12 @@ public class ZipSeriesAppendUploader extends CallableUploader {
                                    final boolean useFixedSizeStreaming,
                                    final FileCollection fileCollection,
                                    final Iterable<ScriptApplicator> applicators,
-                                   final UploadStatisticsReporter progress,
                                    final GiftCloudServer server) {
-        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, server);
+        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, server);
     }
 
     public Set<String> call() throws Exception {
-        server.appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress);
+        server.appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators);
         return new HashSet<String>();
     }
 
@@ -51,9 +50,8 @@ public class ZipSeriesAppendUploader extends CallableUploader {
                 final boolean useFixedSizeStreaming,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
-                final UploadStatisticsReporter progress,
                 final GiftCloudServer server) {
-            return new ZipSeriesAppendUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, progress, server);
+            return new ZipSeriesAppendUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, server);
         }
     }
 }

@@ -25,20 +25,17 @@ import java.util.zip.ZipOutputStream;
 class ZipSeriesRequestChunked extends HttpRequestWithOutput<Set<String>> {
     private final FileCollection fileCollection;
     private final SeriesZipper zipper;
-    private final UploadStatisticsReporter progress;
 
     ZipSeriesRequestChunked(final HttpConnectionWrapper.ConnectionType connectionType,
                             final String url,
                             final FileCollection fileCollection,
                             final Iterable<ScriptApplicator> applicators,
-                            final UploadStatisticsReporter progress,
                             final HttpResponseProcessor responseProcessor,
                             final GiftCloudProperties giftCloudProperties,
                             final GiftCloudReporter reporter) {
         super(connectionType, url, responseProcessor, giftCloudProperties, reporter);
         this.fileCollection = fileCollection;
         this.zipper = new SeriesZipper(applicators);
-        this.progress = progress;
     }
 
 
@@ -57,7 +54,6 @@ class ZipSeriesRequestChunked extends HttpRequestWithOutput<Set<String>> {
             public Void run() throws IOException {
                 resource = new ZipOutputStream(outputStream);
                 for (final File file : fileCollection.getFiles()) {
-                    progress.addSent(file.length());
 
                     try {
                         zipper.addFileToZip(file, resource, zipper.getStopTagInputHandler());

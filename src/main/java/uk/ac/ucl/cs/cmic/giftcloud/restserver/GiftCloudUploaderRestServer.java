@@ -299,7 +299,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
 
     @Override
-    public Set<String> uploadZipFile(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
+    public Set<String> uploadZipFile(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
 
         final String visit = sessionParameters.getVisit();
         final String protocol = sessionParameters.getProtocol();
@@ -331,7 +331,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
         dataPostURL = buffer.toString();
 
         ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
-        return restServerSessionHelper.uploadSeriesUsingZipUpload(dataPostURL, zipStreaming, fileCollection, applicators, progress);
+        return restServerSessionHelper.uploadSeriesUsingZipUpload(dataPostURL, zipStreaming, fileCollection, applicators);
     }
 
     private synchronized void createSubjectIfNotExisting(final String projectLabel, final String subjectLabel) throws IOException {
@@ -372,7 +372,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public void appendZipFileToExistingScan(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators, UploadStatisticsReporter progress) throws Exception {
+    public void appendZipFileToExistingScan(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
 
         createSubjectIfNotExisting(projectLabel, subjectLabel);
 
@@ -399,7 +399,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
         final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getSessionLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" + collectionLabel + "/files/" + firstFile.getName() + ".zip" + uriParams;
 
         ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
-        restServerSessionHelper.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators, progress);
+        restServerSessionHelper.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators);
     }
 
 
