@@ -222,6 +222,11 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
         logger.info(errorMessage + ":" + throwable.getLocalizedMessage());
     }
 
+    @Override
+    public void silentLogDebugException(Throwable throwable, String errorMessage) {
+        logger.debug(errorMessage + ":" + throwable.getLocalizedMessage());
+    }
+
     /**
      * Loads logging resources
      */

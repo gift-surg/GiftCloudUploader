@@ -226,6 +226,11 @@ public class GiftCloudReporterFromApplet implements GiftCloudReporter {
         logger.info(errorMessage + ":" + throwable.getLocalizedMessage());
     }
 
+    @Override
+    public void silentLogDebugException(Throwable throwable, String errorMessage) {
+        logger.info(errorMessage + ":" + throwable.getLocalizedMessage());
+    }
+
     /**
      * Loads logging resources, including loading logging properties from custom URLs specified by the
      * LOG4J_PROPS_URL applet parameter.

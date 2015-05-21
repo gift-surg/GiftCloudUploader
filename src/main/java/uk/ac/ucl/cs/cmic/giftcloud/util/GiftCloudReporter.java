@@ -81,4 +81,11 @@ public interface GiftCloudReporter extends Progress {
      * @param errorMessage the text of the error
      */
     void silentLogException(final Throwable throwable, final String errorMessage);
+
+    /**
+     * Indicates that we wish to log an exception because it may be swallowed, but this is normal and we do not want it
+     * clogging up the log
+     * @param errorMessage the text of the error
+     */
+    void silentLogDebugException(final Throwable throwable, final String errorMessage);
 }
