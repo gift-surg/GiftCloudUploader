@@ -264,7 +264,12 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
 
         private synchronized void cancelThread() {
-            thread.interrupt();
+            if (thread != null) {
+                try {
+                    thread.interrupt();
+                } catch (Throwable t) {
+                }
+            }
         }
 
         @Override
