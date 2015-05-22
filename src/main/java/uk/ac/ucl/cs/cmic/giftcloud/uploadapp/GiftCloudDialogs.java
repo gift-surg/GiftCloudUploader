@@ -36,7 +36,9 @@ public class GiftCloudDialogs {
         JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, "GIFT-Cloud", JOptionPane.INFORMATION_MESSAGE, icon);
     }
 
-    public void showError(final String message) throws HeadlessException {
+    public void showError(final String message, final Optional<String> additionalText) throws HeadlessException {
+
+        // ToDo: show the additional text
 
         final JPanel messagePanel = new JPanel(new GridBagLayout());
         messagePanel.add(new JLabel(message, SwingConstants.CENTER));

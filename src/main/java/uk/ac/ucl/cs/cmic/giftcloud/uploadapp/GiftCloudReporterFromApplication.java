@@ -206,7 +206,8 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
             finalErrorText = errorText;
             additionalText = Optional.of(throwable.getLocalizedMessage());
         }
-        errorBox(finalErrorText, additionalText);
+
+        giftCloudDialogs.showError(finalErrorText, additionalText);
         updateStatusText(combinedErrorText);
         error(combinedErrorText);
         throwable.printStackTrace(System.err);
@@ -264,7 +265,7 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     }
 
     public void showError(final String errorMessage) {
-        giftCloudDialogs.showError(errorMessage);
+        giftCloudDialogs.showError(errorMessage, Optional.<String>empty());
     }
 
     public void startProgressBar(int maximum) {

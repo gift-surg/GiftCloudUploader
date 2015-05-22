@@ -136,12 +136,12 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
         } catch (AuthenticationException e) {
             reporter.silentLogException(e, "The GIFT-Cloud username or password was not recognised. Server:" + giftCloudServerUrl + ", error:" + e.getMessage());
-            JOptionPane.showMessageDialog(container, "The GIFT-Cloud username or password was not recognised.", "Error", JOptionPane.DEFAULT_OPTION);
+            reporter.reportErrorToUser("The GIFT-Cloud username or password was not recognised.", e);
             return false;
 
         } catch (Exception e) {
             reporter.silentLogException(e, "An error occurred when attempting to connect to the GIFT-Cloud server at " + giftCloudServerUrl + ": " + e.getMessage());
-            JOptionPane.showMessageDialog(container, "Could not connect to the GIFT-Cloud server due to the following error: " + e.getMessage(), "Error", JOptionPane.DEFAULT_OPTION);
+            reporter.reportErrorToUser("Could not connect to the GIFT-Cloud server due to the following error: /n" + e.getMessage(), e);
             return false;
         }
     }

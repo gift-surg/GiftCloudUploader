@@ -52,10 +52,13 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         try {
             dicomNode.activateStorageSCP();
         } catch (DicomNode.DicomNodeStartException e) {
-            System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
+            reporter.silentLogException(e, "The DICOM listening code failed to start due to the folowing error: " + e.getLocalizedMessage());
+            reporter.showError("The DICOM listening code failed to start. Please check the listener settings and restart the GIFT-Cloud Uploader.");
         } catch (DicomNetworkException e) {
-            System.out.println("Failed to initialise the Dicom node:" + e.getMessage());
+            reporter.silentLogException(e, "The DICOM listening code failed to start due to the folowing error: " + e.getLocalizedMessage());
+            reporter.showError("The DICOM listening code failed to start. Please check the listener settings and restart the GIFT-Cloud Uploader");
         }
+
 
 
         giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, uploadDatabase.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
