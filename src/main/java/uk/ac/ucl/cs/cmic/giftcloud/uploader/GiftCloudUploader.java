@@ -58,6 +58,8 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
                 cleanup(giftCloudProperties.getShutdownTimeoutMs());
             }
         });
+
+        backgroundUploader.start();
     }
 
     public void setUploadServiceRunningState(final boolean start) {
