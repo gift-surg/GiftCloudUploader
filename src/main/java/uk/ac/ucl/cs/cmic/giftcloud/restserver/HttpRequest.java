@@ -14,6 +14,8 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
@@ -135,6 +137,9 @@ abstract class HttpRequest<T> {
                 }
 
             } catch (IOException e) {
+                if (e.getCause() instanceof sun.security.validator.ValidatorException) {
+                    throw new GiftCloudException(GiftCloudUploaderError.SERVER_CERTIFICATE_FAILURE);
+                }
                 reporter.silentLogException(e, "An error occurred while processing request " + connection.getUrlString());
                 throwIfBadResponse(connection);
                 throw e;

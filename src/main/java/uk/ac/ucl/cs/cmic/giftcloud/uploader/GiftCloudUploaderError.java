@@ -13,7 +13,8 @@ public enum GiftCloudUploaderError {
     QUERY_NO_PORT(39, "The PACS port has not been set."),
     QUERY_NO_CALLED_AE_TITLE(40, "The PACS port has not been set."),
     EMPTY_LISTENER_PORT(51, "The Dicom node listener port has not been set."),
-    EMPTY_LISTENER_AE_TITLE(52, "The Dicom node listener AE title has not been set.");
+    EMPTY_LISTENER_AE_TITLE(52, "The Dicom node listener AE title has not been set."),
+    SERVER_CERTIFICATE_FAILURE(61, "Cannot connect to the GIFT-Cloud server because the server certificate has not been added to your local keystore");
 
     private final int errorCode;
     private final String userVisibleMessage;
