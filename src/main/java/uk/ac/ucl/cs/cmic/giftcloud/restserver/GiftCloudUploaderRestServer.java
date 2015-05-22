@@ -386,7 +386,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
             createScanIfNotExisting(projectLabel, subjectLabel, sessionParameters.getSessionLabel(), sessionParameters.getScanLabel(), scanCreateParams);
         }
 
-        final String collectionLabel = sessionParameters.getScanLabel();
+        final String collectionLabel = xnatModalityParams.getCollectionString();
 
         {
             final String scanCollectionCreateParams = "?xsiType=xnat:resourceCatalog" + "&format=" + xnatModalityParams.getFormatString();
@@ -396,7 +396,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
         final Collection<File> files = fileCollection.getFiles();
         final File firstFile = files.iterator().next();
         final String uriParams = "?extract=true";
-        final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getSessionLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" + collectionLabel + "/files/" + firstFile.getName() + ".zip" + uriParams;
+        final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getSessionLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" +  collectionLabel + "/files/" + firstFile.getName() + ".zip" + uriParams;
 
         ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
         restServerSessionHelper.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators);
