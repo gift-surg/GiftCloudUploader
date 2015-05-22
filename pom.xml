@@ -469,6 +469,11 @@
             <artifactId>htmlunit</artifactId>
             <version>2.15</version>
         </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr-runtime</artifactId>
+            <version>3.5.1</version>
+        </dependency>
     </dependencies>
 
 
