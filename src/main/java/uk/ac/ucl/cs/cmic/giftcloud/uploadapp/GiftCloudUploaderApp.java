@@ -25,13 +25,18 @@ public class GiftCloudUploaderApp {
             URL iconURL = GiftCloudUploaderApp.class.getResource("/uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png");
 
             if (iconURL == null) {
-                System.out.println("Could not find icon resource");
+                System.out.println("Warning: could not find the icon resource");
             } else {
-                Image iconImage = ImageIO.read(iconURL);
-                if (iconImage == null) {
-                    System.out.println("Could not find icon");
-                } else {
-                    Application.getApplication().setDockIconImage(new ImageIcon(iconImage).getImage());
+                try {
+                    Image iconImage = ImageIO.read(iconURL);
+                    if (iconImage == null) {
+                        System.out.println("Could not find icon");
+                    } else {
+                        Application.getApplication().setDockIconImage(new ImageIcon(iconImage).getImage());
+                    }
+                } catch (Exception e) {
+                    System.out.println("Warning: could not configure the dock menu");
+                    e.printStackTrace(System.err);
                 }
             }
 
