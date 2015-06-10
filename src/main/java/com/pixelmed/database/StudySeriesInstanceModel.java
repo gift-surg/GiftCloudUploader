@@ -4,10 +4,6 @@ package com.pixelmed.database;
 
 import com.pixelmed.dicom.*;
 
-import java.sql.*;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * <p>The {@link com.pixelmed.database.StudySeriesInstanceModel StudySeriesInstanceModel} class
  * supports a minimal DICOM Study/Series/Instance model.</p>
@@ -96,7 +92,18 @@ public class StudySeriesInstanceModel extends DicomDatabaseInformationModel {
 		else if (ie == InformationEntity.SERIES)        return InformationEntity.INSTANCE;
 		else return null;
 	}
-	
+
+	/**
+	 * @param	ie			the child information entity
+	 * @param	concatenation		true if concatenations are to be considered in the model
+	 * @return				the parent information entity
+	 */
+	public InformationEntity getParentTypeForChild(InformationEntity ie,boolean concatenation) {
+		if      (ie == InformationEntity.SERIES)         return InformationEntity.STUDY;
+		else if (ie == InformationEntity.INSTANCE)        return InformationEntity.SERIES;
+		else return null;
+	}
+
 	/**
 	 * @param	ie			the parent information entity
 	 * @param	concatenationUID	the ConcatenationUID, if present, else null, as a flag to use concatenations in the model or not

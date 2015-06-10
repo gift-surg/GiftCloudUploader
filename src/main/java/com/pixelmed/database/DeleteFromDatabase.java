@@ -85,15 +85,30 @@ System.err.println("Deleting "+ie+" "+localPrimaryKeyValue+" "+keyValue);
 	 * @throws	DicomException			if the databaseInformationModel or ie are invalid
 	 */
 	public static void deleteRecordChildrenAndFilesByLocalPrimaryKey(DatabaseInformationModel d,InformationEntity ie,String localPrimaryKeyValue) throws DicomException {
-		if (ie != null) {
+		InformationEntity thisIe = ie;
+		if (thisIe != null) {
 			if (d != null) {
+				String parentPrimaryKeyValue = null;
 				if (localPrimaryKeyValue != null && localPrimaryKeyValue.length() > 0) {
-					if (ie.equals(InformationEntity.INSTANCE)) {
-						// delete any referenced files
-						Map<String,String> result = d.findAllAttributeValuesForSelectedRecord(ie,localPrimaryKeyValue);
-						if (result != null) {
-							String fileName = result.get(d.getLocalFileNameColumnName(ie));
-							String fileReferenceType = result.get(d.getLocalFileReferenceTypeColumnName(ie));
+					Map<String,String> result = d.findAllAttributeValuesForSelectedRecord(thisIe,localPrimaryKeyValue);
+
+					// If the model supports concatenations but this series has no concatentations, then the result might be empty, so check for the parent type
+					if (result == null || result.size() == 0) {
+						InformationEntity parentIE = d.getParentTypeForChild(thisIe,false/*concatenation*/);
+						if (parentIE != null) {
+							thisIe = parentIE;
+							result = d.findAllAttributeValuesForSelectedRecord(parentIE, localPrimaryKeyValue);
+						}
+					}
+					if (result != null && result.size() > 0) {
+						parentPrimaryKeyValue = result.get(d.getLocalParentReferenceColumnName(thisIe));
+					}
+
+					if (result != null) {
+						if (thisIe.equals(InformationEntity.INSTANCE)) {
+							// delete any referenced files
+							String fileName = result.get(d.getLocalFileNameColumnName(thisIe));
+							String fileReferenceType = result.get(d.getLocalFileReferenceTypeColumnName(thisIe));
 							if (fileReferenceType != null && fileReferenceType.equals(DatabaseInformationModel.FILE_COPIED)) {
 								try {
 									if (!new File(fileName).delete()) {
@@ -109,26 +124,37 @@ System.err.println("Deleting "+ie+" "+localPrimaryKeyValue+" "+keyValue);
 					}
 				
 					// delete any children first
-					InformationEntity childIE = d.getChildTypeForParent(ie,true/*concatenation*/);
+					InformationEntity childIE = d.getChildTypeForParent(thisIe,true/*concatenation*/);
 					if (childIE != null) {
 						String childLocalPrimaryKeyColumnName = d.getLocalPrimaryKeyColumnName(childIE);
-						List<Map<String,String>> results = d.findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedParent(childIE,localPrimaryKeyValue);
-						if (results == null || results.size() == 0) {
+						List<Map<String,String>> childResults = d.findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedParent(childIE,localPrimaryKeyValue);
+						if (childResults == null || childResults.size() == 0) {
 							// could be because model supports concatenations but this series has no concatentations, so check for instance children of series ...
-							childIE = d.getChildTypeForParent(ie,false/*concatenation*/);
+							childIE = d.getChildTypeForParent(thisIe,false/*concatenation*/);
 							childLocalPrimaryKeyColumnName = d.getLocalPrimaryKeyColumnName(childIE);
-							results = d.findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedParent(childIE,localPrimaryKeyValue);
+							childResults = d.findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedParent(childIE,localPrimaryKeyValue);
 						}
-						if (results != null && results.size() > 0) {
-							for (Map<String,String> result : results) {
-								String childLocalPrimaryKeyValue = result.get(childLocalPrimaryKeyColumnName);
+						if (childResults != null && childResults.size() > 0) {
+							for (Map<String,String> childResult : childResults) {
+								String childLocalPrimaryKeyValue = childResult.get(childLocalPrimaryKeyColumnName);
 								deleteRecordChildrenAndFilesByLocalPrimaryKey(d,childIE,childLocalPrimaryKeyValue);
 							}
 						}
 					}
 
 					// now delete ourselves ...
-					d.deleteRecord(ie,localPrimaryKeyValue);
+					d.deleteRecord(thisIe,localPrimaryKeyValue);
+
+					// Delete the parent key if it does not contain any children
+					if (parentPrimaryKeyValue != null) {
+						final InformationEntity parentIE = d.getParentTypeForChild(thisIe, true/*concatenation*/);
+						if (parentIE != null) {
+							List<Map<String,String>> siblings = d.findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedParent(thisIe, parentPrimaryKeyValue);
+							if (siblings == null || siblings.size() == 0) {
+								deleteRecordChildrenAndFilesByLocalPrimaryKey(d, parentIE, parentPrimaryKeyValue);
+							}
+						}
+					}
 				}
 				else {
 					throw new DicomException("Missing local primary key");
