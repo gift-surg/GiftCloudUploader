@@ -44,6 +44,7 @@ public class MultiUploaderUtils {
 
     final static String GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME = "GiftCloudUploader";
     final static String GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME = "WaitingForUpload";
+    final static String GIFT_CLOUD_PATIENT_LIST_FOLDER_NAME = "PatientList";
 
 
     static final String AUTHORIZATION_HEADER = "Authorization";
@@ -197,6 +198,26 @@ public class MultiUploaderUtils {
             return uploadCacheFolder;
         } else {
             throw new RuntimeException("Unable to create an upload folder at " + uploadCacheFolder.getAbsolutePath());
+        }
+    }
+
+    /**
+     * Returns the folder for storing details of subjects uploaded to the GIFT-Cloud server.
+     * Will attempt to create a folder in the user directory, but if this is not permitted, will create a folder in the system temporary directory
+     *
+     * @param reporter for logging warnings
+     * @return File object referencing the existing or newly created folder
+     */
+    public static File createOrGetPatientListFolder(final GiftCloudReporter reporter) {
+
+        final File appFolder = createOrGetGiftCloudFolder(reporter);
+
+        final File patientListFolder = new File(appFolder, GIFT_CLOUD_PATIENT_LIST_FOLDER_NAME);
+
+        if (createDirectoryIfNotExisting(patientListFolder)) {
+            return patientListFolder;
+        } else {
+            throw new RuntimeException("Unable to create patient list folder at " + patientListFolder.getAbsolutePath());
         }
     }
 
