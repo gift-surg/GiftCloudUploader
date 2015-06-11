@@ -1584,7 +1584,17 @@ public abstract class DatabaseInformationModel {
 	 * @return				the {@link com.pixelmed.dicom.InformationEntity InformationEntity} that is the child
 	 */
 	public abstract InformationEntity getChildTypeForParent(InformationEntity ie,boolean concatenation);
-	
+
+	/**
+	 * <p>For a particular instance of an information entity, find the next information entity higher up in the information model hierarchy.</p>
+	 *
+	 * @param	ie			the {@link com.pixelmed.dicom.InformationEntity InformationEntity} that is the child, such as a
+	 *					study, series, etc.
+	 * @param	concatenation		true if concatenations are to be considered in the model
+	 * @return				the {@link com.pixelmed.dicom.InformationEntity InformationEntity} that is the child
+	 */
+	public abstract InformationEntity getParentTypeForChild(InformationEntity ie, boolean concatenation);
+
 	/**
 	 * <p>For a particular instance of an information entity, find the next information entity lower down in the information model hierarchy.</p>
 	 *

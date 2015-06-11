@@ -143,6 +143,7 @@ public class MockRestServer implements RestServer {
     @Override
     public void appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
         System.out.println("Appending file for " + fileCollection);
+        Thread.sleep(10);
     }
 
     @Override

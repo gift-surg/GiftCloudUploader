@@ -4,18 +4,14 @@ package com.pixelmed.database;
 
 import com.pixelmed.dicom.*;
 
-import java.sql.*;
-import java.util.Iterator;
-import java.util.Map;
+import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.sql.Statement;
 
 // the following are only for main test to use DatabaseTreeBrowser ...
-
-import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
 
 /**
  * <p>The {@link com.pixelmed.database.MinimalPatientStudySeriesInstanceModel MinimalPatientStudySeriesInstanceModel} class
@@ -128,6 +124,18 @@ public class MinimalPatientStudySeriesInstanceModel extends DicomDatabaseInforma
 		if      (ie == InformationEntity.PATIENT)       return InformationEntity.STUDY;
 		else if (ie == InformationEntity.STUDY)         return InformationEntity.SERIES;
 		else if (ie == InformationEntity.SERIES)        return InformationEntity.INSTANCE;
+		else return null;
+	}
+
+	/**
+	 * @param	ie			the parent information entity
+	 * @param	concatenation		true if concatenations are to be considered in the model
+	 * @return				the child information entity
+	 */
+	public InformationEntity getParentTypeForChild(InformationEntity ie,boolean concatenation) {
+		if      (ie == InformationEntity.STUDY)       return InformationEntity.PATIENT;
+		else if (ie == InformationEntity.SERIES)         return InformationEntity.STUDY;
+		else if (ie == InformationEntity.INSTANCE)        return InformationEntity.SERIES;
 		else return null;
 	}
 
