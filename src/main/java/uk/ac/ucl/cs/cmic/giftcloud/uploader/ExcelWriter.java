@@ -17,6 +17,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Class for exporting a patient map to an Excel spreadsheet
+ */
 public class ExcelWriter {
     private final HSSFWorkbook workbook;
     private final Map<String, ProjectSheet> sheets = new HashMap<String, ProjectSheet>();
@@ -56,6 +59,9 @@ public class ExcelWriter {
         }
     }
 
+    /**
+     * Writes out the Excel file from the current subject information
+     */
     public void writeExcelFile() {
 
         try {
@@ -71,6 +77,11 @@ public class ExcelWriter {
 
     }
 
+    /**
+     * Adds subject information from a project map
+     *
+     * @param projectMap a map of project name to AliasMap containing subject information
+     */
     public void writeProjectMap(Map<String, AliasMap> projectMap) {
         for (Map.Entry<String, AliasMap> entry : projectMap.entrySet()) {
             final String projectName = entry.getKey();
@@ -89,7 +100,7 @@ public class ExcelWriter {
         return sheets.get(projectName);
     }
 
-    public class ProjectSheet {
+    private static class ProjectSheet {
         private final HSSFSheet sheet;
         private int rowNum = 0;
 

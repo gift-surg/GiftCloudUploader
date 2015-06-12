@@ -15,6 +15,9 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Class for exporting a subject list to a Json file
+ */
 public class JsonWriter {
     private final HSSFWorkbook workbook;
     private final Map<String, ProjectSheet> sheets = new HashMap<String, ProjectSheet>();
@@ -36,6 +39,11 @@ public class JsonWriter {
     private final JSONObject mainObj;
 
 
+    /**
+     * Construct a JsonWriter object
+     *
+     * @param reporter for error and progress reporting
+     */
     public JsonWriter(final GiftCloudReporter reporter) {
         this.patientListFolder = MultiUploaderUtils.createOrGetPatientListFolder(reporter);
         this.reporter = reporter;
@@ -43,24 +51,9 @@ public class JsonWriter {
         mainObj = new JSONObject();
     }
 
-    private void addEntry(final String projectName, final String hashedPatientId, final String alias, final String patientId, final String patientName) {
-        if (!knownPatientIds.contains(patientId)) {
-            knownPatientIds.add(patientId);
-
-            final ProjectSheet sheet = getSheet(projectName);
-            final Row row = sheet.createRow();
-            int cellNum = 0;
-            final Cell patientNameCell = row.createCell(cellNum++);
-            final Cell patientIdCell = row.createCell(cellNum++);
-            final Cell patientAliasCell = row.createCell(cellNum++);
-            final Cell patientPpidCell = row.createCell(cellNum++);
-            patientNameCell.setCellValue(patientName);
-            patientIdCell.setCellValue(patientId);
-            patientAliasCell.setCellValue(alias);
-            patientPpidCell.setCellValue(hashedPatientId);
-        }
-    }
-
+    /**
+     * Writes out the current subject alias information to a Json file
+     */
     public void writeJsonFile() {
 
         try {
@@ -77,6 +70,11 @@ public class JsonWriter {
 
     }
 
+    /**
+     * Adds a alias data from a project list to the Json object
+     *
+     * @param projectMap a map of project names to AliasMaps
+     */
     public void writeProjectMap(final Map<String, AliasMap> projectMap) {
         JSONArray projectList = new JSONArray();
 
@@ -103,6 +101,12 @@ public class JsonWriter {
         mainObj.put(PROJECT_LIST_STRING, projectList);
     }
 
+    /**
+     * Reads in a project list from a Json file
+     *
+     * @param reporter for error and progress reporting
+     * @return a map of project names to AliasMaps
+     */
     public static Map<String, AliasMap> readProjectMap(GiftCloudReporter reporter) {
         final Map<String, AliasMap> projectMap = new HashMap<String, AliasMap>();
         JSONParser parser = new JSONParser();
@@ -152,6 +156,23 @@ public class JsonWriter {
         return projectMap;
     }
 
+    private void addEntry(final String projectName, final String hashedPatientId, final String alias, final String patientId, final String patientName) {
+        if (!knownPatientIds.contains(patientId)) {
+            knownPatientIds.add(patientId);
+
+            final ProjectSheet sheet = getSheet(projectName);
+            final Row row = sheet.createRow();
+            int cellNum = 0;
+            final Cell patientNameCell = row.createCell(cellNum++);
+            final Cell patientIdCell = row.createCell(cellNum++);
+            final Cell patientAliasCell = row.createCell(cellNum++);
+            final Cell patientPpidCell = row.createCell(cellNum++);
+            patientNameCell.setCellValue(patientName);
+            patientIdCell.setCellValue(patientId);
+            patientAliasCell.setCellValue(alias);
+            patientPpidCell.setCellValue(hashedPatientId);
+        }
+    }
 
     private ProjectSheet getSheet(final String projectName) {
         if (!sheets.containsKey(projectName)) {
@@ -161,7 +182,7 @@ public class JsonWriter {
         return sheets.get(projectName);
     }
 
-    public class ProjectSheet {
+    private static class ProjectSheet {
         private final HSSFSheet sheet;
         private int rowNum = 0;
 
