@@ -12,7 +12,7 @@ public class PatientListStore {
         this.reporter = reporter;
     }
 
-    public void update(final Map<String, AliasMap> projectMap) {
+    public void save(final Map<String, AliasMap> projectMap) {
         final JsonWriter jsonWriter = new JsonWriter(reporter);
         jsonWriter.writeProjectMap(projectMap);
         jsonWriter.writeJsonFile();

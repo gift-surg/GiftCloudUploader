@@ -56,9 +56,25 @@ public class AliasMap {
     }
 
     /**
+     * Compares another object to this AliasMap
+     *
+     * @param otherOb the other object
+     * @return true if the other object is an AliasMap for the same subject
+     */
+    @Override public boolean equals(Object otherOb) {
+        if (this == otherOb) return true;
+
+        if (!(otherOb instanceof AliasMap)) return false;
+
+        final AliasMap other = (AliasMap)otherOb;
+
+        return other.getMap().equals(this.getMap());
+    }
+
+    /**
      * Stores details of subjects which have been uploaded, for local storage on the uploading client
      */
-    public class AliasRecord {
+    public static class AliasRecord {
         private final String ppid;
         private final String alias;
         private final String patientId;
@@ -106,6 +122,23 @@ public class AliasMap {
         public String getPatientName() {
             return patientName;
         }
+
+        /**
+         * Determines if another object refers to the same subject alias
+         *
+         * @param otherOb the object to compare to this one
+         * @return true if the other object is an AliasMap referring to the same patient alias
+         */
+        @Override public boolean equals(Object otherOb) {
+            if (this == otherOb) return true;
+
+            if (!(otherOb instanceof AliasRecord)) return false;
+
+            final AliasRecord other = (AliasRecord)otherOb;
+
+            return this.ppid.equals(other.ppid) && this.alias.equals(other.alias) && this.patientId.equals(other.patientId) && this.patientName.equals(other.patientName);
+        }
+
     }
 
 }

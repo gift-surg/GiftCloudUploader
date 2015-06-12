@@ -49,7 +49,7 @@ public class ProjectSubjectAliasMap {
         // Add the alias
         aliasMapForProject.addAlias(hashedPatientId, alias, patientId, patientName);
 
-        patientListStore.update(projectMap);
+        patientListStore.save(projectMap);
     }
 
     private AliasMap getAliasMapForProject(final String projectName) {
