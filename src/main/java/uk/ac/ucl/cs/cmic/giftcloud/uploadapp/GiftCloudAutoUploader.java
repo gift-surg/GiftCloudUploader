@@ -51,11 +51,11 @@ public class GiftCloudAutoUploader {
      * @para serverFactory
      * @param reporter
      */
-    public GiftCloudAutoUploader(final GiftCloudServerFactory serverFactory, final BackgroundUploader backgroundUploader, final GiftCloudReporter reporter) {
+    public GiftCloudAutoUploader(final GiftCloudServerFactory serverFactory, final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
         this.serverFactory = serverFactory;
         this.backgroundUploader = backgroundUploader;
         this.reporter = reporter;
-        subjectAliasStore = new SubjectAliasStore(new PatientListStore(reporter), reporter);
+        subjectAliasStore = new SubjectAliasStore(new PatientListStore(properties, reporter), reporter);
     }
 
     public boolean uploadToGiftCloud(final GiftCloudServer server, final Vector<String> paths, final String projectName) throws IOException {

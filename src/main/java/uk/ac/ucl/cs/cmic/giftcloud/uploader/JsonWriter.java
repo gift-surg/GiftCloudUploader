@@ -10,7 +10,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.AliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.*;
 import java.util.*;
@@ -42,10 +41,11 @@ public class JsonWriter {
     /**
      * Construct a JsonWriter object
      *
+     * @param patientListFolder the folder to which the patient list will be stored
      * @param reporter for error and progress reporting
      */
-    public JsonWriter(final GiftCloudReporter reporter) {
-        this.patientListFolder = MultiUploaderUtils.createOrGetPatientListFolder(reporter);
+    public JsonWriter(final File patientListFolder, final GiftCloudReporter reporter) {
+        this.patientListFolder = patientListFolder;
         this.reporter = reporter;
         workbook = new HSSFWorkbook();
         mainObj = new JSONObject();
@@ -104,15 +104,15 @@ public class JsonWriter {
     /**
      * Reads in a project list from a Json file
      *
+     * @param patientListFolder the folder from which the patient list will be loaded
      * @param reporter for error and progress reporting
      * @return a map of project names to AliasMaps
      */
-    public static Map<String, AliasMap> readProjectMap(GiftCloudReporter reporter) {
+    public static Map<String, AliasMap> readProjectMap(final File patientListFolder, final GiftCloudReporter reporter) {
         final Map<String, AliasMap> projectMap = new HashMap<String, AliasMap>();
         JSONParser parser = new JSONParser();
 
         try {
-            final File patientListFolder = MultiUploaderUtils.createOrGetPatientListFolder(reporter);
             final File patientListFile = new File(patientListFolder, PATIENT_LIST_FILENAME);
             if (!patientListFile.exists()) {
                 return projectMap;

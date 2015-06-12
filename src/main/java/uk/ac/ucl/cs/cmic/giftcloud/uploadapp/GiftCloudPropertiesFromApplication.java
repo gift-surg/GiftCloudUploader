@@ -153,6 +153,21 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     @Override
+    public Optional<String> getPatientListLocalCacheFolder() {
+        return getOptionalProperty(propertyName_PatientListLocalCacheDirectory);
+    }
+
+    @Override
+    public void setPatientListExportFolder(final String exportFolder) {
+        setPropertyString(propertyName_PatientListExportDirectory, exportFolder);
+    }
+
+    @Override
+    public Optional<String> getPatientListExportFolder() {
+        return getOptionalProperty(propertyName_PatientListExportDirectory);
+    }
+
+    @Override
     public Optional<char[]> getLastPassword() {
         if (passwordStore.isPresent()) {
             try {

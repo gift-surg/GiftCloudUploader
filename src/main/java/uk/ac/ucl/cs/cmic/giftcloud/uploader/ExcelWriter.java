@@ -6,7 +6,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.AliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,7 +24,7 @@ public class ExcelWriter {
     private final Map<String, ProjectSheet> sheets = new HashMap<String, ProjectSheet>();
     private final File patientListFolder;
     private GiftCloudReporter reporter;
-    private static final String PATIENT_LIST_FILENAME = "PatientList.xls";
+    private static final String PATIENT_LIST_FILENAME = "GiftCloudPatientList.xls";
 
     private static final String PATIENT_NAME_STRING = "Patient Name";
     private static final String PATIENT_ID_STRING = "Patient ID";
@@ -35,28 +34,16 @@ public class ExcelWriter {
     private final Set<String> knownPatientIds = new HashSet<String>();
 
 
-    public ExcelWriter(final GiftCloudReporter reporter) {
-        this.patientListFolder = MultiUploaderUtils.createOrGetPatientListFolder(reporter);
+    /**
+     * Constructs an ExcelWriter
+     *
+     * @param patientListFolder the folder to which the excel file will be exported
+     * @param reporter for error reporting
+     */
+    public ExcelWriter(final File patientListFolder, final GiftCloudReporter reporter) {
+        this.patientListFolder = patientListFolder;
         this.reporter = reporter;
         workbook = new HSSFWorkbook();
-    }
-
-    private void addEntry(final String projectName, final String hashedPatientId, final String alias, final String patientId, final String patientName) {
-        if (!knownPatientIds.contains(patientId)) {
-            knownPatientIds.add(patientId);
-
-            final ProjectSheet sheet = getSheet(projectName);
-            final Row row = sheet.createRow();
-            int cellNum = 0;
-            final Cell patientNameCell = row.createCell(cellNum++);
-            final Cell patientIdCell = row.createCell(cellNum++);
-            final Cell patientAliasCell = row.createCell(cellNum++);
-            final Cell patientPpidCell = row.createCell(cellNum++);
-            patientNameCell.setCellValue(patientName);
-            patientIdCell.setCellValue(patientId);
-            patientAliasCell.setCellValue(alias);
-            patientPpidCell.setCellValue(hashedPatientId);
-        }
     }
 
     /**
@@ -89,6 +76,24 @@ public class ExcelWriter {
             for (AliasMap.AliasRecord aliasRecord : aliasMap.values()) {
                 addEntry(projectName, aliasRecord.getPpid(), aliasRecord.getAlias(), aliasRecord.getPatientId(), aliasRecord.getPatientName());
             }
+        }
+    }
+
+    private void addEntry(final String projectName, final String hashedPatientId, final String alias, final String patientId, final String patientName) {
+        if (!knownPatientIds.contains(patientId)) {
+            knownPatientIds.add(patientId);
+
+            final ProjectSheet sheet = getSheet(projectName);
+            final Row row = sheet.createRow();
+            int cellNum = 0;
+            final Cell patientNameCell = row.createCell(cellNum++);
+            final Cell patientIdCell = row.createCell(cellNum++);
+            final Cell patientAliasCell = row.createCell(cellNum++);
+            final Cell patientPpidCell = row.createCell(cellNum++);
+            patientNameCell.setCellValue(patientName);
+            patientIdCell.setCellValue(patientId);
+            patientAliasCell.setCellValue(alias);
+            patientPpidCell.setCellValue(hashedPatientId);
         }
     }
 
