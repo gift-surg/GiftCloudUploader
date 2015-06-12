@@ -55,7 +55,7 @@ public class GiftCloudAutoUploader {
         this.serverFactory = serverFactory;
         this.backgroundUploader = backgroundUploader;
         this.reporter = reporter;
-        subjectAliasStore = new SubjectAliasStore(reporter);
+        subjectAliasStore = new SubjectAliasStore(new PatientListStore(reporter), reporter);
     }
 
     public boolean uploadToGiftCloud(final GiftCloudServer server, final Vector<String> paths, final String projectName) throws IOException {

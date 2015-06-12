@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
@@ -24,8 +25,14 @@ public class SubjectAliasStore {
     // Ensure synchronisation between adding and retrieving hashed patient IDs
     private Object synchronizationLock = new Object();
 
-    public SubjectAliasStore(final GiftCloudReporter reporter) {
-        projectMap = new ProjectSubjectAliasMap(reporter);
+    /**
+     * Creates a SubjectAliasStore
+     *
+     * @param patientListStore used to load and save the patient list
+     * @param reporter for error and progress reporting
+     */
+    public SubjectAliasStore(final PatientListStore patientListStore, final GiftCloudReporter reporter) {
+        projectMap = new ProjectSubjectAliasMap(patientListStore);
 
     }
 

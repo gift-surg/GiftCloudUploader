@@ -6,7 +6,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import java.util.Map;
 
 public class PatientListStore {
-    private GiftCloudReporter reporter;
+    private final GiftCloudReporter reporter;
 
     public PatientListStore(final GiftCloudReporter reporter) {
         this.reporter = reporter;
