@@ -269,4 +269,59 @@ public class MultiUploaderUtils {
     }
 
 
+    /**
+     * Returns true if it is possible to create and delete files in a specified directory
+     *
+     * @param directory the folder to test
+     * @return true if a file can be created in the specified directory
+     */
+    public static boolean isDirectoryWritable(final String directory) {
+        File testFile = null;
+        try {
+            final File baseFolder = new File(directory);
+
+            final String testfileName = "~testsavegiftclouduploader";
+            testFile = new File(baseFolder, testfileName);
+
+            // If a previous test file exists then delete this
+            if (testFile.exists()) {
+                if (!testFile.delete()) {
+                    return false;
+                }
+                if (testFile.exists()) {
+                    return false;
+                }
+                testFile = new File(baseFolder, testfileName);
+            }
+
+            // Attempt to create a new test file
+            if (!testFile.createNewFile()) {
+                return false;
+            }
+
+            // Check that the new test file exists
+            if (!testFile.exists()) {
+                return false;
+            }
+
+            // Attempt to delete the new test file
+            if (!testFile.delete()) {
+                return false;
+            }
+
+            return true;
+        } catch (Throwable t) {
+            return false;
+        } finally {
+            if (testFile != null) {
+                try {
+                    if (testFile.exists()) {
+                        testFile.delete();
+                    }
+                } catch (Throwable t) {
+
+                }
+            }
+        }
+    }
 }

@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.network.ApplicationEntityConfigurationDialog;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -10,6 +11,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -24,6 +29,7 @@ public class GiftCloudConfigurationDialog {
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private ComboBoxModel<String> projectListModel;
     private final DicomNode dicomNode;
+    private ResourceBundle resourceBundle;
     private final GiftCloudDialogs giftCloudDialogs;
     private final JDialog dialog;
 
@@ -48,6 +54,7 @@ public class GiftCloudConfigurationDialog {
         this.giftCloudProperties = giftCloudProperties;
         this.projectListModel = projectListModel;
         this.dicomNode = dicomNode;
+        this.resourceBundle = resourceBundle;
         this.giftCloudDialogs = giftCloudDialogs;
         temporaryDropDownListModel = new TemporaryProjectListModel(projectListModel, giftCloudProperties.getLastProject());
         componentToCenterDialogOver = owner;
@@ -104,7 +111,7 @@ public class GiftCloudConfigurationDialog {
             {
                 labelConstraints.gridwidth = 1;
                 labelConstraints.gridy = 2;
-                JLabel giftCloudServerLabel = new JLabel(resourceBundle.getString("giftCloudServerText"), SwingConstants.RIGHT);
+                final JLabel giftCloudServerLabel = new JLabel(resourceBundle.getString("giftCloudServerText"), SwingConstants.RIGHT);
                 giftCloudServerLabel.setToolTipText(resourceBundle.getString("giftCloudServerTextToolTipText"));
                 giftCloudServerPanel.add(giftCloudServerLabel, labelConstraints);
 
@@ -340,11 +347,9 @@ public class GiftCloudConfigurationDialog {
 
     private class CloseActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            if (checkProperties()) {
-                applyProperties();
+            if (checkAndApplyProperties()) {
                 closeDialog();
             }
-            // Otherwise force the user to fix the problem
         }
     }
 
@@ -356,58 +361,86 @@ public class GiftCloudConfigurationDialog {
 
     private class ApplyActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            if (checkProperties()) {
-                applyProperties();
-            }
-            // Otherwise force the user to fix the problem
+            checkAndApplyProperties();
         }
     }
 
-    private boolean checkProperties() {
-        boolean propertiesOk = true;
+    private boolean checkAndApplyProperties() {
+        final List<String> problems = checkProperties();
+
+        if (problems.isEmpty()) {
+            applyProperties();
+            return true;
+        } else {
+            final StringBuilder builder = new StringBuilder();
+            for (final String string : problems) {
+                builder.append(" - ");
+                builder.append(string);
+                builder.append("<br>");
+            }
+            giftCloudDialogs.showError("Please correct the following problems with the settings:", Optional.of(builder.toString()));
+            return false;
+        }
+    }
+
+    private List<String> checkProperties() {
+        final List<String> problems = new ArrayList<String>();
 
         {
-            String listeningAETitle = listeningAETitleField.getText();
+            final String listeningAETitle = listeningAETitleField.getText();
+
             if (!StringUtils.isBlank(listeningAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(listeningAETitle)) {
-                propertiesOk = false;
-                listeningAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
+                problems.add(resourceBundle.getString("configPanelListenerAeError"));
             }
         }
         {
-            int listeningPort = 0;
             try {
-                listeningPort = Integer.parseInt(listeningPortField.getText());
+                final int listeningPort = Integer.parseInt(listeningPortField.getText());
                 if (listeningPort < 1024) {
-                    propertiesOk = false;
-                    listeningPortField.setText("want >= 1024");
+                    problems.add(resourceBundle.getString("configPanelListenerPortSmallError"));
                 }
             } catch (NumberFormatException e) {
-                propertiesOk = false;
-                listeningPortField.setText("\\\\\\BAD\\\\\\");
+                problems.add(resourceBundle.getString("configPanelListenerPortError"));
             }
         }
         {
-            int remotePort = 0;
             try {
-                remotePort = Integer.parseInt(remoteAEPortField.getText());
+                final int remotePort = Integer.parseInt(remoteAEPortField.getText());
                 if (remotePort < 1024) {
-                    propertiesOk = false;
-                    remoteAEPortField.setText("want >= 1024");
+                    problems.add(resourceBundle.getString("configPanelPacsPortSmallError"));
                 }
             } catch (NumberFormatException e) {
-                propertiesOk = false;
-                remoteAEPortField.setText("\\\\\\BAD\\\\\\");
+                problems.add(resourceBundle.getString("configPanelPacsPortError"));
             }
         }
 
         {
-            String remoteAETitle = remoteAETitleField.getText();
+            final String remoteAETitle = remoteAETitleField.getText();
             if (!StringUtils.isBlank(remoteAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(remoteAETitle)) {
-                propertiesOk = false;
-                remoteAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
+                problems.add(resourceBundle.getString("configPanelPacsAeError"));
             }
         }
-        return propertiesOk;
+
+        {
+            final String serverText = giftCloudServerText.getText();
+            if (!StringUtils.isBlank(serverText)) {
+                try {
+                    final URL giftCloudUrl = new URL(serverText);
+                } catch (MalformedURLException e) {
+                    problems.add(resourceBundle.getString("giftCloudServerTextError"));
+                }
+            }
+        }
+
+        {
+            final String patientListExportFolder = patientListExportFolderField.getText();
+            if (!StringUtils.isBlank(patientListExportFolder)) {
+                if (!MultiUploaderUtils.isDirectoryWritable(patientListExportFolder)) {
+                    problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderError"));
+                }
+            }
+        }
+        return problems;
     }
 
     private void applyProperties() {
