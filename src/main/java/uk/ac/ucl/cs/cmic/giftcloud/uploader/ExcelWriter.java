@@ -26,6 +26,9 @@ public class ExcelWriter {
     private final File patientListFolder;
     private GiftCloudReporter reporter;
     private static final String PATIENT_LIST_FILENAME = "GiftCloudPatientList.xls";
+    private static final String BACKUP_PATIENT_LIST_FILENAME = "GiftCloudPatientList.backup.xls";
+    private static final String BACKUP_PATIENT_LIST_FILENAME_PREFIX = "BackupGiftCloudPatientList";
+    private static final String BACKUP_PATIENT_LIST_FILENAME_SUFFIX = "xls";
 
     private static final String PATIENT_NAME_STRING = "Patient Name";
     private static final String PATIENT_ID_STRING = "Patient ID";
@@ -60,9 +63,22 @@ public class ExcelWriter {
                 reporter.silentWarning("Could not create the patient list folder");
                 return;
             }
-            FileOutputStream out = new FileOutputStream(new File(patientListFolder, PATIENT_LIST_FILENAME));
+
+            File file = new File(patientListFolder, PATIENT_LIST_FILENAME);
+
+            // If the Excel file already exists, rename it so it is a preserved as a backup
+            if (file.exists()) {
+                final File backupFile = new File(patientListFolder, BACKUP_PATIENT_LIST_FILENAME);
+                file.renameTo(backupFile);
+                file = new File(patientListFolder, PATIENT_LIST_FILENAME);
+            }
+
+            FileOutputStream out = new FileOutputStream(file);
             workbook.write(out);
             out.close();
+
+            // Create an additional backup (at most one per hour)
+            MultiUploaderUtils.createTimeStampedBackup(file, patientListFolder, BACKUP_PATIENT_LIST_FILENAME_PREFIX, BACKUP_PATIENT_LIST_FILENAME_SUFFIX);
 
         } catch (FileNotFoundException e) {
             reporter.silentLogException(e, "Failed to write Excel file of patient information due to the following error: " + e.getLocalizedMessage());

@@ -10,6 +10,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.AliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.*;
 import java.util.*;
@@ -23,6 +24,9 @@ public class JsonWriter {
     private final File patientListFolder;
     private GiftCloudReporter reporter;
     private static final String PATIENT_LIST_FILENAME = "GiftCloudPatientList.json";
+    private static final String BACKUP_PATIENT_LIST_FILENAME = "GiftCloudPatientList.backup.json";
+    private static final String BACKUP_PATIENT_LIST_FILENAME_PREFIX = "BackupGiftCloudPatientList";
+    private static final String BACKUP_PATIENT_LIST_FILENAME_SUFFIX = "json";
 
     private static final String PATIENT_NAME_STRING = "PatientName";
     private static final String PATIENT_ID_STRING = "PatientId";
@@ -57,10 +61,23 @@ public class JsonWriter {
     public void writeJsonFile() {
 
         try {
-            FileWriter file = new FileWriter(new File(patientListFolder, PATIENT_LIST_FILENAME));
-            file.write(mainObj.toJSONString());
-            file.flush();
-            file.close();
+            File file = new File(patientListFolder, PATIENT_LIST_FILENAME);
+
+            // If the JSON file already exists create a backup
+            if (file.exists()) {
+                final File backupFile = new File(patientListFolder, BACKUP_PATIENT_LIST_FILENAME);
+                file.renameTo(backupFile);
+                file = new File(patientListFolder, PATIENT_LIST_FILENAME);
+            }
+
+            final FileWriter fileWriter = new FileWriter(file);
+
+            fileWriter.write(mainObj.toJSONString());
+            fileWriter.flush();
+            fileWriter.close();
+
+            // Create an additional backup (at most one per hour)
+            MultiUploaderUtils.createTimeStampedBackup(file, patientListFolder, BACKUP_PATIENT_LIST_FILENAME_PREFIX, BACKUP_PATIENT_LIST_FILENAME_SUFFIX);
 
         } catch (FileNotFoundException e) {
             reporter.silentLogException(e, "Failed to write Excel file of patient information due to the following error: " + e.getLocalizedMessage());

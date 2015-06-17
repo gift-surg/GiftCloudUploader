@@ -37,6 +37,8 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpUploadException;
 import java.io.*;
 import java.net.PasswordAuthentication;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.*;
 import java.util.*;
 
@@ -322,6 +324,23 @@ public class MultiUploaderUtils {
 
                 }
             }
+        }
+    }
+
+    public static boolean createTimeStampedBackup(final File fileToCopy, final File folder, final String backupPatientListFilenamePrefix, final String backupPatientListFilenameSuffix) {
+
+        try {
+            final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyy-HH");
+            final File timeStampBackupFile = new File(folder, String.format(backupPatientListFilenamePrefix + "-%s." + backupPatientListFilenameSuffix, simpleDateFormat.format(new Date())));
+            final Path timeStampBackupPath = timeStampBackupFile.toPath();
+
+            if (timeStampBackupFile.exists()) {
+                timeStampBackupFile.delete();
+            }
+            Files.copy(fileToCopy.toPath(), timeStampBackupPath);
+            return true;
+        } catch (Throwable t) {
+            return false;
         }
     }
 }
