@@ -10,6 +10,7 @@ import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -435,9 +436,18 @@ public class GiftCloudConfigurationDialog {
         {
             final String patientListExportFolder = patientListExportFolderField.getText();
             if (!StringUtils.isBlank(patientListExportFolder)) {
-                if (!MultiUploaderUtils.isDirectoryWritable(patientListExportFolder)) {
+                try {
+                    if (!MultiUploaderUtils.createDirectoryIfNotExisting(new File(patientListExportFolder))) {
+                        problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderCreationError"));
+                    } else {
+                        if (!MultiUploaderUtils.isDirectoryWritable(patientListExportFolder)) {
+                            problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderError"));
+                        }
+                    }
+                } catch (Throwable t) {
                     problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderError"));
                 }
+
             }
         }
         return problems;

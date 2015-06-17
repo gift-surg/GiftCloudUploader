@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.AliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,6 +44,9 @@ public class ExcelWriter {
     public ExcelWriter(final File patientListFolder, final GiftCloudReporter reporter) {
         this.patientListFolder = patientListFolder;
         this.reporter = reporter;
+        if (!MultiUploaderUtils.createDirectoryIfNotExisting(patientListFolder)) {
+            reporter.silentWarning("Could not create the patient list folder");
+        }
         workbook = new HSSFWorkbook();
     }
 
@@ -52,6 +56,10 @@ public class ExcelWriter {
     public void writeExcelFile() {
 
         try {
+            if (!MultiUploaderUtils.createDirectoryIfNotExisting(patientListFolder)) {
+                reporter.silentWarning("Could not create the patient list folder");
+                return;
+            }
             FileOutputStream out = new FileOutputStream(new File(patientListFolder, PATIENT_LIST_FILENAME));
             workbook.write(out);
             out.close();
