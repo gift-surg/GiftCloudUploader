@@ -41,7 +41,7 @@ public class PatientListStore {
         try {
             final JsonWriter jsonWriter = new JsonWriter(localCacheFolder, reporter);
             jsonWriter.writeProjectMap(projectMap);
-            jsonWriter.writeJsonFile();
+            jsonWriter.save(true);
         } catch (Throwable t) {
             reporter.silentLogException(t, "Failed to save the cache of the project list due to the following error:" + t.getLocalizedMessage());
         }
@@ -54,7 +54,7 @@ public class PatientListStore {
 
                 final ExcelWriter excelWriter = new ExcelWriter(exportFolder, reporter);
                 excelWriter.writeProjectMap(projectMap);
-                excelWriter.writeExcelFile();
+                excelWriter.save(true);
             }
         } catch (Throwable t) {
             reporter.silentLogException(t, "Failed to save the cache of the project list due to the following error:" + t.getLocalizedMessage());
