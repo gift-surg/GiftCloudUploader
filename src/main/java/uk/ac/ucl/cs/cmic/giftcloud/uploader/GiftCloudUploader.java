@@ -251,6 +251,13 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         }
     }
 
+    /**
+     * Force saving of the patient list
+     */
+    public void exportPatientList() {
+        autoUploader.exportPatientList();
+    }
+
     private void cleanup(final long maxWaitTimeMs) {
         backgroundAddToUploaderService.stop();
         backgroundAddToUploaderService.waitForThreadCompletion(maxWaitTimeMs);

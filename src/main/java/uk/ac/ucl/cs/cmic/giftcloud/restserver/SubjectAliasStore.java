@@ -132,4 +132,12 @@ public class SubjectAliasStore {
         }
     }
 
+    /**
+     * Force saving of the patient list
+     */
+    public void exportPatientList() {
+        synchronized (synchronizationLock) {
+            projectMap.exportPatientList();
+        }
+    }
 }

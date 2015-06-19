@@ -66,6 +66,13 @@ public class GiftCloudAutoUploader {
         return uploadOrAppend(server, paths, projectName, true);
     }
 
+    /**
+     * Force saving of the patient list
+     */
+    public void exportPatientList() {
+        subjectAliasStore.exportPatientList();
+    }
+
     private boolean uploadOrAppend(final GiftCloudServer server, final Vector<String> paths, final String projectName, final boolean append) throws IOException {
 
         SeriesImportFilterApplicatorRetriever filter;

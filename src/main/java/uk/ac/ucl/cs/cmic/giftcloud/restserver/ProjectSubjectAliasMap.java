@@ -52,6 +52,13 @@ public class ProjectSubjectAliasMap {
         patientListStore.save(projectMap);
     }
 
+    /**
+     * Force saving of the patient list
+     */
+    public void exportPatientList() {
+        patientListStore.save(projectMap);
+    }
+
     private AliasMap getAliasMapForProject(final String projectName) {
         if (!projectMap.containsKey(projectName)) {
             projectMap.put(projectName, new AliasMap());

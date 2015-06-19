@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.network.ApplicationEntityConfigurationDialog;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import javax.swing.*;
@@ -32,6 +33,7 @@ public class GiftCloudConfigurationDialog {
     private final DicomNode dicomNode;
     private ResourceBundle resourceBundle;
     private final GiftCloudDialogs giftCloudDialogs;
+    private GiftCloudReporter reporter;
     private final JDialog dialog;
 
     private final JComboBox<String> projectList;
@@ -50,13 +52,14 @@ public class GiftCloudConfigurationDialog {
 
     private boolean isDisposed = false;
 
-    GiftCloudConfigurationDialog(final Dialog owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ComboBoxModel<String> projectListModel, final DicomNode dicomNode, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs) {
+    GiftCloudConfigurationDialog(final Dialog owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ComboBoxModel<String> projectListModel, final DicomNode dicomNode, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.projectListModel = projectListModel;
         this.dicomNode = dicomNode;
         this.resourceBundle = resourceBundle;
         this.giftCloudDialogs = giftCloudDialogs;
+        this.reporter = reporter;
         temporaryDropDownListModel = new TemporaryProjectListModel(projectListModel, giftCloudProperties.getLastProject());
         componentToCenterDialogOver = owner;
 
@@ -480,6 +483,9 @@ public class GiftCloudConfigurationDialog {
                 !newGiftCloudPassword.equals(giftCloudProperties.getLastPassword().orElse("".toCharArray())) ||
                 !temporaryDropDownListModel.getSelectedItem().equals(projectListModel.getSelectedItem());
 
+        final boolean forcePatientListExport = StringUtils.isNotBlank(newPatientListExportFolder) &&
+                (!giftCloudProperties.getPatientListExportFolder().isPresent() || !newPatientListExportFolder.equals(giftCloudProperties.getPatientListExportFolder().get()));
+
         // Change the properties (must be done after we access the current values to check for changes)
         giftCloudProperties.setListeningPort(newListeningPortValue);
         giftCloudProperties.setListenerAETitle(newListeningAeTitle);
@@ -504,21 +510,27 @@ public class GiftCloudConfigurationDialog {
         try {
             giftCloudProperties.storeProperties("Saved from GiftCloudConfigurationDialog");
         } catch (IOException e) {
-
-            // ToDo:
-            e.printStackTrace();
+            reporter.silentLogException(e, "The following error occurred while saving the properties file:" + e.getLocalizedMessage());
         }
 
 
-        if (restartDicomNode || restartUploader) {
+        if (restartDicomNode || restartUploader || forcePatientListExport) {
             Cursor was = dialog.getCursor();
             dialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+            reporter.updateStatusText("Applying changes to the uploader");
+
             if (restartDicomNode) {
                 controller.restartDicomService();
             }
             if (restartUploader) {
                 controller.restartUploader();
             }
+            if (forcePatientListExport) {
+                controller.exportPatientList();
+            }
+
+            reporter.updateStatusText("Uploader settings updated");
 
             dialog.setCursor(was);
         }

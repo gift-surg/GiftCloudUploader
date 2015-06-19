@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * The main controller class for the uploader
+ */
 public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
 	private static String propertiesFileName  = "GiftCloudUploader.properties";
@@ -96,7 +99,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void showConfigureDialog() throws IOException, DicomNode.DicomNodeStartException {
         if (configurationDialog == null || !configurationDialog.isVisible()) {
-            configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), this, giftCloudProperties, giftCloudUploader.getProjectListModel(), dicomNode, resourceBundle, giftCloudDialogs);
+            configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), this, giftCloudProperties, giftCloudUploader.getProjectListModel(), dicomNode, resourceBundle, giftCloudDialogs, reporter);
         }
     }
 
@@ -246,6 +249,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void refreshFileList() {
         giftCloudUploaderPanel.rebuildFileList(uploadDatabase.getSrcDatabase());
+    }
+
+    @Override
+    public void exportPatientList() {
+        giftCloudUploader.exportPatientList();
     }
 
     private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
