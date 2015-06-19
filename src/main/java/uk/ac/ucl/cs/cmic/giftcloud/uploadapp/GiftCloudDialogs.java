@@ -37,11 +37,16 @@ public class GiftCloudDialogs {
     }
 
     public void showError(final String message, final Optional<String> additionalText) throws HeadlessException {
-
-        // ToDo: show the additional text
-
         final JPanel messagePanel = new JPanel(new GridBagLayout());
-        messagePanel.add(new JLabel(message, SwingConstants.CENTER));
+        final StringBuilder stringMessage = new StringBuilder();
+        stringMessage.append("<html>");
+        stringMessage.append(message);
+        if (additionalText.isPresent()) {
+            stringMessage.append("<br>");
+            stringMessage.append(additionalText.get());
+        }
+        stringMessage.append("</html>");
+        messagePanel.add(new JLabel(stringMessage.toString(), SwingConstants.CENTER));
 
         JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, "GIFT-Cloud", JOptionPane.ERROR_MESSAGE, icon);
     }

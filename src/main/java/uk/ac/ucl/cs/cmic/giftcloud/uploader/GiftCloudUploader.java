@@ -49,7 +49,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         final int numThreads = 1;
         final ProgressHandleWrapper progressHandleWrapper = new ProgressHandleWrapper(reporter);
         backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), this, reporter);
-        autoUploader = new GiftCloudAutoUploader(serverFactory, backgroundUploader, reporter);
+        autoUploader = new GiftCloudAutoUploader(serverFactory, backgroundUploader, giftCloudProperties, reporter);
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
 
         // Add a shutdown hook for graceful exit
@@ -249,6 +249,13 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
                 return false;
             }
         }
+    }
+
+    /**
+     * Force saving of the patient list
+     */
+    public void exportPatientList() {
+        autoUploader.exportPatientList();
     }
 
     private void cleanup(final long maxWaitTimeMs) {

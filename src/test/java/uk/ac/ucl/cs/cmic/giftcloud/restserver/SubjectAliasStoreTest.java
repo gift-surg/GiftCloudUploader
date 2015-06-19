@@ -9,6 +9,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
 import java.io.IOException;
@@ -21,6 +23,12 @@ public class SubjectAliasStoreTest {
 
     @Mock
     private GiftCloudServer giftCloudServer;
+
+    @Mock
+    private GiftCloudReporter giftCloudReporter;
+
+    @Mock
+    private PatientListStore patientListStore;
 
     private SubjectAliasStore subjectAliasStore;
     private Optional<String> emptyString = Optional.empty();
@@ -51,7 +59,7 @@ public class SubjectAliasStoreTest {
 
     @Before
     public void setup() {
-        subjectAliasStore = new SubjectAliasStore();
+        subjectAliasStore = new SubjectAliasStore(patientListStore, giftCloudReporter);
     }
 
     @Test

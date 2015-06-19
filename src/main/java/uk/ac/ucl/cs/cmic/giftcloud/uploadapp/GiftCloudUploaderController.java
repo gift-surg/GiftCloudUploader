@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Vector;
 
 public interface GiftCloudUploaderController {
+
     void showConfigureDialog() throws IOException, DicomNode.DicomNodeStartException;
     void showAboutDialog();
 
@@ -40,4 +41,6 @@ public interface GiftCloudUploaderController {
     void importFromPacs();
 
     void refreshFileList();
+
+    void exportPatientList();
 }
