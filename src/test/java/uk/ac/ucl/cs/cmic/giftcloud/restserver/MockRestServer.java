@@ -173,7 +173,7 @@ public class MockRestServer implements RestServer {
 
     @Override
     public void createExperimentPseudonymIfNotExisting(String projectName, String subjectAlias, String experimentAlias, String hashedStudyInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
-        experimentMap.put(hashedSeriesInstanceUid, experimentAlias);
+        experimentMap.put(hashedStudyInstanceUid, experimentAlias);
     }
 
     @Override
