@@ -12,6 +12,8 @@ import java.util.*;
 public class MockRestServer implements RestServer {
 
     private final ProjectMap projectMap = new ProjectMap();
+    private final Map<String, String> experimentMap = new HashMap<String, String>();
+    private final Map<String, String> scanMap = new HashMap<String, String>();
 
     public MockRestServer(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) {
     }
@@ -149,6 +151,34 @@ public class MockRestServer implements RestServer {
     @Override
     public void resetCancellation() {
 
+    }
+
+    @Override
+    public Optional<String> getScanPseudonym(String projectName, String subjectAlias, String experimentAlias, String hashedSeriesInstanceUid) throws IOException {
+        if (!scanMap.containsKey(hashedSeriesInstanceUid)) {
+            return Optional.empty();
+        } else {
+            return Optional.of(scanMap.get(hashedSeriesInstanceUid));
+        }
+    }
+
+    @Override
+    public Optional<String> getExperimentPseudonym(String projectName, String subjectAlias, String hashedStudyInstanceUid) throws IOException {
+        if (!experimentMap.containsKey(hashedStudyInstanceUid)) {
+            return Optional.empty();
+        } else {
+            return Optional.of(experimentMap.get(hashedStudyInstanceUid));
+        }
+    }
+
+    @Override
+    public void createExperimentPseudonymIfNotExisting(String projectName, String subjectAlias, String experimentAlias, String hashedStudyInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
+        experimentMap.put(hashedSeriesInstanceUid, experimentAlias);
+    }
+
+    @Override
+    public void createScanPseudonymIfNotExisting(String projectName, String subjectAlias, String experimentAlias, String scanAlias, String hashedSeriesInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
+        scanMap.put(hashedSeriesInstanceUid, scanAlias);
     }
 
     class ProjectMap {

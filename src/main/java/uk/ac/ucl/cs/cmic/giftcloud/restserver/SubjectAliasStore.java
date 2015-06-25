@@ -140,4 +140,194 @@ public class SubjectAliasStore {
             projectMap.exportPatientList();
         }
     }
+
+    public Optional<String> getExperimentAlias(final GiftCloudServer server, final String projectName, final String subjectAlias, final String studyInstanceUid) throws IOException {
+
+        if (StringUtils.isBlank(projectName)) {
+            throw new IllegalArgumentException("A project name must be specified.");
+        }
+
+        if (StringUtils.isBlank(subjectAlias)) {
+            throw new IllegalArgumentException("A subject alias must be specified.");
+        }
+
+        if (StringUtils.isBlank(studyInstanceUid)) {
+            return Optional.empty();
+        }
+
+        // First hash the study instance UID
+        final String hashedStudyInstanceUid = OneWayHash.hashUid(studyInstanceUid);
+
+        // Ensure that the local and server caches of the hashed patient ID are not being updated before we check them
+        synchronized (synchronizationLock) {
+
+            // If the hashed ID is in our local session cache then return the subject identifier
+            final Optional<String> studyAlias = projectMap.getExperimentAlias(projectName, subjectAlias, hashedStudyInstanceUid);
+            if (studyAlias.isPresent()) {
+                return studyAlias;
+            }
+
+            try {
+                // Check if a mapping already exists on the XNAT server
+                final Optional<String> experimentAliasFromServer = server.getExperimentPseudonym(projectName, subjectAlias, hashedStudyInstanceUid);
+                if (experimentAliasFromServer.isPresent()) {
+
+                    // Cache the new alias
+                    projectMap.addExperimentAlias(projectName, subjectAlias, hashedStudyInstanceUid, experimentAliasFromServer.get());
+
+                    return Optional.of(experimentAliasFromServer.get());
+                }
+
+            } catch (GiftCloudHttpException exception) {
+                // 400 indicates the hashed experiment request is not supported by the server.
+                if (exception.getResponseCode() == HTTP_BAD_REQUEST) {
+                    return Optional.empty();
+                } else {
+                    throw exception;
+                }
+            }
+
+            return Optional.empty();
+        }
+    }
+
+    public void addExperimentAlias(final GiftCloudServer server, final String projectName, final String subjectAlias, final String experimentAlias, final String studyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+
+        if (StringUtils.isBlank(projectName)) {
+            throw new IllegalArgumentException("A project name must be specified.");
+        }
+
+        if (StringUtils.isBlank(subjectAlias)) {
+            throw new IllegalArgumentException("A subject alias must be specified.");
+        }
+
+        if (StringUtils.isBlank(experimentAlias)) {
+            throw new IllegalArgumentException("An experiment alias name must be specified.");
+        }
+
+        // Hash the study instance UID
+        final String hashedStudyInstanceUid = OneWayHash.hashUid(studyInstanceUid);
+
+        // Ensure that the local and server caches of the hashed patient ID are not being queried or updated before we check them
+        synchronized (synchronizationLock) {
+
+            // Add the hashed patient ID to the XNAT subject
+            try {
+                server.createExperimentPseudonymIfNotExisting(projectName, subjectAlias, experimentAlias, hashedStudyInstanceUid, xnatModalityParams);
+
+            } catch (GiftCloudHttpException exception) {
+                // 400 indicates the hashed patient ID request is not supported by the server.
+                if (exception.getResponseCode() == HTTP_BAD_REQUEST) {
+                    // Do nothing; this operation is not supported
+                } else {
+                    throw exception;
+                }
+            }
+
+            // Cache the new alias
+            projectMap.addExperimentAlias(projectName, subjectAlias, hashedStudyInstanceUid, experimentAlias);
+        }
+    }
+
+    public Optional<String> getScanAlias(final GiftCloudServer server, final String projectName, final String subjectAlias, final String experimentAlias, final String seriesInstanceUid) throws IOException {
+
+        if (StringUtils.isBlank(projectName)) {
+            throw new IllegalArgumentException("A project name must be specified.");
+        }
+
+        if (StringUtils.isBlank(subjectAlias)) {
+            throw new IllegalArgumentException("A subject alias must be specified.");
+        }
+
+        if (StringUtils.isBlank(experimentAlias)) {
+            throw new IllegalArgumentException("An experiment alias must be specified.");
+        }
+
+        if (StringUtils.isBlank(seriesInstanceUid)) {
+            return Optional.empty();
+        }
+
+        // First hash the series instance UID
+        final String hashedSeriesInstanceUid = OneWayHash.hashUid(seriesInstanceUid);
+
+        // Ensure that the local and server caches of the hashed patient ID are not being updated before we check them
+        synchronized (synchronizationLock) {
+
+            // If the hashed ID is in our local session cache then return the subject identifier
+            final Optional<String> scanAlias = projectMap.getScanAlias(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid);
+            if (scanAlias.isPresent()) {
+                return scanAlias;
+            }
+
+            try {
+                // Check if a mapping already exists on the XNAT server
+                final Optional<String> scanAliasFromServer = server.getScanPseudonym(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid);
+                if (scanAliasFromServer.isPresent()) {
+
+                    // Cache the new alias
+                    projectMap.addScanAlias(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid, scanAliasFromServer.get());
+
+                    return Optional.of(scanAliasFromServer.get());
+                }
+
+            } catch (GiftCloudHttpException exception) {
+                // 400 indicates the hashed scan request is not supported by the server.
+                if (exception.getResponseCode() == HTTP_BAD_REQUEST) {
+                    return Optional.empty();
+                } else {
+                    throw exception;
+                }
+            }
+
+            return Optional.empty();
+        }
+    }
+
+
+    public void addScanAlias(final GiftCloudServer server, final String projectName, final String subjectAlias, final String experimentAlias, final String scanAlias, final String seriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+
+        if (StringUtils.isBlank(projectName)) {
+            throw new IllegalArgumentException("A project name must be specified.");
+        }
+
+        if (StringUtils.isBlank(subjectAlias)) {
+            throw new IllegalArgumentException("A subject alias must be specified.");
+        }
+
+        if (StringUtils.isBlank(experimentAlias)) {
+            throw new IllegalArgumentException("A session alias name must be specified.");
+        }
+
+        if (StringUtils.isBlank(scanAlias)) {
+            throw new IllegalArgumentException("A series alias name must be specified.");
+        }
+
+        if (StringUtils.isBlank(seriesInstanceUid)) {
+            throw new IllegalArgumentException("A series instance UID must be specified.");
+        }
+
+        // Hash the series instance UID
+        final String hashedSeriesInstanceUid = OneWayHash.hashUid(seriesInstanceUid);
+
+        // Ensure that the local and server caches of the hashed patient ID are not being queried or updated before we check them
+        synchronized (synchronizationLock) {
+
+            // Add the hashed patient ID to the XNAT subject
+            try {
+                server.createScanPseudonymIfNotExisting(projectName, subjectAlias, experimentAlias, scanAlias, hashedSeriesInstanceUid, xnatModalityParams);
+
+            } catch (GiftCloudHttpException exception) {
+                // 400 indicates the hashed patient ID request is not supported by the server.
+                if (exception.getResponseCode() == HTTP_BAD_REQUEST) {
+                    // Do nothing; this operation is not supported
+                } else {
+                    throw exception;
+                }
+            }
+
+            // Cache the new alias
+            projectMap.addScanAlias(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid, scanAlias);
+        }
+    }
+
 }

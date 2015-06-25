@@ -9,10 +9,12 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.*;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.ZipSeriesUploaderFactorySelector;
 import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,10 +25,6 @@ public class GiftCloudAutoUploader {
 
     private BackgroundUploader backgroundUploader;
     private final GiftCloudReporter reporter;
-
-    // Create a map of subjects and sessions we have already uploaded
-    private final Map<String, String> sessionsAlreadyUploaded = new HashMap<String, String>();
-    private final Map<String, String> scansAlreadyUploaded = new HashMap<String, String>();
 
     private final String autoSubjectNamePrefix = "AutoUploadSubject";
     private final long autoSubjectNameStartNumber = 0;
@@ -42,7 +40,6 @@ public class GiftCloudAutoUploader {
     private final NameGenerator scanNameGenerator = new NameGenerator(autoScanNamePrefix, autoScanNameStartNumber);
 
     private final SubjectAliasStore subjectAliasStore;
-    private GiftCloudServerFactory serverFactory;
 
 
     /**
@@ -51,8 +48,7 @@ public class GiftCloudAutoUploader {
      * @para serverFactory
      * @param reporter
      */
-    public GiftCloudAutoUploader(final GiftCloudServerFactory serverFactory, final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
-        this.serverFactory = serverFactory;
+    public GiftCloudAutoUploader(final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
         this.backgroundUploader = backgroundUploader;
         this.reporter = reporter;
         subjectAliasStore = new SubjectAliasStore(new PatientListStore(properties, reporter), reporter);
@@ -103,7 +99,7 @@ public class GiftCloudAutoUploader {
             sessionMapFromServer = server.getListOfSessions(projectName);
 
         } catch (IOException e) {
-            throw new IOException("Uploading could not be performed. The subject and session map could not be obtained due to the following error: " + e.getMessage(), e);
+            throw new IOException("Uploading could not be performed. The subject and session maps could not be obtained due to the following error: " + e.getMessage(), e);
         }
 
         final Project project = server.getProject(projectName);
@@ -118,15 +114,18 @@ public class GiftCloudAutoUploader {
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
+    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, final Map<String, String> subjectMapFromServer, Map<String, String> sessionMapFromServer, final Session session) throws IOException {
         final String patientId = session.getPatientId();
         final String patientName = session.getPatientName();
-        final String studyUid = session.getStudyUid();
+        final String studyInstanceUid = session.getStudyUid();
         final String seriesUid = session.getSeriesUid();
 
+        final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
+
         final String subjectName = getSubjectName(server, projectName, subjectMapFromServer, patientId, patientName);
-        final String sessionName = getSessionName(server, studyUid, sessionMapFromServer);
-        final String scanName = getScanName(seriesUid, sessionMapFromServer);
+        final String sessionName = getSessionName(server, projectName, subjectName, studyInstanceUid, sessionMapFromServer, xnatModalityParams);
+        final Map<String, String> scanMapFromServer = server.getListOfScans(projectName, subjectName, sessionName);
+        final String scanName = getScanName(server, projectName, subjectName, sessionName, seriesUid, scanMapFromServer, xnatModalityParams);
 
         final GiftCloudSessionParameters sessionParameters = new GiftCloudSessionParameters();
         sessionParameters.setAdminEmail("null@null.com");
@@ -148,7 +147,6 @@ public class GiftCloudAutoUploader {
             throw new IOException("No files were selected for upload");
         }
 
-        final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
 
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
 
@@ -166,42 +164,26 @@ public class GiftCloudAutoUploader {
         }
     }
 
-    private String getSessionName(final GiftCloudServer server, final String studyUid, final Map<String, String> serverSessionMap) {
-
-        if (StringUtils.isNotBlank(studyUid) && sessionsAlreadyUploaded.containsKey(studyUid)) {
-            return sessionsAlreadyUploaded.get(studyUid);
+    private String getSessionName(final GiftCloudServer server, final String projectName, final String subjectName, final String studyInstanceUid, final Map<String, String> serverSessionMap, final XnatModalityParams xnatModalityParams) throws IOException {
+        final Optional<String> existingSessionAlias = subjectAliasStore.getExperimentAlias(server, projectName, subjectName, studyInstanceUid);
+        if (existingSessionAlias.isPresent()) {
+            return existingSessionAlias.get();
+        } else {
+            final String newSessionAlias = sessionNameGenerator.getNewName(serverSessionMap.keySet());
+            subjectAliasStore.addExperimentAlias(server, projectName, subjectName, studyInstanceUid, newSessionAlias, xnatModalityParams);
+            return newSessionAlias;
         }
-
-        if (StringUtils.isNotBlank(studyUid)) {
-            final String sessionName = OneWayHash.hashUid(studyUid);
-            sessionsAlreadyUploaded.put(studyUid, sessionName);
-            return sessionName;
-        }
-
-        final String sessionName = sessionNameGenerator.getNewName(serverSessionMap.keySet());
-        if (StringUtils.isNotBlank(studyUid)) {
-            sessionsAlreadyUploaded.put(studyUid, sessionName);
-        }
-        return sessionName;
     }
 
-    private String getScanName(final String seriesUid, final Map<String, String> serverScanMap) {
-
-        if (StringUtils.isNotBlank(seriesUid) && scansAlreadyUploaded.containsKey(seriesUid)) {
-            return scansAlreadyUploaded.get(seriesUid);
+    private String getScanName(final GiftCloudServer server, final String projectName, final String subjectName, final String experimentName, final String seriesInstanceUid, final Map<String, String> serverScanMap, final XnatModalityParams xnatModalityParams) throws IOException {
+        final Optional<String> existingScanAlias = subjectAliasStore.getScanAlias(server, projectName, subjectName, experimentName, seriesInstanceUid);
+        if (existingScanAlias.isPresent()) {
+            return existingScanAlias.get();
+        } else {
+            final String newScanAlias = scanNameGenerator.getNewName(serverScanMap.keySet());
+            subjectAliasStore.addScanAlias(server, projectName, subjectName, experimentName, seriesInstanceUid, newScanAlias, xnatModalityParams);
+            return newScanAlias;
         }
-
-        if (StringUtils.isNotBlank(seriesUid)) {
-            final String scanName = OneWayHash.hashUid(seriesUid);
-            scansAlreadyUploaded.put(seriesUid, scanName);
-            return scanName;
-        }
-
-        final String scanName = scanNameGenerator.getNewName(serverScanMap.keySet());
-        if (StringUtils.isNotBlank(seriesUid)) {
-            sessionsAlreadyUploaded.put(seriesUid, scanName);
-        }
-        return scanName;
     }
 
     /**

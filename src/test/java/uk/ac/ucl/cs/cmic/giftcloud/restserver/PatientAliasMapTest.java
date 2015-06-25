@@ -11,15 +11,15 @@ public class PatientAliasMapTest {
     @Test
     public void testContainsKey() throws Exception {
         final PatientAliasMap patientAliasMap = new PatientAliasMap();
-        Assert.assertFalse(patientAliasMap.containsKey("HASHEDPATIENTID1"));
+        Assert.assertFalse(patientAliasMap.containsPpid("HASHEDPATIENTID1"));
 
         patientAliasMap.addAlias("HASHEDPATIENTID1", "ALIAS1", "PATIENTID1", "PATIENTNAME1");
-        Assert.assertTrue(patientAliasMap.containsKey("HASHEDPATIENTID1"));
-        Assert.assertFalse(patientAliasMap.containsKey("HASHEDPATIENTID2"));
+        Assert.assertTrue(patientAliasMap.containsPpid("HASHEDPATIENTID1"));
+        Assert.assertFalse(patientAliasMap.containsPpid("HASHEDPATIENTID2"));
 
         patientAliasMap.addAlias("HASHEDPATIENTID2", "ALIAS2", "PATIENTID2", "PATIENTNAME2");
-        Assert.assertTrue(patientAliasMap.containsKey("HASHEDPATIENTID1"));
-        Assert.assertTrue(patientAliasMap.containsKey("HASHEDPATIENTID2"));
+        Assert.assertTrue(patientAliasMap.containsPpid("HASHEDPATIENTID1"));
+        Assert.assertTrue(patientAliasMap.containsPpid("HASHEDPATIENTID2"));
     }
 
     @Test

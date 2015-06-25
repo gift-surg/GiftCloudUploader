@@ -81,6 +81,10 @@ public class GiftCloudServer {
         return restServer.getListOfSessions(projectName);
     }
 
+    public Map<String, String> getListOfScans(final String projectName, final String subjectName, final String sessionName) throws IOException {
+        return restServer.getListOfScans(projectName, subjectName, sessionName);
+    }
+
     public Optional<Map<String, String>> getSitewideSeriesImportFilter() throws IOException {
         return restServer.getSitewideSeriesImportFilter();
     }
@@ -153,4 +157,21 @@ public class GiftCloudServer {
     public Optional<String> getSubjectPseudonym(final String projectName, final String hashedPatientId) throws IOException {
         return restServer.getSubjectPseudonym(projectName, hashedPatientId);
     }
+
+    public void createExperimentPseudonymIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+        restServer.createExperimentPseudonymIfNotExisting(projectName, subjectAlias, experimentAlias, hashedStudyInstanceUid, xnatModalityParams);
+    }
+
+    public Optional<String> getExperimentPseudonym(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) throws IOException {
+        return restServer.getExperimentPseudonym(projectName, subjectAlias, hashedStudyInstanceUid);
+    }
+
+    public void createScanPseudonymIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String scanAlias, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+        restServer.createScanPseudonymIfNotExisting(projectName, subjectAlias, experimentAlias, scanAlias, hashedSeriesInstanceUid, xnatModalityParams);
+    }
+
+    public Optional<String> getScanPseudonym(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
+        return restServer.getScanPseudonym(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid);
+    }
+
 }

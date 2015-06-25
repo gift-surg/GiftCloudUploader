@@ -81,7 +81,7 @@ public abstract class PatientListWriter {
             final Map<String, PatientAliasMap.PatientAliasRecord> aliasMap = entry.getValue().getMap();
 
             for (PatientAliasMap.PatientAliasRecord patientAliasRecord : aliasMap.values()) {
-                addEntry(projectName, patientAliasRecord.getPpid(), patientAliasRecord.getAlias(), patientAliasRecord.getPatientId(), patientAliasRecord.getPatientName());
+                addEntry(projectName, patientAliasRecord.getPpid(), patientAliasRecord.getPatientAlias(), patientAliasRecord.getPatientId(), patientAliasRecord.getPatientName());
             }
         }
     }

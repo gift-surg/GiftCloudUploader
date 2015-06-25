@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
@@ -66,4 +67,23 @@ public class ProjectSubjectAliasMap {
         return projectMap.get(projectName);
     }
 
+    public Optional<String> getExperimentAlias(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectName);
+        return patientAliasMap.getExperimentAlias(subjectAlias, hashedStudyInstanceUid);
+    }
+
+    public Optional<String> getScanAlias(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectName);
+        return patientAliasMap.getScanAlias(subjectAlias, experimentAlias, hashedSeriesInstanceUid);
+    }
+
+    public void addExperimentAlias(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid, final String experimentAlias) throws IOException {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectName);
+        patientAliasMap.addExperimentAlias(subjectAlias, hashedStudyInstanceUid, experimentAlias);
+    }
+
+    public void addScanAlias(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid, final String scanAlias)  throws IOException {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectName);
+        patientAliasMap.addScanAlias(subjectAlias, experimentAlias, hashedSeriesInstanceUid, scanAlias);
+    }
 }
