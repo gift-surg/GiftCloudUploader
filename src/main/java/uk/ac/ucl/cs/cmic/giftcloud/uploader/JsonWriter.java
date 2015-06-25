@@ -4,7 +4,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.AliasMap;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.*;
@@ -64,8 +64,8 @@ public class JsonWriter extends PatientListWriter {
      * @param reporter for error and progress reporting
      * @return a map of project names to AliasMaps
      */
-    public static Map<String, AliasMap> readProjectMap(final File patientListFolder, final GiftCloudReporter reporter) {
-        final Map<String, AliasMap> projectMap = new HashMap<String, AliasMap>();
+    public static Map<String, PatientAliasMap> readProjectMap(final File patientListFolder, final GiftCloudReporter reporter) {
+        final Map<String, PatientAliasMap> projectMap = new HashMap<String, PatientAliasMap>();
         JSONParser parser = new JSONParser();
 
         try {
@@ -81,7 +81,7 @@ public class JsonWriter extends PatientListWriter {
             Iterator<JSONObject> iterator = projectList.iterator();
             while (iterator.hasNext()) {
 
-                AliasMap aliasMap = new AliasMap();
+                PatientAliasMap patientAliasMap = new PatientAliasMap();
 
                 final JSONObject projectEntry = iterator.next();
                 final String projectName = (String)projectEntry.get(PROJECT_NAME_STRING);
@@ -94,10 +94,10 @@ public class JsonWriter extends PatientListWriter {
                     final String patientId = (String)aliasEntry.get(PATIENT_ID_STRING);
                     final String patientAlias = (String)aliasEntry.get(PATIENT_ALIAS_STRING);
                     final String patientPpid = (String)aliasEntry.get(PATIENT_PPID_STRING);
-                    aliasMap.addAlias(patientPpid, patientAlias, patientId, patientName);
+                    patientAliasMap.addAlias(patientPpid, patientAlias, patientId, patientName);
                 }
 
-                projectMap.put(projectName, aliasMap);
+                projectMap.put(projectName, patientAliasMap);
 
             }
 

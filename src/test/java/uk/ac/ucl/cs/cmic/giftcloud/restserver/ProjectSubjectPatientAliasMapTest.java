@@ -13,18 +13,18 @@ import java.util.Map;
 
 import static org.mockito.Mockito.*;
 
-public class ProjectSubjectAliasMapTest {
+public class ProjectSubjectPatientAliasMapTest {
 
     @Mock
     private GiftCloudReporter giftCloudReporter;
 
     @Captor
-    private ArgumentCaptor<Map<String, AliasMap>> mapCaptor;
+    private ArgumentCaptor<Map<String, PatientAliasMap>> mapCaptor;
 
     @Test
     public void testGetSubjectAliasFromEmptyListWithInitialCheck() throws Exception {
         final PatientListStore patientListStore = mock(PatientListStore.class);
-        when(patientListStore.load()).thenReturn(new HashMap<String, AliasMap>());
+        when(patientListStore.load()).thenReturn(new HashMap<String, PatientAliasMap>());
         final ProjectSubjectAliasMap projectSubjectAliasMap = new ProjectSubjectAliasMap(patientListStore);
 
         // Check that no alias is returned initially
@@ -45,7 +45,7 @@ public class ProjectSubjectAliasMapTest {
     @Test
     public void testGetSubjectAliasFromEmptyList() throws Exception {
         final PatientListStore patientListStore = mock(PatientListStore.class);
-        when(patientListStore.load()).thenReturn(new HashMap<String, AliasMap>());
+        when(patientListStore.load()).thenReturn(new HashMap<String, PatientAliasMap>());
         final ProjectSubjectAliasMap projectSubjectAliasMap = new ProjectSubjectAliasMap(patientListStore);
 
         // Add an alias
@@ -65,7 +65,7 @@ public class ProjectSubjectAliasMapTest {
     public void testMultipleProjectsWithSameHashedIds() throws Exception {
         // This test is for when multiple projects have the same subject. We expect these to be treated as if they are different subjects
         final PatientListStore patientListStore = mock(PatientListStore.class);
-        when(patientListStore.load()).thenReturn(new HashMap<String, AliasMap>());
+        when(patientListStore.load()).thenReturn(new HashMap<String, PatientAliasMap>());
         final ProjectSubjectAliasMap projectSubjectAliasMap = new ProjectSubjectAliasMap(patientListStore);
 
         // Add an alias
@@ -80,14 +80,14 @@ public class ProjectSubjectAliasMapTest {
     public void testLoadedList() throws Exception {
 
         // Construct an initial patient list
-        Map<String, AliasMap> initialPatientList = new HashMap<String, AliasMap>();
-        final AliasMap aliasMap1 = new AliasMap();
-        aliasMap1.addAlias("HASHEDID1", "ALIAS1", "PATIENTID1", "PATIENTNAME1");
-        aliasMap1.addAlias("HASHEDID2", "ALIAS2", "PATIENTID2", "PATIENTNAME2");
-        final AliasMap aliasMap2 = new AliasMap();
-        aliasMap2.addAlias("HASHEDID3", "ALIAS3", "PATIENTID3", "PATIENTNAME3");
-        initialPatientList.put("PROJECT1", aliasMap1);
-        initialPatientList.put("PROJECT2", aliasMap2);
+        Map<String, PatientAliasMap> initialPatientList = new HashMap<String, PatientAliasMap>();
+        final PatientAliasMap patientAliasMap1 = new PatientAliasMap();
+        patientAliasMap1.addAlias("HASHEDID1", "ALIAS1", "PATIENTID1", "PATIENTNAME1");
+        patientAliasMap1.addAlias("HASHEDID2", "ALIAS2", "PATIENTID2", "PATIENTNAME2");
+        final PatientAliasMap patientAliasMap2 = new PatientAliasMap();
+        patientAliasMap2.addAlias("HASHEDID3", "ALIAS3", "PATIENTID3", "PATIENTNAME3");
+        initialPatientList.put("PROJECT1", patientAliasMap1);
+        initialPatientList.put("PROJECT2", patientAliasMap2);
 
         // Create a mock PatientListStore that will return this initial patient list
         final PatientListStore patientListStore = mock(PatientListStore.class);
@@ -108,17 +108,17 @@ public class ProjectSubjectAliasMapTest {
 
     @Test
     public void testListSaving() throws Exception {
-        ArgumentCaptor<Map<String, AliasMap>> mapArgumentCaptor = ArgumentCaptor.forClass((Class) Map.class);
+        ArgumentCaptor<Map<String, PatientAliasMap>> mapArgumentCaptor = ArgumentCaptor.forClass((Class) Map.class);
 
         final PatientListStore patientListStore = mock(PatientListStore.class);
-        when(patientListStore.load()).thenReturn(new HashMap<String, AliasMap>());
+        when(patientListStore.load()).thenReturn(new HashMap<String, PatientAliasMap>());
         final ProjectSubjectAliasMap projectSubjectAliasMap = new ProjectSubjectAliasMap(patientListStore);
 
         // Construct a test patient list
-        Map<String, AliasMap> initialPatientList = new HashMap<String, AliasMap>();
-        final AliasMap aliasMap1 = new AliasMap();
-        aliasMap1.addAlias("HASHEDID1", "ALIAS1", "PATIENTID1", "PATIENTNAME1");
-        initialPatientList.put("PROJECT1", aliasMap1);
+        Map<String, PatientAliasMap> initialPatientList = new HashMap<String, PatientAliasMap>();
+        final PatientAliasMap patientAliasMap1 = new PatientAliasMap();
+        patientAliasMap1.addAlias("HASHEDID1", "ALIAS1", "PATIENTID1", "PATIENTNAME1");
+        initialPatientList.put("PROJECT1", patientAliasMap1);
 
         // Add an alias and check the save call includes an equivalent map argument
         projectSubjectAliasMap.addAlias("PROJECT1", "HASHEDID1", "ALIAS1", "PATIENTID1", "PATIENTNAME1");
@@ -127,15 +127,15 @@ public class ProjectSubjectAliasMapTest {
 
         // Add another alias for the same project
         projectSubjectAliasMap.addAlias("PROJECT1", "HASHEDID2", "ALIAS2", "PATIENTID2", "PATIENTNAME2");
-        aliasMap1.addAlias("HASHEDID2", "ALIAS2", "PATIENTID2", "PATIENTNAME2");
+        patientAliasMap1.addAlias("HASHEDID2", "ALIAS2", "PATIENTID2", "PATIENTNAME2");
         verify(patientListStore, times(2)).save(mapArgumentCaptor.capture());
         Assert.assertTrue(initialPatientList.equals(mapArgumentCaptor.getValue()));
 
         // Add an alias for a different project
         projectSubjectAliasMap.addAlias("PROJECT2", "HASHEDID3", "ALIAS3", "PATIENTID3", "PATIENTNAME3");
-        final AliasMap aliasMap2 = new AliasMap();
-        aliasMap2.addAlias("HASHEDID3", "ALIAS3", "PATIENTID3", "PATIENTNAME3");
-        initialPatientList.put("PROJECT2", aliasMap2);
+        final PatientAliasMap patientAliasMap2 = new PatientAliasMap();
+        patientAliasMap2.addAlias("HASHEDID3", "ALIAS3", "PATIENTID3", "PATIENTNAME3");
+        initialPatientList.put("PROJECT2", patientAliasMap2);
         verify(patientListStore, times(3)).save(mapArgumentCaptor.capture());
         Assert.assertTrue(initialPatientList.equals(mapArgumentCaptor.getValue()));
     }

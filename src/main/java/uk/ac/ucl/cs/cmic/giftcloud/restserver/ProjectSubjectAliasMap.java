@@ -6,10 +6,10 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Stores a map of AliasMap objects, one for each XNAT project
+ * Stores a map of PatientAliasMap objects, one for each XNAT project
  */
 public class ProjectSubjectAliasMap {
-    private final Map<String, AliasMap> projectMap;
+    private final Map<String, PatientAliasMap> projectMap;
     private final PatientListStore patientListStore;
 
     /**
@@ -44,10 +44,10 @@ public class ProjectSubjectAliasMap {
      */
     public void addAlias(final String projectName, final String hashedPatientId, final String alias, final String patientId, final String patientName) {
         // Get the map for this project
-        final AliasMap aliasMapForProject = getAliasMapForProject(projectName);
+        final PatientAliasMap patientAliasMapForProject = getAliasMapForProject(projectName);
 
         // Add the alias
-        aliasMapForProject.addAlias(hashedPatientId, alias, patientId, patientName);
+        patientAliasMapForProject.addAlias(hashedPatientId, alias, patientId, patientName);
 
         patientListStore.save(projectMap);
     }
@@ -59,9 +59,9 @@ public class ProjectSubjectAliasMap {
         patientListStore.save(projectMap);
     }
 
-    private AliasMap getAliasMapForProject(final String projectName) {
+    private PatientAliasMap getAliasMapForProject(final String projectName) {
         if (!projectMap.containsKey(projectName)) {
-            projectMap.put(projectName, new AliasMap());
+            projectMap.put(projectName, new PatientAliasMap());
         }
         return projectMap.get(projectName);
     }

@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.AliasMap;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
@@ -36,7 +36,7 @@ public class PatientListStore {
      *
      * @param projectMap map of project names to alias maps to be saved
      */
-    public void save(final Map<String, AliasMap> projectMap) {
+    public void save(final Map<String, PatientAliasMap> projectMap) {
 
         try {
             final JsonWriter jsonWriter = new JsonWriter(localCacheFolder, reporter);
@@ -66,7 +66,7 @@ public class PatientListStore {
      *
      * @return the reconstructed map of project names to alias maps
      */
-    public Map<String, AliasMap> load() {
+    public Map<String, PatientAliasMap> load() {
         return JsonWriter.readProjectMap(localCacheFolder, reporter);
     }
 }

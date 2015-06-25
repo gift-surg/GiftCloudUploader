@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.AliasMap;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
@@ -73,15 +73,15 @@ public abstract class PatientListWriter {
     /**
      * Adds subject information from a project map
      *
-     * @param projectMap a map of project name to AliasMap containing subject information
+     * @param projectMap a map of project name to PatientAliasMap containing subject information
      */
-    public void writeProjectMap(final Map<String, AliasMap> projectMap) {
-        for (Map.Entry<String, AliasMap> entry : projectMap.entrySet()) {
+    public void writeProjectMap(final Map<String, PatientAliasMap> projectMap) {
+        for (Map.Entry<String, PatientAliasMap> entry : projectMap.entrySet()) {
             final String projectName = entry.getKey();
-            final Map<String, AliasMap.AliasRecord> aliasMap = entry.getValue().getMap();
+            final Map<String, PatientAliasMap.PatientAliasRecord> aliasMap = entry.getValue().getMap();
 
-            for (AliasMap.AliasRecord aliasRecord : aliasMap.values()) {
-                addEntry(projectName, aliasRecord.getPpid(), aliasRecord.getAlias(), aliasRecord.getPatientId(), aliasRecord.getPatientName());
+            for (PatientAliasMap.PatientAliasRecord patientAliasRecord : aliasMap.values()) {
+                addEntry(projectName, patientAliasRecord.getPpid(), patientAliasRecord.getAlias(), patientAliasRecord.getPatientId(), patientAliasRecord.getPatientName());
             }
         }
     }

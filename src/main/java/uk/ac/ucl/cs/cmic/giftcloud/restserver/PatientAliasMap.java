@@ -7,8 +7,8 @@ import java.util.Optional;
 /**
  * Stores a mapping of hashed patient IDs to patient records
  */
-public class AliasMap {
-    private final Map<String, AliasRecord> aliasRecordMap = new HashMap<String, AliasRecord>();
+public class PatientAliasMap {
+    private final Map<String, PatientAliasRecord> aliasRecordMap = new HashMap<String, PatientAliasRecord>();
 
     /**
      * Determine if a record already exists for this hashed patient ID
@@ -43,7 +43,7 @@ public class AliasMap {
      * @param patientName the real patient name, which will only be stored locally
      */
     public void addAlias(final String hashedPatientId, final String alias, final String patientId, final String patientName) {
-        aliasRecordMap.put(hashedPatientId, new AliasRecord(hashedPatientId, alias, patientId, patientName));
+        aliasRecordMap.put(hashedPatientId, new PatientAliasRecord(hashedPatientId, alias, patientId, patientName));
     }
 
     /**
@@ -51,22 +51,22 @@ public class AliasMap {
      *
      * @return the map of alias records
      */
-    public Map<String, AliasRecord> getMap() {
+    public Map<String, PatientAliasRecord> getMap() {
         return aliasRecordMap;
     }
 
     /**
-     * Compares another object to this AliasMap
+     * Compares another object to this PatientAliasMap
      *
      * @param otherOb the other object
-     * @return true if the other object is an AliasMap for the same subject
+     * @return true if the other object is an PatientAliasMap for the same subject
      */
     @Override public boolean equals(Object otherOb) {
         if (this == otherOb) return true;
 
-        if (!(otherOb instanceof AliasMap)) return false;
+        if (!(otherOb instanceof PatientAliasMap)) return false;
 
-        final AliasMap other = (AliasMap)otherOb;
+        final PatientAliasMap other = (PatientAliasMap)otherOb;
 
         return other.getMap().equals(this.getMap());
     }
@@ -74,7 +74,7 @@ public class AliasMap {
     /**
      * Stores details of subjects which have been uploaded, for local storage on the uploading client
      */
-    public static class AliasRecord {
+    public static class PatientAliasRecord {
         private final String ppid;
         private final String alias;
         private final String patientId;
@@ -88,7 +88,7 @@ public class AliasMap {
          * @param patientId the real patient ID, which will only be stored locally
          * @param patientName the real patient name, which will only be stored locally
          */
-        public AliasRecord(final String ppid, final String alias, final String patientId, final String patientName) {
+        public PatientAliasRecord(final String ppid, final String alias, final String patientId, final String patientName) {
             this.ppid = ppid;
             this.alias = alias;
             this.patientId = patientId;
@@ -127,14 +127,14 @@ public class AliasMap {
          * Determines if another object refers to the same subject alias
          *
          * @param otherOb the object to compare to this one
-         * @return true if the other object is an AliasMap referring to the same patient alias
+         * @return true if the other object is an PatientAliasMap referring to the same patient alias
          */
         @Override public boolean equals(Object otherOb) {
             if (this == otherOb) return true;
 
-            if (!(otherOb instanceof AliasRecord)) return false;
+            if (!(otherOb instanceof PatientAliasRecord)) return false;
 
-            final AliasRecord other = (AliasRecord)otherOb;
+            final PatientAliasRecord other = (PatientAliasRecord)otherOb;
 
             return this.ppid.equals(other.ppid) && this.alias.equals(other.alias) && this.patientId.equals(other.patientId) && this.patientName.equals(other.patientName);
         }
