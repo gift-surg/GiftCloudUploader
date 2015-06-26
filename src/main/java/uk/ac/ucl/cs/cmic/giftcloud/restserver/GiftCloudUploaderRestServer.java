@@ -108,7 +108,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
     @Override
     public Optional<String> getExperimentPseudonym(final String projectName, final String subjectName, final String peid) throws IOException {
-        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "experiments/uids/" + peid + "?format=json&columns=DEFAULT";
+        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/uids/" + peid + "?format=json&columns=DEFAULT";
         return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
     }
 
@@ -353,7 +353,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
     private synchronized void createSessionIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final String params) throws IOException {
         Map<String, String> sessions = getListOfSessions(projectLabel);
 
-        if (!sessions.containsKey(sessions)) {
+        if (!sessions.containsKey(sessionLabel)) {
             restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + params);
         }
     }

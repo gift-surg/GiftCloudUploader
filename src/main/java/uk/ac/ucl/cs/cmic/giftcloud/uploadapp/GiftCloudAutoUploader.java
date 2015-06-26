@@ -165,24 +165,24 @@ public class GiftCloudAutoUploader {
     }
 
     private String getSessionName(final GiftCloudServer server, final String projectName, final String subjectName, final String studyInstanceUid, final Map<String, String> serverSessionMap, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<String> existingSessionLabel = subjectAliasStore.getExperimentAlias(server, projectName, subjectName, studyInstanceUid);
-        if (existingSessionLabel.isPresent()) {
-            return existingSessionLabel.get();
+        final Optional<String> existingExperimentLabel = subjectAliasStore.getExperimentAlias(server, projectName, subjectName, studyInstanceUid);
+        if (existingExperimentLabel.isPresent()) {
+            return existingExperimentLabel.get();
         } else {
-            final String newSessionAlias = sessionNameGenerator.getNewName(serverSessionMap.keySet());
-            subjectAliasStore.addExperimentAlias(server, projectName, subjectName, studyInstanceUid, newSessionAlias, xnatModalityParams);
-            return newSessionAlias;
+            final String newExperimentLabel = sessionNameGenerator.getNewName(serverSessionMap.keySet());
+            subjectAliasStore.addExperimentAlias(server, projectName, subjectName, newExperimentLabel, studyInstanceUid, xnatModalityParams);
+            return newExperimentLabel;
         }
     }
 
     private String getScanName(final GiftCloudServer server, final String projectName, final String subjectName, final String experimentName, final String seriesInstanceUid, final Map<String, String> serverScanMap, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<String> existingScanAlias = subjectAliasStore.getScanAlias(server, projectName, subjectName, experimentName, seriesInstanceUid);
-        if (existingScanAlias.isPresent()) {
-            return existingScanAlias.get();
+        final Optional<String> existingScanLabel = subjectAliasStore.getScanAlias(server, projectName, subjectName, experimentName, seriesInstanceUid);
+        if (existingScanLabel.isPresent()) {
+            return existingScanLabel.get();
         } else {
-            final String newScanAlias = scanNameGenerator.getNewName(serverScanMap.keySet());
-            subjectAliasStore.addScanAlias(server, projectName, subjectName, experimentName, seriesInstanceUid, newScanAlias, xnatModalityParams);
-            return newScanAlias;
+            final String newScanLabel = scanNameGenerator.getNewName(serverScanMap.keySet());
+            subjectAliasStore.addScanAlias(server, projectName, subjectName, experimentName, seriesInstanceUid, newScanLabel, xnatModalityParams);
+            return newScanLabel;
         }
     }
 
