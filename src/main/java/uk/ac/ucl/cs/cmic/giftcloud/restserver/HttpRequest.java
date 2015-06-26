@@ -140,7 +140,9 @@ abstract class HttpRequest<T> {
                 if (e.getCause() instanceof sun.security.validator.ValidatorException) {
                     throw new GiftCloudException(GiftCloudUploaderError.SERVER_CERTIFICATE_FAILURE);
                 }
-                reporter.silentLogException(e, "An error occurred while processing request " + connection.getUrlString());
+                if (!(e instanceof GiftCloudHttpException && ((GiftCloudHttpException)e).getResponseCode() == HTTP_NOT_FOUND)) {
+                    reporter.silentLogException(e, "An error occurred while processing request " + connection.getUrlString());
+                }
                 throwIfBadResponse(connection);
                 throw e;
             }
