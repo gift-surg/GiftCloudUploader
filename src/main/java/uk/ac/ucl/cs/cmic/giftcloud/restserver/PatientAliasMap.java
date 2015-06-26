@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import uk.ac.ucl.cs.cmic.giftcloud.util.AliasUidMap;
+import uk.ac.ucl.cs.cmic.giftcloud.util.LabelUidMap;
 
 import java.io.IOException;
 import java.util.Map;
@@ -10,7 +10,7 @@ import java.util.Optional;
  * Stores a mapping of hashed patient IDs and patient aliases to patient records
  */
 public class PatientAliasMap {
-    private final AliasUidMap<PatientAliasRecord> aliasRecordMap = new AliasUidMap<PatientAliasRecord>();
+    private final LabelUidMap<PatientAliasRecord> aliasRecordMap = new LabelUidMap<PatientAliasRecord>();
 
     /**
      * Determine if a record already exists for this hashed patient ID
@@ -81,10 +81,10 @@ public class PatientAliasMap {
      * @return an Optional, set to the experiment alias if it exists
      */
     public Optional<String> getExperimentAlias(final String subjectAlias, final String hashedStudyInstanceUid) {
-        if (aliasRecordMap.containsAlias(subjectAlias)) {
+        if (aliasRecordMap.containsLabel(subjectAlias)) {
             return Optional.empty();
         } else {
-            return aliasRecordMap.getValueForAlias(subjectAlias).getExperimentAlias(hashedStudyInstanceUid);
+            return aliasRecordMap.getValueForLabel(subjectAlias).getExperimentAlias(hashedStudyInstanceUid);
         }
     }
 
@@ -97,10 +97,10 @@ public class PatientAliasMap {
      * @return an Optional, set to the scan alias if it exists
      */
     public Optional<String> getScanAlias(final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) {
-        if (aliasRecordMap.containsAlias(subjectAlias)) {
+        if (aliasRecordMap.containsLabel(subjectAlias)) {
             return Optional.empty();
         } else {
-            return aliasRecordMap.getValueForAlias(subjectAlias).getScanAlias(experimentAlias, hashedSeriesInstanceUid);
+            return aliasRecordMap.getValueForLabel(subjectAlias).getScanAlias(experimentAlias, hashedSeriesInstanceUid);
         }
     }
 
@@ -113,10 +113,10 @@ public class PatientAliasMap {
      * @throws IOException if the subject does not exist
      */
     public void addExperimentAlias(final String subjectAlias, final String hashedStudyInstanceUid, final String experimentAlias) throws IOException {
-        if (aliasRecordMap.containsAlias(subjectAlias)) {
+        if (aliasRecordMap.containsLabel(subjectAlias)) {
             throw new IOException("The subject alias was not found");
         }
-        aliasRecordMap.getValueForAlias(subjectAlias).addExperimentAlias(hashedStudyInstanceUid, experimentAlias);
+        aliasRecordMap.getValueForLabel(subjectAlias).addExperimentAlias(hashedStudyInstanceUid, experimentAlias);
     }
 
     /**
@@ -129,10 +129,10 @@ public class PatientAliasMap {
      * @throws IOException if the subject or experiment do not exist
      */
     public void addScanAlias(final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid, final String scanAlias) throws IOException {
-        if (aliasRecordMap.containsAlias(subjectAlias)) {
+        if (aliasRecordMap.containsLabel(subjectAlias)) {
             throw new IOException("The subject alias was not found");
         }
-        aliasRecordMap.getValueForAlias(subjectAlias).addScanAlias(experimentAlias, hashedSeriesInstanceUid, scanAlias);
+        aliasRecordMap.getValueForLabel(subjectAlias).addScanAlias(experimentAlias, hashedSeriesInstanceUid, scanAlias);
     }
 
     /**
@@ -143,7 +143,7 @@ public class PatientAliasMap {
         private final String alias;
         private final String patientId;
         private final String patientName;
-        private final AliasUidMap<ExperimentAliasRecord> experimentAliasRecordMap = new AliasUidMap<ExperimentAliasRecord>();;
+        private final LabelUidMap<ExperimentAliasRecord> experimentAliasRecordMap = new LabelUidMap<ExperimentAliasRecord>();;
 
         /**
          * Creates a new subject record for local storage
@@ -225,10 +225,10 @@ public class PatientAliasMap {
          * @return the scan label
          */
         public Optional<String> getScanAlias(final String experimentAlias, final String hashedSeriesInstanceUid) {
-            if (!experimentAliasRecordMap.containsAlias(experimentAlias)) {
+            if (!experimentAliasRecordMap.containsLabel(experimentAlias)) {
                 return Optional.empty();
             }
-            return experimentAliasRecordMap.getValueForAlias(experimentAlias).getScanAlias(hashedSeriesInstanceUid);
+            return experimentAliasRecordMap.getValueForLabel(experimentAlias).getScanAlias(hashedSeriesInstanceUid);
         }
 
         /**
@@ -246,10 +246,10 @@ public class PatientAliasMap {
          * @param scanAlias the GIFT-Cloud scan label
          */
         public void addScanAlias(final String experimentAlias, final String hashedSeriesInstanceUid, final String scanAlias) throws IOException {
-            if (!experimentAliasRecordMap.containsAlias(experimentAlias)) {
+            if (!experimentAliasRecordMap.containsLabel(experimentAlias)) {
                 throw new IOException("experiment alias not found");
             }
-            experimentAliasRecordMap.getValueForAlias(experimentAlias).addScanAlias(hashedSeriesInstanceUid, scanAlias);;
+            experimentAliasRecordMap.getValueForLabel(experimentAlias).addScanAlias(hashedSeriesInstanceUid, scanAlias);;
         }
 
         /**
@@ -258,7 +258,7 @@ public class PatientAliasMap {
         public static class ExperimentAliasRecord {
             private final String psid;
             private final String experimentAlias;
-            private final AliasUidMap<ScanAliasRecord> scanAliasRecordMap = new AliasUidMap<ScanAliasRecord>();
+            private final LabelUidMap<ScanAliasRecord> scanAliasRecordMap = new LabelUidMap<ScanAliasRecord>();
 
             /**
              * Creates a new subject record for local storage
@@ -310,7 +310,7 @@ public class PatientAliasMap {
              * @return the scan label
              */
             public Optional<String> getScanAlias(final String hashedSeriesInstanceUid) {
-                if (!scanAliasRecordMap.containsAlias(hashedSeriesInstanceUid)) {
+                if (!scanAliasRecordMap.containsLabel(hashedSeriesInstanceUid)) {
                     return Optional.empty();
                 } else {
                     return Optional.of(scanAliasRecordMap.getValueForUid(hashedSeriesInstanceUid).getScanAlias());

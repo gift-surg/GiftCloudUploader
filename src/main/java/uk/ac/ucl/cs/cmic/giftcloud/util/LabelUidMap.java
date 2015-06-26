@@ -4,20 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class for storing a map which can be indexed by two different keys, a "uid" and "alias"
+ * Class for storing a map which can be indexed by two different keys, a "label" and a "uid"
  * @param <V> the value type of the map
  */
-public class AliasUidMap<V> {
+public class LabelUidMap<V> {
+    private final Map<String, V> labelMap = new HashMap<String, V>();
     private final Map<String, V> uidMap = new HashMap<String, V>();
-    private final Map<String, V> aliasMap = new HashMap<String, V>();
 
     /**
-     * Returns the value for this alias key
-     * @param alias
+     * Returns the value for this label key
+     * @param label
      * @return
      */
-    public V getValueForAlias(final String alias) {
-        return aliasMap.get(alias);
+    public V getValueForLabel(final String label) {
+        return labelMap.get(label);
     }
 
     /**
@@ -32,13 +32,22 @@ public class AliasUidMap<V> {
     /**
      * Adds a new value
      *
-     * @param alias the alias key
+     * @param label the label key
      * @param uid the uid key
      * @param value the value
      */
-    public void put(final String alias, final String uid, final V value) {
-        aliasMap.put(alias, value);
+    public void put(final String label, final String uid, final V value) {
+        labelMap.put(label, value);
         uidMap.put(uid, value);
+    }
+
+    /**
+     * Determines if the map contains a value with the given label key
+     * @param label
+     * @return true if the given label key exists
+     */
+    public boolean containsLabel(final String label) {
+        return labelMap.containsKey(label);
     }
 
     /**
@@ -51,12 +60,10 @@ public class AliasUidMap<V> {
     }
 
     /**
-     * Determines if the map contains a value with the given alias key
-     * @param alias
-     * @return true if the given alias key exists
+     * @return the map of label keys to values
      */
-    public boolean containsAlias(final String alias) {
-        return aliasMap.containsKey(alias);
+    public Map<String, V> getLabelMap() {
+        return labelMap;
     }
 
     /**
@@ -64,12 +71,5 @@ public class AliasUidMap<V> {
      */
     public Map<String, V> getUidMap() {
         return uidMap;
-    }
-
-    /**
-     * @return the map of alias keys to values
-     */
-    public Map<String, V> getAliasMap() {
-        return aliasMap;
     }
 }
