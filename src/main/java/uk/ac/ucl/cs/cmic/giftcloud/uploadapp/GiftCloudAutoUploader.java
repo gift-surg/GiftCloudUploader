@@ -154,18 +154,18 @@ public class GiftCloudAutoUploader {
     }
 
     private synchronized String getSubjectName(final GiftCloudServer server, final String projectName, final Map<String, String> subjectMapFromServer, final String patientId, final String patientName) throws IOException {
-        final Optional<String> existingSubjectAlias = subjectAliasStore.getSubjectAlias(server, projectName, patientId, patientName);
-        if (existingSubjectAlias.isPresent()) {
-            return existingSubjectAlias.get();
+        final Optional<String> existingSubjectLabel = subjectAliasStore.getSubjectAlias(server, projectName, patientId, patientName);
+        if (existingSubjectLabel.isPresent()) {
+            return existingSubjectLabel.get();
         } else {
-            final String newSubjectAlias = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
-            subjectAliasStore.addSubjectAlias(server, projectName, patientId, newSubjectAlias, patientName);
-            return newSubjectAlias;
+            final String newSubjectLabel = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
+            subjectAliasStore.addSubjectAlias(server, projectName, patientId, newSubjectLabel, patientName);
+            return newSubjectLabel;
         }
     }
 
     private String getSessionName(final GiftCloudServer server, final String projectName, final String subjectName, final String studyInstanceUid, final Map<String, String> serverSessionMap, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<String> existingExperimentLabel = subjectAliasStore.getExperimentAlias(server, projectName, subjectName, studyInstanceUid);
+        final Optional<String> existingExperimentLabel = subjectAliasStore.getExperimentLabel(server, projectName, subjectName, studyInstanceUid);
         if (existingExperimentLabel.isPresent()) {
             return existingExperimentLabel.get();
         } else {
@@ -176,7 +176,7 @@ public class GiftCloudAutoUploader {
     }
 
     private String getScanName(final GiftCloudServer server, final String projectName, final String subjectName, final String experimentName, final String seriesInstanceUid, final Map<String, String> serverScanMap, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<String> existingScanLabel = subjectAliasStore.getScanAlias(server, projectName, subjectName, experimentName, seriesInstanceUid);
+        final Optional<String> existingScanLabel = subjectAliasStore.getScanLabel(server, projectName, subjectName, experimentName, seriesInstanceUid);
         if (existingScanLabel.isPresent()) {
             return existingScanLabel.get();
         } else {

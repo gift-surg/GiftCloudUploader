@@ -60,30 +60,66 @@ public class ProjectSubjectAliasMap {
         patientListStore.save(projectMap);
     }
 
+    /**
+     * Gets the GIFT-Cloud label for the experiment with a specific pseudonymised UID
+     *
+     * @param projectLabel the GIFT-Cloud project label
+     * @param subjectLabel the GIFT-Cloud subject label
+     * @param hashedStudyInstanceUid the pseudonymised experiment UID
+     * @return An Optional which contains the experiment label if the pseudonymised UID exists; otherwise returns an Optional.Empty
+     */
+    public Optional<String> getExperimentLabel(final String projectLabel, final String subjectLabel, final String hashedStudyInstanceUid) {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectLabel);
+        return patientAliasMap.getExperimentLabel(subjectLabel, hashedStudyInstanceUid);
+    }
+
+    /**
+     * Gets the GIFT-Cloud label for the scan with a specific pseudonymised UID
+     *
+     * @param projectLabel the GIFT-Cloud project label
+     * @param subjectLabel the GIFT-Cloud subject label
+     * @param experimentLabel the GIFT-Cloud experiment label
+     * @param hashedSeriesInstanceUid the pseudonymised scan UID
+     * @return An Optional which contains the scan label if the pseudonymised UID exists; otherwise returns an Optional.Empty
+     */
+    public Optional<String> getScanLabel(final String projectLabel, final String subjectLabel, final String experimentLabel, final String hashedSeriesInstanceUid) {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectLabel);
+        return patientAliasMap.getScanLabel(subjectLabel, experimentLabel, hashedSeriesInstanceUid);
+    }
+
+    /**
+     * Adds a new alias (label and UID) for an experiment
+     *
+     * @param projectLabel the GIFT-Cloud project label
+     * @param subjectLabel the GIFT-Cloud subject label
+     * @param hashedStudyInstanceUid the pseudonymised experiment UID
+     * @param experimentLabel the experiment label
+     * @throws IOException if the project label is unknown
+     */
+    public void addExperimentAlias(final String projectLabel, final String subjectLabel, final String hashedStudyInstanceUid, final String experimentLabel) throws IOException {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectLabel);
+        patientAliasMap.addExperimentAlias(subjectLabel, hashedStudyInstanceUid, experimentLabel);
+    }
+
+    /**
+     * Adds a new alias (label and UID) for a scan
+     *
+     * @param projectLabel the GIFT-Cloud project label
+     * @param subjectLabel the GIFT-Cloud subject label
+     * @param experimentLabel the GIFT-Cloud experiment label
+     * @param hashedSeriesInstanceUid the pseudonymised scan UID
+     * @param experimentLabel the experiment label
+     * @throws IOException if the project label is unknown
+     */
+    public void addScanAlias(final String projectLabel, final String subjectLabel, final String experimentLabel, final String hashedSeriesInstanceUid, final String scanLabel)  throws IOException {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectLabel);
+        patientAliasMap.addScanAlias(subjectLabel, experimentLabel, hashedSeriesInstanceUid, scanLabel);
+    }
+
     private PatientAliasMap getAliasMapForProject(final String projectName) {
         if (!projectMap.containsKey(projectName)) {
             projectMap.put(projectName, new PatientAliasMap());
         }
         return projectMap.get(projectName);
-    }
-
-    public Optional<String> getExperimentAlias(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) {
-        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectName);
-        return patientAliasMap.getExperimentLabel(subjectAlias, hashedStudyInstanceUid);
-    }
-
-    public Optional<String> getScanAlias(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) {
-        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectName);
-        return patientAliasMap.getScanLabel(subjectAlias, experimentAlias, hashedSeriesInstanceUid);
-    }
-
-    public void addExperimentAlias(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid, final String experimentAlias) throws IOException {
-        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectName);
-        patientAliasMap.addExperimentAlias(subjectAlias, hashedStudyInstanceUid, experimentAlias);
-    }
-
-    public void addScanAlias(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid, final String scanAlias)  throws IOException {
-        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectName);
-        patientAliasMap.addScanAlias(subjectAlias, experimentAlias, hashedSeriesInstanceUid, scanAlias);
     }
 }
