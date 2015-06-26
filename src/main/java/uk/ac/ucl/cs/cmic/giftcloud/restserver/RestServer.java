@@ -23,7 +23,7 @@ public interface RestServer {
 
     Map<String, String> getListOfResources(String projectName, String subjectName, String sessionName, String scanName) throws IOException, JSONException;
 
-    Optional<String> getSubjectPseudonym(String projectName, String ppid) throws IOException;
+    Optional<String> getSubjectLabel(String projectName, String ppid) throws IOException;
 
     Collection<?> getScriptStatus(String projectName) throws IOException;
 
@@ -47,17 +47,17 @@ public interface RestServer {
 
     Set<String> uploadZipFile(String projectLabel, String subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception;
 
-    void createPseudonymIfNotExisting(String projectLabel, String subjectLabel, String pseudonym) throws IOException;
+    void createSubjectAliasIfNotExisting(String projectLabel, String subjectLabel, String pseudonym) throws IOException;
 
     void appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception;
 
     void resetCancellation();
 
-    Optional<String> getScanPseudonym(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException;
+    Optional<String> getScanLabel(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException;
 
-    Optional<String> getExperimentPseudonym(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) throws IOException;
+    Optional<String> getExperimentLabel(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) throws IOException;
 
-    void createExperimentPseudonymIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
+    void createExperimentAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
 
-    void createScanPseudonymIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String scanAlias, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
+    void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String scanAlias, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
 }

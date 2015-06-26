@@ -73,7 +73,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Optional<String> getSubjectPseudonym(String projectName, String ppid) throws IOException {
+    public Optional<String> getSubjectLabel(String projectName, String ppid) throws IOException {
         return projectMap.projectExists(projectName) ? projectMap.get(projectName).getPseudonym(ppid) : Optional.<String>empty();
     }
 
@@ -135,7 +135,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public void createPseudonymIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
+    public void createSubjectAliasIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
         final ProjectMap.ProjectRecord projectRecord = projectMap.get(projectLabel);
 
         final ProjectMap.ProjectRecord.SubjectRecord subjectRecord = projectRecord.get(subjectLabel);
@@ -154,7 +154,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Optional<String> getScanPseudonym(String projectName, String subjectAlias, String experimentAlias, String hashedSeriesInstanceUid) throws IOException {
+    public Optional<String> getScanLabel(String projectName, String subjectAlias, String experimentAlias, String hashedSeriesInstanceUid) throws IOException {
         if (!scanMap.containsKey(hashedSeriesInstanceUid)) {
             return Optional.empty();
         } else {
@@ -163,7 +163,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Optional<String> getExperimentPseudonym(String projectName, String subjectAlias, String hashedStudyInstanceUid) throws IOException {
+    public Optional<String> getExperimentLabel(String projectName, String subjectAlias, String hashedStudyInstanceUid) throws IOException {
         if (!experimentMap.containsKey(hashedStudyInstanceUid)) {
             return Optional.empty();
         } else {
@@ -172,12 +172,12 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public void createExperimentPseudonymIfNotExisting(String projectName, String subjectAlias, String experimentAlias, String hashedStudyInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
+    public void createExperimentAliasIfNotExisting(String projectName, String subjectAlias, String experimentAlias, String hashedStudyInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
         experimentMap.put(hashedStudyInstanceUid, experimentAlias);
     }
 
     @Override
-    public void createScanPseudonymIfNotExisting(String projectName, String subjectAlias, String experimentAlias, String scanAlias, String hashedSeriesInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
+    public void createScanAliasIfNotExisting(String projectName, String subjectAlias, String experimentAlias, String scanAlias, String hashedSeriesInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
         scanMap.put(hashedSeriesInstanceUid, scanAlias);
     }
 

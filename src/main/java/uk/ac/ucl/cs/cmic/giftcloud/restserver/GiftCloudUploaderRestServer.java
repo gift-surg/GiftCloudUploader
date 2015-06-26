@@ -101,19 +101,19 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public Optional<String> getSubjectPseudonym(final String projectName, final String ppid) throws IOException {
+    public Optional<String> getSubjectLabel(final String projectName, final String ppid) throws IOException {
         final String uri = "/REST/projects/" + projectName + "/pseudonyms/" + ppid + "?format=json&columns=DEFAULT";
         return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
     }
 
     @Override
-    public Optional<String> getExperimentPseudonym(final String projectName, final String subjectName, final String peid) throws IOException {
+    public Optional<String> getExperimentLabel(final String projectName, final String subjectName, final String peid) throws IOException {
         final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/uids/" + peid + "?format=json&columns=DEFAULT";
         return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
     }
 
     @Override
-    public Optional<String> getScanPseudonym(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
+    public Optional<String> getScanLabel(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
         final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectAlias + "/experiments/" + experimentAlias + "/scans/uids/" + hashedSeriesInstanceUid + "?format=json&columns=DEFAULT";
         return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
     }
@@ -375,8 +375,8 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public synchronized void createPseudonymIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
-        final Optional<String> pseuodynym = getSubjectPseudonym(projectLabel, subjectLabel);
+    public synchronized void createSubjectAliasIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
+        final Optional<String> pseuodynym = getSubjectLabel(projectLabel, subjectLabel);
         if (!pseuodynym.isPresent()) {
             createSubjectIfNotExisting(projectLabel, subjectLabel);
             restServerSessionHelper.createPostResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/pseudonyms/" + pseudonym);
@@ -384,12 +384,12 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public void createExperimentPseudonymIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<String> pseuodynym = getExperimentPseudonym(projectName, subjectAlias, hashedStudyInstanceUid);
-        if (!pseuodynym.isPresent()) {
-            createSubjectIfNotExisting(projectName, subjectAlias);
+    public void createExperimentAliasIfNotExisting(final String projectName, final String subjectLabel, final String experimentLabel, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+        final Optional<String> experimentLabelFromServer = getExperimentLabel(projectName, subjectLabel, hashedStudyInstanceUid);
+        if (!experimentLabelFromServer.isPresent()) {
+            createSubjectIfNotExisting(projectName, subjectLabel);
             final String sessionCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag() + "&UID=" + hashedStudyInstanceUid;
-            createSessionIfNotExisting(projectName, subjectAlias, experimentAlias, sessionCreateParams);
+            createSessionIfNotExisting(projectName, subjectLabel, experimentLabel, sessionCreateParams);
         }
     }
 
@@ -432,8 +432,8 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public void createScanPseudonymIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String scanAlias, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<String> pseuodynym = getScanPseudonym(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid);
+    public void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String scanAlias, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+        final Optional<String> pseuodynym = getScanLabel(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid);
         if (!pseuodynym.isPresent()) {
             createSubjectIfNotExisting(projectName, subjectAlias);
             final String sessionCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag();

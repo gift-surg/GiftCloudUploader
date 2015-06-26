@@ -67,13 +67,13 @@ public class SubjectAliasStore {
 
             try {
                 // Check if a mapping already exists on the XNAT server
-                final Optional<String> subjectAliasFromServer = server.getSubjectPseudonym(projectName, hashedPatientId);
-                if (subjectAliasFromServer.isPresent()) {
+                final Optional<String> subjectLabelFromServer = server.getSubjectLabel(projectName, hashedPatientId);
+                if (subjectLabelFromServer.isPresent()) {
 
                     // Cache the new alias
-                    projectMap.addAlias(projectName, hashedPatientId, subjectAliasFromServer.get(), patientId, patientName);
+                    projectMap.addAlias(projectName, hashedPatientId, subjectLabelFromServer.get(), patientId, patientName);
 
-                    return Optional.of(subjectAliasFromServer.get());
+                    return Optional.of(subjectLabelFromServer.get());
                 }
 
             } catch (GiftCloudHttpException exception) {
@@ -116,7 +116,7 @@ public class SubjectAliasStore {
 
             // Add the hashed patient ID to the XNAT subject
             try {
-                server.createPseudonymIfNotExisting(projectName, subjectAlias, hashedPatientId);
+                server.createSubjectAliasIfNotExisting(projectName, subjectAlias, hashedPatientId);
 
             } catch (GiftCloudHttpException exception) {
                 // 400 indicates the hashed patient ID request is not supported by the server.
@@ -169,7 +169,7 @@ public class SubjectAliasStore {
 
             try {
                 // Check if a mapping already exists on the XNAT server
-                final Optional<String> experimentLabelFromServer = server.getExperimentPseudonym(projectLabel, subjectLabel, hashedStudyInstanceUid);
+                final Optional<String> experimentLabelFromServer = server.getExperimentLabel(projectLabel, subjectLabel, hashedStudyInstanceUid);
                 if (experimentLabelFromServer.isPresent()) {
 
                     // Cache the new label
@@ -213,7 +213,7 @@ public class SubjectAliasStore {
 
             // Add the hashed patient ID to the XNAT subject
             try {
-                server.createExperimentPseudonymIfNotExisting(projectLabel, subjectLabel, experimentLabel, hashedStudyInstanceUid, xnatModalityParams);
+                server.createExperimentAliasIfNotExisting(projectLabel, subjectLabel, experimentLabel, hashedStudyInstanceUid, xnatModalityParams);
 
             } catch (GiftCloudHttpException exception) {
                 // 400 indicates the hashed patient ID request is not supported by the server.
@@ -261,7 +261,7 @@ public class SubjectAliasStore {
 
             try {
                 // Check if a mapping already exists on the XNAT server
-                final Optional<String> scanAliasFromServer = server.getScanPseudonym(projectName, subjectLabel, experimentLabel, hashedSeriesInstanceUid);
+                final Optional<String> scanAliasFromServer = server.getScanLabel(projectName, subjectLabel, experimentLabel, hashedSeriesInstanceUid);
                 if (scanAliasFromServer.isPresent()) {
 
                     // Cache the new alias
@@ -314,7 +314,7 @@ public class SubjectAliasStore {
 
             // Add the hashed patient ID to the XNAT subject
             try {
-                server.createScanPseudonymIfNotExisting(projectName, subjectLabel, experimentLabel, scanLabel, hashedSeriesInstanceUid, xnatModalityParams);
+                server.createScanAliasIfNotExisting(projectName, subjectLabel, experimentLabel, scanLabel, hashedSeriesInstanceUid, xnatModalityParams);
 
             } catch (GiftCloudHttpException exception) {
                 // 400 indicates the hashed patient ID request is not supported by the server.
