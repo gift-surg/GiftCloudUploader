@@ -91,10 +91,10 @@ public class SubjectAliasStore {
 
     /** Create a new mapping between patient ID and XNAT subject name
      * @param patientId the DICOM patient ID. Must not be blank or null.
-     * @param subjectAlias the new XNAT subject identifier to be mapped to this patient ID
+     * @param subjectLabel the new XNAT subject identifier to be mapped to this patient ID
      * @throws IOException if communication with the XNAT server failed
      */
-    public void addSubjectAlias(final GiftCloudServer server, final String projectName, final String patientId, final String subjectAlias, final String patientName) throws IOException {
+    public void addSubjectAlias(final GiftCloudServer server, final String projectName, final String patientId, final String subjectLabel, final String patientName) throws IOException {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -104,7 +104,7 @@ public class SubjectAliasStore {
             throw new IllegalArgumentException("A patient ID must be specified.");
         }
 
-        if (StringUtils.isBlank(subjectAlias)) {
+        if (StringUtils.isBlank(subjectLabel)) {
             throw new IllegalArgumentException("A subject name must be specified.");
         }
 
@@ -116,7 +116,7 @@ public class SubjectAliasStore {
 
             // Add the hashed patient ID to the XNAT subject
             try {
-                server.createSubjectAliasIfNotExisting(projectName, subjectAlias, hashedPatientId);
+                server.createSubjectAliasIfNotExisting(projectName, subjectLabel, hashedPatientId);
 
             } catch (GiftCloudHttpException exception) {
                 // 400 indicates the hashed patient ID request is not supported by the server.
@@ -128,7 +128,7 @@ public class SubjectAliasStore {
             }
 
             // Cache the new alias
-            projectMap.addAlias(projectName, hashedPatientId, subjectAlias, patientId, patientName);
+            projectMap.addAlias(projectName, hashedPatientId, subjectLabel, patientId, patientName);
         }
     }
 
