@@ -109,13 +109,14 @@ public class GiftCloudUploaderRestServer implements RestServer {
     @Override
     public Optional<String> getExperimentLabel(final String projectName, final String subjectName, final String peid) throws IOException {
         final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/uids/" + peid + "?format=json&columns=DEFAULT";
-        return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
+        return restServerSessionHelper.getId(uri, "label");
     }
 
     @Override
-    public Optional<String> getScanLabel(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
         final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectAlias + "/experiments/" + experimentAlias + "/scans/uids/" + hashedSeriesInstanceUid + "?format=json&columns=DEFAULT";
-        return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
+        final Optional<String> scanLabelString = restServerSessionHelper.getId(uri, "ID");
+        return scanLabelString.isPresent() ? Optional.of(new GiftCloudLabel.ScanLabel(scanLabelString.get())) : Optional.<GiftCloudLabel.ScanLabel>empty();
     }
 
     @Override
@@ -438,8 +439,8 @@ public class GiftCloudUploaderRestServer implements RestServer {
             createSubjectIfNotExisting(projectName, subjectAlias);
             final String sessionCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag();
             createSessionIfNotExisting(projectName, subjectAlias, experimentAlias, sessionCreateParams);
-            final String scanCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag() + "&UID=" + hashedSeriesInstanceUid;
-            createScanIfNotExisting(projectName, subjectAlias, experimentAlias, scanAlias, scanCreateParams);
+            final String scanCreateParams = "?xsiType=" + xnatModalityParams.getXnatScanTag() + "&UID=" + hashedSeriesInstanceUid;
+            createScanIfNotExisting(projectName, subjectAlias, experimentAlias, scanLabel, scanCreateParams);
         }
     }
 }

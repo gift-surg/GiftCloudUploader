@@ -21,16 +21,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 class HttpJsonPpidResponseProcessor extends HttpResponseProcessor<String> {
-    private final JSONDecoder<String> decoder;
+    private String key;
 
-    HttpJsonPpidResponseProcessor(final JSONDecoder decoder) {
-        this.decoder = decoder;
+    HttpJsonPpidResponseProcessor(final String key) {
+        this.key = key;
     }
 
     protected final String streamFromConnection(final InputStream inputStream) throws IOException {
         final JSONObject entries2 = MultiUploaderUtils.extractJSONEntity(inputStream);
 
-        final String output = (entries2.getJSONArray("items").getJSONObject(0).getJSONObject("data_fields")).get("label").toString();
+        final String output = (entries2.getJSONArray("items").getJSONObject(0).getJSONObject("data_fields")).get(key).toString();
         return output;
     }
 }
