@@ -229,7 +229,7 @@ public class SubjectAliasStore {
         }
     }
 
-    public Optional<String> getScanLabel(final GiftCloudServer server, final String projectName, final String subjectLabel, final String experimentLabel, final String seriesInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final GiftCloudServer server, final String projectName, final String subjectLabel, final String experimentLabel, final String seriesInstanceUid) throws IOException {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -254,20 +254,20 @@ public class SubjectAliasStore {
         synchronized (synchronizationLock) {
 
             // If the hashed ID is in our local session cache then return the subject identifier
-            final Optional<String> scanAlias = projectMap.getScanLabel(projectName, subjectLabel, experimentLabel, hashedSeriesInstanceUid);
+            final Optional<GiftCloudLabel.ScanLabel> scanAlias = projectMap.getScanLabel(projectName, subjectLabel, experimentLabel, hashedSeriesInstanceUid);
             if (scanAlias.isPresent()) {
                 return scanAlias;
             }
 
             try {
                 // Check if a mapping already exists on the XNAT server
-                final Optional<String> scanAliasFromServer = server.getScanLabel(projectName, subjectLabel, experimentLabel, hashedSeriesInstanceUid);
-                if (scanAliasFromServer.isPresent()) {
+                final Optional<GiftCloudLabel.ScanLabel> scanLabelFromServer = server.getScanLabel(projectName, subjectLabel, experimentLabel, hashedSeriesInstanceUid);
+                if (scanLabelFromServer.isPresent()) {
 
                     // Cache the new alias
-                    projectMap.addScanAlias(projectName, subjectLabel, experimentLabel, hashedSeriesInstanceUid, scanAliasFromServer.get());
+                    projectMap.addScanAlias(projectName, subjectLabel, experimentLabel, hashedSeriesInstanceUid, scanLabelFromServer.get());
 
-                    return Optional.of(scanAliasFromServer.get());
+                    return Optional.of(scanLabelFromServer.get());
                 }
 
             } catch (GiftCloudHttpException exception) {
@@ -284,7 +284,7 @@ public class SubjectAliasStore {
     }
 
 
-    public void addScanAlias(final GiftCloudServer server, final String projectName, final String subjectLabel, final String experimentLabel, final String scanLabel, final String seriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+    public void addScanAlias(final GiftCloudServer server, final String projectName, final String subjectLabel, final String experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String seriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -298,7 +298,7 @@ public class SubjectAliasStore {
             throw new IllegalArgumentException("A session alias name must be specified.");
         }
 
-        if (StringUtils.isBlank(scanLabel)) {
+        if (StringUtils.isBlank(scanLabel.getStringLabel())) {
             throw new IllegalArgumentException("A series alias name must be specified.");
         }
 

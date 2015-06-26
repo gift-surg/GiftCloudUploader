@@ -166,11 +166,11 @@ public class GiftCloudServer {
         return restServer.getExperimentLabel(projectName, subjectAlias, hashedStudyInstanceUid);
     }
 
-    public void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String scanAlias, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
-        restServer.createScanAliasIfNotExisting(projectName, subjectAlias, experimentAlias, scanAlias, hashedSeriesInstanceUid, xnatModalityParams);
+    public void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+        restServer.createScanAliasIfNotExisting(projectName, subjectAlias, experimentAlias, scanLabel, hashedSeriesInstanceUid, xnatModalityParams);
     }
 
-    public Optional<String> getScanLabel(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
         return restServer.getScanLabel(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid);
     }
 

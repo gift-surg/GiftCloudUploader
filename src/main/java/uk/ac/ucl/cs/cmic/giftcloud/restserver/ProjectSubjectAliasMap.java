@@ -82,7 +82,7 @@ public class ProjectSubjectAliasMap {
      * @param hashedSeriesInstanceUid the pseudonymised scan UID
      * @return An Optional which contains the scan label if the pseudonymised UID exists; otherwise returns an Optional.Empty
      */
-    public Optional<String> getScanLabel(final String projectLabel, final String subjectLabel, final String experimentLabel, final String hashedSeriesInstanceUid) {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectLabel, final String subjectLabel, final String experimentLabel, final String hashedSeriesInstanceUid) {
         final PatientAliasMap patientAliasMap = getAliasMapForProject(projectLabel);
         return patientAliasMap.getScanLabel(subjectLabel, experimentLabel, hashedSeriesInstanceUid);
     }
@@ -111,7 +111,7 @@ public class ProjectSubjectAliasMap {
      * @param experimentLabel the experiment label
      * @throws IOException if the project label is unknown
      */
-    public void addScanAlias(final String projectLabel, final String subjectLabel, final String experimentLabel, final String hashedSeriesInstanceUid, final String scanLabel)  throws IOException {
+    public void addScanAlias(final String projectLabel, final String subjectLabel, final String experimentLabel, final String hashedSeriesInstanceUid, final GiftCloudLabel.ScanLabel scanLabel)  throws IOException {
         final PatientAliasMap patientAliasMap = getAliasMapForProject(projectLabel);
         patientAliasMap.addScanAlias(subjectLabel, experimentLabel, hashedSeriesInstanceUid, scanLabel);
     }

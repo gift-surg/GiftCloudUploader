@@ -316,7 +316,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
         final String visit = sessionParameters.getVisit();
         final String protocol = sessionParameters.getProtocol();
         final String sessionLabel = sessionParameters.getSessionLabel();
-        final String scanLabel = sessionParameters.getScanLabel();
+        final GiftCloudLabel.ScanLabel scanLabel = sessionParameters.getScanLabel();
 
         final String dataPostURL;
         final StringBuilder buffer = new StringBuilder();
@@ -325,8 +325,8 @@ public class GiftCloudUploaderRestServer implements RestServer {
         buffer.append("&SUBJECT_ID=").append(subjectLabel);
         buffer.append("&EXPT_LABEL=").append(sessionLabel);
 
-        if (!Strings.isNullOrEmpty(scanLabel)) {
-            buffer.append("&SCAN=").append(scanLabel);
+        if (!Strings.isNullOrEmpty(scanLabel.getStringLabel())) {
+            buffer.append("&SCAN=").append(scanLabel.getStringLabel());
         }
         if (!Strings.isNullOrEmpty(visit)) {
             buffer.append("&VISIT=").append(visit);
@@ -358,26 +358,26 @@ public class GiftCloudUploaderRestServer implements RestServer {
         }
     }
 
-    private synchronized void createScanIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final String scanLabel, final String params) throws IOException {
+    private synchronized void createScanIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final GiftCloudLabel.ScanLabel scanLabel, final String params) throws IOException {
         Map<String,String> scans = getListOfScans(projectLabel, subjectLabel, sessionLabel);
 
-        if (!scans.containsKey(scanLabel)) {
-            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + "/scans/" + scanLabel + params);
+        if (!scans.containsKey(scanLabel.getStringLabel())) {
+            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + "/scans/" + scanLabel.getStringLabel() + params);
         }
     }
 
-    private synchronized void createScanCollectionIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final String scanLabel, final String resourceName, final String params) throws IOException {
-        Map<String,String> resources = getListOfResources(projectLabel, subjectLabel, sessionLabel, scanLabel);
+    private synchronized void createScanCollectionIfNotExisting(final String projectLabel, final String subjectLabel, final String sessionLabel, final GiftCloudLabel.ScanLabel scanLabel, final String resourceName, final String params) throws IOException {
+        Map<String,String> resources = getListOfResources(projectLabel, subjectLabel, sessionLabel, scanLabel.getStringLabel());
 
         if (!resources.containsKey(resourceName)) {
-            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + "/scans/" + scanLabel + "/resources/" + resourceName + params);
+            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionLabel + "/scans/" + scanLabel.getStringLabel() + "/resources/" + resourceName + params);
         }
     }
 
     @Override
     public synchronized void createSubjectAliasIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
-        final Optional<String> pseuodynym = getSubjectLabel(projectLabel, subjectLabel);
-        if (!pseuodynym.isPresent()) {
+        final Optional<String> subjectLabelFromServer = getSubjectLabel(projectLabel, subjectLabel);
+        if (!subjectLabelFromServer.isPresent()) {
             createSubjectIfNotExisting(projectLabel, subjectLabel);
             restServerSessionHelper.createPostResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/pseudonyms/" + pseudonym);
         }
@@ -432,9 +432,9 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String scanAlias, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<String> pseuodynym = getScanLabel(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid);
-        if (!pseuodynym.isPresent()) {
+    public void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+        final Optional<GiftCloudLabel.ScanLabel> scanLabelFromServer = getScanLabel(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid);
+        if (!scanLabelFromServer.isPresent()) {
             createSubjectIfNotExisting(projectName, subjectAlias);
             final String sessionCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag();
             createSessionIfNotExisting(projectName, subjectAlias, experimentAlias, sessionCreateParams);

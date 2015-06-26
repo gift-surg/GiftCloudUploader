@@ -7,8 +7,8 @@ import java.util.Map;
  * Class for storing a map which can be indexed by two different keys, a "label" and a "uid"
  * @param <V> the value type of the map
  */
-public class LabelUidMap<V> {
-    private final Map<String, V> labelMap = new HashMap<String, V>();
+public class LabelUidMap<K, V> {
+    private final Map<K, V> labelMap = new HashMap<K, V>();
     private final Map<String, V> uidMap = new HashMap<String, V>();
 
     /**
@@ -16,7 +16,7 @@ public class LabelUidMap<V> {
      * @param label
      * @return
      */
-    public V getValueForLabel(final String label) {
+    public V getValueForLabel(final K label) {
         return labelMap.get(label);
     }
 
@@ -36,7 +36,7 @@ public class LabelUidMap<V> {
      * @param uid the uid key
      * @param value the value
      */
-    public void put(final String label, final String uid, final V value) {
+    public void put(final K label, final String uid, final V value) {
         labelMap.put(label, value);
         uidMap.put(uid, value);
     }
@@ -46,7 +46,7 @@ public class LabelUidMap<V> {
      * @param label
      * @return true if the given label key exists
      */
-    public boolean containsLabel(final String label) {
+    public boolean containsLabel(final K label) {
         return labelMap.containsKey(label);
     }
 
@@ -62,7 +62,7 @@ public class LabelUidMap<V> {
     /**
      * @return the map of label keys to values
      */
-    public Map<String, V> getLabelMap() {
+    public Map<K, V> getLabelMap() {
         return labelMap;
     }
 

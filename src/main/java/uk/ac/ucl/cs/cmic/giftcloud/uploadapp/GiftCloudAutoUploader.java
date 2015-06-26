@@ -35,9 +35,19 @@ public class GiftCloudAutoUploader {
     private final String autoScanNamePrefix = "AutoUploadScan";
     private long autoScanNameStartNumber = 0;
 
-    private final NameGenerator subjectNameGenerator = new NameGenerator(autoSubjectNamePrefix, autoSubjectNameStartNumber);
-    private final NameGenerator sessionNameGenerator = new NameGenerator(autoSessionNamePrefix, autoSessionNameStartNumber);
-    private final NameGenerator scanNameGenerator = new NameGenerator(autoScanNamePrefix, autoScanNameStartNumber);
+    private final NameGenerator<String> subjectNameGenerator = new NameGenerator<String>(autoSubjectNamePrefix, autoSubjectNameStartNumber, new GiftCloudLabel.LabelFactory<String>() {
+        @Override
+        public String create(String label) {
+            return label;
+        }
+    });
+    private final NameGenerator<String> sessionNameGenerator = new NameGenerator<String>(autoSessionNamePrefix, autoSessionNameStartNumber, new GiftCloudLabel.LabelFactory<String>() {
+        @Override
+        public String create(String label) {
+            return label;
+        }
+    });
+    private final NameGenerator<GiftCloudLabel.ScanLabel> scanNameGenerator = new NameGenerator<GiftCloudLabel.ScanLabel>(autoScanNamePrefix, autoScanNameStartNumber, GiftCloudLabel.ScanLabel.getFactory());
 
     private final SubjectAliasStore subjectAliasStore;
 
@@ -125,14 +135,14 @@ public class GiftCloudAutoUploader {
         final String subjectName = getSubjectName(server, projectName, subjectMapFromServer, patientId, patientName);
         final String sessionName = getSessionName(server, projectName, subjectName, studyInstanceUid, sessionMapFromServer, xnatModalityParams);
         final Map<String, String> scanMapFromServer = server.getListOfScans(projectName, subjectName, sessionName);
-        final String scanName = getScanName(server, projectName, subjectName, sessionName, seriesUid, scanMapFromServer, xnatModalityParams);
+        final GiftCloudLabel.ScanLabel scanName = getScanName(server, projectName, subjectName, sessionName, seriesUid, scanMapFromServer, xnatModalityParams);
 
         final GiftCloudSessionParameters sessionParameters = new GiftCloudSessionParameters();
         sessionParameters.setAdminEmail("null@null.com");
         sessionParameters.setSessionLabel(sessionName);
         sessionParameters.setProtocol("");
         sessionParameters.setVisit("");
-        sessionParameters.setScan(scanName);
+        sessionParameters.setScanLabel(scanName);
         sessionParameters.setBaseUrl(new URL(server.getGiftCloudServerUrl()));
         sessionParameters.setNumberOfThreads(1);
         sessionParameters.setUsedFixedSize(true);
@@ -175,13 +185,13 @@ public class GiftCloudAutoUploader {
         }
     }
 
-    private String getScanName(final GiftCloudServer server, final String projectName, final String subjectName, final String experimentName, final String seriesInstanceUid, final Map<String, String> serverScanMap, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<String> existingScanLabel = subjectAliasStore.getScanLabel(server, projectName, subjectName, experimentName, seriesInstanceUid);
+    private GiftCloudLabel.ScanLabel getScanName(final GiftCloudServer server, final String projectName, final String subjectName, final String experimentName, final String seriesInstanceUid, final Map<String, String> serverScanMap, final XnatModalityParams xnatModalityParams) throws IOException {
+        final Optional<GiftCloudLabel.ScanLabel> existingScanLabel = subjectAliasStore.getScanLabel(server, projectName, subjectName, experimentName, seriesInstanceUid);
         if (existingScanLabel.isPresent()) {
             return existingScanLabel.get();
         } else {
-            final String newScanLabel = scanNameGenerator.getNewName(serverScanMap.keySet());
-            subjectAliasStore.addScanAlias(server, projectName, subjectName, experimentName, seriesInstanceUid, newScanLabel, xnatModalityParams);
+            final GiftCloudLabel.ScanLabel newScanLabel = scanNameGenerator.getNewName(serverScanMap.keySet());
+            subjectAliasStore.addScanAlias(server, projectName, subjectName, experimentName, newScanLabel, seriesInstanceUid, xnatModalityParams);
             return newScanLabel;
         }
     }
@@ -189,24 +199,26 @@ public class GiftCloudAutoUploader {
     /**
      * Threadsafe class to generate unique names
      */
-    private class NameGenerator {
+    private class NameGenerator<T> { //  extends GiftCloudLabel
         private long nameNumber;
+        private final GiftCloudLabel.LabelFactory<T> labelFactory;
         private final String prefix;
 
         /** Creates a new NameGenerator which will create names starting with the given prefix, and incrementing a suffix number starting at startNumber
          * @param prefix the string prefix for each generated name
          * @param startNumber the number used for the suffix of the first name, which will be incremented after each name generation
          */
-        NameGenerator(final String prefix, final long startNumber) {
+        NameGenerator(final String prefix, final long startNumber, final GiftCloudLabel.LabelFactory<T> labelFactory) {
             this.prefix = prefix;
             this.nameNumber = startNumber;
+            this.labelFactory = labelFactory;
         }
 
         /** Returns a unique name that is not part of the given list of known names
          * @param knownNames a list of known names. The returned name will not be one of these
          * @return a new name
          */
-        private String getNewName(final Set<String> knownNames) {
+        private T getNewName(final Set<String> knownNames) {
             String candidateName;
 
             do {
@@ -214,7 +226,7 @@ public class GiftCloudAutoUploader {
 
             } while (knownNames.contains(candidateName));
 
-            return candidateName;
+            return labelFactory.create(candidateName);
         }
 
         /** Returns a name that has not been returned before by this object

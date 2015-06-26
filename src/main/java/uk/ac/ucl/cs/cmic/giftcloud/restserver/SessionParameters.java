@@ -24,5 +24,5 @@ public interface SessionParameters {
 
     Collection<?> getSessionVariables();
 
-    String getScanLabel();
+    GiftCloudLabel.ScanLabel getScanLabel();
 }

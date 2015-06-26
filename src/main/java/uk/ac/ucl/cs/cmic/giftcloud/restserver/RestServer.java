@@ -53,11 +53,11 @@ public interface RestServer {
 
     void resetCancellation();
 
-    Optional<String> getScanLabel(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException;
+    Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException;
 
     Optional<String> getExperimentLabel(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) throws IOException;
 
     void createExperimentAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
 
-    void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String scanAlias, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
+    void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
 }

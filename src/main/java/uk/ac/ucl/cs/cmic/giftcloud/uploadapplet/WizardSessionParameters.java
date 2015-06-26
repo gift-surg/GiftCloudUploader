@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionParams;
@@ -77,7 +78,7 @@ public class WizardSessionParameters implements SessionParameters {
     }
 
     @Override
-    public String getScanLabel() {
+    public GiftCloudLabel.ScanLabel getScanLabel() {
         return null;
     }
 }

@@ -13,7 +13,7 @@ public class MockRestServer implements RestServer {
 
     private final ProjectMap projectMap = new ProjectMap();
     private final Map<String, String> experimentMap = new HashMap<String, String>();
-    private final Map<String, String> scanMap = new HashMap<String, String>();
+    private final Map<String, GiftCloudLabel.ScanLabel> scanMap = new HashMap<String, GiftCloudLabel.ScanLabel>();
 
     public MockRestServer(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) {
     }
@@ -154,7 +154,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Optional<String> getScanLabel(String projectName, String subjectAlias, String experimentAlias, String hashedSeriesInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(String projectName, String subjectAlias, String experimentAlias, String hashedSeriesInstanceUid) throws IOException {
         if (!scanMap.containsKey(hashedSeriesInstanceUid)) {
             return Optional.empty();
         } else {
@@ -177,7 +177,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public void createScanAliasIfNotExisting(String projectName, String subjectAlias, String experimentAlias, String scanAlias, String hashedSeriesInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
+    public void createScanAliasIfNotExisting(String projectName, String subjectAlias, String experimentAlias, GiftCloudLabel.ScanLabel scanAlias, String hashedSeriesInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
         scanMap.put(hashedSeriesInstanceUid, scanAlias);
     }
 
