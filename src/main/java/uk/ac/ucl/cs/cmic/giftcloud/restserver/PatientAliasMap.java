@@ -204,6 +204,12 @@ public class PatientAliasMap {
             return this.ppid.equals(other.ppid) && this.alias.equals(other.alias) && this.patientId.equals(other.patientId) && this.patientName.equals(other.patientName);
         }
 
+        /**
+         * Returns the GIFT-Cloud experiment label alias for a particualar scan
+         *
+         * @param hashedStudyInstanceUid pseudonymised study UID (PSID) for this scan
+         * @return the experiment label
+         */
         public Optional<String> getExperimentAlias(final String hashedStudyInstanceUid) {
             if (!experimentAliasRecordMap.containsUid(hashedStudyInstanceUid)) {
                 return Optional.empty();
@@ -211,6 +217,13 @@ public class PatientAliasMap {
             return Optional.of(experimentAliasRecordMap.getValueForUid(hashedStudyInstanceUid).getExperimentAlias());
         }
 
+        /**
+         * Returns the GIFT-Cloud scan label for a particualar scan
+         *
+         * @param experimentAlias GIFT-Cloud label for the experiment containing this can
+         * @param hashedSeriesInstanceUid pseudonymised series UID (PSERID) for this scan
+         * @return the scan label
+         */
         public Optional<String> getScanAlias(final String experimentAlias, final String hashedSeriesInstanceUid) {
             if (!experimentAliasRecordMap.containsAlias(experimentAlias)) {
                 return Optional.empty();
@@ -218,10 +231,20 @@ public class PatientAliasMap {
             return experimentAliasRecordMap.getValueForAlias(experimentAlias).getScanAlias(hashedSeriesInstanceUid);
         }
 
+        /**
+         * Adds a new GIFT-Cloud alias for a particular experiment
+         * @param hashedStudyInstanceUid  pseudonymised study UID (PSID) for this scan
+         * @param experimentAlias the GIFT-Cloud experiment label
+         */
         public void addExperimentAlias(final String hashedStudyInstanceUid, final String experimentAlias) {
             experimentAliasRecordMap.put(experimentAlias, hashedStudyInstanceUid, new ExperimentAliasRecord(hashedStudyInstanceUid, experimentAlias));
         }
 
+        /**
+         * Adds a new GIFT-Cloud label for a particular scan
+         * @param hashedSeriesInstanceUid  pseudonymised series UID (PSERID) for this scan
+         * @param scanAlias the GIFT-Cloud scan label
+         */
         public void addScanAlias(final String experimentAlias, final String hashedSeriesInstanceUid, final String scanAlias) throws IOException {
             if (!experimentAliasRecordMap.containsAlias(experimentAlias)) {
                 throw new IOException("experiment alias not found");
@@ -249,24 +272,26 @@ public class PatientAliasMap {
             }
 
             /**
-             * @return the GIFT-Cloud alias
+             * Returns the GIFT-Cloud label for this experiment
+             *
+             * @return the GIFT-Cloud label
              */
             public String getExperimentAlias() {
                 return experimentAlias;
             }
 
             /**
-             * @return the pseudonymised patient ID (PPID), which is a one-way hash of the patient ID
+             * @return the pseudonymised study ID (PSID), which is a one-way hash of the study instance UID
              */
             public String getPsid() {
                 return psid;
             }
 
             /**
-             * Determines if another object refers to the same subject alias
+             * Determines if another object refers to the same experiment alias
              *
              * @param otherOb the object to compare to this one
-             * @return true if the other object is an PatientAliasMap referring to the same patient alias
+             * @return true if the other object is an ExperimentAliasRecord referring to the same experiment alias
              */
             @Override public boolean equals(Object otherOb) {
                 if (this == otherOb) return true;
@@ -278,6 +303,12 @@ public class PatientAliasMap {
                 return this.psid.equals(other.psid) && this.experimentAlias.equals(other.experimentAlias);
             }
 
+            /**
+             * Returns the GIFT-Cloud scan label corresponding to a pseudonymised series UID (PSERID)
+             *
+             * @param hashedSeriesInstanceUid pseudonymised series UID (PSERID) for this scan
+             * @return the scan label
+             */
             public Optional<String> getScanAlias(final String hashedSeriesInstanceUid) {
                 if (!scanAliasRecordMap.containsAlias(hashedSeriesInstanceUid)) {
                     return Optional.empty();
@@ -286,6 +317,11 @@ public class PatientAliasMap {
                 }
             }
 
+            /**
+             * Adds a new GIFT-Cloud label for a particular scan
+             * @param hashedSeriesInstanceUid  pseudonymised series UID (PSERID) for this scan
+             * @param scanAlias the GIFT-Cloud scan label
+             */
             public void addScanAlias(final String hashedSeriesInstanceUid, final String scanAlias) {
                 scanAliasRecordMap.put(scanAlias, hashedSeriesInstanceUid, new ScanAliasRecord(hashedSeriesInstanceUid, scanAlias));
             }
@@ -316,7 +352,7 @@ public class PatientAliasMap {
                 }
 
                 /**
-                 * @return the pseudonymised patient ID (PPID), which is a one-way hash of the patient ID
+                 * @return the pseudonymised series UID (PSERID), which is a one-way hash of the series instance uid
                  */
                 public String getPserid() {
                     return pserid;
@@ -324,10 +360,10 @@ public class PatientAliasMap {
 
 
                 /**
-                 * Determines if another object refers to the same subject alias
+                 * Determines if another object refers to the same scan alias
                  *
                  * @param otherOb the object to compare to this one
-                 * @return true if the other object is an PatientAliasMap referring to the same patient alias
+                 * @return true if the other object is an ScanAliasRecord referring to the same scan alias
                  */
                 @Override
                 public boolean equals(Object otherOb) {
