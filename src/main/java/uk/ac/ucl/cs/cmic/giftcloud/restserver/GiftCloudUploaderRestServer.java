@@ -108,13 +108,13 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
     @Override
     public Optional<String> getExperimentPseudonym(final String projectName, final String subjectName, final String peid) throws IOException {
-        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/uids/" + peid + "?format=json&columns=DEFAULT";
+        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "experiments/uids/" + peid + "?format=json&columns=DEFAULT";
         return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
     }
 
     @Override
     public Optional<String> getScanPseudonym(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
-        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectAlias + "/experiments/" + experimentAlias + "/uids/" + hashedSeriesInstanceUid + "?format=json&columns=DEFAULT";
+        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectAlias + "/experiments/" + experimentAlias + "/scans/uids/" + hashedSeriesInstanceUid + "?format=json&columns=DEFAULT";
         return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
     }
 
@@ -388,9 +388,8 @@ public class GiftCloudUploaderRestServer implements RestServer {
         final Optional<String> pseuodynym = getExperimentPseudonym(projectName, subjectAlias, hashedStudyInstanceUid);
         if (!pseuodynym.isPresent()) {
             createSubjectIfNotExisting(projectName, subjectAlias);
-            final String sessionCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag();
+            final String sessionCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag() + "&UID=" + hashedStudyInstanceUid;
             createSessionIfNotExisting(projectName, subjectAlias, experimentAlias, sessionCreateParams);
-            restServerSessionHelper.createPostResource("/data/archive/projects/" + projectName + "/subjects/" + subjectAlias + "/experiments/" + experimentAlias + "/uids/" + hashedStudyInstanceUid);
         }
     }
 
@@ -439,9 +438,8 @@ public class GiftCloudUploaderRestServer implements RestServer {
             createSubjectIfNotExisting(projectName, subjectAlias);
             final String sessionCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag();
             createSessionIfNotExisting(projectName, subjectAlias, experimentAlias, sessionCreateParams);
-            final String scanCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag();
+            final String scanCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag() + "&UID=" + hashedSeriesInstanceUid;
             createScanIfNotExisting(projectName, subjectAlias, experimentAlias, scanAlias, scanCreateParams);
-            restServerSessionHelper.createPostResource("/data/archive/projects/" + projectName + "/subjects/" + subjectAlias + "/experiments/" + experimentAlias + "/scans/" + scanAlias + "/uids/" + hashedSeriesInstanceUid);
         }
     }
 }
