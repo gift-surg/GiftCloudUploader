@@ -165,9 +165,9 @@ public class GiftCloudAutoUploader {
     }
 
     private String getSessionName(final GiftCloudServer server, final String projectName, final String subjectName, final String studyInstanceUid, final Map<String, String> serverSessionMap, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<String> existingSessionAlias = subjectAliasStore.getExperimentAlias(server, projectName, subjectName, studyInstanceUid);
-        if (existingSessionAlias.isPresent()) {
-            return existingSessionAlias.get();
+        final Optional<String> existingSessionLabel = subjectAliasStore.getExperimentAlias(server, projectName, subjectName, studyInstanceUid);
+        if (existingSessionLabel.isPresent()) {
+            return existingSessionLabel.get();
         } else {
             final String newSessionAlias = sessionNameGenerator.getNewName(serverSessionMap.keySet());
             subjectAliasStore.addExperimentAlias(server, projectName, subjectName, studyInstanceUid, newSessionAlias, xnatModalityParams);

@@ -78,10 +78,10 @@ public abstract class PatientListWriter {
     public void writeProjectMap(final Map<String, PatientAliasMap> projectMap) {
         for (Map.Entry<String, PatientAliasMap> entry : projectMap.entrySet()) {
             final String projectName = entry.getKey();
-            final Map<String, PatientAliasMap.PatientAliasRecord> aliasMap = entry.getValue().getMap();
+            final Map<String, PatientAliasMap.SubjectAliasRecord> aliasMap = entry.getValue().getMap();
 
-            for (PatientAliasMap.PatientAliasRecord patientAliasRecord : aliasMap.values()) {
-                addEntry(projectName, patientAliasRecord.getPpid(), patientAliasRecord.getPatientAlias(), patientAliasRecord.getPatientId(), patientAliasRecord.getPatientName());
+            for (PatientAliasMap.SubjectAliasRecord subjectAliasRecord : aliasMap.values()) {
+                addEntry(projectName, subjectAliasRecord.getPpid(), subjectAliasRecord.getPatientLabel(), subjectAliasRecord.getPatientId(), subjectAliasRecord.getPatientName());
             }
         }
     }

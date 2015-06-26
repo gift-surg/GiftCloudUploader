@@ -31,7 +31,7 @@ public class ProjectSubjectAliasMap {
      * @return the XNAT alias string
      */
     public Optional<String> getSubjectAlias(final String projectName, final String hashedPatientId) {
-        return getAliasMapForProject(projectName).getAlias(hashedPatientId);
+        return getAliasMapForProject(projectName).getLabel(hashedPatientId);
     }
 
     /**
@@ -48,7 +48,7 @@ public class ProjectSubjectAliasMap {
         final PatientAliasMap patientAliasMapForProject = getAliasMapForProject(projectName);
 
         // Add the alias
-        patientAliasMapForProject.addAlias(hashedPatientId, alias, patientId, patientName);
+        patientAliasMapForProject.addSubjectAlias(hashedPatientId, alias, patientId, patientName);
 
         patientListStore.save(projectMap);
     }
@@ -69,12 +69,12 @@ public class ProjectSubjectAliasMap {
 
     public Optional<String> getExperimentAlias(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) {
         final PatientAliasMap patientAliasMap = getAliasMapForProject(projectName);
-        return patientAliasMap.getExperimentAlias(subjectAlias, hashedStudyInstanceUid);
+        return patientAliasMap.getExperimentLabel(subjectAlias, hashedStudyInstanceUid);
     }
 
     public Optional<String> getScanAlias(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) {
         final PatientAliasMap patientAliasMap = getAliasMapForProject(projectName);
-        return patientAliasMap.getScanAlias(subjectAlias, experimentAlias, hashedSeriesInstanceUid);
+        return patientAliasMap.getScanLabel(subjectAlias, experimentAlias, hashedSeriesInstanceUid);
     }
 
     public void addExperimentAlias(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid, final String experimentAlias) throws IOException {

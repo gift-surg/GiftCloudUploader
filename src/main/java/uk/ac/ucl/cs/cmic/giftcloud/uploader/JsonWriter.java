@@ -94,7 +94,7 @@ public class JsonWriter extends PatientListWriter {
                     final String patientId = (String)aliasEntry.get(PATIENT_ID_STRING);
                     final String patientAlias = (String)aliasEntry.get(PATIENT_ALIAS_STRING);
                     final String patientPpid = (String)aliasEntry.get(PATIENT_PPID_STRING);
-                    patientAliasMap.addAlias(patientPpid, patientAlias, patientId, patientName);
+                    patientAliasMap.addSubjectAlias(patientPpid, patientAlias, patientId, patientName);
                 }
 
                 projectMap.put(projectName, patientAliasMap);
