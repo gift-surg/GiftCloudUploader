@@ -12,7 +12,7 @@ import java.util.*;
 public class MockRestServer implements RestServer {
 
     private final ProjectMap projectMap = new ProjectMap();
-    private final Map<String, String> experimentMap = new HashMap<String, String>();
+    private final Map<String, GiftCloudLabel.ExperimentLabel> experimentMap = new HashMap<String, GiftCloudLabel.ExperimentLabel>();
     private final Map<String, GiftCloudLabel.ScanLabel> scanMap = new HashMap<String, GiftCloudLabel.ScanLabel>();
 
     public MockRestServer(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) {
@@ -58,7 +58,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Map<String, String> getListOfScans(String projectName, String subjectName, String sessionName) throws IOException, JSONException {
+    public Map<String, String> getListOfScans(String projectName, String subjectName, GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException, JSONException {
         return new HashMap<String, String>();
     }
 
@@ -68,7 +68,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Map<String, String> getListOfResources(String projectName, String subjectName, String sessionName, String scanName) throws IOException, JSONException {
+    public Map<String, String> getListOfResources(String projectName, String subjectName, GiftCloudLabel.ExperimentLabel experimentLabel, GiftCloudLabel.ScanLabel scanLabel) throws IOException, JSONException {
         return new HashMap<String, String>();
     }
 
@@ -154,7 +154,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(String projectName, String subjectAlias, String experimentAlias, String hashedSeriesInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(String projectName, String subjectAlias, GiftCloudLabel.ExperimentLabel experimentLabel, String hashedSeriesInstanceUid) throws IOException {
         if (!scanMap.containsKey(hashedSeriesInstanceUid)) {
             return Optional.empty();
         } else {
@@ -163,7 +163,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Optional<String> getExperimentLabel(String projectName, String subjectAlias, String hashedStudyInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(String projectName, String subjectAlias, String hashedStudyInstanceUid) throws IOException {
         if (!experimentMap.containsKey(hashedStudyInstanceUid)) {
             return Optional.empty();
         } else {
@@ -172,12 +172,12 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public void createExperimentAliasIfNotExisting(String projectName, String subjectAlias, String experimentAlias, String hashedStudyInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
-        experimentMap.put(hashedStudyInstanceUid, experimentAlias);
+    public void createExperimentAliasIfNotExisting(String projectName, String subjectAlias, GiftCloudLabel.ExperimentLabel experimentLabel, String hashedStudyInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
+        experimentMap.put(hashedStudyInstanceUid, experimentLabel);
     }
 
     @Override
-    public void createScanAliasIfNotExisting(String projectName, String subjectAlias, String experimentAlias, GiftCloudLabel.ScanLabel scanAlias, String hashedSeriesInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
+    public void createScanAliasIfNotExisting(String projectName, String subjectAlias, GiftCloudLabel.ExperimentLabel experimentLabel, GiftCloudLabel.ScanLabel scanAlias, String hashedSeriesInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
         scanMap.put(hashedSeriesInstanceUid, scanAlias);
     }
 

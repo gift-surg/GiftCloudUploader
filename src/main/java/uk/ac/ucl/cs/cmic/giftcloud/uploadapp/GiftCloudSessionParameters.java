@@ -11,7 +11,7 @@ import java.util.Collection;
 
 public class GiftCloudSessionParameters implements SessionParameters {
 
-    private String sessionLabel = null;
+    private GiftCloudLabel.ExperimentLabel experimentLabel = null;
     private String visit = null;
     private GiftCloudLabel.ScanLabel scanLabel = null;
     private String protocol = null;
@@ -26,8 +26,8 @@ public class GiftCloudSessionParameters implements SessionParameters {
     }
 
     @Override
-    public String getSessionLabel() {
-        return sessionLabel;
+    public GiftCloudLabel.ExperimentLabel getExperimentLabel() {
+        return experimentLabel;
     }
 
     @Override
@@ -75,8 +75,8 @@ public class GiftCloudSessionParameters implements SessionParameters {
         return scanLabel;
     }
 
-    public void setSessionLabel(String sessionLabel) {
-        this.sessionLabel = sessionLabel;
+    public void setExperimentLabel(GiftCloudLabel.ExperimentLabel experimentLabel) {
+        this.experimentLabel = experimentLabel;
     }
 
     public void setScanLabel(final GiftCloudLabel.ScanLabel scanLabel) {

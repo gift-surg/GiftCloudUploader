@@ -80,7 +80,7 @@ public class PatientAliasMap {
      * @param hashedStudyInstanceUid a one-way hash of the study instance UID
      * @return an Optional, set to the GIFT-Cloud experiment label if the hashed ID exists
      */
-    public Optional<String> getExperimentLabel(final String subjectLabel, final String hashedStudyInstanceUid) {
+    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final String subjectLabel, final String hashedStudyInstanceUid) {
         if (subjectMap.containsLabel(subjectLabel)) {
             return Optional.empty();
         } else {
@@ -96,7 +96,7 @@ public class PatientAliasMap {
      * @param hashedSeriesInstanceUid a one-way hash of the series instance UID
      * @return an Optional, set to the scan label if the hashed ID exists
      */
-    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String subjectLabel, final String experimentLabel, final String hashedSeriesInstanceUid) {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid) {
         if (subjectMap.containsLabel(subjectLabel)) {
             return Optional.empty();
         } else {
@@ -112,7 +112,7 @@ public class PatientAliasMap {
      * @param experimentLabel the GIFT-Cloud label to add to this experiment
      * @throws IOException if the subject does not exist
      */
-    public void addExperimentAlias(final String subjectLabel, final String hashedStudyInstanceUid, final String experimentLabel) throws IOException {
+    public void addExperimentAlias(final String subjectLabel, final String hashedStudyInstanceUid, final GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException {
         if (!subjectMap.containsLabel(subjectLabel)) {
             throw new IOException("The subject alias was not found");
         }
@@ -128,7 +128,7 @@ public class PatientAliasMap {
      * @param scanLabel the GIFT-Cloud alias to add to this scan
      * @throws IOException if the subject or experiment do not exist
      */
-    public void addScanAlias(final String subjectLabel, final String experimentLabel, final String hashedSeriesInstanceUid, final GiftCloudLabel.ScanLabel scanLabel) throws IOException {
+    public void addScanAlias(final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid, final GiftCloudLabel.ScanLabel scanLabel) throws IOException {
         if (!subjectMap.containsLabel(subjectLabel)) {
             throw new IOException("The subject label was not found");
         }
@@ -143,7 +143,7 @@ public class PatientAliasMap {
         private final String patientLabel;
         private final String patientId;
         private final String patientName;
-        private final LabelUidMap<String, ExperimentAliasRecord> experimentAliasRecordMap = new LabelUidMap<String, ExperimentAliasRecord>();;
+        private final LabelUidMap<GiftCloudLabel.ExperimentLabel, ExperimentAliasRecord> experimentAliasRecordMap = new LabelUidMap<GiftCloudLabel.ExperimentLabel, ExperimentAliasRecord>();;
 
         /**
          * Creates a new subject record for local storage
@@ -210,7 +210,7 @@ public class PatientAliasMap {
          * @param hashedStudyInstanceUid pseudonymised study UID (PSID) for this scan
          * @return the experiment label
          */
-        public Optional<String> getExperimentLabel(final String hashedStudyInstanceUid) {
+        public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final String hashedStudyInstanceUid) {
             if (!experimentAliasRecordMap.containsUid(hashedStudyInstanceUid)) {
                 return Optional.empty();
             }
@@ -224,7 +224,7 @@ public class PatientAliasMap {
          * @param hashedSeriesInstanceUid pseudonymised series UID (PSERID) for this scan
          * @return the scan label
          */
-        public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String experimentLabel, final String hashedSeriesInstanceUid) {
+        public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid) {
             if (!experimentAliasRecordMap.containsLabel(experimentLabel)) {
                 return Optional.empty();
             }
@@ -236,7 +236,7 @@ public class PatientAliasMap {
          * @param hashedStudyInstanceUid  pseudonymised study UID (PSID) for this scan
          * @param experimentLabel the GIFT-Cloud experiment label
          */
-        public void addExperimentLabel(final String hashedStudyInstanceUid, final String experimentLabel) {
+        public void addExperimentLabel(final String hashedStudyInstanceUid, final GiftCloudLabel.ExperimentLabel experimentLabel) {
             experimentAliasRecordMap.put(experimentLabel, hashedStudyInstanceUid, new ExperimentAliasRecord(hashedStudyInstanceUid, experimentLabel));
         }
 
@@ -245,7 +245,7 @@ public class PatientAliasMap {
          * @param hashedSeriesInstanceUid  pseudonymised series UID (PSERID) for this scan
          * @param scanLabel the GIFT-Cloud scan label
          */
-        public void addScanLabel(final String experimentLabel, final String hashedSeriesInstanceUid, final GiftCloudLabel.ScanLabel scanLabel) throws IOException {
+        public void addScanLabel(final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid, final GiftCloudLabel.ScanLabel scanLabel) throws IOException {
             if (!experimentAliasRecordMap.containsLabel(experimentLabel)) {
                 throw new IOException("Experiment label not found");
             }
@@ -256,7 +256,7 @@ public class PatientAliasMap {
          * Stores details of experiments (studies) which have been uploaded, for memory cache storage on the uploading client
          */
         public static class ExperimentAliasRecord {
-            private final String experimentLabel;
+            private final GiftCloudLabel.ExperimentLabel experimentLabel;
             private final String anonymisedUid;
             private final LabelUidMap<GiftCloudLabel.ScanLabel, ScanAliasRecord> scanAliasRecordMap = new LabelUidMap<GiftCloudLabel.ScanLabel, ScanAliasRecord>();
 
@@ -266,7 +266,7 @@ public class PatientAliasMap {
              * @param anonymisedUid the pseudonymised study ID (PSTUID), which is a one-way hash of the study instance UID
              * @param experimentLabel the GIFT-Cloud experiment alias which will be visible on the server
              */
-            public ExperimentAliasRecord(final String anonymisedUid, final String experimentLabel) {
+            public ExperimentAliasRecord(final String anonymisedUid, final GiftCloudLabel.ExperimentLabel experimentLabel) {
                 this.anonymisedUid = anonymisedUid;
                 this.experimentLabel = experimentLabel;
             }
@@ -276,7 +276,7 @@ public class PatientAliasMap {
              *
              * @return the GIFT-Cloud label
              */
-            public String getExperimentLabel() {
+            public GiftCloudLabel.ExperimentLabel getExperimentLabel() {
                 return experimentLabel;
             }
 

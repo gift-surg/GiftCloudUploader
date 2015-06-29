@@ -21,8 +21,8 @@ public class WizardSessionParameters implements SessionParameters {
     }
 
     @Override
-    public String getSessionLabel() {
-        return (sessionParameters.get(SessionVariableNames.SESSION_LABEL)).toString();
+    public GiftCloudLabel.ExperimentLabel getExperimentLabel() {
+        return GiftCloudLabel.ExperimentLabel.getFactory().create((sessionParameters.get(SessionVariableNames.SESSION_LABEL)).toString());
     }
 
     @Override

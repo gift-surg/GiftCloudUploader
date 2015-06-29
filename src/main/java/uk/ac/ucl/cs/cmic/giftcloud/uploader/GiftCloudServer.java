@@ -81,8 +81,8 @@ public class GiftCloudServer {
         return restServer.getListOfSessions(projectName);
     }
 
-    public Map<String, String> getListOfScans(final String projectName, final String subjectName, final String sessionName) throws IOException {
-        return restServer.getListOfScans(projectName, subjectName, sessionName);
+    public Map<String, String> getListOfScans(final String projectName, final String subjectName, final GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException {
+        return restServer.getListOfScans(projectName, subjectName, experimentLabel);
     }
 
     public Optional<Map<String, String>> getSitewideSeriesImportFilter() throws IOException {
@@ -158,19 +158,19 @@ public class GiftCloudServer {
         return restServer.getSubjectLabel(projectName, hashedPatientId);
     }
 
-    public void createExperimentAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+    public void createExperimentAliasIfNotExisting(final String projectName, final String subjectAlias, final GiftCloudLabel.ExperimentLabel experimentAlias, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
         restServer.createExperimentAliasIfNotExisting(projectName, subjectAlias, experimentAlias, hashedStudyInstanceUid, xnatModalityParams);
     }
 
-    public Optional<String> getExperimentLabel(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) throws IOException {
         return restServer.getExperimentLabel(projectName, subjectAlias, hashedStudyInstanceUid);
     }
 
-    public void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+    public void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final GiftCloudLabel.ExperimentLabel experimentAlias, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
         restServer.createScanAliasIfNotExisting(projectName, subjectAlias, experimentAlias, scanLabel, hashedSeriesInstanceUid, xnatModalityParams);
     }
 
-    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final String subjectAlias, final GiftCloudLabel.ExperimentLabel experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
         return restServer.getScanLabel(projectName, subjectAlias, experimentAlias, hashedSeriesInstanceUid);
     }
 

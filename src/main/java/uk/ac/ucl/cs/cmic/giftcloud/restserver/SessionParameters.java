@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.Collection;
 
 public interface SessionParameters {
-    String getSessionLabel();
+    GiftCloudLabel.ExperimentLabel getExperimentLabel();
 
     String getVisit();
 

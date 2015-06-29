@@ -141,7 +141,7 @@ public class SubjectAliasStore {
         }
     }
 
-    public Optional<String> getExperimentLabel(final GiftCloudServer server, final String projectLabel, final String subjectLabel, final String studyInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final GiftCloudServer server, final String projectLabel, final String subjectLabel, final String studyInstanceUid) throws IOException {
 
         if (StringUtils.isBlank(projectLabel)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -162,14 +162,14 @@ public class SubjectAliasStore {
         synchronized (synchronizationLock) {
 
             // If the hashed ID is in our local session cache then return the subject identifier
-            final Optional<String> studyLabel = projectMap.getExperimentLabel(projectLabel, subjectLabel, hashedStudyInstanceUid);
-            if (studyLabel.isPresent()) {
-                return studyLabel;
+            final Optional<GiftCloudLabel.ExperimentLabel> experimentLabel = projectMap.getExperimentLabel(projectLabel, subjectLabel, hashedStudyInstanceUid);
+            if (experimentLabel.isPresent()) {
+                return experimentLabel;
             }
 
             try {
                 // Check if a mapping already exists on the XNAT server
-                final Optional<String> experimentLabelFromServer = server.getExperimentLabel(projectLabel, subjectLabel, hashedStudyInstanceUid);
+                final Optional<GiftCloudLabel.ExperimentLabel> experimentLabelFromServer = server.getExperimentLabel(projectLabel, subjectLabel, hashedStudyInstanceUid);
                 if (experimentLabelFromServer.isPresent()) {
 
                     // Cache the new label
@@ -191,7 +191,7 @@ public class SubjectAliasStore {
         }
     }
 
-    public void addExperimentAlias(final GiftCloudServer server, final String projectLabel, final String subjectLabel, final String experimentLabel, final String studyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+    public void addExperimentAlias(final GiftCloudServer server, final String projectLabel, final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String studyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
 
         if (StringUtils.isBlank(projectLabel)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -201,7 +201,7 @@ public class SubjectAliasStore {
             throw new IllegalArgumentException("A subject alias must be specified.");
         }
 
-        if (StringUtils.isBlank(experimentLabel)) {
+        if (StringUtils.isBlank(experimentLabel.getStringLabel())) {
             throw new IllegalArgumentException("An experiment alias name must be specified.");
         }
 
@@ -229,7 +229,7 @@ public class SubjectAliasStore {
         }
     }
 
-    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final GiftCloudServer server, final String projectName, final String subjectLabel, final String experimentLabel, final String seriesInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final GiftCloudServer server, final String projectName, final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String seriesInstanceUid) throws IOException {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -239,7 +239,7 @@ public class SubjectAliasStore {
             throw new IllegalArgumentException("A subject alias must be specified.");
         }
 
-        if (StringUtils.isBlank(experimentLabel)) {
+        if (StringUtils.isBlank(experimentLabel.getStringLabel())) {
             throw new IllegalArgumentException("An experiment alias must be specified.");
         }
 
@@ -254,9 +254,9 @@ public class SubjectAliasStore {
         synchronized (synchronizationLock) {
 
             // If the hashed ID is in our local session cache then return the subject identifier
-            final Optional<GiftCloudLabel.ScanLabel> scanAlias = projectMap.getScanLabel(projectName, subjectLabel, experimentLabel, hashedSeriesInstanceUid);
-            if (scanAlias.isPresent()) {
-                return scanAlias;
+            final Optional<GiftCloudLabel.ScanLabel> scanLabel = projectMap.getScanLabel(projectName, subjectLabel, experimentLabel, hashedSeriesInstanceUid);
+            if (scanLabel.isPresent()) {
+                return scanLabel;
             }
 
             try {
@@ -284,7 +284,7 @@ public class SubjectAliasStore {
     }
 
 
-    public void addScanAlias(final GiftCloudServer server, final String projectName, final String subjectLabel, final String experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String seriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+    public void addScanAlias(final GiftCloudServer server, final String projectName, final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String seriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -294,7 +294,7 @@ public class SubjectAliasStore {
             throw new IllegalArgumentException("A subject alias must be specified.");
         }
 
-        if (StringUtils.isBlank(experimentLabel)) {
+        if (StringUtils.isBlank(experimentLabel.getStringLabel())) {
             throw new IllegalArgumentException("A session alias name must be specified.");
         }
 

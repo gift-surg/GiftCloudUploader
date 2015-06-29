@@ -87,7 +87,7 @@ public class UploadWizardResultProducer implements WizardResultProducer {
 
                             if (result instanceof UploadResultsSuccess) {
                                 final UploadResultsSuccess resultsSuccess = (UploadResultsSuccess)result;
-                                final UploadResultPanel resultPanel = new UploadResultPanel(resultsSuccess.getsessionLabel(), resultsSuccess.getSessionViewUrl(), uploadSelector.getWindowName(), uploadSelector.getJSContext());
+                                final UploadResultPanel resultPanel = new UploadResultPanel(resultsSuccess.getsessionLabel().getStringLabel(), resultsSuccess.getSessionViewUrl(), uploadSelector.getWindowName(), uploadSelector.getJSContext());
                                 final String fullUrlString = sessionParameters.getBaseURL() + resultsSuccess.getUri();
                                 progress.finished(Summary.create(resultPanel, new URL(fullUrlString)));
                             } else if (result instanceof UploadResultsFailure) {

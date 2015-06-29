@@ -17,11 +17,11 @@ public interface RestServer {
 
     Map<String, String> getListOfSessions(String projectName) throws IOException, JSONException;
 
-    Map<String, String> getListOfScans(String projectName, String subjectName, String sessionName) throws IOException, JSONException;
+    Map<String, String> getListOfScans(String projectName, String subjectName, final GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException, JSONException;
 
     Map<String, String> getListOfPseudonyms(String projectName) throws IOException, JSONException;
 
-    Map<String, String> getListOfResources(String projectName, String subjectName, String sessionName, String scanName) throws IOException, JSONException;
+    Map<String, String> getListOfResources(String projectName, String subjectName, GiftCloudLabel.ExperimentLabel experimentLabel, GiftCloudLabel.ScanLabel scanLabel) throws IOException, JSONException;
 
     Optional<String> getSubjectLabel(String projectName, String ppid) throws IOException;
 
@@ -53,11 +53,11 @@ public interface RestServer {
 
     void resetCancellation();
 
-    Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedSeriesInstanceUid) throws IOException;
+    Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final String subjectAlias, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid) throws IOException;
 
-    Optional<String> getExperimentLabel(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) throws IOException;
+    Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final String projectName, final String subjectAlias, final String hashedStudyInstanceUid) throws IOException;
 
-    void createExperimentAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
+    void createExperimentAliasIfNotExisting(final String projectName, final String subjectAlias, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
 
-    void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final String experimentAlias, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
+    void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
 }

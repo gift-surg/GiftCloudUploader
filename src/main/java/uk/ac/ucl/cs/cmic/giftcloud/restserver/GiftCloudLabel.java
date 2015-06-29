@@ -30,33 +30,69 @@ public abstract class GiftCloudLabel {
     }
 
     /**
-     * Used to generate a new GiftCloudLabel in generic classes
+     * Used to generate a new GiftCloudLabel of a particular type. For generic classes to be able to create an instance of their parameterised type, we need to pass in a factory class
+
      * @param <T> the type of GiftCloudLabel
      */
-    public interface LabelFactory<T extends GiftCloudLabel> {
+    public interface LabelFactory<T> { // } extends GiftCloudLabel> { // ToDo T should extend GiftCloudLabel - can do this once SubjectLabel is a GiftCloudLabel
         T create(final String label);
+    }
+
+    /**
+     * Experiment label
+     */
+    public static class ExperimentLabel extends GiftCloudLabel {
+        private static final LabelFactory<ExperimentLabel> labelFactorySingleton = new LabelFactory<ExperimentLabel>() {
+            @Override
+            public ExperimentLabel create(String label) {
+                return new ExperimentLabel(label);
+            }
+        };
+
+        /**
+         * Creates a new GIFT-Cloud experiment label
+         * @param label string representation of the label
+         */
+        protected ExperimentLabel(final String label) {
+            super(label);
+        }
+
+        /**
+         * Static method to return the ExperimentLabel factory
+         *
+         * @return a LabelFactory for creating ExperimentLabels
+         */
+        public static LabelFactory<ExperimentLabel> getFactory() {
+            return labelFactorySingleton;
+        }
     }
 
     /**
      * Scan label
      */
     public static class ScanLabel extends GiftCloudLabel {
+        private static final LabelFactory<ScanLabel> labelFactorySingleton = new LabelFactory<ScanLabel>() {
+            @Override
+            public ScanLabel create(String label) {
+                return new ScanLabel(label);
+            }
+        };
+
+        /**
+         * Creates a new GIFT-Cloud scan label
+         * @param label string representation of the label
+         */
         protected ScanLabel(final String label) {
             super(label);
         }
 
         /**
-         * Static method to create a new factory for ScanLabels
+         * Static method to return the ScanLabel factory
          *
          * @return a LabelFactory for creating ScanLabels
          */
         public static LabelFactory<ScanLabel> getFactory() {
-            return new LabelFactory<ScanLabel>() {
-                @Override
-                public ScanLabel create(String label) {
-                    return new ScanLabel(label);
-                }
-            };
+            return labelFactorySingleton;
         }
     }
 }
