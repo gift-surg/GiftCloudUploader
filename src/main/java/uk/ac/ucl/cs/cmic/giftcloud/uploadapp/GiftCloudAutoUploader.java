@@ -21,26 +21,15 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * Class for uploading files and automatically assigning them to projects, subjects, experiments and scans
+ */
 public class GiftCloudAutoUploader {
 
-    private BackgroundUploader backgroundUploader;
+    private final BackgroundUploader backgroundUploader;
     private final GiftCloudReporter reporter;
-
-    private final String autoSubjectNamePrefix = "AutoUploadSubject";
-    private final long autoSubjectNameStartNumber = 0;
-
-    private final String autoSessionNamePrefix = "AutoUploadSession";
-    private long autoSessionNameStartNumber = 0;
-
-    private final String autoScanNamePrefix = "AutoUploadScan";
-    private long autoScanNameStartNumber = 0;
-
-    private final NameGenerator<GiftCloudLabel.SubjectLabel> subjectNameGenerator = new NameGenerator<GiftCloudLabel.SubjectLabel>(autoSubjectNamePrefix, autoSubjectNameStartNumber, GiftCloudLabel.SubjectLabel.getFactory());
-    private final NameGenerator<GiftCloudLabel.ExperimentLabel> experimentLabelNameGenerator = new NameGenerator<GiftCloudLabel.ExperimentLabel>(autoSessionNamePrefix, autoSessionNameStartNumber, GiftCloudLabel.ExperimentLabel.getFactory());
-    private final NameGenerator<GiftCloudLabel.ScanLabel> scanNameGenerator = new NameGenerator<GiftCloudLabel.ScanLabel>(autoScanNamePrefix, autoScanNameStartNumber, GiftCloudLabel.ScanLabel.getFactory());
-
+    private final NameGenerator.SubjectNameGenerator subjectNameGenerator = new NameGenerator.SubjectNameGenerator();
     private final SubjectAliasStore subjectAliasStore;
-
 
     /**
      * This class is used to automatically and asynchronously group and upload multiple files to a GIFT-Cloud server
@@ -164,71 +153,27 @@ public class GiftCloudAutoUploader {
         }
     }
 
-    private GiftCloudLabel.ExperimentLabel getSessionName(final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectName, final String studyInstanceUid, final Map<String, String> serverSessionMap, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<GiftCloudLabel.ExperimentLabel> existingExperimentLabel = subjectAliasStore.getExperimentLabel(server, projectName, subjectName, studyInstanceUid);
+    private GiftCloudLabel.ExperimentLabel getSessionName(final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final String studyInstanceUid, final Map<String, String> serverSessionMap, final XnatModalityParams xnatModalityParams) throws IOException {
+        final Optional<GiftCloudLabel.ExperimentLabel> existingExperimentLabel = subjectAliasStore.getExperimentLabel(server, projectName, subjectLabel, studyInstanceUid);
         if (existingExperimentLabel.isPresent()) {
             return existingExperimentLabel.get();
         } else {
-            final GiftCloudLabel.ExperimentLabel newExperimentLabel = experimentLabelNameGenerator.getNewName(serverSessionMap.keySet());
-            subjectAliasStore.addExperimentAlias(server, projectName, subjectName, newExperimentLabel, studyInstanceUid, xnatModalityParams);
+            final GiftCloudLabel.ExperimentLabel newExperimentLabel = subjectNameGenerator.getExperimentNameGenerator(subjectLabel).getNewName(serverSessionMap.keySet());
+            subjectAliasStore.addExperimentAlias(server, projectName, subjectLabel, newExperimentLabel, studyInstanceUid, xnatModalityParams);
             return newExperimentLabel;
         }
     }
 
-    private GiftCloudLabel.ScanLabel getScanName(final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectName, final GiftCloudLabel.ExperimentLabel experimentName, final String seriesInstanceUid, final Map<String, String> serverScanMap, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<GiftCloudLabel.ScanLabel> existingScanLabel = subjectAliasStore.getScanLabel(server, projectName, subjectName, experimentName, seriesInstanceUid);
+    private GiftCloudLabel.ScanLabel getScanName(final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String seriesInstanceUid, final Map<String, String> serverScanMap, final XnatModalityParams xnatModalityParams) throws IOException {
+        final Optional<GiftCloudLabel.ScanLabel> existingScanLabel = subjectAliasStore.getScanLabel(server, projectName, subjectLabel, experimentLabel, seriesInstanceUid);
         if (existingScanLabel.isPresent()) {
             return existingScanLabel.get();
         } else {
-            final GiftCloudLabel.ScanLabel newScanLabel = scanNameGenerator.getNewName(serverScanMap.keySet());
-            subjectAliasStore.addScanAlias(server, projectName, subjectName, experimentName, newScanLabel, seriesInstanceUid, xnatModalityParams);
+            final GiftCloudLabel.ScanLabel newScanLabel = subjectNameGenerator.getExperimentNameGenerator(subjectLabel).getScanNameGenerator(experimentLabel).getNewName(serverScanMap.keySet());
+            subjectAliasStore.addScanAlias(server, projectName, subjectLabel, experimentLabel, newScanLabel, seriesInstanceUid, xnatModalityParams);
             return newScanLabel;
         }
     }
 
-    /**
-     * Threadsafe class to generate unique names
-     */
-    private class NameGenerator<T extends GiftCloudLabel> {
-        private long nameNumber;
-        private final GiftCloudLabel.LabelFactory<T> labelFactory;
-        private final String prefix;
 
-        /** Creates a new NameGenerator which will create names starting with the given prefix, and incrementing a suffix number starting at startNumber
-         * @param prefix the string prefix for each generated name
-         * @param startNumber the number used for the suffix of the first name, which will be incremented after each name generation
-         */
-        NameGenerator(final String prefix, final long startNumber, final GiftCloudLabel.LabelFactory<T> labelFactory) {
-            this.prefix = prefix;
-            this.nameNumber = startNumber;
-            this.labelFactory = labelFactory;
-        }
-
-        /** Returns a unique name that is not part of the given list of known names
-         * @param knownNames a list of known names. The returned name will not be one of these
-         * @return a new name
-         */
-        private T getNewName(final Set<String> knownNames) {
-            String candidateName;
-
-            do {
-                candidateName = getNextName();
-
-            } while (knownNames.contains(candidateName));
-
-            return labelFactory.create(candidateName);
-        }
-
-        /** Returns a name that has not been returned before by this object
-         * @return a new name
-         */
-        String getNextName() {
-            long nextNameNumber = getNextNameNumber();
-            return prefix + Long.toString(nextNameNumber);
-        }
-
-        private synchronized long getNextNameNumber() {
-            return nameNumber++;
-        }
-    }
 }

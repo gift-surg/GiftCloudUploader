@@ -1,5 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -29,6 +30,27 @@ public abstract class GiftCloudLabel {
     @Override
     public String toString() {
         return label;
+    }
+
+    /**
+     * Compares another object to this SubjectLabel
+     *
+     * @param otherOb the other object
+     * @return true if the other object is an GiftCloudLabel with the same label
+     */
+    @Override public boolean equals(Object otherOb) {
+        if (this == otherOb) return true;
+
+        if (!(otherOb instanceof GiftCloudLabel)) return false;
+
+        final GiftCloudLabel other = (GiftCloudLabel)otherOb;
+
+        return other.label.equals(this.label);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(label);
     }
 
     /**
@@ -76,22 +98,6 @@ public abstract class GiftCloudLabel {
         public static LabelFactory<SubjectLabel> getFactory() {
             return labelFactorySingleton;
         }
-
-        /**
-         * Compares another object to this SubjectLabel
-         *
-         * @param otherOb the other object
-         * @return true if the other object is an SubjectLabel for the same subject
-         */
-        @Override public boolean equals(Object otherOb) {
-            if (this == otherOb) return true;
-
-            if (!(otherOb instanceof SubjectLabel)) return false;
-
-            final SubjectLabel other = (SubjectLabel)otherOb;
-
-            return other.label.equals(this.label);
-        }
     }
 
 
@@ -122,22 +128,6 @@ public abstract class GiftCloudLabel {
         public static LabelFactory<ExperimentLabel> getFactory() {
             return labelFactorySingleton;
         }
-
-        /**
-         * Compares another object to this SubjectLabel
-         *
-         * @param otherOb the other object
-         * @return true if the other object is an ExperimentLabel for the same subject
-         */
-        @Override public boolean equals(Object otherOb) {
-            if (this == otherOb) return true;
-
-            if (!(otherOb instanceof ExperimentLabel)) return false;
-
-            final ExperimentLabel other = (ExperimentLabel)otherOb;
-
-            return other.label.equals(this.label);
-        }
     }
 
     /**
@@ -166,22 +156,6 @@ public abstract class GiftCloudLabel {
          */
         public static LabelFactory<ScanLabel> getFactory() {
             return labelFactorySingleton;
-        }
-
-        /**
-         * Compares another object to this SubjectLabel
-         *
-         * @param otherOb the other object
-         * @return true if the other object is an ScanLabel for the same subject
-         */
-        @Override public boolean equals(Object otherOb) {
-            if (this == otherOb) return true;
-
-            if (!(otherOb instanceof ScanLabel)) return false;
-
-            final ScanLabel other = (ScanLabel)otherOb;
-
-            return other.label.equals(this.label);
         }
     }
 }

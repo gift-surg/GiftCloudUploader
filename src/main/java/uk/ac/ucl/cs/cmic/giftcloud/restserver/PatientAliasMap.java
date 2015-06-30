@@ -1,5 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import com.google.common.base.Objects;
 import uk.ac.ucl.cs.cmic.giftcloud.util.LabelUidMap;
 
 import java.io.IOException;
@@ -71,6 +72,11 @@ public class PatientAliasMap {
         final PatientAliasMap other = (PatientAliasMap)otherOb;
 
         return other.getMap().equals(this.getMap());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getMap());
     }
 
     /**
@@ -204,6 +210,11 @@ public class PatientAliasMap {
             return this.ppid.equals(other.ppid) && this.subjectLabel.equals(other.subjectLabel) && this.patientId.equals(other.patientId) && this.patientName.equals(other.patientName);
         }
 
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(ppid, subjectLabel, patientId, patientName);
+        }
+
         /**
          * Returns the GIFT-Cloud experiment label for a particualar scan
          *
@@ -303,6 +314,12 @@ public class PatientAliasMap {
                 return this.anonymisedUid.equals(other.anonymisedUid) && this.experimentLabel.equals(other.experimentLabel);
             }
 
+            @Override
+            public int hashCode() {
+                return Objects.hashCode(anonymisedUid, experimentLabel);
+            }
+
+
             /**
              * Returns the GIFT-Cloud scan label corresponding to a pseudonymised scan UID
              *
@@ -374,6 +391,11 @@ public class PatientAliasMap {
                     final ScanAliasRecord other = (ScanAliasRecord) otherOb;
 
                     return this.pserid.equals(other.pserid) && this.scanLabel.equals(other.scanLabel);
+                }
+
+                @Override
+                public int hashCode() {
+                    return Objects.hashCode(pserid, scanLabel);
                 }
             }
         }
