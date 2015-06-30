@@ -3,6 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import com.google.common.io.Files;
 import junit.framework.Assert;
 import org.junit.Test;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -23,13 +24,13 @@ public class JsonWriterTest {
         final Map<String, PatientAliasMap> projectMap = new HashMap<String, PatientAliasMap>();
 
         final PatientAliasMap patientAliasMap1 = new PatientAliasMap();
-        patientAliasMap1.addSubjectAlias("hash1", "alias1", "pid1", "name1");
-        patientAliasMap1.addSubjectAlias("hash2", "alias2", "pid2", "name2");
+        patientAliasMap1.addSubjectAlias("hash1", GiftCloudLabel.SubjectLabel.getFactory().create("alias1"), "pid1", "name1");
+        patientAliasMap1.addSubjectAlias("hash2", GiftCloudLabel.SubjectLabel.getFactory().create("alias2"), "pid2", "name2");
         final PatientAliasMap patientAliasMap2 = new PatientAliasMap();
-        patientAliasMap2.addSubjectAlias("hash3", "alias3", "pid3", "name3");
+        patientAliasMap2.addSubjectAlias("hash3", GiftCloudLabel.SubjectLabel.getFactory().create("alias3"), "pid3", "name3");
         final PatientAliasMap patientAliasMap3 = new PatientAliasMap();
-        patientAliasMap3.addSubjectAlias("hash1", "alias1", "pid1", "name1");
-        patientAliasMap3.addSubjectAlias("hash3", "alias3", "pid3", "name3");
+        patientAliasMap3.addSubjectAlias("hash1", GiftCloudLabel.SubjectLabel.getFactory().create("alias1"), "pid1", "name1");
+        patientAliasMap3.addSubjectAlias("hash3", GiftCloudLabel.SubjectLabel.getFactory().create("alias3"), "pid3", "name3");
 
         projectMap.put("Subject1", patientAliasMap1);
         projectMap.put("Subject2", patientAliasMap2);

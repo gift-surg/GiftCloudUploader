@@ -78,7 +78,7 @@ public class ExcelWriter extends PatientListWriter {
             addEntry(PATIENT_PPID_STRING, PATIENT_ALIAS_STRING, PATIENT_ID_STRING, PATIENT_NAME_STRING);
         }
 
-        public void addEntry(final String hashedPatientId, final String alias, final String patientId, final String patientName) {
+        public void addEntry(final String hashedPatientId, final String subjectLabel, final String patientId, final String patientName) {
             final Row row = sheet.createRow(rowNum++);
             int cellNum = 0;
             final Cell patientNameCell = row.createCell(cellNum++);
@@ -87,7 +87,7 @@ public class ExcelWriter extends PatientListWriter {
             final Cell patientPpidCell = row.createCell(cellNum++);
             patientNameCell.setCellValue(patientName);
             patientIdCell.setCellValue(patientId);
-            patientAliasCell.setCellValue(alias);
+            patientAliasCell.setCellValue(subjectLabel);
             patientPpidCell.setCellValue(hashedPatientId);
         }
     }

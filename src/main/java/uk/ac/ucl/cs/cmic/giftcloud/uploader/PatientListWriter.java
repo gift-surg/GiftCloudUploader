@@ -1,5 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
@@ -81,7 +82,7 @@ public abstract class PatientListWriter {
             final Map<String, PatientAliasMap.SubjectAliasRecord> aliasMap = entry.getValue().getMap();
 
             for (PatientAliasMap.SubjectAliasRecord subjectAliasRecord : aliasMap.values()) {
-                addEntry(projectName, subjectAliasRecord.getPpid(), subjectAliasRecord.getPatientLabel(), subjectAliasRecord.getPatientId(), subjectAliasRecord.getPatientName());
+                addEntry(projectName, subjectAliasRecord.getPpid(), subjectAliasRecord.getSubjectLabel(), subjectAliasRecord.getPatientId(), subjectAliasRecord.getPatientName());
             }
         }
     }
@@ -91,13 +92,13 @@ public abstract class PatientListWriter {
      *
      * @param projectName the name of the GIFT-Cloud project
      * @param hashedPatientId the pseuodimysed patient ID (PPID) for this subject
-     * @param alias the GIFT-Cloud alias for this subject
+     * @param subjectLabel the GIFT-Cloud label for this subject
      * @param patientId the original patient ID for this subject
      * @param patientName the original patient name fot this subject
      */
-    protected void addEntry(final String projectName, final String hashedPatientId, final String alias, final String patientId, final String patientName) {
+    protected void addEntry(final String projectName, final String hashedPatientId, final GiftCloudLabel.SubjectLabel subjectLabel, final String patientId, final String patientName) {
         final PatientListForProject sheet = getOrCreatePatientList(projectName);
-        sheet.addEntry(hashedPatientId, alias, patientId, patientName);
+        sheet.addEntry(hashedPatientId, subjectLabel.getStringLabel(), patientId, patientName);
     }
 
     /**
@@ -148,6 +149,6 @@ public abstract class PatientListWriter {
      * An abstract representation of a list of patiets for a particular GIFT-Cloud project. This should be implemented in a manner appropriate for however the list is be stored
      */
     protected static abstract class PatientListForProject {
-        public abstract void addEntry(final String hashedPatientId, final String alias, final String patientId, final String patientName);
+        public abstract void addEntry(final String hashedPatientId, final String subjectLabel, final String patientId, final String patientName);
     }
 }

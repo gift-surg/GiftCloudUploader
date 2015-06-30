@@ -41,9 +41,9 @@ public class MockRestServer implements RestServer {
     public Map<String, String> getListOfSubjects(String projectName) throws IOException, JSONException {
         if (projectMap.projectExists(projectName)) {
             final Map<String, String> subjectMap = new HashMap<String, String>();
-            final Set<String> subjectList = projectMap.get(projectName).getListOfSubjects();
-            for (final String subject : subjectList) {
-                subjectMap.put(subject, subject);
+            final Set<GiftCloudLabel.SubjectLabel> subjectList = projectMap.get(projectName).getListOfSubjects();
+            for (final GiftCloudLabel.SubjectLabel subject : subjectList) {
+                subjectMap.put(subject.getStringLabel(), subject.getStringLabel());
             }
             return subjectMap;
 
@@ -58,23 +58,28 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Map<String, String> getListOfScans(String projectName, String subjectName, GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException, JSONException {
+    public Map<String, String> getListOfScans(String projectName, GiftCloudLabel.SubjectLabel subjectName, GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException, JSONException {
         return new HashMap<String, String>();
     }
 
     @Override
     public Map<String, String> getListOfPseudonyms(String projectName) throws IOException, JSONException {
-        return projectMap.get(projectName).getPseudonyms();
+        final Map<String,GiftCloudLabel.SubjectLabel> subjectMap = projectMap.get(projectName).getPseudonyms();
+        final Map<String, String> listOfPseudonyms = new HashMap<String, String>();
+        for (final Map.Entry<String,GiftCloudLabel.SubjectLabel> entry : subjectMap.entrySet()) {
+            listOfPseudonyms.put(entry.getKey(), entry.getValue().getStringLabel());
+        }
+        return listOfPseudonyms;
     }
 
     @Override
-    public Map<String, String> getListOfResources(String projectName, String subjectName, GiftCloudLabel.ExperimentLabel experimentLabel, GiftCloudLabel.ScanLabel scanLabel) throws IOException, JSONException {
+    public Map<String, String> getListOfResources(String projectName, GiftCloudLabel.SubjectLabel subjectName, GiftCloudLabel.ExperimentLabel experimentLabel, GiftCloudLabel.ScanLabel scanLabel) throws IOException, JSONException {
         return new HashMap<String, String>();
     }
 
     @Override
-    public Optional<String> getSubjectLabel(String projectName, String ppid) throws IOException {
-        return projectMap.projectExists(projectName) ? projectMap.get(projectName).getPseudonym(ppid) : Optional.<String>empty();
+    public Optional<GiftCloudLabel.SubjectLabel> getSubjectLabel(String projectName, String ppid) throws IOException {
+        return projectMap.projectExists(projectName) ? projectMap.get(projectName).getPseudonym(ppid) : Optional.<GiftCloudLabel.SubjectLabel>empty();
     }
 
     @Override
@@ -128,22 +133,22 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Set<String> uploadZipFile(String projectLabel, String subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
+    public Set<String> uploadZipFile(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
         final Set<String> uids = new HashSet<String>();
         uids.add(UUID.randomUUID().toString());
         return uids;
     }
 
     @Override
-    public void createSubjectAliasIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
+    public void createSubjectAliasIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedPatientId) throws IOException {
         final ProjectMap.ProjectRecord projectRecord = projectMap.get(projectLabel);
 
         final ProjectMap.ProjectRecord.SubjectRecord subjectRecord = projectRecord.get(subjectLabel);
-        projectRecord.addPseudonym(subjectLabel, pseudonym);
+        projectRecord.addPseudonym(subjectLabel, hashedPatientId);
     }
 
     @Override
-    public void appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
+    public void appendZipFileToExistingScan(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
         System.out.println("Appending file for " + fileCollection);
         Thread.sleep(10);
     }
@@ -154,7 +159,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(String projectName, String subjectAlias, GiftCloudLabel.ExperimentLabel experimentLabel, String hashedSeriesInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(String projectName, GiftCloudLabel.SubjectLabel subjectLabel, GiftCloudLabel.ExperimentLabel experimentLabel, String hashedSeriesInstanceUid) throws IOException {
         if (!scanMap.containsKey(hashedSeriesInstanceUid)) {
             return Optional.empty();
         } else {
@@ -163,7 +168,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(String projectName, String subjectAlias, String hashedStudyInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(String projectName, GiftCloudLabel.SubjectLabel subjectLabel, String hashedStudyInstanceUid) throws IOException {
         if (!experimentMap.containsKey(hashedStudyInstanceUid)) {
             return Optional.empty();
         } else {
@@ -172,12 +177,12 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public void createExperimentAliasIfNotExisting(String projectName, String subjectAlias, GiftCloudLabel.ExperimentLabel experimentLabel, String hashedStudyInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
+    public void createExperimentAliasIfNotExisting(String projectName, GiftCloudLabel.SubjectLabel subjectLabel, GiftCloudLabel.ExperimentLabel experimentLabel, String hashedStudyInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
         experimentMap.put(hashedStudyInstanceUid, experimentLabel);
     }
 
     @Override
-    public void createScanAliasIfNotExisting(String projectName, String subjectAlias, GiftCloudLabel.ExperimentLabel experimentLabel, GiftCloudLabel.ScanLabel scanAlias, String hashedSeriesInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
+    public void createScanAliasIfNotExisting(String projectName, GiftCloudLabel.SubjectLabel subjectLabel, GiftCloudLabel.ExperimentLabel experimentLabel, GiftCloudLabel.ScanLabel scanAlias, String hashedSeriesInstanceUid, XnatModalityParams xnatModalityParams) throws IOException {
         scanMap.put(hashedSeriesInstanceUid, scanAlias);
     }
 
@@ -203,26 +208,26 @@ public class MockRestServer implements RestServer {
 
         class ProjectRecord {
             private String projectLabel;
-            private final Map<String, SubjectRecord> subjectMap = new HashMap<String, SubjectRecord>();
-            private final Map<String, String> pseudonyms = new HashMap<String, String>();
+            private final Map<GiftCloudLabel.SubjectLabel, SubjectRecord> subjectMap = new HashMap<GiftCloudLabel.SubjectLabel, SubjectRecord>();
+            private final Map<String, GiftCloudLabel.SubjectLabel> pseudonyms = new HashMap<String, GiftCloudLabel.SubjectLabel>();
 
             ProjectRecord(final String projectLabel) {
                 this.projectLabel = projectLabel;
             }
 
-            public SubjectRecord get(final String subjectLabel) {
+            public SubjectRecord get(final GiftCloudLabel.SubjectLabel subjectLabel) {
                 return subjectMap.get(subjectLabel);
             }
 
-            public Map<String,String> getPseudonyms() {
+            public Map<String,GiftCloudLabel.SubjectLabel> getPseudonyms() {
                 return pseudonyms;
             }
 
-            public void addPseudonym(final String subjectLabel, final String pseudonym) {
+            public void addPseudonym(final GiftCloudLabel.SubjectLabel subjectLabel, final String pseudonym) {
                 pseudonyms.put(pseudonym, subjectLabel);
             }
 
-            public Optional<String> getPseudonym(final String ppid) {
+            public Optional<GiftCloudLabel.SubjectLabel> getPseudonym(final String ppid) {
                 if (pseudonyms.containsKey(ppid)) {
                     return Optional.of(pseudonyms.get(ppid));
                 } else {
@@ -230,7 +235,7 @@ public class MockRestServer implements RestServer {
                 }
             }
 
-            public Set<String> getListOfSubjects() {
+            public Set<GiftCloudLabel.SubjectLabel> getListOfSubjects() {
                 return subjectMap.keySet();
             }
 

@@ -4,6 +4,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -94,7 +95,7 @@ public class JsonWriter extends PatientListWriter {
                     final String patientId = (String)aliasEntry.get(PATIENT_ID_STRING);
                     final String patientAlias = (String)aliasEntry.get(PATIENT_ALIAS_STRING);
                     final String patientPpid = (String)aliasEntry.get(PATIENT_PPID_STRING);
-                    patientAliasMap.addSubjectAlias(patientPpid, patientAlias, patientId, patientName);
+                    patientAliasMap.addSubjectAlias(patientPpid, GiftCloudLabel.SubjectLabel.getFactory().create(patientAlias), patientId, patientName);
                 }
 
                 projectMap.put(projectName, patientAliasMap);

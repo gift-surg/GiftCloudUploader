@@ -1,5 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Base class for GIFT-Cloud label types.
  * The aim is to use type safety to ensure different types of labels do not get mixed in the code
@@ -30,13 +32,68 @@ public abstract class GiftCloudLabel {
     }
 
     /**
+     * Returns true if the object is null, or contais a null or empty label
+     * @param label
+     * @return
+     */
+    public static boolean isBlank(final GiftCloudLabel label) {
+        return (label == null) || StringUtils.isBlank(label.label);
+    }
+
+    /**
      * Used to generate a new GiftCloudLabel of a particular type. For generic classes to be able to create an instance of their parameterised type, we need to pass in a factory class
 
      * @param <T> the type of GiftCloudLabel
      */
-    public interface LabelFactory<T> { // } extends GiftCloudLabel> { // ToDo T should extend GiftCloudLabel - can do this once SubjectLabel is a GiftCloudLabel
+    public interface LabelFactory<T extends GiftCloudLabel> {
         T create(final String label);
     }
+
+    /**
+     * Subject label
+     */
+    public static class SubjectLabel extends GiftCloudLabel {
+        private static final LabelFactory<SubjectLabel> labelFactorySingleton = new LabelFactory<SubjectLabel>() {
+            @Override
+            public SubjectLabel create(String label) {
+                return new SubjectLabel(label);
+            }
+        };
+
+        /**
+         * Creates a new GIFT-Cloud subject label
+         * @param label string representation of the label
+         */
+        protected SubjectLabel(final String label) {
+            super(label);
+        }
+
+        /**
+         * Static method to return the SubjectLabel factory
+         *
+         * @return a LabelFactory for creating SubjectLabels
+         */
+        public static LabelFactory<SubjectLabel> getFactory() {
+            return labelFactorySingleton;
+        }
+
+        /**
+         * Compares another object to this SubjectLabel
+         *
+         * @param otherOb the other object
+         * @return true if the other object is an SubjectLabel for the same subject
+         */
+        @Override public boolean equals(Object otherOb) {
+            if (this == otherOb) return true;
+
+            if (!(otherOb instanceof SubjectLabel)) return false;
+
+            final SubjectLabel other = (SubjectLabel)otherOb;
+
+            return other.label.equals(this.label);
+        }
+    }
+
 
     /**
      * Experiment label
@@ -64,6 +121,22 @@ public abstract class GiftCloudLabel {
          */
         public static LabelFactory<ExperimentLabel> getFactory() {
             return labelFactorySingleton;
+        }
+
+        /**
+         * Compares another object to this SubjectLabel
+         *
+         * @param otherOb the other object
+         * @return true if the other object is an ExperimentLabel for the same subject
+         */
+        @Override public boolean equals(Object otherOb) {
+            if (this == otherOb) return true;
+
+            if (!(otherOb instanceof ExperimentLabel)) return false;
+
+            final ExperimentLabel other = (ExperimentLabel)otherOb;
+
+            return other.label.equals(this.label);
         }
     }
 
@@ -93,6 +166,22 @@ public abstract class GiftCloudLabel {
          */
         public static LabelFactory<ScanLabel> getFactory() {
             return labelFactorySingleton;
+        }
+
+        /**
+         * Compares another object to this SubjectLabel
+         *
+         * @param otherOb the other object
+         * @return true if the other object is an ScanLabel for the same subject
+         */
+        @Override public boolean equals(Object otherOb) {
+            if (this == otherOb) return true;
+
+            if (!(otherOb instanceof ScanLabel)) return false;
+
+            final ScanLabel other = (ScanLabel)otherOb;
+
+            return other.label.equals(this.label);
         }
     }
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
  * Stores a mapping of hashed patient IDs and patient labels to patient records
  */
 public class PatientAliasMap {
-    private final LabelUidMap<String, SubjectAliasRecord> subjectMap = new LabelUidMap<String, SubjectAliasRecord>();
+    private final LabelUidMap<GiftCloudLabel.SubjectLabel, SubjectAliasRecord> subjectMap = new LabelUidMap<GiftCloudLabel.SubjectLabel, SubjectAliasRecord>();
 
     /**
      * Determine if a record already exists for this hashed patient ID
@@ -23,14 +23,14 @@ public class PatientAliasMap {
     }
 
     /**
-     * Returns the GIFT-Cloud patient label for the specified hashed patient ID
+     * Returns the GIFT-Cloud subject label for the specified hashed patient ID
      *
      * @param hashedPatientId the unique map key specified by a hashed patient ID
-     * @return an Optional of the patient label for this hashed patient ID, or an empty optional if no record exists for this hashed patient ID
+     * @return an Optional of the subject label for this hashed patient ID, or an empty optional if no record exists for this hashed patient ID
      */
-    public Optional<String> getLabel(final String hashedPatientId) {
+    public Optional<GiftCloudLabel.SubjectLabel> getSubjectLabel(final String hashedPatientId) {
         if (subjectMap.containsUid(hashedPatientId)) {
-            return Optional.of(subjectMap.getValueForUid(hashedPatientId).getPatientLabel());
+            return Optional.of(subjectMap.getValueForUid(hashedPatientId).getSubjectLabel());
         } else {
             return Optional.empty();
         }
@@ -40,12 +40,12 @@ public class PatientAliasMap {
      * Adds a new record for a new subject
      *
      * @param hashedPatientId the pseudonymised patient ID (PPID), which is a one-way hash of the patient ID
-     * @param patientLabel the GIFT-Cloud patient label which will be visible on the server
+     * @param subjectLabel the GIFT-Cloud subject label which will be visible on the server
      * @param patientId the real patient ID, which will only be stored locally
      * @param patientName the real patient name, which will only be stored locally
      */
-    public void addSubjectAlias(final String hashedPatientId, final String patientLabel, final String patientId, final String patientName) {
-        subjectMap.put(patientLabel, hashedPatientId, new SubjectAliasRecord(hashedPatientId, patientLabel, patientId, patientName));
+    public void addSubjectAlias(final String hashedPatientId, final GiftCloudLabel.SubjectLabel subjectLabel, final String patientId, final String patientName) {
+        subjectMap.put(subjectLabel, hashedPatientId, new SubjectAliasRecord(hashedPatientId, subjectLabel, patientId, patientName));
     }
 
     /**
@@ -80,7 +80,7 @@ public class PatientAliasMap {
      * @param hashedStudyInstanceUid a one-way hash of the study instance UID
      * @return an Optional, set to the GIFT-Cloud experiment label if the hashed ID exists
      */
-    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final String subjectLabel, final String hashedStudyInstanceUid) {
+    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedStudyInstanceUid) {
         if (subjectMap.containsLabel(subjectLabel)) {
             return Optional.empty();
         } else {
@@ -96,7 +96,7 @@ public class PatientAliasMap {
      * @param hashedSeriesInstanceUid a one-way hash of the series instance UID
      * @return an Optional, set to the scan label if the hashed ID exists
      */
-    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid) {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid) {
         if (subjectMap.containsLabel(subjectLabel)) {
             return Optional.empty();
         } else {
@@ -112,7 +112,7 @@ public class PatientAliasMap {
      * @param experimentLabel the GIFT-Cloud label to add to this experiment
      * @throws IOException if the subject does not exist
      */
-    public void addExperimentAlias(final String subjectLabel, final String hashedStudyInstanceUid, final GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException {
+    public void addExperimentAlias(final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedStudyInstanceUid, final GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException {
         if (!subjectMap.containsLabel(subjectLabel)) {
             throw new IOException("The subject alias was not found");
         }
@@ -128,7 +128,7 @@ public class PatientAliasMap {
      * @param scanLabel the GIFT-Cloud alias to add to this scan
      * @throws IOException if the subject or experiment do not exist
      */
-    public void addScanAlias(final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid, final GiftCloudLabel.ScanLabel scanLabel) throws IOException {
+    public void addScanAlias(final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid, final GiftCloudLabel.ScanLabel scanLabel) throws IOException {
         if (!subjectMap.containsLabel(subjectLabel)) {
             throw new IOException("The subject label was not found");
         }
@@ -140,7 +140,7 @@ public class PatientAliasMap {
      */
     public static class SubjectAliasRecord {
         private final String ppid;
-        private final String patientLabel;
+        private final GiftCloudLabel.SubjectLabel subjectLabel;
         private final String patientId;
         private final String patientName;
         private final LabelUidMap<GiftCloudLabel.ExperimentLabel, ExperimentAliasRecord> experimentAliasRecordMap = new LabelUidMap<GiftCloudLabel.ExperimentLabel, ExperimentAliasRecord>();;
@@ -149,22 +149,22 @@ public class PatientAliasMap {
          * Creates a new subject record for local storage
          *
          * @param ppid the pseudonymised patient ID (PPID), which is a one-way hash of the patient ID
-         * @param patientLabel the GIFT-Cloud patient label which will be visible on the server
+         * @param subjectLabel the GIFT-Cloud subject label which will be visible on the server
          * @param patientId the real patient ID, which will only be stored locally
          * @param patientName the real patient name, which will only be stored locally
          */
-        public SubjectAliasRecord(final String ppid, final String patientLabel, final String patientId, final String patientName) {
+        public SubjectAliasRecord(final String ppid, final GiftCloudLabel.SubjectLabel subjectLabel, final String patientId, final String patientName) {
             this.ppid = ppid;
-            this.patientLabel = patientLabel;
+            this.subjectLabel = subjectLabel;
             this.patientId = patientId;
             this.patientName = patientName;
         }
 
         /**
-         * @return the GIFT-Cloud patient patient label
+         * @return the GIFT-Cloud subject label
          */
-        public String getPatientLabel() {
-            return patientLabel;
+        public GiftCloudLabel.SubjectLabel getSubjectLabel() {
+            return subjectLabel;
         }
 
         /**
@@ -192,7 +192,7 @@ public class PatientAliasMap {
          * Determines if another object refers to the same subject alias
          *
          * @param otherOb the object to compare to this one
-         * @return true if the other object is an PatientAliasMap referring to the same subject alias
+         * @return true if the other object is an SubjectAliasRecord referring to the same subject alias
          */
         @Override public boolean equals(Object otherOb) {
             if (this == otherOb) return true;
@@ -201,7 +201,7 @@ public class PatientAliasMap {
 
             final SubjectAliasRecord other = (SubjectAliasRecord)otherOb;
 
-            return this.ppid.equals(other.ppid) && this.patientLabel.equals(other.patientLabel) && this.patientId.equals(other.patientId) && this.patientName.equals(other.patientName);
+            return this.ppid.equals(other.ppid) && this.subjectLabel.equals(other.subjectLabel) && this.patientId.equals(other.patientId) && this.patientName.equals(other.patientName);
         }
 
         /**

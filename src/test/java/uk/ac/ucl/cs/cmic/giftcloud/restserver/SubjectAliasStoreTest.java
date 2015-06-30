@@ -31,7 +31,7 @@ public class SubjectAliasStoreTest {
     private PatientListStore patientListStore;
 
     private SubjectAliasStore subjectAliasStore;
-    private Optional<String> emptyString = Optional.empty();
+    private Optional<GiftCloudLabel.SubjectLabel> emptyString = Optional.empty();
 
     final String projectName1 = "MyProject1";
     final String projectName2 = "MyProject2";
@@ -39,22 +39,22 @@ public class SubjectAliasStoreTest {
 
     private final String patientId1 = "PatientOne1";
     private final String patientName1 = "PatientName1";
-    private final String xnatSubjectName1 = "ResearchIdPatientOne";
+    private final GiftCloudLabel.SubjectLabel xnatSubjectName1 = GiftCloudLabel.SubjectLabel.getFactory().create("ResearchIdPatientOne");
     private final String hashedPatientId1 = OneWayHash.hashUid(patientId1);
 
     private final String patientId2 = "PatientTwo2";
     private final String patientName2 = "PatientName2";
-    private final String xnatSubjectName2 = "ResearchIdPatientTwo";
+    private final GiftCloudLabel.SubjectLabel xnatSubjectName2 = GiftCloudLabel.SubjectLabel.getFactory().create("ResearchIdPatientTwo");
     private final String hashedPatientId2 = OneWayHash.hashUid(patientId2);
 
     private final String patientId3 = "PatientThree3";
     private final String patientName3 = "PatientName3";
-    private final String xnatSubjectName3 = "ResearchIdPatientThree";
+    private final GiftCloudLabel.SubjectLabel xnatSubjectName3 = GiftCloudLabel.SubjectLabel.getFactory().create("ResearchIdPatientThree");
     private final String hashedPatientId3 = OneWayHash.hashUid(patientId3);
 
     private final String patientId4 = "PatientFour4";
     private final String patientName4 = "PatientName4";
-    private final String xnatSubjectName4 = "ResearchIdPatientFour";
+    private final GiftCloudLabel.SubjectLabel xnatSubjectName4 = GiftCloudLabel.SubjectLabel.getFactory().create("ResearchIdPatientFour");
     private final String hashedPatientId4 = OneWayHash.hashUid(patientId4);
 
     @Before
@@ -67,7 +67,7 @@ public class SubjectAliasStoreTest {
         {
             // Check there is no existing ID
             when(giftCloudServer.getSubjectLabel(projectName1, hashedPatientId1)).thenReturn(emptyString);
-            final Optional<String> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId1, patientName1);
+            final Optional<GiftCloudLabel.SubjectLabel> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId1, patientName1);
             Assert.assertFalse(subjectIdOptional.isPresent());
         }
     }
@@ -96,7 +96,7 @@ public class SubjectAliasStoreTest {
     @Test
     public void testAddSubjectAliasEmptySubject() throws IOException {
         exception.expect(IllegalArgumentException.class);
-        subjectAliasStore.addSubjectAlias(giftCloudServer, projectName1, patientId1, "", patientName1);
+        subjectAliasStore.addSubjectAlias(giftCloudServer, projectName1, patientId1, GiftCloudLabel.SubjectLabel.getFactory().create(""), patientName1);
     }
 
     @Test
@@ -125,13 +125,13 @@ public class SubjectAliasStoreTest {
 
     @Test
     public void testGetSubjectAliasNullPatientId() throws IOException {
-        Optional<String> subjectName = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, null, patientName1);
+        Optional<GiftCloudLabel.SubjectLabel> subjectName = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, null, patientName1);
         Assert.assertFalse(subjectName.isPresent());
     }
 
     @Test
     public void testGetSubjectAliasEmptyPatientId() throws IOException {
-        Optional<String> subjectName = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, "", patientName1);
+        Optional<GiftCloudLabel.SubjectLabel> subjectName = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, "", patientName1);
         Assert.assertFalse(subjectName.isPresent());
     }
 
@@ -146,13 +146,13 @@ public class SubjectAliasStoreTest {
         {
             // Check a different ID is not found
             when(giftCloudServer.getSubjectLabel(projectName1, hashedPatientId2)).thenReturn(emptyString);
-            final Optional<String> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId2, patientName2);
+            final Optional<GiftCloudLabel.SubjectLabel> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId2, patientName2);
             Assert.assertFalse(subjectIdOptional.isPresent());
         }
 
         {
             // Check the newly added pseudo ID has been found, with no server call required
-            final Optional<String> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId1, patientName1);
+            final Optional<GiftCloudLabel.SubjectLabel> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId1, patientName1);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName1);
         }
@@ -160,7 +160,7 @@ public class SubjectAliasStoreTest {
         {
             // Check the ID is not found for a different project
             when(giftCloudServer.getSubjectLabel(projectName2, hashedPatientId1)).thenReturn(emptyString);
-            final Optional<String> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName2, patientId1, patientName1);
+            final Optional<GiftCloudLabel.SubjectLabel> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName2, patientId1, patientName1);
             Assert.assertFalse(subjectIdOptional.isPresent());
         }
     }
@@ -181,14 +181,14 @@ public class SubjectAliasStoreTest {
         // Project 1
         {
             // Check id1 returns a subject
-            final Optional<String> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId1, patientName1);
+            final Optional<GiftCloudLabel.SubjectLabel> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId1, patientName1);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName1);
         }
 
         {
             // Check id2 returns a subject
-            final Optional<String> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId2, patientName2);
+            final Optional<GiftCloudLabel.SubjectLabel> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId2, patientName2);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName2);
         }
@@ -204,13 +204,13 @@ public class SubjectAliasStoreTest {
             Assert.assertFalse(subjectAliasStore.getSubjectAlias(giftCloudServer, projectName2, patientId1, patientName1).isPresent());
         }
         {
-            final Optional<String> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName2, patientId2, patientName2);
+            final Optional<GiftCloudLabel.SubjectLabel> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName2, patientId2, patientName2);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName2);
         }
 
         {
-            final Optional<String> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName2, patientId3, patientName3);
+            final Optional<GiftCloudLabel.SubjectLabel> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName2, patientId3, patientName3);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName3);
         }
@@ -221,7 +221,7 @@ public class SubjectAliasStoreTest {
         {
             // Now set the server response for id 3 and check this works
             when(giftCloudServer.getSubjectLabel(projectName1, hashedPatientId3)).thenReturn(Optional.of(xnatSubjectName3));
-            final Optional<String> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId3, patientName3);
+            final Optional<GiftCloudLabel.SubjectLabel> subjectIdOptional = subjectAliasStore.getSubjectAlias(giftCloudServer, projectName1, patientId3, patientName3);
             Assert.assertTrue(subjectIdOptional.isPresent());
             Assert.assertEquals(subjectIdOptional.get(), xnatSubjectName3);
         }

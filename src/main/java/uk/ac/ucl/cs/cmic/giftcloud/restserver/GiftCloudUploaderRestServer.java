@@ -83,8 +83,8 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public Map<String, String> getListOfScans(final String projectName, final String subjectName, final GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException, JSONException {
-        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/" + experimentLabel.getStringLabel() + "/scans?format=json";
+    public Map<String, String> getListOfScans(final String projectName, final GiftCloudLabel.SubjectLabel subjectName, final GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException, JSONException {
+        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName.getStringLabel() + "/experiments/" + experimentLabel.getStringLabel() + "/scans?format=json";
         return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
@@ -95,27 +95,28 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public Map<String, String> getListOfResources(final String projectName, final String subjectName, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel) throws IOException, JSONException {
-        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/" + experimentLabel.getStringLabel() + "/scans/" + scanLabel.getStringLabel() + "/resources?format=json";
+    public Map<String, String> getListOfResources(final String projectName, final GiftCloudLabel.SubjectLabel subjectName, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel) throws IOException, JSONException {
+        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName.getStringLabel() + "/experiments/" + experimentLabel.getStringLabel() + "/scans/" + scanLabel.getStringLabel() + "/resources?format=json";
         return restServerSessionHelper.getAliases(uri, "label", "ID");
     }
 
     @Override
-    public Optional<String> getSubjectLabel(final String projectName, final String ppid) throws IOException {
+    public Optional<GiftCloudLabel.SubjectLabel> getSubjectLabel(final String projectName, final String ppid) throws IOException {
         final String uri = "/REST/projects/" + projectName + "/pseudonyms/" + ppid + "?format=json&columns=DEFAULT";
-        return restServerSessionHelper.getPpidAlias(uri, "label", "ID");
+        final Optional<String> subjectabelString = restServerSessionHelper.getPpidAlias(uri, "label", "ID");
+        return subjectabelString.isPresent() ? Optional.of(GiftCloudLabel.SubjectLabel.getFactory().create(subjectabelString.get())) : Optional.<GiftCloudLabel.SubjectLabel>empty();
     }
 
     @Override
-    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final String projectName, final String subjectName, final String peid) throws IOException {
-        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectName + "/experiments/uids/" + peid + "?format=json&columns=DEFAULT";
+    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final String peid) throws IOException {
+        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectLabel.getStringLabel() + "/experiments/uids/" + peid + "?format=json&columns=DEFAULT";
         final Optional<String> experimentLabelString = restServerSessionHelper.getId(uri, "label");
         return experimentLabelString.isPresent() ? Optional.of(GiftCloudLabel.ExperimentLabel.getFactory().create(experimentLabelString.get())) : Optional.<GiftCloudLabel.ExperimentLabel>empty();
     }
 
     @Override
-    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final String subjectAlias, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid) throws IOException {
-        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectAlias + "/experiments/" + experimentLabel.getStringLabel() + "/scans/uids/" + hashedSeriesInstanceUid + "?format=json&columns=DEFAULT";
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid) throws IOException {
+        final String uri = "/REST/projects/" + projectName + "/subjects/" + subjectLabel.getStringLabel() + "/experiments/" + experimentLabel.getStringLabel() + "/scans/uids/" + hashedSeriesInstanceUid + "?format=json&columns=DEFAULT";
         final Optional<String> scanLabelString = restServerSessionHelper.getId(uri, "ID");
         return scanLabelString.isPresent() ? Optional.of(GiftCloudLabel.ScanLabel.getFactory().create(scanLabelString.get())) : Optional.<GiftCloudLabel.ScanLabel>empty();
     }
@@ -313,7 +314,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
 
     @Override
-    public Set<String> uploadZipFile(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
+    public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
 
         final String visit = sessionParameters.getVisit();
         final String protocol = sessionParameters.getProtocol();
@@ -324,7 +325,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
         final StringBuilder buffer = new StringBuilder();
         buffer.append("/REST/services/import?import-handler=DICOM-zip");
         buffer.append("&PROJECT_ID=").append(projectLabel);
-        buffer.append("&SUBJECT_ID=").append(subjectLabel);
+        buffer.append("&SUBJECT_ID=").append(subjectLabel.getStringLabel());
         buffer.append("&EXPT_LABEL=").append(experimentLabel.getStringLabel());
 
         if (!Strings.isNullOrEmpty(scanLabel.getStringLabel())) {
@@ -348,19 +349,19 @@ public class GiftCloudUploaderRestServer implements RestServer {
         return restServerSessionHelper.uploadSeriesUsingZipUpload(dataPostURL, zipStreaming, fileCollection, applicators);
     }
 
-    private synchronized void createSubjectIfNotExisting(final String projectLabel, final String subjectLabel) throws IOException {
-        restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel);
+    private synchronized void createSubjectIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel) throws IOException {
+        restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel.getStringLabel());
     }
 
-    private synchronized void createExperimentIfNotExisting(final String projectLabel, final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String params) throws IOException {
+    private synchronized void createExperimentIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String params) throws IOException {
         Map<String, String> sessions = getListOfSessions(projectLabel);
 
         if (!sessions.containsKey(experimentLabel.getStringLabel())) {
-            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + experimentLabel.getStringLabel() + params);
+            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel.getStringLabel() + "/experiments/" + experimentLabel.getStringLabel() + params);
         }
     }
 
-    private synchronized void createScanIfNotExisting(final String projectLabel, final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String params) throws IOException {
+    private synchronized void createScanIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String params) throws IOException {
         Map<String,String> scans = getListOfScans(projectLabel, subjectLabel, experimentLabel);
 
         if (!scans.containsKey(scanLabel.getStringLabel())) {
@@ -368,25 +369,25 @@ public class GiftCloudUploaderRestServer implements RestServer {
         }
     }
 
-    private synchronized void createScanCollectionIfNotExisting(final String projectLabel, final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String resourceName, final String params) throws IOException {
+    private synchronized void createScanCollectionIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String resourceName, final String params) throws IOException {
         Map<String,String> resources = getListOfResources(projectLabel, subjectLabel, experimentLabel, scanLabel);
 
         if (!resources.containsKey(resourceName)) {
-            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + experimentLabel.getStringLabel() + "/scans/" + scanLabel.getStringLabel() + "/resources/" + resourceName + params);
+            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel.getStringLabel() + "/experiments/" + experimentLabel.getStringLabel() + "/scans/" + scanLabel.getStringLabel() + "/resources/" + resourceName + params);
         }
     }
 
     @Override
-    public synchronized void createSubjectAliasIfNotExisting(final String projectLabel, final String subjectLabel, final String pseudonym) throws IOException {
-        final Optional<String> subjectLabelFromServer = getSubjectLabel(projectLabel, subjectLabel);
+    public synchronized void createSubjectAliasIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedPatientId) throws IOException {
+        final Optional<GiftCloudLabel.SubjectLabel> subjectLabelFromServer = getSubjectLabel(projectLabel, hashedPatientId);
         if (!subjectLabelFromServer.isPresent()) {
             createSubjectIfNotExisting(projectLabel, subjectLabel);
-            restServerSessionHelper.createPostResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/pseudonyms/" + pseudonym);
+            restServerSessionHelper.createPostResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel.getStringLabel() + "/pseudonyms/" + hashedPatientId);
         }
     }
 
     @Override
-    public void createExperimentAliasIfNotExisting(final String projectName, final String subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+    public void createExperimentAliasIfNotExisting(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
         final Optional<GiftCloudLabel.ExperimentLabel> experimentLabelFromServer = getExperimentLabel(projectName, subjectLabel, hashedStudyInstanceUid);
         if (!experimentLabelFromServer.isPresent()) {
             createSubjectIfNotExisting(projectName, subjectLabel);
@@ -397,7 +398,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
 
     @Override
-    public void appendZipFileToExistingScan(final String projectLabel, final String subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
+    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
 
         createSubjectIfNotExisting(projectLabel, subjectLabel);
 
@@ -434,7 +435,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public void createScanAliasIfNotExisting(final String projectName, final String subjectAlias, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+    public void createScanAliasIfNotExisting(final String projectName, final GiftCloudLabel.SubjectLabel subjectAlias, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
         final Optional<GiftCloudLabel.ScanLabel> scanLabelFromServer = getScanLabel(projectName, subjectAlias, experimentLabel, hashedSeriesInstanceUid);
         if (!scanLabelFromServer.isPresent()) {
             createSubjectIfNotExisting(projectName, subjectAlias);

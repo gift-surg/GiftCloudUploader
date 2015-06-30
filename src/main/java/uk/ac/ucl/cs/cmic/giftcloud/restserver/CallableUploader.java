@@ -27,7 +27,7 @@ import java.util.Set;
 
 public abstract class CallableUploader implements CallableWithParameter<Set<String>, FileCollection> {
     protected final String projectLabel;
-    protected final String subjectLabel;
+    protected final GiftCloudLabel.SubjectLabel subjectLabel;
     protected final SessionParameters sessionParameters;
     protected final XnatModalityParams xnatModalityParams;
     protected final FileCollection fileCollection;
@@ -40,7 +40,7 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
 
     public CallableUploader(
             final String projectLabel,
-            final String subjectLabel,
+            final GiftCloudLabel.SubjectLabel subjectLabel,
             final SessionParameters sessionParameters,
             final XnatModalityParams xnatModalityParams,
             final boolean useFixedSizeStreaming,
@@ -70,7 +70,7 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
     public interface CallableUploaderFactory {
         CallableUploader create(
                 final String projectLabel,
-                final String subjectLabel,
+                final GiftCloudLabel.SubjectLabel subjectLabel,
                 final SessionParameters sessionParameters,
                 final XnatModalityParams xnatModalityParams,
                 final boolean useFixedSizeStreaming,
