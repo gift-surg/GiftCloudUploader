@@ -4,18 +4,18 @@ import java.net.URL;
 
 public class UploadResultsSuccess extends UploadResult {
     private final String uri;
-    private final String sessionLabel;
+    private final GiftCloudLabel.ExperimentLabel experimentLabel;
     private final URL sessionViewUrl;
 
-    UploadResultsSuccess(final String uri, final String sessionLabel, final URL sessionViewUrl) {
+    UploadResultsSuccess(final String uri, final GiftCloudLabel.ExperimentLabel experimentLabel, final URL sessionViewUrl) {
         super(true);
         this.uri = uri;
-        this.sessionLabel = sessionLabel;
+        this.experimentLabel = experimentLabel;
         this.sessionViewUrl = sessionViewUrl;
     }
 
-    public String getsessionLabel() {
-        return sessionLabel;
+    public GiftCloudLabel.ExperimentLabel getsessionLabel() {
+        return experimentLabel;
     }
 
     public URL getSessionViewUrl() {

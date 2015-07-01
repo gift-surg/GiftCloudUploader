@@ -26,10 +26,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResultsFailure;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
@@ -272,7 +269,7 @@ public class Study extends MapEntity implements Entity, Session {
      * (non-Javadoc)
      * @see Session#uploadTo(java.util.Map, UploadFailureHandler, org.netbeans.spi.wizard.ResultProgressHandle)
      */
-    public UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException {
+    public UploadResult uploadTo(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException {
         final List<FileCollection> fileCollections = getFiles();
 
         if (fileCollections.isEmpty()) {

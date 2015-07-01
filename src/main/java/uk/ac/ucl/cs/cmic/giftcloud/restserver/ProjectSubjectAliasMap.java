@@ -2,14 +2,15 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * Stores a map of AliasMap objects, one for each XNAT project
+ * Stores a map of PatientAliasMap objects, one for each XNAT project
  */
 public class ProjectSubjectAliasMap {
-    private final Map<String, AliasMap> projectMap;
+    private final Map<String, PatientAliasMap> projectMap;
     private final PatientListStore patientListStore;
 
     /**
@@ -29,25 +30,25 @@ public class ProjectSubjectAliasMap {
      * @param hashedPatientId the pseudonymised patient ID (PPID) - a one-way hash of the patient ID
      * @return the XNAT alias string
      */
-    public Optional<String> getSubjectAlias(final String projectName, final String hashedPatientId) {
-        return getAliasMapForProject(projectName).getAlias(hashedPatientId);
+    public Optional<GiftCloudLabel.SubjectLabel> getSubjectAlias(final String projectName, final String hashedPatientId) {
+        return getAliasMapForProject(projectName).getSubjectLabel(hashedPatientId);
     }
 
     /**
-     * Adds alias and other subject information to the local database
+     * Adds subjectLabel and other subject information to the local database
      *
-     * @param projectName the XNAT project to which this alias will be added
+     * @param projectName the XNAT project to which this subjectLabel will be added
      * @param hashedPatientId a one-way hash of the patient ID
-     * @param alias the XNAT alias string for this subject
+     * @param subjectLabel the XNAT subject label string for this subject
      * @param patientId the original patient ID (this is only stored locally)
      * @param patientName the original patient name (this is only stored locally)
      */
-    public void addAlias(final String projectName, final String hashedPatientId, final String alias, final String patientId, final String patientName) {
+    public void addAlias(final String projectName, final String hashedPatientId, final GiftCloudLabel.SubjectLabel subjectLabel, final String patientId, final String patientName) {
         // Get the map for this project
-        final AliasMap aliasMapForProject = getAliasMapForProject(projectName);
+        final PatientAliasMap patientAliasMapForProject = getAliasMapForProject(projectName);
 
-        // Add the alias
-        aliasMapForProject.addAlias(hashedPatientId, alias, patientId, patientName);
+        // Add the subjectLabel
+        patientAliasMapForProject.addSubjectAlias(hashedPatientId, subjectLabel, patientId, patientName);
 
         patientListStore.save(projectMap);
     }
@@ -59,11 +60,66 @@ public class ProjectSubjectAliasMap {
         patientListStore.save(projectMap);
     }
 
-    private AliasMap getAliasMapForProject(final String projectName) {
+    /**
+     * Gets the GIFT-Cloud label for the experiment with a specific pseudonymised UID
+     *
+     * @param projectLabel the GIFT-Cloud project label
+     * @param subjectLabel the GIFT-Cloud subject label
+     * @param hashedStudyInstanceUid the pseudonymised experiment UID
+     * @return An Optional which contains the experiment label if the pseudonymised UID exists; otherwise returns an Optional.Empty
+     */
+    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedStudyInstanceUid) {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectLabel);
+        return patientAliasMap.getExperimentLabel(subjectLabel, hashedStudyInstanceUid);
+    }
+
+    /**
+     * Gets the GIFT-Cloud label for the scan with a specific pseudonymised UID
+     *
+     * @param projectLabel the GIFT-Cloud project label
+     * @param subjectLabel the GIFT-Cloud subject label
+     * @param experimentLabel the GIFT-Cloud experiment label
+     * @param hashedSeriesInstanceUid the pseudonymised scan UID
+     * @return An Optional which contains the scan label if the pseudonymised UID exists; otherwise returns an Optional.Empty
+     */
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid) {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectLabel);
+        return patientAliasMap.getScanLabel(subjectLabel, experimentLabel, hashedSeriesInstanceUid);
+    }
+
+    /**
+     * Adds a new alias (label and UID) for an experiment
+     *
+     * @param projectLabel the GIFT-Cloud project label
+     * @param subjectLabel the GIFT-Cloud subject label
+     * @param hashedStudyInstanceUid the pseudonymised experiment UID
+     * @param experimentLabel the experiment label
+     * @throws IOException if the project label is unknown
+     */
+    public void addExperimentAlias(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedStudyInstanceUid, final GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectLabel);
+        patientAliasMap.addExperimentAlias(subjectLabel, hashedStudyInstanceUid, experimentLabel);
+    }
+
+    /**
+     * Adds a new alias (label and UID) for a scan
+     *
+     * @param projectLabel the GIFT-Cloud project label
+     * @param subjectLabel the GIFT-Cloud subject label
+     * @param experimentLabel the GIFT-Cloud experiment label
+     * @param hashedSeriesInstanceUid the pseudonymised scan UID
+     * @param experimentLabel the experiment label
+     * @throws IOException if the project label is unknown
+     */
+    public void addScanAlias(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid, final GiftCloudLabel.ScanLabel scanLabel)  throws IOException {
+        final PatientAliasMap patientAliasMap = getAliasMapForProject(projectLabel);
+        patientAliasMap.addScanAlias(subjectLabel, experimentLabel, hashedSeriesInstanceUid, scanLabel);
+    }
+
+    private PatientAliasMap getAliasMapForProject(final String projectName) {
         if (!projectMap.containsKey(projectName)) {
-            projectMap.put(projectName, new AliasMap());
+            projectMap.put(projectName, new PatientAliasMap());
         }
         return projectMap.get(projectName);
     }
-
 }

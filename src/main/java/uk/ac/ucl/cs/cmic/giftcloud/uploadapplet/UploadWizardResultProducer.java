@@ -17,10 +17,7 @@ import org.netbeans.spi.wizard.WizardPage.WizardResultProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResultsFailure;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResultsSuccess;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -83,11 +80,11 @@ public class UploadWizardResultProducer implements WizardResultProducer {
                 upload = _executorService.submit(new Callable<UploadResult>() {
                     public UploadResult call() {
                         try {
-                            UploadResult result = session.uploadTo(uploadSelector.getProject().toString(), uploadSelector.getSubject().getLabel(), giftCloudServer, sessionParameters, uploadSelector.getProject(), new SwingUploadFailureHandler(), reporter);
+                            UploadResult result = session.uploadTo(uploadSelector.getProject().toString(), GiftCloudLabel.SubjectLabel.getFactory().create(uploadSelector.getSubject().getLabel()), giftCloudServer, sessionParameters, uploadSelector.getProject(), new SwingUploadFailureHandler(), reporter);
 
                             if (result instanceof UploadResultsSuccess) {
                                 final UploadResultsSuccess resultsSuccess = (UploadResultsSuccess)result;
-                                final UploadResultPanel resultPanel = new UploadResultPanel(resultsSuccess.getsessionLabel(), resultsSuccess.getSessionViewUrl(), uploadSelector.getWindowName(), uploadSelector.getJSContext());
+                                final UploadResultPanel resultPanel = new UploadResultPanel(resultsSuccess.getsessionLabel().getStringLabel(), resultsSuccess.getSessionViewUrl(), uploadSelector.getWindowName(), uploadSelector.getJSContext());
                                 final String fullUrlString = sessionParameters.getBaseURL() + resultsSuccess.getUri();
                                 progress.finished(Summary.create(resultPanel, new URL(fullUrlString)));
                             } else if (result instanceof UploadResultsFailure) {

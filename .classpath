@@ -4,6 +4,9 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: org.apache.poi:poi:3.8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: commons-codec:commons-codec:1.5"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.googlecode.json-simple:json-simple:1.1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: com.apple:AppleJavaExtensions:1.4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: uk.ac.ucl.cs.cmic.giftcloud.localrepo:pixelmed_codec:1.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Maven: uk.ac.ucl.cs.cmic.giftcloud.localrepo:wizard:1.0"/>
