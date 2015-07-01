@@ -5,6 +5,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+import org.apache.commons.lang.StringUtils;
 import org.dcm4che2.data.*;
 import org.dcm4che2.io.*;
 import org.nrg.dcm.edit.AttributeException;
@@ -12,6 +13,8 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import org.nrg.dcm.edit.ScriptEvaluationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 
 import java.io.*;
 import java.util.zip.GZIPInputStream;
@@ -134,10 +137,34 @@ public class SeriesZipper {
                 if (null != handler) {
                     dis.setHandler(handler);
                 }
+
                 final DicomObject o = dis.readDicomObject();
+
+                // Temporarily store patient details to confirm they have been modified by the anonymisation scripts
+                final String originalPatientName = o.getString(Tag.PatientName);
+                final String originalPatientId = o.getString(Tag.PatientID);
+                final String originalPatientBirthDate = o.getString(Tag.PatientBirthDate);
+
                 for (final ScriptApplicator a : applicators) {
                     a.apply(f, o);
                 }
+
+                // Get the new patient details after anonymisation
+                final String finalPatientName = o.getString(Tag.PatientName);
+                final String finalPatientId = o.getString(Tag.PatientID);
+                final String finalPatientBirthDate = o.getString(Tag.PatientBirthDate);
+
+                // Check critial tags have been anonymised
+                if (StringUtils.isNotBlank(finalPatientName) && finalPatientName.equals(originalPatientName)) {
+                    throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
+                }
+                if (StringUtils.isNotBlank(finalPatientId) && finalPatientId.equals(originalPatientId)) {
+                    throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
+                }
+                if (StringUtils.isNotBlank(finalPatientBirthDate) && finalPatientBirthDate.equals(originalPatientBirthDate)) {
+                    throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
+                }
+
                 final String tsuid = o.getString(Tag.TransferSyntaxUID, UID.ImplicitVRLittleEndian);
                 final TransferSyntax tsOriginal = TransferSyntax.valueOf(tsuid);
                 if (tsOriginal.deflated() && null != handler) {

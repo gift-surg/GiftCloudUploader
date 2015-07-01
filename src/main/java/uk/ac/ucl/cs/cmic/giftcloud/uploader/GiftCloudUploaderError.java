@@ -14,7 +14,8 @@ public enum GiftCloudUploaderError {
     QUERY_NO_CALLED_AE_TITLE(40, "The PACS port has not been set."),
     EMPTY_LISTENER_PORT(51, "The Dicom node listener port has not been set."),
     EMPTY_LISTENER_AE_TITLE(52, "The Dicom node listener AE title has not been set."),
-    SERVER_CERTIFICATE_FAILURE(61, "Cannot connect to the GIFT-Cloud server because the server certificate has not been added to your local keystore");
+    SERVER_CERTIFICATE_FAILURE(61, "Cannot connect to the GIFT-Cloud server because the server certificate has not been added to your local keystore"),
+    ANONYMISATION_UNACCEPTABLE(71, "Uploading is not permitted because the anonymisation scripts for this project have not been configured to remove identifiable patient information. Please configure the project anonymation scripts on the GIFT-Cloud server and re-start the GIFT-Cloud Uploader.");
 
     private final int errorCode;
     private final String userVisibleMessage;
