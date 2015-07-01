@@ -81,7 +81,9 @@ class ZipSeriesRequestFixedSize extends HttpRequestWithOutput<Set<String>> {
 
     @Override
     protected void cleanup() {
-        temporaryZipFile.delete();
+        if (temporaryZipFile != null) {
+            temporaryZipFile.delete();
+        }
     }
 
     private void writeChunk(long zipFileSize, float zipRatio, FileInputStream fis, OutputStream os) throws IOException {
