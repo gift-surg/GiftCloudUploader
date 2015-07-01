@@ -1,11 +1,10 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
-import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
+import uk.ac.ucl.cs.cmic.giftcloud.data.*;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
@@ -113,6 +112,23 @@ public class GiftCloudAutoUploader {
         sessionParameters.setBaseUrl(new URL(server.getGiftCloudServerUrl()));
         sessionParameters.setNumberOfThreads(1);
         sessionParameters.setUsedFixedSize(true);
+
+        // Set the predefined variables for project, subject and session, so that these can be used in the DICOM anonymisation scripts
+        final Map<String, SessionVariable> predefs = Maps.newLinkedHashMap();
+        predefs.put(SessionVariableNames.PROJECT, new AssignedSessionVariable(SessionVariableNames.PROJECT, projectName));
+        predefs.put(SessionVariableNames.SUBJECT, new AssignedSessionVariable(SessionVariableNames.SUBJECT, subjectLabel.getStringLabel()));
+        predefs.put(SessionVariableNames.SESSION_LABEL, new AssignedSessionVariable(SessionVariableNames.SESSION_LABEL, experimentLabel.getStringLabel()));
+        for (final SessionVariable sessionVariable : session.getVariables(project, session)) {
+            final String name = sessionVariable.getName();
+            if (predefs.containsKey(name)) {
+                final SessionVariable predef = predefs.get(name);
+                try {
+                    sessionVariable.fixValue(predef.getValue());
+                } catch (SessionVariable.InvalidValueException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
 
         final LinkedList<SessionVariable> sessionVariables = Lists.newLinkedList(session.getVariables(project, session));
         sessionParameters.setSessionVariables(sessionVariables);
