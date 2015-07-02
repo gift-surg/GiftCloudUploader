@@ -11,7 +11,7 @@ import java.util.*;
 public interface RestServer {
     void tryAuthentication() throws IOException;
 
-    Vector<Object> getListOfProjects() throws IOException;
+    Vector<String> getListOfProjects() throws IOException;
 
     Map<String, String> getListOfSubjects(String projectName) throws IOException, JSONException;
 
@@ -25,9 +25,9 @@ public interface RestServer {
 
     Optional<GiftCloudLabel.SubjectLabel> getSubjectLabel(String projectName, String ppid) throws IOException;
 
-    Collection<?> getScriptStatus(String projectName) throws IOException;
+    Collection<String> getScriptStatus(String projectName) throws IOException;
 
-    Collection<?> getScripts(String projectName) throws IOException;
+    Collection<String> getScripts(String projectName) throws IOException;
 
     Optional<String> getSiteWideAnonScript() throws IOException;
 

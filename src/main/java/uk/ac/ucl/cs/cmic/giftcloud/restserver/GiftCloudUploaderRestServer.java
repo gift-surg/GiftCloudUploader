@@ -65,9 +65,9 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public Vector<Object> getListOfProjects() throws IOException {
+    public Vector<String> getListOfProjects() throws IOException {
         final String uri = "/REST/projects?format=json&owner=true&member=true";
-        return new Vector<Object>(restServerSessionHelper.getValues(uri, "id"));
+        return new Vector<String>(restServerSessionHelper.getValues(uri, "id"));
     }
 
     @Override
@@ -122,13 +122,13 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public Collection<?> getScriptStatus(final String projectName) throws IOException {
+    public Collection<String> getScriptStatus(final String projectName) throws IOException {
         String uri = "/data/config/edit/projects/" + projectName + "/image/dicom/status/?format=json"; // TD: added JSON field
         return restServerSessionHelper.getValues(uri, "edit");
     }
 
     @Override
-    public Collection<?> getScripts(final String projectName) throws IOException {
+    public Collection<String> getScripts(final String projectName) throws IOException {
         final String uri = "/data/config/edit/projects/" + projectName + "/image/dicom/script";
         return restServerSessionHelper.getValues(uri, "script");
     }

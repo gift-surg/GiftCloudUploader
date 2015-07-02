@@ -95,7 +95,7 @@ public class GiftCloudDialogs {
         }
     }
 
-    public static String showInputDialogToSelectProject(final Vector<Object> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
+    public static String showInputDialogToSelectProject(final Vector<String> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
         final String lastProjectName = lastProject.isPresent() ? lastProject.get() : "";
 
         if (projectMap.size() < 1) {

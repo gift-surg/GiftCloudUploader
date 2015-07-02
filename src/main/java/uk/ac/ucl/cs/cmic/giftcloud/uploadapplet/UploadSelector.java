@@ -140,7 +140,7 @@ public class UploadSelector {
      *
      *
      */
-    public Vector<Object> getListOfProjects() throws IOException {
+    public Vector<String> getListOfProjects() throws IOException {
         return restServer.getListOfProjects();
     }
 
