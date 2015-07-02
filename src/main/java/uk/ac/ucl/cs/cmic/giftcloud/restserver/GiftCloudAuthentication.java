@@ -74,7 +74,7 @@ class GiftCloudAuthentication {
      */
     synchronized void tryAuthentication() throws IOException {
         if (!successfulAuthentication) {
-            forceAuthentication();
+            forceAuthentication(true);
             successfulAuthentication = true;
         }
     }
@@ -84,18 +84,18 @@ class GiftCloudAuthentication {
      *
      * @throws IOException if a communications error occurred, or if the user exceeded the maximum number of incorrect login attempts
      */
-    synchronized void forceAuthentication() throws IOException {
+    synchronized void forceAuthentication(final boolean rapidTimeout) throws IOException {
 
         Optional<String> cookieString = Optional.empty();
 
         // First we attempt to log in using the existing cookie
         if (cookieWrapper.isValid()) {
-            cookieString = tryAuthenticatedLogin(new ConnectionFactoryWithCookie(connectionFactory, cookieWrapper), 0);
+            cookieString = tryAuthenticatedLogin(new ConnectionFactoryWithCookie(connectionFactory, cookieWrapper), 0, rapidTimeout);
         }
 
         // If this fails, then attempt to log in using a specified username and password
         if (!cookieString.isPresent() && passwordAuthenticationWrapper.isValid()) {
-            cookieString = tryAuthenticatedLogin(new ConnectionFactoryWithPasswordAuthentication(connectionFactory, passwordAuthenticationWrapper.get().get()), 0);
+            cookieString = tryAuthenticatedLogin(new ConnectionFactoryWithPasswordAuthentication(connectionFactory, passwordAuthenticationWrapper.get().get()), 0, rapidTimeout);
         }
 
         // Otherwise we ask for a username and password
@@ -117,7 +117,7 @@ class GiftCloudAuthentication {
                 throw new CancellationException("User cancelled login to GIFT-Cloud");
             }
 
-            cookieString = tryAuthenticatedLogin(new ConnectionFactoryWithPasswordAuthentication(connectionFactory, passwordAuthentication.get()), number_of_login_attempts);
+            cookieString = tryAuthenticatedLogin(new ConnectionFactoryWithPasswordAuthentication(connectionFactory, passwordAuthentication.get()), number_of_login_attempts, rapidTimeout);
 
             // If this succeeds then store the password authentication for future use
             if (cookieString.isPresent()) {
@@ -147,9 +147,9 @@ class GiftCloudAuthentication {
         return new ConnectionFactoryWithCookie(connectionFactory, cookieWrapper);
     }
 
-    private Optional<String> tryAuthenticatedLogin(final ConnectionFactory connectionFactory, final int attemptNumber) throws IOException {
+    private Optional<String> tryAuthenticatedLogin(final ConnectionFactory connectionFactory, final int attemptNumber, final boolean rapidTimeout) throws IOException {
         try {
-            return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor(), giftCloudProperties, reporter).getResponse(baseUrlString, connectionFactory));
+            return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor(), giftCloudProperties, reporter).getResponse(baseUrlString, connectionFactory, rapidTimeout));
         } catch (AuthorisationFailureException e) {
             if (attemptNumber >= MAX_NUM_LOGIN_ATTEMPTS) {
                 throw e;

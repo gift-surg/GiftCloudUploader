@@ -36,6 +36,7 @@ public class HttpConnectionBuilder {
     private Optional<String> cookieString = Optional.empty();
     private Optional<String> userAgent = Optional.empty();
     private Optional<String> accept = Optional.empty();
+    private Optional<Integer> connectTimeout = Optional.empty();
 
     private final String urlString;
 
@@ -86,6 +87,10 @@ public class HttpConnectionBuilder {
             connection.setRequestProperty(COOKIE_HEADER, cookieString.get());
         }
 
+        if (connectTimeout.isPresent()) {
+            connection.setConnectTimeout(connectTimeout.get());
+        }
+
         connection.setUseCaches(false);
 
         return connection;
@@ -133,5 +138,9 @@ public class HttpConnectionBuilder {
 
     public String getUrl() {
         return urlString;
+    }
+
+    public void setConnectTimeout(final int timeout) {
+        this.connectTimeout = Optional.of(timeout);
     }
 }

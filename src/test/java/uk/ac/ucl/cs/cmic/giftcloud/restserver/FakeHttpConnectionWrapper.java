@@ -130,4 +130,8 @@ class FakeHttpConnectionWrapper implements HttpConnection {
     public String getUrlString() {
         return fullUrlString;
     }
+
+    @Override
+    public void setConnectTimeout(int timeout) {
+    }
 }

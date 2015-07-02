@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 public enum GiftCloudUploaderError {
     OK(0, "Completed successfully."),
+    SERVER_INVALID(21, "Unable to connect to the GIFT-Cloud server. Please verify that the GIFT-Cloud server is running, and that its URL is correctly specified in the uploader settings."),
     QUERY_RETRIEVE_STILL_IN_PROGRESS(31, "A previous query/retrieve operation is still in progress. Please wait until this completes."),
     NO_QUERY_OR_QUERY_FAILED(32, "A query operation must be performed before a retrieve."),
     EMPTY_AE(33, "The PACS AE title has not been set. Please check the settings in the configuration dialog."),
