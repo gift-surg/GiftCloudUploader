@@ -26,6 +26,8 @@ public interface GiftCloudProperties {
     String propertyName_Shutdowntimeout = "GiftCloud_ShutdownTimeout";
     String propertyName_QueryDebugLevel = "GiftCloud_QueryDebugLevel";
     String propertyName_StorageSCPDebugLevel = "GiftCloud_StorageSCPDebugLevel";
+    String propertyName_ShortTimeoutMs = "GiftCloud_QuickAuthenticationTimeout";
+    String propertyName_LongTimeoutMs = "GiftCloud_RequestTimeout";
 
 
     Optional<String> getGiftCloudUrl();
@@ -73,4 +75,8 @@ public interface GiftCloudProperties {
     void setPatientListExportFolder(final String exportFolder);
 
     Optional<String> getPatientListExportFolder();
+
+    int getShortTimeout();
+
+    int getLongTimeout();
 }

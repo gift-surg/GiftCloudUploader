@@ -168,6 +168,16 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     @Override
+    public int getShortTimeout() {
+        return getIntegerWithDefault(propertyName_ShortTimeoutMs, 2000);
+    }
+
+    @Override
+    public int getLongTimeout() {
+        return getIntegerWithDefault(propertyName_LongTimeoutMs, 30000);
+    }
+
+    @Override
     public Optional<char[]> getLastPassword() {
         if (passwordStore.isPresent()) {
             try {
