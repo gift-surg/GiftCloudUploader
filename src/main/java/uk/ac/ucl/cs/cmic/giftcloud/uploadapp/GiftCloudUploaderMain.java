@@ -89,7 +89,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             @Override
             public void run() {
                 // Attempt to authenticate
-                giftCloudUploader.tryAuthentication();
+//                giftCloudUploader.tryAuthentication();
                 startUploading();
             }
         }).start();
@@ -207,20 +207,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void tryAuthentication() {
-        new Thread() {
-            public void run() {
-
-                // Attempt to authenticate
-                giftCloudUploader.tryAuthentication();
-            }
-        }.run();
-
-
-
-    }
-
-    @Override
     public void restartDicomService() {
         try {
             dicomNode.shutdownStorageSCP();
@@ -236,7 +222,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     @Override
     public void restartUploader() {
-        // ToDo: this doesn't really deal with changes to the server etc
         pauseUploading();
         startUploading();
     }
