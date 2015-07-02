@@ -17,13 +17,15 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Vector;
 
-abstract class DropDownListModel extends DefaultComboBoxModel implements ListDataListener {
+abstract class DropDownListModel extends DefaultComboBoxModel<String> implements ListDataListener {
 
     // We prevent changing of the default value until the model has been populated
     private boolean preventSettingLastUsedValue = true;
+    private boolean enabled = false;
 
     public DropDownListModel() {
         addListDataListener(this);
@@ -35,16 +37,17 @@ abstract class DropDownListModel extends DefaultComboBoxModel implements ListDat
     /* Indicates that the items in the model are no longer valid, but we don't yet have replacement values. So clear the items, and prevent any further actions until new items have been set */
     final public void invalidate() {
         preventSettingLastUsedValue = true;
+        setEnabledStatus(false);
         removeAllElements();
     }
 
-    final public void setItems(final Vector<Object> objectList) {
+    final public void setItems(final Vector<String> objectList) {
 
         preventSettingLastUsedValue = true;
 
         removeAllElements();
 
-        for (Object object : objectList) {
+        for (final String object : objectList) {
             addElement(object);
         }
 
@@ -53,6 +56,7 @@ abstract class DropDownListModel extends DefaultComboBoxModel implements ListDat
             setSelectedItem(lastUsedValue.get());
         }
         preventSettingLastUsedValue = false;
+        setEnabledStatus(true);
     }
 
     @Override
@@ -67,6 +71,42 @@ abstract class DropDownListModel extends DefaultComboBoxModel implements ListDat
     final public void contentsChanged(ListDataEvent e) {
         if (!preventSettingLastUsedValue) {
             setLastUsedValue((String) getSelectedItem());
+        }
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    private void setEnabledStatus(final boolean newEnabled) {
+        if (newEnabled != enabled) {
+            enabled = newEnabled;
+            notifyStatusChanged(newEnabled);
+        }
+    }
+
+
+    private final java.util.List<EnabledListener<Boolean>> listeners = new ArrayList<EnabledListener<Boolean>>();
+
+    public void addListener(final EnabledListener<Boolean> listener) {
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeListener(final EnabledListener<Boolean> listener) {
+        if (listeners.contains(listener)) {
+            listeners.remove(listener);
+        }
+    }
+
+    public interface EnabledListener<Boolean> {
+        void statusChanged(final Boolean visibility);
+    }
+
+    protected void notifyStatusChanged(final Boolean status) {
+        for (final EnabledListener<Boolean> listener : listeners) {
+            listener.statusChanged(status);
         }
     }
 }
