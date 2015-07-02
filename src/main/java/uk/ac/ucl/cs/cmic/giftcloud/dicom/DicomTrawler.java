@@ -10,6 +10,7 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
+import org.apache.commons.lang.StringUtils;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.dcm4che2.io.StopTagInputHandler;
@@ -79,28 +80,51 @@ public final class DicomTrawler implements Trawler {
 					continue;
 				}
 				assert null != o.getString(Tag.SOPClassUID);
+                final String modality = o.getString(Tag.Modality);
+                if (!modalityIsSupported(modality)) {
+                    logger.debug("This modality is not supported", "");
 
-                if (_filters != null) {
-                    logger.debug("Found series import filters, testing series for inclusion/exclusion.");
-                    final String description = o.getString(Tag.SeriesDescription);
-                    logger.debug("Found series description: {}", description);
-                    if (_filters.checkSeries(description)) {
-                        logger.debug("Series description {} matched series import filter restrictions, including in session", description);
+                } else {
+
+                    if (_filters != null) {
+                        logger.debug("Found series import filters, testing series for inclusion/exclusion.");
+                        final String description = o.getString(Tag.SeriesDescription);
+                        logger.debug("Found series description: {}", description);
+                        if (_filters.checkSeries(description)) {
+                            logger.debug("Series description {} matched series import filter restrictions, including in session", description);
+                            final Study study = studies.get(new Study(o));
+                            study.getSeries(o, f);
+                        } else {
+                            logger.debug("Series description {} did not match series import filter restrictions, excluding from session", description);
+                        }
+                    } else {
+                        logger.debug("Series import filters not found, including series in session");
                         final Study study = studies.get(new Study(o));
                         study.getSeries(o, f);
-                    } else {
-                        logger.debug("Series description {} did not match series import filter restrictions, excluding from session", description);
                     }
-                } else {
-                    logger.debug("Series import filters not found, including series in session");
-                    final Study study = studies.get(new Study(o));
-                    study.getSeries(o, f);
                 }
+
+
             }
 		}
 		
 		return new ArrayList<Session>(studies.getAll());
 	}
+
+    private boolean modalityIsSupported(final String modality) {
+        if (StringUtils.isBlank(modality)) {
+            return false;
+        } else if (modality.equals("MR")) {
+            return true;
+        } else if (modality.equals("CT")) {
+            return true;
+        } else if (modality.equals("US")) {
+            // Currently we do not support US upload until we can anonymise the patient data burnt into the images
+            return false;
+        } else {
+            return false;
+        }
+    }
 
     public void setSeriesImportFilters(final SeriesImportFilterApplicatorRetriever filters) {
         _filters = filters;
