@@ -28,9 +28,9 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Vector<Object> getListOfProjects() throws IOException {
+    public Vector<String> getListOfProjects() throws IOException {
         final Set<String> projectList = projectMap.getProjectList();
-        final Vector<Object> projectVector = new Vector<Object>();
+        final Vector<String> projectVector = new Vector<String>();
         for (final String projectLabel : projectList) {
             projectVector.add(projectLabel);
         }
@@ -83,13 +83,13 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Collection<?> getScriptStatus(String projectName) throws IOException {
-        return new ArrayList<Object>();
+    public Collection<String> getScriptStatus(String projectName) throws IOException {
+        return new ArrayList<String>();
     }
 
     @Override
-    public Collection<?> getScripts(String projectName) throws IOException {
-        return new ArrayList<Object>();
+    public Collection<String> getScripts(String projectName) throws IOException {
+        return new ArrayList<String>();
     }
 
     @Override

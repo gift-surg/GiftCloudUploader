@@ -3,6 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
+import java.io.IOException;
 import java.util.Optional;
 
 public class BackgroundAddToUploaderService extends BackgroundService<PendingUploadTask, PendingUploadTask> {
@@ -26,8 +27,8 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
 
     @Override
     protected void processItem(PendingUploadTask pendingUploadTask) throws Exception {
-        final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
 
+        final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
         // Allow user to log in again if they have previously cancelled a login dialog
         giftCloudServer.resetCancellation();
 
@@ -38,6 +39,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
         } else {
             projectName = uploader.getProjectName(giftCloudServer);
         }
+
 
         if (pendingUploadTask.shouldAppend()) {
             autoUploader.appendToGiftCloud(giftCloudServer, pendingUploadTask.getPaths(), projectName);
@@ -54,5 +56,14 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
     @Override
     protected void notifyFailure(BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask> taskWrapper) {
 
+    }
+
+    @Override
+    protected void doPreprocessing() {
+        try {
+            serverFactory.getGiftCloudServer().tryAuthentication();
+        } catch (IOException e) {
+            reporter.updateStatusText(e.getLocalizedMessage());
+        }
     }
 }

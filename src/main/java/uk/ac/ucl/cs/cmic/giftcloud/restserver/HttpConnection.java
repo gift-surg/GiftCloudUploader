@@ -62,4 +62,6 @@ public interface HttpConnection {
 
     String getUrlString();
 
+    void setConnectTimeout(int timeout);
+
 }

@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-final class JSONValuesExtractor implements JSONDecoder<Collection<Object>> {
+final class JSONValuesExtractor implements JSONDecoder<Collection<String>> {
     private final Logger logger = LoggerFactory.getLogger(JSONValuesExtractor.class);
-    private final Collection<Object> c = new LinkedHashSet<Object>();
+    private final Collection<String> c = new LinkedHashSet<String>();
     private final String key;
 
     JSONValuesExtractor(final String key) {
@@ -24,11 +24,11 @@ final class JSONValuesExtractor implements JSONDecoder<Collection<Object>> {
     public void decode(final JSONObject o) throws JSONException {
         logger.trace("decoding {} from {}", key, o);
         if (o.has(key)) {
-            c.add(o.get(key));
+            c.add((String)(o.get(key)));
         }
     }
 
-    public Collection<Object> getResult() {
+    public Collection<String> getResult() {
         return c;
     }
 }

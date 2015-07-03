@@ -44,7 +44,7 @@ public class GiftCloudServer {
         restServer.tryAuthentication();
     }
 
-    public Vector<Object> getListOfProjects() throws IOException {
+    public Vector<String> getListOfProjects() throws IOException {
         return restServer.getListOfProjects();
     }
 

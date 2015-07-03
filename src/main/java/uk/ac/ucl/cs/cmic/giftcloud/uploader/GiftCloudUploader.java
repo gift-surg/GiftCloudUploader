@@ -116,12 +116,14 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
      * @return true if the authentication was successful
      */
     public boolean tryAuthentication() {
-        String giftCloudServerUrl = "";
+        // We can get the URL form the GiftCloudServer object when it has been created, but if the creation fails we still want to report the URL to the user, so fetch it from the properties
+        final Optional<String> optionalGiftCloudUrlForDebugging = giftCloudProperties.getGiftCloudUrl();
+        String giftCloudServerUrlForDebugging = optionalGiftCloudUrlForDebugging.orElse("");
 
         // We attempt to connect to the GIFT-Cloud server, in order to authenticate and to set the project list, but we allow the connection to fail gracefully
         try {
             final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-            giftCloudServerUrl = giftCloudServer.getGiftCloudServerUrl();
+            giftCloudServerUrlForDebugging = giftCloudServer.getGiftCloudServerUrl();
 
             // Allow user to log in again if they have previously cancelled a login dialog
             giftCloudServer.resetCancellation();
@@ -130,23 +132,23 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
             return true;
 
         } catch (CancellationException e) {
-            reporter.silentLogException(e, "Authentication was cancelled. Server:" + giftCloudServerUrl + ", error:" + e.getMessage());
+            reporter.silentLogException(e, "Authentication was cancelled. Server:" + giftCloudServerUrlForDebugging + ", error:" + e.getMessage());
             // Do not report anything to user, since the user initiated the cancellation
             return false;
 
         } catch (AuthenticationException e) {
-            reporter.silentLogException(e, "The GIFT-Cloud username or password was not recognised. Server:" + giftCloudServerUrl + ", error:" + e.getMessage());
+            reporter.silentLogException(e, "The GIFT-Cloud username or password was not recognised. Server:" + giftCloudServerUrlForDebugging + ", error:" + e.getMessage());
             reporter.reportErrorToUser("The GIFT-Cloud username or password was not recognised.", e);
             return false;
 
         } catch (Exception e) {
-            reporter.silentLogException(e, "An error occurred when attempting to connect to the GIFT-Cloud server at " + giftCloudServerUrl + ": " + e.getMessage());
-            reporter.reportErrorToUser("Could not connect to the GIFT-Cloud server due to the following error: /n" + e.getMessage(), e);
+            reporter.silentLogException(e, "An error occurred when attempting to connect to the GIFT-Cloud server at " + giftCloudServerUrlForDebugging + ": " + e.getMessage());
+            reporter.reportErrorToUser("Could not connect to the GIFT-Cloud server due to the following error: <br>" + e.getMessage(), e);
             return false;
         }
     }
 
-    public ComboBoxModel<String> getProjectListModel() {
+    public ProjectListModel getProjectListModel() {
         return projectListModel;
     }
 

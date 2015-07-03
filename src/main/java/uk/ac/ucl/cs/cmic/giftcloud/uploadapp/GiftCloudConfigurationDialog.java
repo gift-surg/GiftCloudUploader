@@ -29,7 +29,7 @@ public class GiftCloudConfigurationDialog {
 
     private final GiftCloudUploaderController controller;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
-    private ComboBoxModel<String> projectListModel;
+    private ProjectListModel projectListModel;
     private final DicomNode dicomNode;
     private ResourceBundle resourceBundle;
     private final GiftCloudDialogs giftCloudDialogs;
@@ -40,19 +40,21 @@ public class GiftCloudConfigurationDialog {
     private final JTextField giftCloudServerText;
     private final JTextField giftCloudUsernameText;
     private final JPasswordField giftCloudPasswordText;
-    private JTextField listeningAETitleField;
-    private JTextField listeningPortField;
-    private JTextField patientListExportFolderField;
-    private JTextField remoteAETitleField;
-    private JTextField remoteAEHostName;
-    private JTextField remoteAEPortField;
+    private final JTextField listeningAETitleField;
+    private final JTextField listeningPortField;
+    private final JTextField patientListExportFolderField;
+    private final JTextField remoteAETitleField;
+    private final JTextField remoteAEHostName;
+    private final JTextField remoteAEPortField;
+    private final JLabel projectListWaitingLabel;
 
     private final Component componentToCenterDialogOver;
     private final TemporaryProjectListModel temporaryDropDownListModel;
+    private DropDownListModel.EnabledListener<Boolean> projectListEnabledListener = null;
 
     private boolean isDisposed = false;
 
-    GiftCloudConfigurationDialog(final Dialog owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ComboBoxModel<String> projectListModel, final DicomNode dicomNode, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
+    GiftCloudConfigurationDialog(final Dialog owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final DicomNode dicomNode, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.projectListModel = projectListModel;
@@ -163,6 +165,11 @@ public class GiftCloudConfigurationDialog {
                 projectList.setEditable(false);
                 projectList.setToolTipText(resourceBundle.getString("giftCloudProjectTooltip"));
                 giftCloudServerPanel.add(projectList, inputConstraints);
+
+                labelConstraints.gridx = 1;
+                projectListWaitingLabel = new JLabel(resourceBundle.getString("giftCloudProjectWaitingLabelText"), SwingConstants.RIGHT);
+                giftCloudServerPanel.add(projectListWaitingLabel, labelConstraints);
+                labelConstraints.gridx = 0;
             }
         }
 
@@ -335,6 +342,19 @@ public class GiftCloudConfigurationDialog {
         }
 
         projectList.setModel(temporaryDropDownListModel);
+        showProjectList(projectListModel.isEnabled());
+
+        // Create a listener to enable/disable the project list when it is set from the server.
+        // The reason for this is that the project list is set after logging into the server, which can happen asynchronously after property changes have been applied.
+        // If the server was configured in the dialog and apply clicked, it might take a few seconds for the project list to be updated, and we want it to become available when this happens
+        projectListEnabledListener = new DropDownListModel.EnabledListener<Boolean>() {
+            @Override
+            public void statusChanged(final Boolean visibility) {
+                showProjectList(projectListModel.isEnabled());
+            }
+        };
+
+        projectListModel.addListener(projectListEnabledListener);
 
         GridBagLayout layout = new GridBagLayout();
         dialog.setLayout(layout);
@@ -343,6 +363,12 @@ public class GiftCloudConfigurationDialog {
         dialog.pack();
         dialog.setVisible(true);
         dialog.pack();
+    }
+
+    private void showProjectList(final boolean enabled) {
+        projectList.setEnabled(enabled);
+        projectList.setVisible(enabled);
+        projectListWaitingLabel.setVisible(!enabled);
     }
 
     public boolean isVisible() {
@@ -538,6 +564,8 @@ public class GiftCloudConfigurationDialog {
     }
 
     private void closeDialog() {
+        projectListModel.removeListener(projectListEnabledListener);
+        projectListEnabledListener = null;
         isDisposed = true;
         dialog.dispose();
     }

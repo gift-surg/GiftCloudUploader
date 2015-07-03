@@ -50,8 +50,8 @@ public class RestServerSessionHelper {
         giftCloudSession.tryAuthentication();
     }
 
-    public Collection<Object> getValues(final String path, final String key) throws IOException, JSONException {
-        return giftCloudSession.request(new HttpRequestWithoutOutput<Collection<Object>>(HttpConnection.ConnectionType.GET, path, new HttpJsonResponseProcessor<Collection<Object>>(new JSONValuesExtractor(key)), giftCloudProperties, reporter));
+    public Collection<String> getValues(final String path, final String key) throws IOException, JSONException {
+        return giftCloudSession.request(new HttpRequestWithoutOutput<Collection<String>>(HttpConnection.ConnectionType.GET, path, new HttpJsonResponseProcessor<Collection<String>>(new JSONValuesExtractor(key)), giftCloudProperties, reporter));
     }
 
     public Map<String, String> getAliases(final String path, final String aliasKey, final String idKey) throws IOException, JSONException {
