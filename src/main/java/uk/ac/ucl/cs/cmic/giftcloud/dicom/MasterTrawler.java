@@ -18,9 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.ArrayIterator;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +37,7 @@ public class MasterTrawler implements Callable<List<Session>> {
     private final Collection<File> roots;
     private final EditProgressMonitor pm;
     private final SeriesImportFilterApplicatorRetriever filters;
+    private final List<GiftCloudUploaderError> errors = new ArrayList<GiftCloudUploaderError>();
 
     // TODO: add progress monitor
     public MasterTrawler(final EditProgressMonitor monitor, final Iterable<File> files, final SeriesImportFilterApplicatorRetriever filters) {
@@ -57,9 +60,10 @@ public class MasterTrawler implements Callable<List<Session>> {
             ((DicomTrawler) trawler).setSeriesImportFilters(filters);
         }
         sessions.addAll(trawler.trawl(filei, remaining, pm));
+        errors.addAll(trawler.getErrorMessages());
+
         while (trawleri.hasNext()) {
             final Collection<File> files = Lists.newArrayList(remaining);
-            logger.trace("trawling {}", files);
             remaining.clear();
             trawler = trawleri.next();
             if (trawler instanceof DicomTrawler) {
@@ -71,7 +75,13 @@ public class MasterTrawler implements Callable<List<Session>> {
                 sessions.clear();
                 return sessions;
             }
+
+            errors.addAll(trawler.getErrorMessages());
         }
         return sessions;
+    }
+
+    public List<GiftCloudUploaderError> getErrorMessages() {
+        return errors;
     }
 }

@@ -9,7 +9,7 @@
     <name>GIFT-Cloud Uploader</name>
     <description>A simple application to query, retrieve, import, de-identify DICOM instances and upload them securely on to GIFT-Cloud.</description>
     <url>${gc.url}</url>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <organization>
         <name>Centre for Medical Image Computing (CMIC), University College London (UCL)</name>
         <url>http://cmictig.cs.ucl.ac.uk</url>
@@ -349,6 +349,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.8</version>
+        </dependency>
+        <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <version>1.8.0.10</version>
@@ -473,6 +478,11 @@
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
             <version>3.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1</version>
         </dependency>
     </dependencies>
 

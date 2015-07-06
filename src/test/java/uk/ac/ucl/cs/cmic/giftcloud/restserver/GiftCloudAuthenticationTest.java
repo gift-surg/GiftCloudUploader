@@ -114,7 +114,7 @@ public class GiftCloudAuthenticationTest {
         {
             // Login with cookie string
             when(connectionWrapper.getResponseCode()).thenReturn(HTTP_OK);
-            authentication.forceAuthentication();
+            authentication.forceAuthentication(false);
         }
 
     }
@@ -154,7 +154,7 @@ public class GiftCloudAuthenticationTest {
             // An authorisation failure should throw an exception
             when(connectionWrapper.getResponseCode()).thenReturn(HTTP_UNAUTHORIZED);
             try {
-                authentication.forceAuthentication();
+                authentication.forceAuthentication(false);
                 Assert.fail();
             } catch (AuthorisationFailureException e) {        }
         }
@@ -193,7 +193,7 @@ public class GiftCloudAuthenticationTest {
 
         // Login with username and password
         when(connectionWrapper.getResponseCode()).thenReturn(HTTP_OK);
-        authentication.forceAuthentication();
+        authentication.forceAuthentication(false);
     }
 
     @Test

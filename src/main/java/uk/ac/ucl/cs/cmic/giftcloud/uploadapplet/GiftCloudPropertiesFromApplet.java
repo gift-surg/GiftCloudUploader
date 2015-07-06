@@ -111,6 +111,30 @@ public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
     }
 
     @Override
+    public Optional<String> getPatientListLocalCacheFolder() {
+        return null;
+    }
+
+    @Override
+    public void setPatientListExportFolder(String exportFolder) {
+    }
+
+    @Override
+    public Optional<String> getPatientListExportFolder() {
+        return null;
+    }
+
+    @Override
+    public int getShortTimeout() {
+        return 1000;
+    }
+
+    @Override
+    public int getLongTimeout() {
+        return 30000;
+    }
+
+    @Override
     public void setLastUserName(final String lastUserName) {
         // We do not store the last username when using the applet, since the applet is typically launched after already logging into the server
     }

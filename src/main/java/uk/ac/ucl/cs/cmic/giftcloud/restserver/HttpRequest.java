@@ -20,7 +20,10 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Optional;
 
 import static java.net.HttpURLConnection.*;
@@ -46,6 +49,8 @@ abstract class HttpRequest<T> {
     private final HttpResponseProcessor<T> responseProcessor;
     private final GiftCloudReporter reporter;
     private final String userAgentString;
+    final int shortTimeout;
+    final int longTimeout;
 
     /**
      * Create a new request object that will connect to the given URL, and whose server reply will be interpreted by the response processor
@@ -62,6 +67,8 @@ abstract class HttpRequest<T> {
         this.responseProcessor = responseProcessor;
         this.reporter = reporter;
         userAgentString = giftCloudProperties.getUserAgentString();
+        shortTimeout = giftCloudProperties.getShortTimeout();
+        longTimeout = giftCloudProperties.getLongTimeout();
     }
 
     /**
@@ -71,9 +78,9 @@ abstract class HttpRequest<T> {
      * @return the result object computed by the response processor based on the response from the server
      * @throws IOException if an error occurs during the server communication
      */
-    final T getResponse(final String baseUrlString, final ConnectionFactory connectionFactory) throws IOException {
+    final T getResponse(final String baseUrlString, final ConnectionFactory connectionFactory, final boolean rapidTimeout) throws IOException {
         if (!response.isPresent()) {
-            doRequest(baseUrlString, connectionFactory);
+            doRequest(baseUrlString, connectionFactory, rapidTimeout);
         }
         // The value of the response should now be set to an Optional - if this inner optional is not set, that indicates a null value
         final Optional<T> responseResult = response.get();
@@ -108,12 +115,14 @@ abstract class HttpRequest<T> {
      */
     abstract protected void processOutputStream(final HttpConnection connectionWrapper) throws IOException;
 
-    private void doRequest(final String baseUrlString, final ConnectionFactory connectionFactory) throws IOException {
+    private void doRequest(final String baseUrlString, final ConnectionFactory connectionFactory, final boolean rapidTimeout) throws IOException {
 
         try {
             final HttpConnectionBuilder connectionBuilder = new HttpConnectionBuilder(relativeUrlString);
 
             prepareConnection(connectionBuilder);
+
+            connectionBuilder.setConnectTimeout(rapidTimeout ? shortTimeout : longTimeout);
 
             // Build the connection
             final String fullUrl = HttpRequest.getFullUrl(baseUrlString, relativeUrlString);
@@ -137,10 +146,21 @@ abstract class HttpRequest<T> {
                 }
 
             } catch (IOException e) {
+                if (e instanceof ConnectException) {
+                    throw new GiftCloudException(GiftCloudUploaderError.SERVER_INVALID);
+                }
+                if (e instanceof SocketTimeoutException) {
+                    throw new GiftCloudException(GiftCloudUploaderError.SERVER_INVALID);
+                }
+                if (e instanceof UnknownHostException) {
+                    throw new GiftCloudException(GiftCloudUploaderError.SERVER_INVALID);
+                }
                 if (e.getCause() instanceof sun.security.validator.ValidatorException) {
                     throw new GiftCloudException(GiftCloudUploaderError.SERVER_CERTIFICATE_FAILURE);
                 }
-                reporter.silentLogException(e, "An error occurred while processing request " + connection.getUrlString());
+                if (!(e instanceof GiftCloudHttpException && ((GiftCloudHttpException)e).getResponseCode() == HTTP_NOT_FOUND)) {
+                    reporter.silentLogException(e, "An error occurred while processing request " + connection.getUrlString());
+                }
                 throwIfBadResponse(connection);
                 throw e;
             }

@@ -16,10 +16,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadStatisticsReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
 import java.util.Set;
@@ -28,7 +25,7 @@ public class ZipSeriesUploader extends CallableUploader {
 
     private ZipSeriesUploader(
             final String projectLabel,
-            final String subjectLabel,
+            final GiftCloudLabel.SubjectLabel subjectLabel,
             final SessionParameters sessionParameters,
             final XnatModalityParams xnatModalityParams,
             final boolean useFixedSizeStreaming,
@@ -46,7 +43,7 @@ public class ZipSeriesUploader extends CallableUploader {
     public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {
         public CallableUploader create(
                 final String projectLabel,
-                final String subjectLabel,
+                final GiftCloudLabel.SubjectLabel subjectLabel,
                 final SessionParameters sessionParameters,
                 final XnatModalityParams xnatModalityParams,
                 final boolean useFixedSizeStreaming,

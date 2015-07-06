@@ -3,6 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
@@ -22,23 +23,25 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
     private final boolean useFixedSize = true;
     final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList;
     private BackgroundUploadOutcomeCallback outcomeCallback;
+    private UploaderStatusModel uploaderStatusModel;
 
 
-    public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final BackgroundUploadOutcomeCallback outcomeCallback, final GiftCloudReporter reporter) {
+    public BackgroundUploader(final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList, final BackgroundUploadOutcomeCallback outcomeCallback, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) {
         super(BackgroundService.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED, backgroundCompletionServiceTaskList, MAXIMUM_THREAD_COMPLETION_WAIT_MS, reporter);
 
         this.backgroundCompletionServiceTaskList = backgroundCompletionServiceTaskList;
         this.outcomeCallback = outcomeCallback;
+        this.uploaderStatusModel = uploaderStatusModel;
     }
 
 
-    public void addFiles(final GiftCloudServer server, List<FileCollection> uploads, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory) {
+    public void addFiles(final GiftCloudServer server, List<FileCollection> uploads, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory) {
         for (final FileCollection fileCollection : uploads) {
             addFile(server, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, callableUploaderFactory, fileCollection);
         }
     }
 
-    private void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, FileCollection fileCollection) {
+    private void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, FileCollection fileCollection) {
         final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, fileCollection, applicators, server);
         backgroundCompletionServiceTaskList.addNewTask(uploader);
     }
@@ -50,15 +53,50 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
     }
 
     @Override
-    protected void notifySuccess(BackgroundServiceTaskWrapper<CallableUploader, Future<Set<String>>> taskWrapper) {
+    protected void notifySuccess(final BackgroundServiceTaskWrapper<CallableUploader, Future<Set<String>>> taskWrapper) {
         final FileCollection fileCollection = taskWrapper.getTask().getFileCollection();
+
+        // Alert the caller of the uploading success
         outcomeCallback.fileUploadSuccess(fileCollection);
+
+        // Update the status for any listeners
+        final int numUploads = fileCollection.getFileCount();
+        String message;
+        if (numUploads < 1) {
+            message = "No files uploaded";
+        } else if (numUploads == 1) {
+            message = "File " + fileCollection.getFiles().iterator().next().getName() + " uploaded successfully";
+        } else {
+            message = numUploads + " files uploaded successfully. First file: " + fileCollection.getFiles().iterator().next().getName();
+        }
+        uploaderStatusModel.setUploadingStatusMessage(message);
     }
 
     @Override
-    protected void notifyFailure(BackgroundServiceTaskWrapper<CallableUploader, Future<Set<String>>> taskWrapper) {
+    protected void notifyFailure(final BackgroundServiceTaskWrapper<CallableUploader, Future<Set<String>>> taskWrapper) {
         final FileCollection fileCollection = taskWrapper.getTask().getFileCollection();
+
+        // Alert the caller of the uploading failure
         outcomeCallback.fileUploadFailure(fileCollection);
+
+        // Update the status for any listeners
+        String message;
+        final int numUploads = fileCollection.getFileCount();
+        if (numUploads == 1) {
+            message = "Failed to upload file " + fileCollection.getFiles().iterator().next();
+        } else if (numUploads > 1) {
+            message = "Failed to upload files " + fileCollection.getFiles().iterator().next();
+        } else {
+            message = "Failed to upload files";
+        }
+        List<BackgroundServiceErrorRecord.ErrorRecordItem> errorList = taskWrapper.getErrorRecord().getErrorList();
+        final int numFailures = errorList.size();
+        if (numFailures > 0) {
+            final Throwable throwable = errorList.get(0).getException();
+            uploaderStatusModel.setUploadingStatusMessage(message, throwable);
+        } else {
+            uploaderStatusModel.setUploadingStatusMessage(message);
+        }
     }
 
     public interface BackgroundUploadOutcomeCallback {

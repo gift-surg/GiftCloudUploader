@@ -37,6 +37,8 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpUploadException;
 import java.io.*;
 import java.net.PasswordAuthentication;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.*;
 import java.util.*;
 
@@ -44,6 +46,7 @@ public class MultiUploaderUtils {
 
     final static String GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME = "GiftCloudUploader";
     final static String GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME = "WaitingForUpload";
+    final static String GIFT_CLOUD_PATIENT_LIST_FOLDER_NAME = "GiftCloudPatientList";
 
 
     static final String AUTHORIZATION_HEADER = "Authorization";
@@ -201,6 +204,24 @@ public class MultiUploaderUtils {
     }
 
     /**
+     * Returns the folder for storing details of subjects uploaded to the GIFT-Cloud server.
+     * Will attempt to create a folder in the user directory, but if this is not permitted, will create a folder in the system temporary directory
+     *
+     * @param reporter for logging warnings
+     * @return File object referencing the existing or newly created folder
+     */
+    public static File createOrGetPatientListFolder(final File baseFolder, final GiftCloudReporter reporter) {
+
+        final File patientListFolder = new File(baseFolder, GIFT_CLOUD_PATIENT_LIST_FOLDER_NAME);
+
+        if (createDirectoryIfNotExisting(patientListFolder)) {
+            return patientListFolder;
+        } else {
+            throw new RuntimeException("Unable to create patient list folder at " + patientListFolder.getAbsolutePath());
+        }
+    }
+
+    /**
      * Returns the folder for storing GiftCloud data, creating if it does not already exist.
      * Will attempt to create a folder in the user directory, but if this is not permitted, will create a folder in the system temporary directory
      *
@@ -250,4 +271,76 @@ public class MultiUploaderUtils {
     }
 
 
+    /**
+     * Returns true if it is possible to create and delete files in a specified directory
+     *
+     * @param directory the folder to test
+     * @return true if a file can be created in the specified directory
+     */
+    public static boolean isDirectoryWritable(final String directory) {
+        File testFile = null;
+        try {
+            final File baseFolder = new File(directory);
+
+            final String testfileName = "~testsavegiftclouduploader";
+            testFile = new File(baseFolder, testfileName);
+
+            // If a previous test file exists then delete this
+            if (testFile.exists()) {
+                if (!testFile.delete()) {
+                    return false;
+                }
+                if (testFile.exists()) {
+                    return false;
+                }
+                testFile = new File(baseFolder, testfileName);
+            }
+
+            // Attempt to create a new test file
+            if (!testFile.createNewFile()) {
+                return false;
+            }
+
+            // Check that the new test file exists
+            if (!testFile.exists()) {
+                return false;
+            }
+
+            // Attempt to delete the new test file
+            if (!testFile.delete()) {
+                return false;
+            }
+
+            return true;
+        } catch (Throwable t) {
+            return false;
+        } finally {
+            if (testFile != null) {
+                try {
+                    if (testFile.exists()) {
+                        testFile.delete();
+                    }
+                } catch (Throwable t) {
+
+                }
+            }
+        }
+    }
+
+    public static boolean createTimeStampedBackup(final File fileToCopy, final File folder, final String backupPatientListFilenamePrefix, final String backupPatientListFilenameSuffix) {
+
+        try {
+            final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyy-HH");
+            final File timeStampBackupFile = new File(folder, String.format(backupPatientListFilenamePrefix + "-%s." + backupPatientListFilenameSuffix, simpleDateFormat.format(new Date())));
+            final Path timeStampBackupPath = timeStampBackupFile.toPath();
+
+            if (timeStampBackupFile.exists()) {
+                timeStampBackupFile.delete();
+            }
+            Files.copy(fileToCopy.toPath(), timeStampBackupPath);
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
 }

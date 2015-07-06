@@ -153,6 +153,31 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     @Override
+    public Optional<String> getPatientListLocalCacheFolder() {
+        return getOptionalProperty(propertyName_PatientListLocalCacheDirectory);
+    }
+
+    @Override
+    public void setPatientListExportFolder(final String exportFolder) {
+        setPropertyString(propertyName_PatientListExportDirectory, exportFolder);
+    }
+
+    @Override
+    public Optional<String> getPatientListExportFolder() {
+        return getOptionalProperty(propertyName_PatientListExportDirectory);
+    }
+
+    @Override
+    public int getShortTimeout() {
+        return getIntegerWithDefault(propertyName_ShortTimeoutMs, 2000);
+    }
+
+    @Override
+    public int getLongTimeout() {
+        return getIntegerWithDefault(propertyName_LongTimeoutMs, 30000);
+    }
+
+    @Override
     public Optional<char[]> getLastPassword() {
         if (passwordStore.isPresent()) {
             try {
@@ -261,7 +286,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         @Override
         public void update(Observable o, Object arg) {
             try {
-                System.out.println("** SAVING PROPERTIES **"); // ToDo
                 storeProperties("Auto-save after property change");
             } catch (IOException e) {
                 // ToDo

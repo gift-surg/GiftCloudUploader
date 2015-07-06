@@ -194,22 +194,26 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
 
     @Override
     public void reportErrorToUser(String errorText, Throwable throwable) {
-        String finalErrorText;
-        String combinedErrorText;
+        String errorMessageForUser;
+        String errorMessageForStatusBar;
+        String errorMessageForLog;
         Optional<String> additionalText = Optional.empty();
 
         if (throwable instanceof GiftCloudException) {
-            finalErrorText = throwable.getLocalizedMessage();
-            combinedErrorText = finalErrorText;
+            errorMessageForUser = "Error " + throwable.getLocalizedMessage();
+            errorMessageForStatusBar = errorMessageForUser;
+            final String cause = throwable.getCause() != null ? " Cause:" + throwable.getCause().getLocalizedMessage() : "";
+            errorMessageForLog = errorMessageForUser + cause;
         } else {
-            combinedErrorText = errorText + " " + throwable.getLocalizedMessage();
-            finalErrorText = errorText;
+            errorMessageForUser = errorText;
+            errorMessageForStatusBar = errorText + " " + throwable.getLocalizedMessage();
+            errorMessageForLog = errorMessageForUser;
             additionalText = Optional.of(throwable.getLocalizedMessage());
         }
 
-        giftCloudDialogs.showError(finalErrorText, additionalText);
-        updateStatusText(combinedErrorText);
-        error(combinedErrorText);
+        giftCloudDialogs.showError(errorMessageForUser, additionalText);
+        updateStatusText(errorMessageForStatusBar);
+        error(errorMessageForLog);
         throwable.printStackTrace(System.err);
     }
 
@@ -291,7 +295,6 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     @Override
     public void updateStatusText(String progressText) {
         progressModel.updateProgressText(progressText);
-//        messageLogger.sendLn(progressText);
         ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent(progressText));
     }
 

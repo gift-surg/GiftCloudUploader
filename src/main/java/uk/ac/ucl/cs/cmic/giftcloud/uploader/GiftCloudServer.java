@@ -44,7 +44,7 @@ public class GiftCloudServer {
         restServer.tryAuthentication();
     }
 
-    public Vector<Object> getListOfProjects() throws IOException {
+    public Vector<String> getListOfProjects() throws IOException {
         return restServer.getListOfProjects();
     }
 
@@ -81,6 +81,10 @@ public class GiftCloudServer {
         return restServer.getListOfSessions(projectName);
     }
 
+    public Map<String, String> getListOfScans(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException {
+        return restServer.getListOfScans(projectName, subjectLabel, experimentLabel);
+    }
+
     public Optional<Map<String, String>> getSitewideSeriesImportFilter() throws IOException {
         return restServer.getSitewideSeriesImportFilter();
     }
@@ -101,7 +105,7 @@ public class GiftCloudServer {
      * @param logger
      * @return
      */
-    public UploadResult uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, String subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) {
+    public UploadResult uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) {
         final int nThreads = sessionParameters.getNumberOfThreads();
         final BackgroundCompletionServiceTaskList uploaderTaskList = new BackgroundCompletionServiceTaskList<Set<String>, FileCollection>(nThreads);
         MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploaderTaskList, false, fileCollections, logger);
@@ -138,19 +142,36 @@ public class GiftCloudServer {
         return restServer.closeSession(uri, sessionParameters, uploader.getFailures(), timeZone);
     }
 
-    public Set<String> uploadZipFile(String projectLabel, String subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
+    public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
         return restServer.uploadZipFile(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators);
     }
 
-    public void appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
+    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
         restServer.appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators);
     }
 
-    public void createPseudonymIfNotExisting(final String projectName, final String subjectName, final String hashedPatientId) throws IOException {
-        restServer.createPseudonymIfNotExisting(projectName, subjectName, hashedPatientId);
+    public void createSubjectAliasIfNotExisting(final String projectName, final GiftCloudLabel.SubjectLabel subjectName, final String hashedPatientId) throws IOException {
+        restServer.createSubjectAliasIfNotExisting(projectName, subjectName, hashedPatientId);
     }
 
-    public Optional<String> getSubjectPseudonym(final String projectName, final String hashedPatientId) throws IOException {
-        return restServer.getSubjectPseudonym(projectName, hashedPatientId);
+    public Optional<GiftCloudLabel.SubjectLabel> getSubjectLabel(final String projectName, final String hashedPatientId) throws IOException {
+        return restServer.getSubjectLabel(projectName, hashedPatientId);
     }
+
+    public void createExperimentAliasIfNotExisting(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentAlias, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+        restServer.createExperimentAliasIfNotExisting(projectName, subjectLabel, experimentAlias, hashedStudyInstanceUid, xnatModalityParams);
+    }
+
+    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedStudyInstanceUid) throws IOException {
+        return restServer.getExperimentLabel(projectName, subjectLabel, hashedStudyInstanceUid);
+    }
+
+    public void createScanAliasIfNotExisting(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentAlias, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+        restServer.createScanAliasIfNotExisting(projectName, subjectLabel, experimentAlias, scanLabel, hashedSeriesInstanceUid, xnatModalityParams);
+    }
+
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
+        return restServer.getScanLabel(projectName, subjectLabel, experimentAlias, hashedSeriesInstanceUid);
+    }
+
 }

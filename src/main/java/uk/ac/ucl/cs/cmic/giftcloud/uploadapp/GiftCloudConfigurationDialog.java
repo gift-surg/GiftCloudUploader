@@ -2,6 +2,8 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.network.ApplicationEntityConfigurationDialog;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -9,7 +11,12 @@ import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -22,32 +29,39 @@ public class GiftCloudConfigurationDialog {
 
     private final GiftCloudUploaderController controller;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
-    private ComboBoxModel<String> projectListModel;
+    private ProjectListModel projectListModel;
     private final DicomNode dicomNode;
+    private ResourceBundle resourceBundle;
     private final GiftCloudDialogs giftCloudDialogs;
+    private GiftCloudReporter reporter;
     private final JDialog dialog;
 
     private final JComboBox<String> projectList;
     private final JTextField giftCloudServerText;
     private final JTextField giftCloudUsernameText;
     private final JPasswordField giftCloudPasswordText;
-    private JTextField listeningAETitleField;
-    private JTextField listeningPortField;
-    private JTextField remoteAETitleField;
-    private JTextField remoteAEHostName;
-    private JTextField remoteAEPortField;
+    private final JTextField listeningAETitleField;
+    private final JTextField listeningPortField;
+    private final JTextField patientListExportFolderField;
+    private final JTextField remoteAETitleField;
+    private final JTextField remoteAEHostName;
+    private final JTextField remoteAEPortField;
+    private final JLabel projectListWaitingLabel;
 
     private final Component componentToCenterDialogOver;
     private final TemporaryProjectListModel temporaryDropDownListModel;
+    private DropDownListModel.EnabledListener<Boolean> projectListEnabledListener = null;
 
     private boolean isDisposed = false;
 
-    GiftCloudConfigurationDialog(final Dialog owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ComboBoxModel<String> projectListModel, final DicomNode dicomNode, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs) {
+    GiftCloudConfigurationDialog(final Dialog owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final DicomNode dicomNode, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.projectListModel = projectListModel;
         this.dicomNode = dicomNode;
+        this.resourceBundle = resourceBundle;
         this.giftCloudDialogs = giftCloudDialogs;
+        this.reporter = reporter;
         temporaryDropDownListModel = new TemporaryProjectListModel(projectListModel, giftCloudProperties.getLastProject());
         componentToCenterDialogOver = owner;
 
@@ -103,7 +117,7 @@ public class GiftCloudConfigurationDialog {
             {
                 labelConstraints.gridwidth = 1;
                 labelConstraints.gridy = 2;
-                JLabel giftCloudServerLabel = new JLabel(resourceBundle.getString("giftCloudServerText"), SwingConstants.RIGHT);
+                final JLabel giftCloudServerLabel = new JLabel(resourceBundle.getString("giftCloudServerText"), SwingConstants.RIGHT);
                 giftCloudServerLabel.setToolTipText(resourceBundle.getString("giftCloudServerTextToolTipText"));
                 giftCloudServerPanel.add(giftCloudServerLabel, labelConstraints);
 
@@ -151,6 +165,11 @@ public class GiftCloudConfigurationDialog {
                 projectList.setEditable(false);
                 projectList.setToolTipText(resourceBundle.getString("giftCloudProjectTooltip"));
                 giftCloudServerPanel.add(projectList, inputConstraints);
+
+                labelConstraints.gridx = 1;
+                projectListWaitingLabel = new JLabel(resourceBundle.getString("giftCloudProjectWaitingLabelText"), SwingConstants.RIGHT);
+                giftCloudServerPanel.add(projectListWaitingLabel, labelConstraints);
+                labelConstraints.gridx = 0;
             }
         }
 
@@ -191,6 +210,19 @@ public class GiftCloudConfigurationDialog {
                 listeningPortField = new AutoFocusTextField(portValue);
                 listenerPanellayout.setConstraints(listeningPortField, inputConstraints);
                 listenerPanel.add(listeningPortField);
+            }
+            {
+                labelConstraints.gridy = 4;
+                JLabel patientListExportFolderLabel = new JLabel(resourceBundle.getString("configPanelListenerPatientListExportFolder"), SwingConstants.RIGHT);
+                patientListExportFolderLabel.setToolTipText(resourceBundle.getString("configPanelListenerPatientListExportFolderTooltip"));
+                listenerPanellayout.setConstraints(patientListExportFolderLabel, labelConstraints);
+                listenerPanel.add(patientListExportFolderLabel);
+
+                inputConstraints.gridy = 4;
+                final Optional<String> patientListExportFolder = giftCloudProperties.getPatientListExportFolder();
+                patientListExportFolderField = new AutoFocusTextField(patientListExportFolder.orElse(""));
+                listenerPanellayout.setConstraints(patientListExportFolderField, inputConstraints);
+                listenerPanel.add(patientListExportFolderField);
             }
         }
 
@@ -310,6 +342,19 @@ public class GiftCloudConfigurationDialog {
         }
 
         projectList.setModel(temporaryDropDownListModel);
+        showProjectList(projectListModel.isEnabled());
+
+        // Create a listener to enable/disable the project list when it is set from the server.
+        // The reason for this is that the project list is set after logging into the server, which can happen asynchronously after property changes have been applied.
+        // If the server was configured in the dialog and apply clicked, it might take a few seconds for the project list to be updated, and we want it to become available when this happens
+        projectListEnabledListener = new DropDownListModel.EnabledListener<Boolean>() {
+            @Override
+            public void statusChanged(final Boolean visibility) {
+                showProjectList(projectListModel.isEnabled());
+            }
+        };
+
+        projectListModel.addListener(projectListEnabledListener);
 
         GridBagLayout layout = new GridBagLayout();
         dialog.setLayout(layout);
@@ -320,17 +365,21 @@ public class GiftCloudConfigurationDialog {
         dialog.pack();
     }
 
+    private void showProjectList(final boolean enabled) {
+        projectList.setEnabled(enabled);
+        projectList.setVisible(enabled);
+        projectListWaitingLabel.setVisible(!enabled);
+    }
+
     public boolean isVisible() {
         return dialog.isDisplayable() && !isDisposed;
     }
 
     private class CloseActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            if (checkProperties()) {
-                applyProperties();
+            if (checkAndApplyProperties()) {
                 closeDialog();
             }
-            // Otherwise force the user to fix the problem
         }
     }
 
@@ -342,58 +391,95 @@ public class GiftCloudConfigurationDialog {
 
     private class ApplyActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            if (checkProperties()) {
-                applyProperties();
-            }
-            // Otherwise force the user to fix the problem
+            checkAndApplyProperties();
         }
     }
 
-    private boolean checkProperties() {
-        boolean propertiesOk = true;
+    private boolean checkAndApplyProperties() {
+        final List<String> problems = checkProperties();
+
+        if (problems.isEmpty()) {
+            applyProperties();
+            return true;
+        } else {
+            final StringBuilder builder = new StringBuilder();
+            for (final String string : problems) {
+                builder.append(" - ");
+                builder.append(string);
+                builder.append("<br>");
+            }
+            giftCloudDialogs.showError("Please correct the following problems with the settings:", Optional.of(builder.toString()));
+            return false;
+        }
+    }
+
+    private List<String> checkProperties() {
+        final List<String> problems = new ArrayList<String>();
 
         {
-            String listeningAETitle = listeningAETitleField.getText();
+            final String listeningAETitle = listeningAETitleField.getText();
+
             if (!StringUtils.isBlank(listeningAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(listeningAETitle)) {
-                propertiesOk = false;
-                listeningAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
+                problems.add(resourceBundle.getString("configPanelListenerAeError"));
             }
         }
         {
-            int listeningPort = 0;
             try {
-                listeningPort = Integer.parseInt(listeningPortField.getText());
+                final int listeningPort = Integer.parseInt(listeningPortField.getText());
                 if (listeningPort < 1024) {
-                    propertiesOk = false;
-                    listeningPortField.setText("want >= 1024");
+                    problems.add(resourceBundle.getString("configPanelListenerPortSmallError"));
                 }
             } catch (NumberFormatException e) {
-                propertiesOk = false;
-                listeningPortField.setText("\\\\\\BAD\\\\\\");
+                problems.add(resourceBundle.getString("configPanelListenerPortError"));
             }
         }
         {
-            int remotePort = 0;
             try {
-                remotePort = Integer.parseInt(remoteAEPortField.getText());
+                final int remotePort = Integer.parseInt(remoteAEPortField.getText());
                 if (remotePort < 1024) {
-                    propertiesOk = false;
-                    remoteAEPortField.setText("want >= 1024");
+                    problems.add(resourceBundle.getString("configPanelPacsPortSmallError"));
                 }
             } catch (NumberFormatException e) {
-                propertiesOk = false;
-                remoteAEPortField.setText("\\\\\\BAD\\\\\\");
+                problems.add(resourceBundle.getString("configPanelPacsPortError"));
             }
         }
 
         {
-            String remoteAETitle = remoteAETitleField.getText();
+            final String remoteAETitle = remoteAETitleField.getText();
             if (!StringUtils.isBlank(remoteAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(remoteAETitle)) {
-                propertiesOk = false;
-                remoteAETitleField.setText("\\\\\\BAD\\\\\\");        // use backslash character here (which is illegal in AE's) to make sure this field is edited
+                problems.add(resourceBundle.getString("configPanelPacsAeError"));
             }
         }
-        return propertiesOk;
+
+        {
+            final String serverText = giftCloudServerText.getText();
+            if (!StringUtils.isBlank(serverText)) {
+                try {
+                    final URL giftCloudUrl = new URL(serverText);
+                } catch (MalformedURLException e) {
+                    problems.add(resourceBundle.getString("giftCloudServerTextError"));
+                }
+            }
+        }
+
+        {
+            final String patientListExportFolder = patientListExportFolderField.getText();
+            if (!StringUtils.isBlank(patientListExportFolder)) {
+                try {
+                    if (!MultiUploaderUtils.createDirectoryIfNotExisting(new File(patientListExportFolder))) {
+                        problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderCreationError"));
+                    } else {
+                        if (!MultiUploaderUtils.isDirectoryWritable(patientListExportFolder)) {
+                            problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderError"));
+                        }
+                    }
+                } catch (Throwable t) {
+                    problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderError"));
+                }
+
+            }
+        }
+        return problems;
     }
 
     private void applyProperties() {
@@ -404,6 +490,7 @@ public class GiftCloudConfigurationDialog {
         final String newGiftCloudUrl = giftCloudServerText.getText();
         final String newGiftCloudUserName = giftCloudUsernameText.getText();
         final char[] newGiftCloudPassword = giftCloudPasswordText.getPassword();
+        final String newPatientListExportFolder = patientListExportFolderField.getText();
         final int newPacsPort = Integer.parseInt(remoteAEPortField.getText());
         final String newPacsAeTitle = remoteAETitleField.getText();
         final String newPacsHostName = remoteAEHostName.getText();
@@ -422,9 +509,13 @@ public class GiftCloudConfigurationDialog {
                 !newGiftCloudPassword.equals(giftCloudProperties.getLastPassword().orElse("".toCharArray())) ||
                 !temporaryDropDownListModel.getSelectedItem().equals(projectListModel.getSelectedItem());
 
+        final boolean forcePatientListExport = StringUtils.isNotBlank(newPatientListExportFolder) &&
+                (!giftCloudProperties.getPatientListExportFolder().isPresent() || !newPatientListExportFolder.equals(giftCloudProperties.getPatientListExportFolder().get()));
+
         // Change the properties (must be done after we access the current values to check for changes)
         giftCloudProperties.setListeningPort(newListeningPortValue);
         giftCloudProperties.setListenerAETitle(newListeningAeTitle);
+        giftCloudProperties.setPatientListExportFolder(newPatientListExportFolder);
         giftCloudProperties.setGiftCloudUrl(newGiftCloudUrl);
         giftCloudProperties.setLastUserName(newGiftCloudUserName);
         giftCloudProperties.setLastPassword(newGiftCloudPassword);
@@ -445,20 +536,22 @@ public class GiftCloudConfigurationDialog {
         try {
             giftCloudProperties.storeProperties("Saved from GiftCloudConfigurationDialog");
         } catch (IOException e) {
-
-            // ToDo:
-            e.printStackTrace();
+            reporter.silentLogException(e, "The following error occurred while saving the properties file:" + e.getLocalizedMessage());
         }
 
 
-        if (restartDicomNode || restartUploader) {
+        if (restartDicomNode || restartUploader || forcePatientListExport) {
             Cursor was = dialog.getCursor();
             dialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
             if (restartDicomNode) {
                 controller.restartDicomService();
             }
             if (restartUploader) {
                 controller.restartUploader();
+            }
+            if (forcePatientListExport) {
+                controller.exportPatientList();
             }
 
             dialog.setCursor(was);
@@ -467,6 +560,8 @@ public class GiftCloudConfigurationDialog {
     }
 
     private void closeDialog() {
+        projectListModel.removeListener(projectListEnabledListener);
+        projectListEnabledListener = null;
         isDisposed = true;
         dialog.dispose();
     }

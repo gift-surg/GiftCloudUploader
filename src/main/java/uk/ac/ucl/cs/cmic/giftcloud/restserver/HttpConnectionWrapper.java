@@ -125,4 +125,9 @@ class HttpConnectionWrapper implements HttpConnection {
         return urlString;
     }
 
+    @Override
+    public void setConnectTimeout(int timeout) {
+        connection.setConnectTimeout(timeout);
+    }
+
 }

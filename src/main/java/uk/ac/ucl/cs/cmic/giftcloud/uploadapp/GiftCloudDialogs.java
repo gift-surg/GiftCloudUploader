@@ -37,11 +37,16 @@ public class GiftCloudDialogs {
     }
 
     public void showError(final String message, final Optional<String> additionalText) throws HeadlessException {
-
-        // ToDo: show the additional text
-
         final JPanel messagePanel = new JPanel(new GridBagLayout());
-        messagePanel.add(new JLabel(message, SwingConstants.CENTER));
+        final StringBuilder stringMessage = new StringBuilder();
+        stringMessage.append("<html>");
+        stringMessage.append(message);
+        if (additionalText.isPresent()) {
+            stringMessage.append("<br>");
+            stringMessage.append(additionalText.get());
+        }
+        stringMessage.append("</html>");
+        messagePanel.add(new JLabel(stringMessage.toString(), SwingConstants.CENTER));
 
         JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, "GIFT-Cloud", JOptionPane.ERROR_MESSAGE, icon);
     }
@@ -90,7 +95,7 @@ public class GiftCloudDialogs {
         }
     }
 
-    public static String showInputDialogToSelectProject(final Vector<Object> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
+    public static String showInputDialogToSelectProject(final Vector<String> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
         final String lastProjectName = lastProject.isPresent() ? lastProject.get() : "";
 
         if (projectMap.size() < 1) {

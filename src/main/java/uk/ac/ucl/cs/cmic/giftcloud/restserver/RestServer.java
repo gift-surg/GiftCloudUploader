@@ -11,23 +11,23 @@ import java.util.*;
 public interface RestServer {
     void tryAuthentication() throws IOException;
 
-    Vector<Object> getListOfProjects() throws IOException;
+    Vector<String> getListOfProjects() throws IOException;
 
     Map<String, String> getListOfSubjects(String projectName) throws IOException, JSONException;
 
     Map<String, String> getListOfSessions(String projectName) throws IOException, JSONException;
 
-    Map<String, String> getListOfScans(String projectName, String subjectName, String sessionName) throws IOException, JSONException;
+    Map<String, String> getListOfScans(String projectName, GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel) throws IOException, JSONException;
 
     Map<String, String> getListOfPseudonyms(String projectName) throws IOException, JSONException;
 
-    Map<String, String> getListOfResources(String projectName, String subjectName, String sessionName, String scanName) throws IOException, JSONException;
+    Map<String, String> getListOfResources(String projectName, GiftCloudLabel.SubjectLabel subjectLabel, GiftCloudLabel.ExperimentLabel experimentLabel, GiftCloudLabel.ScanLabel scanLabel) throws IOException, JSONException;
 
-    Optional<String> getSubjectPseudonym(String projectName, String ppid) throws IOException;
+    Optional<GiftCloudLabel.SubjectLabel> getSubjectLabel(String projectName, String ppid) throws IOException;
 
-    Collection<?> getScriptStatus(String projectName) throws IOException;
+    Collection<String> getScriptStatus(String projectName) throws IOException;
 
-    Collection<?> getScripts(String projectName) throws IOException;
+    Collection<String> getScripts(String projectName) throws IOException;
 
     Optional<String> getSiteWideAnonScript() throws IOException;
 
@@ -45,11 +45,19 @@ public interface RestServer {
 
     UploadResult closeSession(String uri, SessionParameters sessionParameters, Map<FileCollection, Throwable> failures, Optional<TimeZone> timeZone);
 
-    Set<String> uploadZipFile(String projectLabel, String subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception;
+    Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception;
 
-    void createPseudonymIfNotExisting(String projectLabel, String subjectLabel, String pseudonym) throws IOException;
+    void createSubjectAliasIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedPatientId) throws IOException;
 
-    void appendZipFileToExistingScan(String projectLabel, String subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception;
+    void appendZipFileToExistingScan(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception;
 
     void resetCancellation();
+
+    Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid) throws IOException;
+
+    Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedStudyInstanceUid) throws IOException;
+
+    void createExperimentAliasIfNotExisting(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedStudyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
+
+    void createScanAliasIfNotExisting(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String hashedSeriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException;
 }

@@ -13,7 +13,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadWizard;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.ProgressHandleWrapper;
 
 import javax.security.sasl.AuthenticationException;
 import javax.swing.*;
@@ -26,8 +25,9 @@ import java.util.Vector;
 import java.util.concurrent.CancellationException;
 
 public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
-    private LocalWaitingForUploadDatabase uploadDatabase;
+    private final LocalWaitingForUploadDatabase uploadDatabase;
     private final GiftCloudProperties giftCloudProperties;
+    private final UploaderStatusModel uploaderStatusModel;
     private final Container container;
     private final PendingUploadTaskList pendingUploadList;
     private final GiftCloudReporter reporter;
@@ -37,9 +37,10 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
-    public GiftCloudUploader(final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) {
         this.uploadDatabase = uploadDatabase;
         this.giftCloudProperties = giftCloudProperties;
+        this.uploaderStatusModel = uploaderStatusModel;
         this.container = reporter.getContainer();
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
@@ -47,10 +48,9 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         pendingUploadList = new PendingUploadTaskList(giftCloudProperties, pendingUploadFolder, reporter);
 
         final int numThreads = 1;
-        final ProgressHandleWrapper progressHandleWrapper = new ProgressHandleWrapper(reporter);
-        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), this, reporter);
-        autoUploader = new GiftCloudAutoUploader(serverFactory, backgroundUploader, reporter);
-        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, reporter);
+        backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), this, uploaderStatusModel, reporter);
+        autoUploader = new GiftCloudAutoUploader(backgroundUploader, giftCloudProperties, reporter);
+        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, uploaderStatusModel, reporter);
 
         // Add a shutdown hook for graceful exit
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -116,12 +116,14 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
      * @return true if the authentication was successful
      */
     public boolean tryAuthentication() {
-        String giftCloudServerUrl = "";
+        // We can get the URL form the GiftCloudServer object when it has been created, but if the creation fails we still want to report the URL to the user, so fetch it from the properties
+        final Optional<String> optionalGiftCloudUrlForDebugging = giftCloudProperties.getGiftCloudUrl();
+        String giftCloudServerUrlForDebugging = optionalGiftCloudUrlForDebugging.orElse("");
 
         // We attempt to connect to the GIFT-Cloud server, in order to authenticate and to set the project list, but we allow the connection to fail gracefully
         try {
             final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-            giftCloudServerUrl = giftCloudServer.getGiftCloudServerUrl();
+            giftCloudServerUrlForDebugging = giftCloudServer.getGiftCloudServerUrl();
 
             // Allow user to log in again if they have previously cancelled a login dialog
             giftCloudServer.resetCancellation();
@@ -130,23 +132,23 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
             return true;
 
         } catch (CancellationException e) {
-            reporter.silentLogException(e, "Authentication was cancelled. Server:" + giftCloudServerUrl + ", error:" + e.getMessage());
+            reporter.silentLogException(e, "Authentication was cancelled. Server:" + giftCloudServerUrlForDebugging + ", error:" + e.getMessage());
             // Do not report anything to user, since the user initiated the cancellation
             return false;
 
         } catch (AuthenticationException e) {
-            reporter.silentLogException(e, "The GIFT-Cloud username or password was not recognised. Server:" + giftCloudServerUrl + ", error:" + e.getMessage());
+            reporter.silentLogException(e, "The GIFT-Cloud username or password was not recognised. Server:" + giftCloudServerUrlForDebugging + ", error:" + e.getMessage());
             reporter.reportErrorToUser("The GIFT-Cloud username or password was not recognised.", e);
             return false;
 
         } catch (Exception e) {
-            reporter.silentLogException(e, "An error occurred when attempting to connect to the GIFT-Cloud server at " + giftCloudServerUrl + ": " + e.getMessage());
-            reporter.reportErrorToUser("Could not connect to the GIFT-Cloud server due to the following error: /n" + e.getMessage(), e);
+            reporter.silentLogException(e, "An error occurred when attempting to connect to the GIFT-Cloud server at " + giftCloudServerUrlForDebugging + ": " + e.getMessage());
+            reporter.reportErrorToUser("Could not connect to the GIFT-Cloud server due to the following error: <br>" + e.getMessage(), e);
             return false;
         }
     }
 
-    public ComboBoxModel<String> getProjectListModel() {
+    public ProjectListModel getProjectListModel() {
         return projectListModel;
     }
 
@@ -183,7 +185,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         }
     }
 
-    public void importFile(String dicomFileName,String fileReferenceType) throws IOException, DicomException {
+    public void importFile(String dicomFileName, String fileReferenceType) throws IOException, DicomException {
         uploadDatabase.importFileIntoDatabase(dicomFileName, fileReferenceType);
 
         if (fileReferenceType.equals(DatabaseInformationModel.FILE_COPIED)) {
@@ -201,7 +203,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
             pendingUploadList.addFileReference(mediaFileName, projectName);
 
         } catch (Throwable throwable) {
-            // ToDo
+            reporter.silentLogException(throwable, "Error when attempting to import a file reference to " + mediaFileName);
         }
     }
 
@@ -211,7 +213,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
             pendingUploadList.addFileInstance(dicomFileName, projectName);
 
         } catch (Throwable throwable) {
-            // ToDo
+            reporter.silentLogException(throwable, "Error when attempting to import a file copy of " + dicomFileName);
         }
     }
 
@@ -249,6 +251,13 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
                 return false;
             }
         }
+    }
+
+    /**
+     * Force saving of the patient list
+     */
+    public void exportPatientList() {
+        autoUploader.exportPatientList();
     }
 
     private void cleanup(final long maxWaitTimeMs) {

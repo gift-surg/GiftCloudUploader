@@ -74,6 +74,8 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
 
     public final void run() {
 
+        doPreprocessing();
+
         // An InterruptedException is only received if the thread is currently blocking. If this happens the interrupted
         // flag is not set. If the thread is not blocking, the interrupted flag is set but an exception does not occur.
         // Therefore we must check both for the interrupted flag and for the exception in order to correctly process an interruption.
@@ -104,7 +106,21 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
 
         updateServiceStatus(ServiceStatus.COMPLETE);
 
+        doPostprocessing();
+
         // We leave all remaining items on the queue so they can be processed if the thread is restarted
+    }
+
+    /**
+     * Perform any processing which should occur when the thread starts
+     */
+    protected void doPreprocessing() {
+    }
+
+    /**
+     * Perform any processing which should occur when the thread starts
+     */
+    protected void doPostprocessing() {
     }
 
     public final boolean isRunning() {

@@ -49,15 +49,15 @@ class GiftCloudSession {
         giftCloudAuthentication.tryAuthentication();
 
         try {
-            return request.getResponse(baseUrlString, giftCloudAuthentication.getAuthenticatedConnectionFactory());
+            return request.getResponse(baseUrlString, giftCloudAuthentication.getAuthenticatedConnectionFactory(), false);
 
         } catch (AuthorisationFailureException exception) {
 
             // In the event of an authorisation failure, give the user another opportunity to enter a username and password (multiple times) to establish a new session
-            giftCloudAuthentication.forceAuthentication();
+            giftCloudAuthentication.forceAuthentication(false);
 
             // Then try and connect again. We allow any further AuthorisationFailureException to fall through
-            return request.getResponse(baseUrlString, giftCloudAuthentication.getAuthenticatedConnectionFactory());
+            return request.getResponse(baseUrlString, giftCloudAuthentication.getAuthenticatedConnectionFactory(), false);
 
         }
     }

@@ -5,6 +5,7 @@ import com.pixelmed.network.DicomNetworkException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
@@ -13,6 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * The main controller class for the uploader
+ */
 public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
 	private static String propertiesFileName  = "GiftCloudUploader.properties";
@@ -28,6 +32,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
     private final SystemTrayController systemTrayController;
+    private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
 
     public GiftCloudUploaderMain(final RestServerFactory restServerFactory, final ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
@@ -44,10 +49,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Initialise the main GIFT-Cloud class
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
 
-        uploadDatabase = new LocalWaitingForUploadDatabase(resourceBundle.getString("DatabaseRootTitleForOriginal"), reporter);
-        giftCloudUploader = new GiftCloudUploader(restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, reporter);
+        uploadDatabase = new LocalWaitingForUploadDatabase(resourceBundle.getString("DatabaseRootTitleForOriginal"), uploaderStatusModel, reporter);
+        giftCloudUploader = new GiftCloudUploader(restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, reporter);
         uploadDatabase.addObserver(new DatabaseListener());
-        dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploadDatabase, reporter);
+        dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploadDatabase, uploaderStatusModel, reporter);
 
         try {
             dicomNode.activateStorageSCP();
@@ -61,7 +66,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
 
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, uploadDatabase.getSrcDatabase(), giftCloudProperties, resourceBundle, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, uploadDatabase.getSrcDatabase(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
@@ -86,7 +91,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             @Override
             public void run() {
                 // Attempt to authenticate
-                giftCloudUploader.tryAuthentication();
+//                giftCloudUploader.tryAuthentication();
                 startUploading();
             }
         }).start();
@@ -96,7 +101,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void showConfigureDialog() throws IOException, DicomNode.DicomNodeStartException {
         if (configurationDialog == null || !configurationDialog.isVisible()) {
-            configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), this, giftCloudProperties, giftCloudUploader.getProjectListModel(), dicomNode, resourceBundle, giftCloudDialogs);
+            configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), this, giftCloudProperties, giftCloudUploader.getProjectListModel(), dicomNode, resourceBundle, giftCloudDialogs, reporter);
         }
     }
 
@@ -172,14 +177,13 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                 export(selectDirectory.get(), filesToExport);
             }
         } catch (Exception e) {
-            reporter.updateStatusText("Exporting failed due to the following error: " + e);
-            e.printStackTrace(System.err);
+            reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
         }
     }
 
     @Override
     public void runImport(String filePath, final boolean importAsReference, final Progress progress) {
-        new Thread(new ImportWorker(uploadDatabase, filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, reporter)).start();
+        new Thread(new ImportWorker(uploadDatabase, filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, uploaderStatusModel, reporter)).start();
     }
 
     @Override
@@ -196,25 +200,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                 runImport(filePath, true, reporter);
             }
         } catch (Exception e) {
-            reporter.updateStatusText("Importing failed due to the following error: " + e);
-            e.printStackTrace(System.err);
+            reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
         } finally {
             reporter.restoreCursor();
         }
-    }
-
-    @Override
-    public void tryAuthentication() {
-        new Thread() {
-            public void run() {
-
-                // Attempt to authenticate
-                giftCloudUploader.tryAuthentication();
-            }
-        }.run();
-
-
-
     }
 
     @Override
@@ -233,7 +222,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     @Override
     public void restartUploader() {
-        // ToDo: this doesn't really deal with changes to the server etc
         pauseUploading();
         startUploading();
     }
@@ -246,6 +234,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void refreshFileList() {
         giftCloudUploaderPanel.rebuildFileList(uploadDatabase.getSrcDatabase());
+    }
+
+    @Override
+    public void exportPatientList() {
+        giftCloudUploader.exportPatientList();
     }
 
     private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {

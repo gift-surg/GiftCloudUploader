@@ -11,6 +11,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.data;
 
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.UploadResult;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
@@ -43,7 +44,7 @@ public interface Session {
 	 * @param project
      * @return List of unified SessionVariables, in dependency order
 	 */
-	UploadResult uploadTo(final String projectLabel, final String subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException;
+	UploadResult uploadTo(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, final Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException;
 
 	TimeZone getTimeZone();
 

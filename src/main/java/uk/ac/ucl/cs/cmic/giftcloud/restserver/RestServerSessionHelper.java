@@ -50,8 +50,8 @@ public class RestServerSessionHelper {
         giftCloudSession.tryAuthentication();
     }
 
-    public Collection<Object> getValues(final String path, final String key) throws IOException, JSONException {
-        return giftCloudSession.request(new HttpRequestWithoutOutput<Collection<Object>>(HttpConnection.ConnectionType.GET, path, new HttpJsonResponseProcessor<Collection<Object>>(new JSONValuesExtractor(key)), giftCloudProperties, reporter));
+    public Collection<String> getValues(final String path, final String key) throws IOException, JSONException {
+        return giftCloudSession.request(new HttpRequestWithoutOutput<Collection<String>>(HttpConnection.ConnectionType.GET, path, new HttpJsonResponseProcessor<Collection<String>>(new JSONValuesExtractor(key)), giftCloudProperties, reporter));
     }
 
     public Map<String, String> getAliases(final String path, final String aliasKey, final String idKey) throws IOException, JSONException {
@@ -59,7 +59,11 @@ public class RestServerSessionHelper {
     }
 
     public Optional<String> getPpidAlias(final String path, final String aliasKey, final String idKey) throws IOException, JSONException {
-        return giftCloudSession.requestOptional(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.GET, path, new HttpJsonPpidResponseProcessor(new JSONAliasesExtractor(aliasKey, idKey)), giftCloudProperties, reporter));
+        return giftCloudSession.requestOptional(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.GET, path, new HttpJsonPpidResponseProcessor(aliasKey), giftCloudProperties, reporter));
+    }
+
+    public Optional<String> getId(final String path, final String idKey) throws IOException, JSONException {
+        return giftCloudSession.requestOptional(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.GET, path, new HttpJsonPpidResponseProcessor(idKey), giftCloudProperties, reporter));
     }
 
     public <T> Optional<T> getUsingJsonExtractor(final String query) throws IOException {

@@ -1,8 +1,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
 
 import java.net.URL;
@@ -10,9 +11,9 @@ import java.util.Collection;
 
 public class GiftCloudSessionParameters implements SessionParameters {
 
-    private String sessionLabel = null;
+    private GiftCloudLabel.ExperimentLabel experimentLabel = null;
     private String visit = null;
-    private String scan = null;
+    private GiftCloudLabel.ScanLabel scanLabel = null;
     private String protocol = null;
     private String adminEmail = null;
     private URL baseUrl = null;
@@ -25,8 +26,8 @@ public class GiftCloudSessionParameters implements SessionParameters {
     }
 
     @Override
-    public String getSessionLabel() {
-        return sessionLabel;
+    public GiftCloudLabel.ExperimentLabel getExperimentLabel() {
+        return experimentLabel;
     }
 
     @Override
@@ -70,17 +71,18 @@ public class GiftCloudSessionParameters implements SessionParameters {
     }
 
     @Override
-    public String getScanLabel() {
-        return scan;
+    public GiftCloudLabel.ScanLabel getScanLabel() {
+        return scanLabel;
     }
 
-    public void setSessionLabel(String sessionLabel) {
-        this.sessionLabel = sessionLabel;
+    public void setExperimentLabel(GiftCloudLabel.ExperimentLabel experimentLabel) {
+        this.experimentLabel = experimentLabel;
     }
 
-    public void setScan(final String scan) {
-        this.scan = scan;
+    public void setScanLabel(final GiftCloudLabel.ScanLabel scanLabel) {
+        this.scanLabel = scanLabel;
     }
+
     public void setVisit(final String visit) {
         this.visit = visit;
     }

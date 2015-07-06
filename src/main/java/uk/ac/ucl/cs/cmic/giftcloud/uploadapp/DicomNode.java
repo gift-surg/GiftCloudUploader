@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
@@ -23,13 +24,15 @@ public class DicomNode {
     private StorageSOPClassSCPDispatcher storageSOPClassSCPDispatcher;
     private GiftCloudUploader uploader;
     private GiftCloudPropertiesFromApplication giftCloudProperties;
+    private UploaderStatusModel uploaderStatusModel;
     private GiftCloudReporter reporter;
     private DatabaseInformationModel databaseInformationModel;
 
 
-    public DicomNode(final GiftCloudUploader uploader, final GiftCloudPropertiesFromApplication giftCloudProperties, final LocalWaitingForUploadDatabase localWaitingForUploadDatabase, final GiftCloudReporter reporter) throws DicomException {
+    public DicomNode(final GiftCloudUploader uploader, final GiftCloudPropertiesFromApplication giftCloudProperties, final LocalWaitingForUploadDatabase localWaitingForUploadDatabase, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) throws DicomException {
         this.uploader = uploader;
         this.giftCloudProperties = giftCloudProperties;
+        this.uploaderStatusModel = uploaderStatusModel;
         this.databaseInformationModel = localWaitingForUploadDatabase.getSrcDatabase();
         this.reporter = reporter;
 
@@ -49,12 +52,15 @@ public class DicomNode {
      */
     public void activateStorageSCP() throws DicomNodeStartException, DicomNetworkException {
         try {
+            uploaderStatusModel.setImportingStatusMessage("Starting up Dicom listening service");
             final File savedImagesFolder = giftCloudProperties.getUploadFolder(reporter);
 
             // Start up DICOM association listener in background for receiving images and responding to echoes ...
             {
                 int port = giftCloudProperties.getListeningPort();
                 if (port < 0) {
+
+                    uploaderStatusModel.setImportingStatusMessage("Cannot listen to PACS because the port is not set");
                     throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_PORT, "Could not start the Dicom storage SCP service because the port was not set");
                 }
                 final String ourAETitle = giftCloudProperties.getListenerAETitle();
@@ -71,6 +77,7 @@ public class DicomNode {
                 new Thread(storageSOPClassSCPDispatcher).start();
             }
         } catch (IOException e) {
+            uploaderStatusModel.setImportingStatusMessage("Could not listen to the PACS due to the following error: " + e.getLocalizedMessage(), e);
             throw new DicomNodeStartException("Could not start the Dicom storage SCP service due to the following error: " + e.getLocalizedMessage(), e);
         }
     }
@@ -107,12 +114,14 @@ public class DicomNode {
 
     public void shutdownStorageSCP() {
         if (storageSOPClassSCPDispatcher != null) {
+            uploaderStatusModel.setImportingStatusMessage("Shutting down Dicom listening service");
             storageSOPClassSCPDispatcher.shutdown();
         }
     }
 
     public void shutdownStorageSCPAndWait(final long maximumThreadCompletionWaitTime) {
         if (storageSOPClassSCPDispatcher != null) {
+            uploaderStatusModel.setImportingStatusMessage("Shutting down Dicom listening service");
             storageSOPClassSCPDispatcher.shutdownAndWait(maximumThreadCompletionWaitTime);
         }
     }

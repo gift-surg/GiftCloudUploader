@@ -13,6 +13,8 @@ public interface GiftCloudProperties {
     String propertyName_GiftCloudLocalUploadFolder = "GiftCloud_LocalUploadFolder";
     String propertyName_LastImportDirectory = "LastImportDirectory";
     String propertyName_LastExportDirectory = "LastExportDirectory";
+    String propertyName_PatientListLocalCacheDirectory = "GiftCloud_PatientListLocalCacheFolder";
+    String propertyName_PatientListExportDirectory = "GiftCloud_PatientListExportFolder";
     String propertyName_ListenerAeTitle = "GiftCloud_ListenerAeTitle";
     String propertyName_ListenerPort = "GiftCloud_ListenerPort";
     String propertyName_PacsAeTitle = "GiftCloud_RemoteAeTitle";
@@ -24,6 +26,8 @@ public interface GiftCloudProperties {
     String propertyName_Shutdowntimeout = "GiftCloud_ShutdownTimeout";
     String propertyName_QueryDebugLevel = "GiftCloud_QueryDebugLevel";
     String propertyName_StorageSCPDebugLevel = "GiftCloud_StorageSCPDebugLevel";
+    String propertyName_ShortTimeoutMs = "GiftCloud_QuickAuthenticationTimeout";
+    String propertyName_LongTimeoutMs = "GiftCloud_RequestTimeout";
 
 
     Optional<String> getGiftCloudUrl();
@@ -65,4 +69,14 @@ public interface GiftCloudProperties {
     Optional<String> getPacsPrimaryDeviceType();
 
     Optional<Boolean> getHideWindowOnStartup();
+
+    Optional<String> getPatientListLocalCacheFolder();
+
+    void setPatientListExportFolder(final String exportFolder);
+
+    Optional<String> getPatientListExportFolder();
+
+    int getShortTimeout();
+
+    int getLongTimeout();
 }

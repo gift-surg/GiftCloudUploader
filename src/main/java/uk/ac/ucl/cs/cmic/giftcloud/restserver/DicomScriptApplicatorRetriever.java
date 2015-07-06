@@ -77,7 +77,7 @@ implements Callable<Iterable<ScriptApplicator>> {
         }
 
         // The project scripts are sort of complicated.
-        Collection<?> statusc = restServer.getScriptStatus(project);
+        Collection<String> statusc = restServer.getScriptStatus(project);
         logger.trace("project {} script status: {}", project, statusc);
         if (statusc.contains("true")) {
             Collection<?> scriptsc = restServer.getScripts(project);

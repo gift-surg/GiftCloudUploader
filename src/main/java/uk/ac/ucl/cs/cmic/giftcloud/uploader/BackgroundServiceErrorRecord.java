@@ -6,13 +6,17 @@ import java.util.List;
 class BackgroundServiceErrorRecord {
 
     private final List<ErrorRecordItem> errorList = new ArrayList<ErrorRecordItem>();
+    private boolean allowRetry = true;
 
     void addException(final Throwable exception) {
         errorList.add(new ErrorRecordItem(exception));
+        if (exception instanceof GiftCloudException && !((GiftCloudException)exception).allowRetry()) {
+            allowRetry = false;
+        }
     }
 
     boolean shouldRetry() {
-        return (errorList.size() < 3);
+        return (errorList.size() < 3) && allowRetry;
     }
 
     List<ErrorRecordItem> getErrorList() {
