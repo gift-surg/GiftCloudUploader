@@ -7,8 +7,7 @@ import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.DicomInputStream;
 import com.pixelmed.dicom.TagFromName;
-import com.pixelmed.display.event.StatusChangeEvent;
-import com.pixelmed.event.ApplicationEventDispatcher;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.BufferedInputStream;
@@ -19,11 +18,13 @@ import java.util.Observable;
 
 public class LocalWaitingForUploadDatabase extends Observable {
 
+    private UploaderStatusModel uploaderStatusModel;
     private GiftCloudReporter reporter;
     private DatabaseInformationModel srcDatabase;
 
 
-    public LocalWaitingForUploadDatabase(final String databaseRootTitle, final GiftCloudReporter reporter) throws DicomException {
+    public LocalWaitingForUploadDatabase(final String databaseRootTitle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) throws DicomException {
+        this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
 
         // Start database for the "source" instances.
@@ -48,7 +49,7 @@ public class LocalWaitingForUploadDatabase extends Observable {
     }
 
     public void importFileIntoDatabase(String dicomFileName,String fileReferenceType) throws IOException, DicomException {
-        ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Importing: " + dicomFileName));
+        uploaderStatusModel.setImportingStatusMessage("Added file " + dicomFileName + " to the list of files for upload");
         FileInputStream fis = new FileInputStream(dicomFileName);
         DicomInputStream i = new DicomInputStream(new BufferedInputStream(fis));
         AttributeList list = new AttributeList();

@@ -15,22 +15,20 @@ import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.dcm4che2.io.StopTagInputHandler;
 import org.nrg.dcm.DicomUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SessionReviewPanel;
 import org.nrg.util.EditProgressMonitor;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SessionReviewPanel;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 
 public final class DicomTrawler implements Trawler {
 
@@ -51,12 +49,7 @@ public final class DicomTrawler implements Trawler {
     private SeriesImportFilterApplicatorRetriever _filters;
     private final Logger logger = LoggerFactory.getLogger(DicomTrawler.class);
 
-    /* (non-Javadoc)
-         * @see uk.ac.ucl.cs.cmic.giftcloud.dicom.Trawler#trawl(java.util.Iterator)
-         */
-	public Collection<Session> trawl(final Iterator<File> files, EditProgressMonitor pm) {
-		return trawl(files, null, pm);
-	}
+    private final List<GiftCloudUploaderError> errors = new ArrayList<GiftCloudUploaderError>();
 
 	/* (non-Javadoc)
 	 * @see uk.ac.ucl.cs.cmic.giftcloud.dicom.Trawler#trawl(java.util.Iterator, java.util.Collection)
@@ -82,7 +75,13 @@ public final class DicomTrawler implements Trawler {
 				assert null != o.getString(Tag.SOPClassUID);
                 final String modality = o.getString(Tag.Modality);
                 if (!modalityIsSupported(modality)) {
-                    logger.debug("This modality is not supported", "");
+                    if (modality.equals("US")) {
+                        errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED_US);
+                    } else {
+                        errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED);
+                    }
+                    remaining.add(f);
+                    logger.debug("Modality " + modality + "is not supported", "");
 
                 } else {
 
@@ -110,6 +109,11 @@ public final class DicomTrawler implements Trawler {
 		
 		return new ArrayList<Session>(studies.getAll());
 	}
+
+    @Override
+    public final List<GiftCloudUploaderError> getErrorMessages() {
+        return errors;
+    }
 
     private boolean modalityIsSupported(final String modality) {
         if (StringUtils.isBlank(modality)) {

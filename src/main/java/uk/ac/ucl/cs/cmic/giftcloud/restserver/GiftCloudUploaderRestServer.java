@@ -193,8 +193,6 @@ public class GiftCloudUploaderRestServer implements RestServer {
         // Close session and return result
         try {
             if (failures.isEmpty()) {
-                reporter.updateStatusText("Committing session");
-
                 final URL sessionViewUrl = commitSessionAndGetSessionViewUrl(uri, sessionParameters, timeZone);
                 return new UploadResultsSuccess(uri, experimentLabel, sessionViewUrl);
             } else {

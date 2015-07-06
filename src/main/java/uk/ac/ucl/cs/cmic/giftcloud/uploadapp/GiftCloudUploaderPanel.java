@@ -4,6 +4,7 @@ import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.database.DatabaseTreeBrowser;
 import com.pixelmed.database.DatabaseTreeRecord;
 import com.pixelmed.dicom.DicomException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -33,7 +34,7 @@ public class GiftCloudUploaderPanel extends JPanel {
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
-    public GiftCloudUploaderPanel(final Dialog dialog, final GiftCloudUploaderController controller, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final Dialog dialog, final GiftCloudUploaderController controller, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
         this.reporter = reporter;
@@ -76,7 +77,7 @@ public class GiftCloudUploaderPanel extends JPanel {
 //        refreshButton.addActionListener(new RefreshActionListener());
 
 
-        statusPanel = new StatusPanel(controller);
+        statusPanel = new StatusPanel(controller, uploaderStatusModel);
         reporter.addProgressListener(statusPanel);
 
         {
@@ -103,7 +104,7 @@ public class GiftCloudUploaderPanel extends JPanel {
             {
                 GridBagConstraints statusBarPanelConstraints = new GridBagConstraints();
                 statusBarPanelConstraints.gridx = 0;
-                statusBarPanelConstraints.gridy = 6;
+                statusBarPanelConstraints.gridy = 2;
                 statusBarPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
                 mainPanelLayout.setConstraints(statusPanel, statusBarPanelConstraints);
                 add(statusPanel);
@@ -119,9 +120,7 @@ public class GiftCloudUploaderPanel extends JPanel {
             new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
 
         } catch (DicomException e) {
-            // ToDo
-            reporter.updateStatusText("Refresh of the file database failed: " + e);
-            e.printStackTrace();
+            reporter.error("Refresh of the file database failed: " + e.getLocalizedMessage(), e);
         }
         srcDatabasePanel.validate();
     }

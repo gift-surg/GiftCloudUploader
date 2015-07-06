@@ -4,58 +4,90 @@ import com.pixelmed.dicom.VersionAndConstants;
 import com.pixelmed.display.SafeProgressBarUpdaterThread;
 import com.pixelmed.display.StatusBarManager;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class StatusPanel extends JPanel implements Progress {
+public class StatusPanel extends JPanel implements Progress, UploaderStatusModel.StatusListener {
 
     private final SafeProgressBarUpdaterThread progressBarUpdater;
     private final JProgressBar progressBar;
     private final JLabel statusBar;
+    private final JLabel uploaderServiceStatusText;
+    private final JLabel importerServiceStatusText;
     private final StatusBarManager statusBarManager;		// maintain a strong reference else weak reference to listener gets nulled when garbage collected
     private boolean isCancelled = false;
     private GiftCloudUploaderController controller;
 
-    StatusPanel(final GiftCloudUploaderController controller) {
+    StatusPanel(final GiftCloudUploaderController controller, final UploaderStatusModel uploaderStatusModel) {
         this.controller = controller;
         statusBarManager = new StatusBarManager(getBuildDate()+" "+getReleaseString());
         statusBar = getStatusBar();
         GridBagLayout statusBarPanelLayout = new GridBagLayout();
         setLayout(statusBarPanelLayout);
         {
+            importerServiceStatusText = new JLabel("GIFT-Cloud Uploader image importer service");
+            GridBagConstraints uploaderServiceStatusBarConstraints = new GridBagConstraints();
+            uploaderServiceStatusBarConstraints.gridx = 0;
+            uploaderServiceStatusBarConstraints.gridy = 0;
+            uploaderServiceStatusBarConstraints.weightx = 1;
+            uploaderServiceStatusBarConstraints.fill = GridBagConstraints.HORIZONTAL;
+            uploaderServiceStatusBarConstraints.anchor = GridBagConstraints.WEST;
+            uploaderServiceStatusBarConstraints.gridwidth = GridBagConstraints.RELATIVE;
+            add(importerServiceStatusText, uploaderServiceStatusBarConstraints);
+        }
+
+        {
+            uploaderServiceStatusText = new JLabel("GIFT-Cloud Uploader uploader service");
+            GridBagConstraints uploaderServiceStatusBarConstraints = new GridBagConstraints();
+            uploaderServiceStatusBarConstraints.gridx = 0;
+            uploaderServiceStatusBarConstraints.gridy = 1;
+            uploaderServiceStatusBarConstraints.weightx = 1;
+            uploaderServiceStatusBarConstraints.fill = GridBagConstraints.HORIZONTAL;
+            uploaderServiceStatusBarConstraints.anchor = GridBagConstraints.WEST;
+            uploaderServiceStatusBarConstraints.gridwidth = GridBagConstraints.RELATIVE;
+            add(uploaderServiceStatusText, uploaderServiceStatusBarConstraints);
+        }
+        {
             GridBagConstraints statusBarConstraints = new GridBagConstraints();
+            statusBarConstraints.gridx = 0;
+            statusBarConstraints.gridy = 2;
             statusBarConstraints.weightx = 1;
-            statusBarConstraints.fill = GridBagConstraints.BOTH;
+            statusBarConstraints.fill = GridBagConstraints.HORIZONTAL;
             statusBarConstraints.anchor = GridBagConstraints.WEST;
             statusBarConstraints.gridwidth = GridBagConstraints.RELATIVE;
-            add(statusBar, statusBarConstraints);
+//            add(statusBar, statusBarConstraints);
         }
         {
             progressBar = new JProgressBar();		// local not class scope; helps detect when being accessed other than through SafeProgressBarUpdaterThread
             progressBar.setStringPainted(false);
             GridBagConstraints progressBarConstraints = new GridBagConstraints();
+//            progressBarConstraints.gridx = 0;
+            progressBarConstraints.gridy = 2;
             progressBarConstraints.weightx = 0.5;
-            progressBarConstraints.fill = GridBagConstraints.BOTH;
+            progressBarConstraints.fill = GridBagConstraints.HORIZONTAL;
             progressBarConstraints.anchor = GridBagConstraints.EAST;
             progressBarConstraints.gridwidth = GridBagConstraints.REMAINDER;
-            add(progressBar, progressBarConstraints);
+//            add(progressBar, progressBarConstraints);
 
             progressBarUpdater = new SafeProgressBarUpdaterThread(progressBar);
         }
         {
             JButton closeButton = new JButton("Hide uploading window");
             closeButton.setToolTipText("Close the uploader window");
-            add(closeButton);
+
             GridBagConstraints closeButtonConstraints = new GridBagConstraints();
+            closeButtonConstraints.gridx = 0;
+            closeButtonConstraints.gridy = 2;
             closeButtonConstraints.weightx = 1;
-            closeButtonConstraints.fill = GridBagConstraints.BOTH;
+            closeButtonConstraints.fill = GridBagConstraints.EAST;
             closeButtonConstraints.anchor = GridBagConstraints.EAST;
             closeButtonConstraints.gridwidth = GridBagConstraints.RELATIVE;
             closeButton.addActionListener(new CloseActionListener());
-
+            add(closeButton, closeButtonConstraints);
         }
 //        {
 //            JButton cancelButton = new JButton("Cancel");
@@ -64,6 +96,8 @@ public class StatusPanel extends JPanel implements Progress {
 //            cancelButton.addActionListener(new CancelActionListener());
 //
 //        }
+
+        uploaderStatusModel.addListener(this);
     }
 
     @Override
@@ -140,6 +174,26 @@ public class StatusPanel extends JPanel implements Progress {
 
     private synchronized void Cancel() {
         isCancelled = true;
+    }
+
+    @Override
+    public void uploaderStatusMessageChanged(final String newMessage) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                uploaderServiceStatusText.setText(newMessage);
+            }
+        });
+    }
+
+    @Override
+    public void importerStatusMessageChanged(final String newMessage) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                importerServiceStatusText.setText(newMessage);
+            }
+        });
     }
 
     protected class CancelActionListener implements ActionListener {

@@ -544,8 +544,6 @@ public class GiftCloudConfigurationDialog {
             Cursor was = dialog.getCursor();
             dialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            reporter.updateStatusText("Applying changes to the uploader");
-
             if (restartDicomNode) {
                 controller.restartDicomService();
             }
@@ -555,8 +553,6 @@ public class GiftCloudConfigurationDialog {
             if (forcePatientListExport) {
                 controller.exportPatientList();
             }
-
-            reporter.updateStatusText("Uploader settings updated");
 
             dialog.setCursor(was);
         }

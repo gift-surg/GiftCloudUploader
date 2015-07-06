@@ -106,6 +106,8 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
 
         updateServiceStatus(ServiceStatus.COMPLETE);
 
+        doPostprocessing();
+
         // We leave all remaining items on the queue so they can be processed if the thread is restarted
     }
 
@@ -113,6 +115,12 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
      * Perform any processing which should occur when the thread starts
      */
     protected void doPreprocessing() {
+    }
+
+    /**
+     * Perform any processing which should occur when the thread starts
+     */
+    protected void doPostprocessing() {
     }
 
     public final boolean isRunning() {
