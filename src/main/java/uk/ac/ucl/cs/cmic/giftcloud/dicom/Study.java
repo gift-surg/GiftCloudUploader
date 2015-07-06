@@ -273,7 +273,6 @@ public class Study extends MapEntity implements Entity, Session {
         final List<FileCollection> fileCollections = getFiles();
 
         if (fileCollections.isEmpty()) {
-            reporter.updateStatusText("No files were selected for upload");
             return new UploadResultsFailure("No files were selected for upload");
         }
 

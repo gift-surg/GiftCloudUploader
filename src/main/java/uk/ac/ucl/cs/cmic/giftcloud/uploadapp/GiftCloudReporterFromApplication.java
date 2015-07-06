@@ -295,7 +295,6 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     @Override
     public void updateStatusText(String progressText) {
         progressModel.updateProgressText(progressText);
-//        messageLogger.sendLn(progressText);
         ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent(progressText));
     }
 

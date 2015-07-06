@@ -10,20 +10,23 @@ import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.LocalWaitingForUploadDatabase;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 public class ImportWorker implements Runnable {
     private LocalWaitingForUploadDatabase uploadDatabase;
     private GiftCloudUploader giftCloudUploader;
     private boolean importAsReference;
+    private UploaderStatusModel uploaderStatusModel;
     private GiftCloudReporterFromApplication reporter;
     private MediaImporter importer;
     private String pathName;
     private Progress progress;
 
-    public ImportWorker(final LocalWaitingForUploadDatabase uploadDatabase, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporterFromApplication reporter) {
+    public ImportWorker(final LocalWaitingForUploadDatabase uploadDatabase, String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
         this.uploadDatabase = uploadDatabase;
         this.giftCloudUploader = giftCloudUploader;
         this.importAsReference = importAsReference;
+        this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
         this.progress = progress;
         importer = new OurMediaImporter(reporter, acceptAnyTransferSyntax);
@@ -31,18 +34,18 @@ public class ImportWorker implements Runnable {
     }
 
     public void run() {
-        reporter.sendLn("Import starting");
+        uploaderStatusModel.setImportingStatusMessage("Importing files...");
         reporter.startProgressBar();
 
         try {
             importer.importDicomFiles(pathName, progress);
         } catch (Exception e) {
-            reporter.updateStatusText("Importing failed: " + e);
-            e.printStackTrace(System.err);
+            uploaderStatusModel.setImportingStatusMessage("Failure when importing files" , e);
+            reporter.silentLogException(e, "Failure when importing files");
         }
 
         reporter.endProgressBar();
-        reporter.updateStatusText("Done importing");
+        uploaderStatusModel.setImportingStatusMessage("Files have been imported and are ready for upload");
         // importer sends its own completion message to log, so do not need another one
     }
 

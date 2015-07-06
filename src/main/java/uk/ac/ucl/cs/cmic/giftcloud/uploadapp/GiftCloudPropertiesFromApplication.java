@@ -286,7 +286,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         @Override
         public void update(Observable o, Object arg) {
             try {
-                System.out.println("** SAVING PROPERTIES **"); // ToDo
                 storeProperties("Auto-save after property change");
             } catch (IOException e) {
                 // ToDo

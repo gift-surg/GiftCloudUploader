@@ -8,10 +8,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.*;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.ZipSeriesUploaderFactorySelector;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -77,7 +74,8 @@ public class GiftCloudAutoUploader {
         }
 
         final EditProgressMonitorWrapper progressWrapper = new EditProgressMonitorWrapper(reporter);
-        final List<Session> sessions = new MasterTrawler(progressWrapper, fileList, filter).call();
+        final MasterTrawler trawler = new MasterTrawler(progressWrapper, fileList, filter);
+        final List<Session> sessions = trawler.call();
 
         final Project project = server.getProject(projectName);
 
@@ -86,6 +84,17 @@ public class GiftCloudAutoUploader {
         for (final Session session : sessions) {
 
             addSessionToUploadList(server, project, projectApplicators, projectName, session);
+        }
+
+
+        List<GiftCloudUploaderError> errors = trawler.getErrorMessages();
+
+        // If any files failed to upload, we log all of them and throw an exception for the first one
+        if (errors.size() > 0) {
+            for (final GiftCloudUploaderError error : errors) {
+                reporter.warn("Failed to upload file: " + error.getUserVisibleMessage());
+            }
+            throw new GiftCloudException(errors.get(0));
         }
 
         return true;
@@ -136,7 +145,6 @@ public class GiftCloudAutoUploader {
         final List<FileCollection> fileCollections = session.getFiles();
 
         if (fileCollections.isEmpty()) {
-            reporter.updateStatusText("No files were selected for upload");
             throw new IOException("No files were selected for upload");
         }
 
