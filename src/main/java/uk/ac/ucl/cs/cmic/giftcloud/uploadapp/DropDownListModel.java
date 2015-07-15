@@ -88,13 +88,13 @@ abstract class DropDownListModel extends DefaultComboBoxModel<String> implements
 
     private final java.util.List<EnabledListener<Boolean>> listeners = new ArrayList<EnabledListener<Boolean>>();
 
-    public void addListener(final EnabledListener<Boolean> listener) {
+    public synchronized void addListener(final EnabledListener<Boolean> listener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
     }
 
-    public void removeListener(final EnabledListener<Boolean> listener) {
+    public synchronized void removeListener(final EnabledListener<Boolean> listener) {
         if (listeners.contains(listener)) {
             listeners.remove(listener);
         }
@@ -104,7 +104,7 @@ abstract class DropDownListModel extends DefaultComboBoxModel<String> implements
         void statusChanged(final Boolean visibility);
     }
 
-    protected void notifyStatusChanged(final Boolean status) {
+    protected synchronized void notifyStatusChanged(final Boolean status) {
         for (final EnabledListener<Boolean> listener : listeners) {
             listener.statusChanged(status);
         }
