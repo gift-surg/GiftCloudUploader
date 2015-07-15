@@ -36,6 +36,7 @@ public interface GiftCloudProperties {
 
     void setLastUserName(final String lastUserName);
 
+
     Optional<char[]> getLastPassword();
 
     void setLastPassword(final char[] text);
@@ -79,4 +80,8 @@ public interface GiftCloudProperties {
     int getShortTimeout();
 
     int getLongTimeout();
+
+    void setPatientListPassword(char[] patientListPassword);
+
+    Optional<char[]> getPatientListPassword();
 }

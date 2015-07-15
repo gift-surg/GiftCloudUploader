@@ -13,6 +13,7 @@ import java.util.*;
 public class GiftCloudPropertiesFromApplication extends Observable implements GiftCloudProperties {
 
     protected static String KEYSTORE_UPLOAD_PASSWORD_KEY = "GiftCloud.UploadPassword";
+    protected static String KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY = "GiftCloud.PatientListSpreadsheetPassword";
 
     private Properties properties;
 
@@ -178,10 +179,36 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     @Override
+    public Optional<char[]> getPatientListPassword() {
+        if (passwordStore.isPresent()) {
+            try {
+                final char[] password = passwordStore.get().retrieve(KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY);
+                return password.length > 0 ? Optional.of(password) : Optional.<char[]>empty();
+            } catch (Throwable t) {
+                return lastPassword;
+            }
+        }
+        return lastPassword;
+    }
+
+    @Override
+    public void setPatientListPassword(char[] patientListPassword) {
+        this.lastPassword = Optional.of(patientListPassword);
+        if (passwordStore.isPresent()) {
+            try {
+                passwordStore.get().store(KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY, patientListPassword);
+            } catch (Throwable t) {
+            }
+        }
+    }
+
+
+    @Override
     public Optional<char[]> getLastPassword() {
         if (passwordStore.isPresent()) {
             try {
-                return Optional.of(passwordStore.get().retrieve(KEYSTORE_UPLOAD_PASSWORD_KEY));
+                final char[] password = passwordStore.get().retrieve(KEYSTORE_UPLOAD_PASSWORD_KEY);
+                return password.length > 0 ? Optional.of(password) : Optional.<char[]>empty();
             } catch (Throwable t) {
                 return lastPassword;
             }

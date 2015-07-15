@@ -30,7 +30,6 @@ public class GiftCloudConfigurationDialog {
     private final GiftCloudUploaderController controller;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private ProjectListModel projectListModel;
-    private final DicomNode dicomNode;
     private ResourceBundle resourceBundle;
     private final GiftCloudDialogs giftCloudDialogs;
     private GiftCloudReporter reporter;
@@ -43,6 +42,7 @@ public class GiftCloudConfigurationDialog {
     private final JTextField listeningAETitleField;
     private final JTextField listeningPortField;
     private final JTextField patientListExportFolderField;
+    private final JPasswordField patientListSpreadsheetPasswordField;
     private final JTextField remoteAETitleField;
     private final JTextField remoteAEHostName;
     private final JTextField remoteAEPortField;
@@ -54,11 +54,10 @@ public class GiftCloudConfigurationDialog {
 
     private boolean isDisposed = false;
 
-    GiftCloudConfigurationDialog(final Dialog owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final DicomNode dicomNode, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
+    GiftCloudConfigurationDialog(final Dialog owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.projectListModel = projectListModel;
-        this.dicomNode = dicomNode;
         this.resourceBundle = resourceBundle;
         this.giftCloudDialogs = giftCloudDialogs;
         this.reporter = reporter;
@@ -223,6 +222,20 @@ public class GiftCloudConfigurationDialog {
                 patientListExportFolderField = new AutoFocusTextField(patientListExportFolder.orElse(""));
                 listenerPanellayout.setConstraints(patientListExportFolderField, inputConstraints);
                 listenerPanel.add(patientListExportFolderField);
+            }
+
+            // Patient list spreadsheet password
+            {
+                labelConstraints.gridy = 5;
+                final JLabel patientListSpreadsheetPasswordLabel = new JLabel(resourceBundle.getString("configPanelListenerPatientListSpreadhsheetPassword"), SwingConstants.RIGHT);
+                patientListSpreadsheetPasswordLabel.setToolTipText(resourceBundle.getString("configPanelListenerPatientListSpreadhsheetPasswordTooltip"));
+                listenerPanel.add(patientListSpreadsheetPasswordLabel, labelConstraints);
+
+                final Optional<char[]> password = giftCloudProperties.getPatientListPassword();
+                final char[] initialPassword = password.isPresent() ? password.get() : "".toCharArray();
+                patientListSpreadsheetPasswordField = new JPasswordField(new String(initialPassword), 16); // Shouldn't create a String but there's no other way to initialize the password field
+                inputConstraints.gridy = 5;
+                listenerPanel.add(patientListSpreadsheetPasswordField, inputConstraints);
             }
         }
 
@@ -490,6 +503,7 @@ public class GiftCloudConfigurationDialog {
         final String newGiftCloudUrl = giftCloudServerText.getText();
         final String newGiftCloudUserName = giftCloudUsernameText.getText();
         final char[] newGiftCloudPassword = giftCloudPasswordText.getPassword();
+        final char[] newPatientListPassword = patientListSpreadsheetPasswordField.getPassword();
         final String newPatientListExportFolder = patientListExportFolderField.getText();
         final int newPacsPort = Integer.parseInt(remoteAEPortField.getText());
         final String newPacsAeTitle = remoteAETitleField.getText();
@@ -510,7 +524,9 @@ public class GiftCloudConfigurationDialog {
                 !temporaryDropDownListModel.getSelectedItem().equals(projectListModel.getSelectedItem());
 
         final boolean forcePatientListExport = StringUtils.isNotBlank(newPatientListExportFolder) &&
-                (!giftCloudProperties.getPatientListExportFolder().isPresent() || !newPatientListExportFolder.equals(giftCloudProperties.getPatientListExportFolder().get()));
+                (!giftCloudProperties.getPatientListExportFolder().isPresent() ||
+                        !newPatientListExportFolder.equals(giftCloudProperties.getPatientListExportFolder().get()) ||
+                        !newPatientListPassword.equals(giftCloudProperties.getPatientListPassword().orElse("".toCharArray())));
 
         // Change the properties (must be done after we access the current values to check for changes)
         giftCloudProperties.setListeningPort(newListeningPortValue);
@@ -519,6 +535,7 @@ public class GiftCloudConfigurationDialog {
         giftCloudProperties.setGiftCloudUrl(newGiftCloudUrl);
         giftCloudProperties.setLastUserName(newGiftCloudUserName);
         giftCloudProperties.setLastPassword(newGiftCloudPassword);
+        giftCloudProperties.setPatientListPassword(newPatientListPassword);
         giftCloudProperties.setPacsPort(newPacsPort);
         giftCloudProperties.setPacsAeTitle(newPacsAeTitle);
         giftCloudProperties.setPacsHostName(newPacsHostName);
