@@ -9,7 +9,7 @@
     <name>GIFT-Cloud Uploader</name>
     <description>A simple application to query, retrieve, import, de-identify DICOM instances and upload them securely on to GIFT-Cloud.</description>
     <url>${gc.url}</url>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <organization>
         <name>Centre for Medical Image Computing (CMIC), University College London (UCL)</name>
         <url>http://cmictig.cs.ucl.ac.uk</url>
