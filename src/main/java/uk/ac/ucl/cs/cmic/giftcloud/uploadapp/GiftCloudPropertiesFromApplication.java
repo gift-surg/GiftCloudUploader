@@ -192,6 +192,16 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     }
 
     @Override
+    public Optional<String> getSubjectPrefix() {
+        return getOptionalProperty(propertyName_SubjectNamePrefix);
+    }
+
+    @Override
+    public void setSubjectPrefix(final String subjectNamePredix) {
+        setPropertyString(propertyName_SubjectNamePrefix, subjectNamePredix);
+    }
+
+    @Override
     public void setPatientListPassword(char[] patientListPassword) {
         this.lastPassword = Optional.of(patientListPassword);
         if (passwordStore.isPresent()) {

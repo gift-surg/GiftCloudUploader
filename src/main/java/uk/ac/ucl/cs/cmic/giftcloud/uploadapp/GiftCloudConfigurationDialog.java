@@ -42,6 +42,7 @@ public class GiftCloudConfigurationDialog {
     private final JTextField listeningAETitleField;
     private final JTextField listeningPortField;
     private final JTextField patientListExportFolderField;
+    private final JTextField subjectPrefixField;
     private final JPasswordField patientListSpreadsheetPasswordField;
     private final JTextField remoteAETitleField;
     private final JTextField remoteAEHostName;
@@ -169,6 +170,19 @@ public class GiftCloudConfigurationDialog {
                 projectListWaitingLabel = new JLabel(resourceBundle.getString("giftCloudProjectWaitingLabelText"), SwingConstants.RIGHT);
                 giftCloudServerPanel.add(projectListWaitingLabel, labelConstraints);
                 labelConstraints.gridx = 0;
+            }
+
+            // Subject prefix
+            {
+                labelConstraints.gridy = 6;
+                JLabel subjectPrefixLabel = new JLabel(resourceBundle.getString("configPanelListenerSubjectPrefix"), SwingConstants.RIGHT);
+                subjectPrefixLabel.setToolTipText(resourceBundle.getString("configPanelListenerSubjectPrefixTooltip"));
+                giftCloudServerPanel.add(subjectPrefixLabel, labelConstraints);
+
+                inputConstraints.gridy = 6;
+                final Optional<String> subjectPrefixText = giftCloudProperties.getSubjectPrefix();
+                subjectPrefixField = new AutoFocusTextField(subjectPrefixText.orElse(""));
+                giftCloudServerPanel.add(subjectPrefixField, inputConstraints);
             }
         }
 
@@ -505,6 +519,7 @@ public class GiftCloudConfigurationDialog {
         final char[] newGiftCloudPassword = giftCloudPasswordText.getPassword();
         final char[] newPatientListPassword = patientListSpreadsheetPasswordField.getPassword();
         final String newPatientListExportFolder = patientListExportFolderField.getText();
+        final String newSubjectPrefix = subjectPrefixField.getText();
         final int newPacsPort = Integer.parseInt(remoteAEPortField.getText());
         final String newPacsAeTitle = remoteAETitleField.getText();
         final String newPacsHostName = remoteAEHostName.getText();
@@ -536,6 +551,7 @@ public class GiftCloudConfigurationDialog {
         giftCloudProperties.setLastUserName(newGiftCloudUserName);
         giftCloudProperties.setLastPassword(newGiftCloudPassword);
         giftCloudProperties.setPatientListPassword(newPatientListPassword);
+        giftCloudProperties.setSubjectPrefix(newSubjectPrefix);
         giftCloudProperties.setPacsPort(newPacsPort);
         giftCloudProperties.setPacsAeTitle(newPacsAeTitle);
         giftCloudProperties.setPacsHostName(newPacsHostName);

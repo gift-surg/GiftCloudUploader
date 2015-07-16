@@ -4,6 +4,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -55,14 +56,14 @@ class NameGenerator<T extends GiftCloudLabel> {
      * A class for generating subject labels.
      */
     static class SubjectNameGenerator extends NameGenerator<GiftCloudLabel.SubjectLabel>{
-        private static String autoSubjectNamePrefix = "AutoUploadSubject";
+        private static String defaultAutoSubjectNamePrefix = "AutoUploadSubject";
         private static final long autoSubjectNameStartNumber = 1;
         private Map<GiftCloudLabel.SubjectLabel, ExperimentNameGenerator> experimentLabelGeneratorMap = new HashMap<GiftCloudLabel.SubjectLabel, ExperimentNameGenerator>();
 
         /** Creates a new NameGenerator which will create names starting with the given prefix, and incrementing a suffix number starting at startNumber
          */
-        SubjectNameGenerator() {
-            super(autoSubjectNamePrefix, autoSubjectNameStartNumber, GiftCloudLabel.SubjectLabel.getFactory());
+        SubjectNameGenerator(final Optional<String> prefix) {
+            super(prefix.orElse(defaultAutoSubjectNamePrefix), autoSubjectNameStartNumber, GiftCloudLabel.SubjectLabel.getFactory());
         }
 
         /**

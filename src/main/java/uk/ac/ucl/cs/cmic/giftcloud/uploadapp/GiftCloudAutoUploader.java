@@ -24,7 +24,7 @@ public class GiftCloudAutoUploader {
 
     private final BackgroundUploader backgroundUploader;
     private final GiftCloudReporter reporter;
-    private final NameGenerator.SubjectNameGenerator subjectNameGenerator = new NameGenerator.SubjectNameGenerator();
+    private final NameGenerator.SubjectNameGenerator subjectNameGenerator;
     private final SubjectAliasStore subjectAliasStore;
 
     /**
@@ -34,6 +34,7 @@ public class GiftCloudAutoUploader {
      * @param reporter
      */
     public GiftCloudAutoUploader(final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
+        this.subjectNameGenerator = new NameGenerator.SubjectNameGenerator(properties.getSubjectPrefix());
         this.backgroundUploader = backgroundUploader;
         this.reporter = reporter;
         subjectAliasStore = new SubjectAliasStore(new PatientListStore(properties, reporter), reporter);
