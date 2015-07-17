@@ -5,13 +5,14 @@ import org.junit.Test;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class NameGeneratorTest {
 
     @Test
     public void testSubjectNameGenerator() throws Exception {
-        final NameGenerator.SubjectNameGenerator subjectNameGenerator = new NameGenerator.SubjectNameGenerator();
+        final NameGenerator.SubjectNameGenerator subjectNameGenerator = new NameGenerator.SubjectNameGenerator(Optional.of("AutoUploadSubject"));
         final GiftCloudLabel.LabelFactory<GiftCloudLabel.SubjectLabel> subjectLabelFactory = GiftCloudLabel.SubjectLabel.getFactory();
         commonNameGeneratorTests(subjectNameGenerator, subjectLabelFactory, "AutoUploadSubject");
 

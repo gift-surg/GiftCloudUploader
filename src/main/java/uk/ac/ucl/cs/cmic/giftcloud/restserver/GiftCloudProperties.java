@@ -15,6 +15,7 @@ public interface GiftCloudProperties {
     String propertyName_LastExportDirectory = "LastExportDirectory";
     String propertyName_PatientListLocalCacheDirectory = "GiftCloud_PatientListLocalCacheFolder";
     String propertyName_PatientListExportDirectory = "GiftCloud_PatientListExportFolder";
+    String propertyName_SubjectNamePrefix = "GiftCloud_SubjectNamePrefix";
     String propertyName_ListenerAeTitle = "GiftCloud_ListenerAeTitle";
     String propertyName_ListenerPort = "GiftCloud_ListenerPort";
     String propertyName_PacsAeTitle = "GiftCloud_RemoteAeTitle";
@@ -35,6 +36,7 @@ public interface GiftCloudProperties {
     Optional<String> getLastUserName();
 
     void setLastUserName(final String lastUserName);
+
 
     Optional<char[]> getLastPassword();
 
@@ -79,4 +81,12 @@ public interface GiftCloudProperties {
     int getShortTimeout();
 
     int getLongTimeout();
+
+    void setPatientListPassword(char[] patientListPassword);
+
+    Optional<char[]> getPatientListPassword();
+
+    Optional<String> getSubjectPrefix();
+
+    void setSubjectPrefix(final String subjectNamePredix);
 }

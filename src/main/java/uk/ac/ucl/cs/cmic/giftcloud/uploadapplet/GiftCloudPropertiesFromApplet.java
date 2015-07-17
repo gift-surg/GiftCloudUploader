@@ -135,6 +135,26 @@ public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
     }
 
     @Override
+    public void setPatientListPassword(char[] patientListPassword) {
+
+    }
+
+    @Override
+    public Optional<char[]> getPatientListPassword() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> getSubjectPrefix() {
+        return Optional.empty();
+    }
+
+    @Override
+    public void setSubjectPrefix(String subjectNamePredix) {
+
+    }
+
+    @Override
     public void setLastUserName(final String lastUserName) {
         // We do not store the last username when using the applet, since the applet is typically launched after already logging into the server
     }

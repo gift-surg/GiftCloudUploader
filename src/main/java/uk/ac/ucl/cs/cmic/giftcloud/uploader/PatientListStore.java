@@ -49,15 +49,16 @@ public class PatientListStore {
         try {
             // The export folder is used to store the patient list exported to an excel spreadsheet
             final Optional<String> exportFolderOptional = giftCloudProperties.getPatientListExportFolder();
+            final Optional<char[]> patientListPassword = giftCloudProperties.getPatientListPassword();
             if (exportFolderOptional.isPresent()) {
                 final File exportFolder = new File(exportFolderOptional.get());
 
-                final ExcelWriter excelWriter = new ExcelWriter(exportFolder, reporter);
+                final ExcelWriter excelWriter = new ExcelWriter(exportFolder, patientListPassword, reporter);
                 excelWriter.writeProjectMap(projectMap);
                 excelWriter.save(true);
             }
         } catch (Throwable t) {
-            reporter.silentLogException(t, "Failed to save the cache of the project list due to the following error:" + t.getLocalizedMessage());
+            reporter.silentLogException(t, "Failed to export the project list spreadsheet due to the following error:" + t.getLocalizedMessage());
         }
     }
 
