@@ -57,11 +57,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         try {
             dicomNode.activateStorageSCP();
         } catch (DicomNode.DicomNodeStartException e) {
-            reporter.silentLogException(e, "The DICOM listening code failed to start due to the folowing error: " + e.getLocalizedMessage());
-            reporter.showError("The DICOM listening code failed to start. Please check the listener settings and restart the GIFT-Cloud Uploader.");
+            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
+            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the GIFT-Cloud Uploader.");
         } catch (DicomNetworkException e) {
-            reporter.silentLogException(e, "The DICOM listening code failed to start due to the folowing error: " + e.getLocalizedMessage());
-            reporter.showError("The DICOM listening code failed to start. Please check the listener settings and restart the GIFT-Cloud Uploader");
+            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
+            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the GIFT-Cloud Uploader");
         }
 
 
@@ -221,8 +221,9 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void restartUploader() {
+    public void invalidateServerAndRestartUploader() {
         pauseUploading();
+        giftCloudUploader.invalidateServer();
         startUploading();
     }
 

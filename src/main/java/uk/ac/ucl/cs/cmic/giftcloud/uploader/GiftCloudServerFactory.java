@@ -50,4 +50,8 @@ public class GiftCloudServerFactory {
 
         return giftCloudServer.get();
     }
+
+    public void invalidate() {
+        giftCloudServer = Optional.empty();
+    }
 }

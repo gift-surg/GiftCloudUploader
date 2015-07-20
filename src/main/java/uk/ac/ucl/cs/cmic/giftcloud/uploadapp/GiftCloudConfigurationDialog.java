@@ -581,7 +581,7 @@ public class GiftCloudConfigurationDialog {
                 controller.restartDicomService();
             }
             if (restartUploader) {
-                controller.restartUploader();
+                controller.invalidateServerAndRestartUploader();
             }
             if (forcePatientListExport) {
                 controller.exportPatientList();
