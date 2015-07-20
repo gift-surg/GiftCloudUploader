@@ -100,7 +100,8 @@ public class MediaImporter {
 	 * @throws		IOException		thrown if the DICOMDIR file (but not any referenced files) cannot be opened or read
 	 * @throws		DicomException		thrown if the DICOMDIR file cannot be parsed
 	 */
-	public void importDicomFiles(String pathName, final Progress progress) throws IOException, DicomException {
+	public boolean importDicomFiles(String pathName, final Progress progress) throws IOException, DicomException {
+		boolean anyFiles = false;
 		if (pathName != null) {
 			File path = new File(pathName);
 			File dicomdirFile = null;		// look for DICOMDIR here or in root folder of here, with various case permutations
@@ -187,6 +188,7 @@ public class MediaImporter {
 						if (goodToGo) {
 							//logLn("Is a suitable DICOMDIR referenced file: "+mediaFileName);
 							doSomethingWithDicomFileOnMedia(mediaFileName,transferSyntaxUID,sopClassUID);
+							anyFiles = true;
 						}
 						else {
 							//logLn("Not a suitable DICOMDIR referenced file: "+mediaFileName);
@@ -247,6 +249,7 @@ public class MediaImporter {
 							if (goodToGo) {
 								//logLn("Is a DICOM file that is wanted: "+mediaFile);
 								doSomethingWithDicomFileOnMedia(mediaFile.getPath(),transferSyntaxUID,sopClassUID);
+								anyFiles = true;
 							}
 							else {
 								//logLn("Not a DICOM PS 3.10 file or not one that is wanted: "+mediaFile);
@@ -266,6 +269,7 @@ public class MediaImporter {
 			}
 		}
 		logLn("Media import complete");
+		return anyFiles;
 	}
 	
 	/**
