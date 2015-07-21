@@ -44,8 +44,9 @@ public class GiftCloudSystemTray {
     private GiftCloudSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) throws AWTException, IOException {
         this.controller = controller;
 
-        Image iconImage = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));;
+        Image iconImage = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));
         trayIcon = new TrayIcon(iconImage, resourceBundle.getString("systemTrayIconText"));
+        trayIcon.setImageAutoSize(true);
         tray = SystemTray.getSystemTray();
         trayIcon.setToolTip(resourceBundle.getString("systemTrayIconToolTip"));
 
