@@ -95,6 +95,7 @@
 		<level name="Maven: org.apache.poi:poi:3.11" value="project"/>
 		<level name="Maven: org.apache.poi:poi-ooxml:3.11" value="project"/>
 		<level name="Maven: org.apache.poi:poi-ooxml-schemas:3.11" value="project"/>
-		<level name="Maven: org.apache.xmlbeans:xmlbeans:2..0" value="project"/>
+		<level name="Maven: org.apache.xmlbeans:xmlbeans:2.5.0" value="project"/>
+		<level name="Maven: stax:stax-api:1.0.1" value="project"/>
 	</levels>
 </component>

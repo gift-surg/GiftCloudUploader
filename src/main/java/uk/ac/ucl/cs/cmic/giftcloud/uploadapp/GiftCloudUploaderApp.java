@@ -27,16 +27,18 @@ public class GiftCloudUploaderApp {
             if (iconURL == null) {
                 System.out.println("Warning: could not find the icon resource");
             } else {
-                try {
-                    Image iconImage = ImageIO.read(iconURL);
-                    if (iconImage == null) {
-                        System.out.println("Could not find icon");
-                    } else {
-                        Application.getApplication().setDockIconImage(new ImageIcon(iconImage).getImage());
+                if (isOSX()) {
+                    try {
+                        Image iconImage = ImageIO.read(iconURL);
+                        if (iconImage == null) {
+                            System.out.println("Could not find icon");
+                        } else {
+                            Application.getApplication().setDockIconImage(new ImageIcon(iconImage).getImage());
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Warning: could not configure the dock menu");
+                        e.printStackTrace(System.err);
                     }
-                } catch (Exception e) {
-                    System.out.println("Warning: could not configure the dock menu");
-                    e.printStackTrace(System.err);
                 }
             }
 
@@ -55,4 +57,8 @@ public class GiftCloudUploaderApp {
 			e.printStackTrace(System.err);
 		}
 	}
+
+    public static boolean isOSX() {
+        return (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0);
+    }
 }

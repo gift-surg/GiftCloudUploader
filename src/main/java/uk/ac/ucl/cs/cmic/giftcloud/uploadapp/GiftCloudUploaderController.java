@@ -34,7 +34,7 @@ public interface GiftCloudUploaderController {
 
     void restartDicomService();
 
-    void restartUploader();
+    void invalidateServerAndRestartUploader();
 
     void importFromPacs();
 

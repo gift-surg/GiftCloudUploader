@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.Study;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
@@ -380,7 +382,12 @@ public class GiftCloudUploaderRestServer implements RestServer {
         final Optional<GiftCloudLabel.SubjectLabel> subjectLabelFromServer = getSubjectLabel(projectLabel, hashedPatientId);
         if (!subjectLabelFromServer.isPresent()) {
             createSubjectIfNotExisting(projectLabel, subjectLabel);
-            restServerSessionHelper.createPostResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel.getStringLabel() + "/pseudonyms/" + hashedPatientId);
+            try {
+                restServerSessionHelper.createPostResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel.getStringLabel() + "/pseudonyms/" + hashedPatientId);
+            } catch (AuthorisationFailureException exception) {
+                // This is a special case: the subject was created successfully but the pseudonym creation failed. This probably indicates that project feature "Upload Additional Scans" is not enabled for the Member group of this XNAT project
+                throw new GiftCloudException(GiftCloudUploaderError.NO_UPLOAD_PERMISSIONS);
+            }
         }
     }
 

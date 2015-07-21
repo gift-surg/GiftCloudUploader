@@ -266,4 +266,8 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         backgroundUploader.stop();
         backgroundUploader.waitForThreadCompletion(maxWaitTimeMs);
     }
+
+    public void invalidateServer() {
+        serverFactory.invalidate();
+    }
 }

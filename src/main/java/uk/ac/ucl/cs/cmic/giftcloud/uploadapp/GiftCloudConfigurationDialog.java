@@ -55,7 +55,7 @@ public class GiftCloudConfigurationDialog {
 
     private boolean isDisposed = false;
 
-    GiftCloudConfigurationDialog(final Dialog owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
+    GiftCloudConfigurationDialog(final JFrame owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.projectListModel = projectListModel;
@@ -581,7 +581,7 @@ public class GiftCloudConfigurationDialog {
                 controller.restartDicomService();
             }
             if (restartUploader) {
-                controller.restartUploader();
+                controller.invalidateServerAndRestartUploader();
             }
             if (forcePatientListExport) {
                 controller.exportPatientList();
