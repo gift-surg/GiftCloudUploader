@@ -34,7 +34,7 @@ public class GiftCloudUploaderPanel extends JPanel {
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
-    public GiftCloudUploaderPanel(final Dialog dialog, final GiftCloudUploaderController controller, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
         this.reporter = reporter;

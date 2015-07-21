@@ -8,7 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowVisibility> implements MainFrame {
-    protected final JDialog container;
+    protected final JFrame container;
     private GiftCloudUploaderController controller;
 
     /**
@@ -31,7 +31,7 @@ class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowV
 
     GiftCloudMainFrame(final String applicationTitle, final GiftCloudUploaderController controller) {
         this.controller = controller;
-        container = new JDialog();
+        container = new JFrame();
         container.setIconImage(new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png")).getImage()); // ToDo: This icon is loaded multiple times in the code
         container.setTitle(applicationTitle);
         container.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -39,7 +39,7 @@ class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowV
         // Invoke the hide method on the controller, to ensure the system tray menu gets updated correctly
         container.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent ev) {
-                controller.hide();
+                System.exit(0);
             }
         });
     }
@@ -81,7 +81,7 @@ class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowV
         return container;
     }
 
-    public Dialog getDialog() {
+    public JFrame getDialog() {
         return container;
     }
 

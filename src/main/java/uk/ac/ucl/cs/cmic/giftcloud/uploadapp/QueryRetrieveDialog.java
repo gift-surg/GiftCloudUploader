@@ -25,7 +25,7 @@ public class QueryRetrieveDialog extends JDialog {
      * @param controller used to perform the query-retrieve operations
      * @param resourceBundle for accessing the text labels
      */
-    QueryRetrieveDialog(final Dialog owner, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) {
+    QueryRetrieveDialog(final JFrame owner, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) {
         super(owner);
         this.controller = controller;
 
