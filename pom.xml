@@ -206,6 +206,13 @@
                                         </pluginExecution>
                                     </pluginExecutions>
                                 </lifecycleMappingMetadata>
+                                <updateManifestEntries>
+                                    <Application-Name>GIFT-Cloud Uploader</Application-Name>
+                                    <Trusted-Library>true</Trusted-Library>
+                                    <Permissions>all-permissions</Permissions>
+                                    <Codebase>*</Codebase>
+                                    <Trusted-Only>true</Trusted-Only>
+                                </updateManifestEntries>
                             </configuration>
                         </plugin>
                     </plugins>
