@@ -209,7 +209,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void restartDicomService() {
         try {
-            dicomNode.shutdownStorageSCP();
+            dicomNode.shutdownStorageSCPAndWait(giftCloudProperties.getShutdownTimeoutMs());
         } catch (Exception e) {
             reporter.silentLogException(e, "Failed to shutdown the dicom node service");
         }
