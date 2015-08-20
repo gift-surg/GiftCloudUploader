@@ -74,7 +74,7 @@ public class DicomNode {
                         new OurPresentationContextSelectionPolicy(),
                         false/*secureTransport*/,
                         storageSCPDebugLevel);
-                new Thread(storageSOPClassSCPDispatcher).start();
+                storageSOPClassSCPDispatcher.startup();
             }
         } catch (IOException e) {
             uploaderStatusModel.setImportingStatusMessage("Could not listen to the PACS due to the following error: " + e.getLocalizedMessage(), e);

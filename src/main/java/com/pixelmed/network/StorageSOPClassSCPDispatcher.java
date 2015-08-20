@@ -115,6 +115,7 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	/***/
 	private boolean isReady;
 
+	private Thread mainThread = null;
 	private Thread executingThread = null;
 	
 	/**
@@ -359,6 +360,13 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	}
 
 	/**
+	 * Start a new thread with a new dispatcher
+	 */
+	public void startup() {
+		mainThread = new Thread(this);
+	}
+
+	/**
 	 * <p>Request the dispatcher to stop listening and exit the thread.</p>
 	 */
 	public void shutdown() {
@@ -370,6 +378,12 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 		if (executingThread != null) {
 			try {
 				executingThread.join(maximumThreadCompletionWaitTime);
+			} catch (InterruptedException e) {
+			}
+		}
+		if (mainThread != null) {
+			try {
+				mainThread.join(maximumThreadCompletionWaitTime);
 			} catch (InterruptedException e) {
 			}
 		}
