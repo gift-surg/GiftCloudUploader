@@ -15,6 +15,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Optional;
 
 /**
  * <p>This class waits for incoming connections and association requests for
@@ -64,7 +65,7 @@ public class StorageSOPClassSCPDispatcher implements Runnable {
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/network/StorageSOPClassSCPDispatcher.java,v 1.45 2014/09/09 20:34:09 dclunie Exp $";
 	
 	private int timeoutBeforeCheckingForInterrupted = 5000;	// in mS ... should be a property :(
-	private ApplicationEntity remoteAe;
+	private Optional<ApplicationEntity> remoteAe;
 
 	/***/
 	private class DefaultReceivedObjectHandler extends ReceivedObjectHandler {
@@ -310,7 +311,7 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	 * @param	debugLevel							zero for no debugging messages, higher values more verbose messages
 	 * @throws	IOException
 	 */
-	public StorageSOPClassSCPDispatcher(final ApplicationEntity remoteAe, int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,ReceivedObjectHandler receivedObjectHandler,
+	public StorageSOPClassSCPDispatcher(final Optional<ApplicationEntity> remoteAe, int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,ReceivedObjectHandler receivedObjectHandler,
 			QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,
 			PresentationContextSelectionPolicy presentationContextSelectionPolicy,
 			boolean secureTransport,int debugLevel) throws IOException {
@@ -337,7 +338,7 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	 * @param	debugLevel							zero for no debugging messages, higher values more verbose messages
 	 * @throws	IOException
 	 */
-	public StorageSOPClassSCPDispatcher(final ApplicationEntity remoteAe, int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,
+	public StorageSOPClassSCPDispatcher(final Optional<ApplicationEntity> remoteAe, int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,
 			ReceivedObjectHandler receivedObjectHandler,AssociationStatusHandler associationStatusHandler,
 			QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,
 			PresentationContextSelectionPolicy presentationContextSelectionPolicy,
@@ -428,7 +429,9 @@ if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": Storag
 					//setSocketOptions(socket,ourMaximumLengthReceived,socketReceiveBufferSize,socketSendBufferSize,debugLevel);
 					// defer loading applicationEntityMap until each incoming connection, since may have been updated
 					ApplicationEntityMap applicationEntityMap = new ApplicationEntityMap();
-        			applicationEntityMap.put(remoteAe.getDicomAETitle(), remoteAe);
+					if (remoteAe.isPresent()) {
+						applicationEntityMap.put(remoteAe.get().getDicomAETitle(), remoteAe.get());
+					}
 					{
 						// add ourselves to AET map, if not already there, in case we want to C-MOVE to ourselves
 						InetAddress ourAddress = serverSocket.getInetAddress();

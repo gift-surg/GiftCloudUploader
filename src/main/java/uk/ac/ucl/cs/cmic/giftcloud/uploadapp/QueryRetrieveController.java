@@ -84,11 +84,11 @@ public class QueryRetrieveController {
         final int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
 
         if (!queryHost.isPresent() || StringUtils.isBlank(queryHost.get())) {
-            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_HOST, "No PACS host has been set");
+            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_HOST, "Please set the PACS host name in the settings before performing a query.");
         }
 
         if (!queryCalledAETitle.isPresent() || StringUtils.isBlank(queryCalledAETitle.get())) {
-            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_CALLED_AE_TITLE, "No PACS called AE title has been set");
+            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_CALLED_AE_TITLE, "Please set the PACS AE title in the settings before performing a query.");
         }
 
         if (!queryModel.isPresent() || NetworkApplicationProperties.isStudyRootQueryModel(queryModel.get())) {

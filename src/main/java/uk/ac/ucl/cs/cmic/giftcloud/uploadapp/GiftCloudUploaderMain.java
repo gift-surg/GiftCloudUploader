@@ -99,7 +99,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void showConfigureDialog() throws IOException, DicomNode.DicomNodeStartException {
+    public void showConfigureDialog() {
         if (configurationDialog == null || !configurationDialog.isVisible()) {
             configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
         }

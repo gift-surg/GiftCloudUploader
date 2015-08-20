@@ -88,7 +88,7 @@ public class DicomNode {
      * @return
      * @throws DicomNetworkException
      */
-    public ApplicationEntity getAe() throws GiftCloudException {
+    public Optional<ApplicationEntity> getAe() throws GiftCloudException {
         final Optional<String> aeTitle = giftCloudProperties.getPacsAeTitle();
         final Optional<String> hostname = giftCloudProperties.getPacsHostName();
         final int port = giftCloudProperties.getPacsPort();
@@ -96,14 +96,14 @@ public class DicomNode {
         final Optional<String> primaryDeviceType = giftCloudProperties.getPacsPrimaryDeviceType();
 
         if (!aeTitle.isPresent() || StringUtils.isBlank(aeTitle.get())) {
-            throw new GiftCloudException(GiftCloudUploaderError.NETWORK_PROPERTIES_INVALID, "The PACS AE title has not been set.");
+            return Optional.empty();
         }
         if (!hostname.isPresent() || StringUtils.isBlank(hostname.get())) {
-            throw new GiftCloudException(GiftCloudUploaderError.NETWORK_PROPERTIES_INVALID, "The PACS host name has not been set.");
+            return Optional.empty();
         }
 
         final PresentationAddress presentationAddress = new PresentationAddress(hostname.get(), port);
-        return new ApplicationEntity(aeTitle.get(), presentationAddress, queryModel.orElse(null), primaryDeviceType.orElse(null));
+        return Optional.of(new ApplicationEntity(aeTitle.get(), presentationAddress, queryModel.orElse(null), primaryDeviceType.orElse(null)));
     }
 
     public class DicomNodeStartException extends Exception {

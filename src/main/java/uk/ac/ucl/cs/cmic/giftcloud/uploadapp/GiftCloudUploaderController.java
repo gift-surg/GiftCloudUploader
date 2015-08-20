@@ -2,13 +2,12 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
 public interface GiftCloudUploaderController {
 
-    void showConfigureDialog() throws IOException, DicomNode.DicomNodeStartException;
+    void showConfigureDialog();
     void showAboutDialog();
 
     void hide();

@@ -127,12 +127,8 @@ public class GiftCloudSystemTray {
             public void actionPerformed(ActionEvent e) {
                 try {
                     controller.showConfigureDialog();
-                } catch (IOException e1) {
+                } catch (Exception e1) {
                     trayIcon.displayMessage("Warning", "Error occurred trying to change the settings", TrayIcon.MessageType.WARNING);
-                    // Here there was a failure
-                    e1.printStackTrace();
-                } catch (DicomNode.DicomNodeStartException e1) {
-                    trayIcon.displayMessage("Warning", "Could not restart the Dicom node. Please check the settings are correct", TrayIcon.MessageType.WARNING);
                     // Here there was a failure
                     e1.printStackTrace();
                 }
