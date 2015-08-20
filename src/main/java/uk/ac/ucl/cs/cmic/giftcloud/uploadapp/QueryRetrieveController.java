@@ -8,6 +8,7 @@ import com.pixelmed.query.StudyRootQueryInformationModel;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.QueryWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.RetrieveWorker;
 
@@ -19,14 +20,16 @@ public class QueryRetrieveController {
     private QueryRetrieveRemoteView queryRetrieveRemoteView;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final DicomNode dicomNode;
+    private UploaderStatusModel uploaderStatusModel;
     private final GiftCloudReporterFromApplication reporter;
     private Optional<QueryInformationModel> currentRemoteQueryInformationModel = Optional.empty();
     private Thread activeThread = null;
 
-    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrieveRemoteView, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final GiftCloudReporterFromApplication reporter) {
+    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrieveRemoteView, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
         this.queryRetrieveRemoteView = queryRetrieveRemoteView;
         this.giftCloudProperties = giftCloudProperties;
         this.dicomNode = dicomNode;
+        this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
 
         // Add a shutdown hook for graceful exit
@@ -71,7 +74,7 @@ public class QueryRetrieveController {
         queryRetrieveRemoteView.validate();
 
         AttributeList filter = queryParams.build();
-        Thread activeThread = new Thread(new QueryWorker(queryRetrieveRemoteView, currentRemoteQueryInformationModel.get(), filter, dicomNode, reporter));
+        Thread activeThread = new Thread(new QueryWorker(queryRetrieveRemoteView, currentRemoteQueryInformationModel.get(), filter, dicomNode, uploaderStatusModel, reporter));
         activeThread.start();
     }
 
