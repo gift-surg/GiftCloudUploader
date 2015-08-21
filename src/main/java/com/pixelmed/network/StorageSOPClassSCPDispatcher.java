@@ -365,6 +365,7 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	 */
 	public void startup() {
 		mainThread = new Thread(this);
+		mainThread.start();
 	}
 
 	/**
