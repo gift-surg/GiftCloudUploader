@@ -5,6 +5,7 @@ import com.pixelmed.query.QueryInformationModel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.QueryRetrieveRemoteView;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 public class QueryWorker implements Runnable {
@@ -32,9 +33,12 @@ public class QueryWorker implements Runnable {
             queryRetrieveRemoteView.updateQueryPanel(currentRemoteQueryInformationModel, filter, currentRemoteQueryInformationModel);
             reporter.updateStatusText("Query to " + calledAET + ") complete");
             uploaderStatusModel.setUploadingStatusMessage("Query to " + calledAET + ") complete");
+        } catch (GiftCloudException e) {
+            uploaderStatusModel.setUploadingStatusMessage(e.getPithyMessage());
+            reporter.reportErrorToUser("The PACS query failed. Please ensure the PACS settings are correct and that the PACS is running.", e);
         } catch (Exception e) {
             uploaderStatusModel.setUploadingStatusMessage("Query to " + calledAET + " failed due to" + e);
-            e.printStackTrace(System.err);
+            reporter.reportErrorToUser("The PACS query failed. Please ensure the PACS settings are correct and that the PACS is running.", e);
         }
         reporter.restoreCursor();
     }

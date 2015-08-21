@@ -17,6 +17,14 @@ public class GiftCloudException extends IOException {
         this.allowRetry = error.allowRetry();
     }
 
+    public GiftCloudException(final GiftCloudUploaderError error, final Throwable cause) {
+        super(error.getMessageWithErrorCode(), cause);
+        this.error = error;
+        this.pithyMessage = error.getPithyMessage();
+        this.additionalMessage = Optional.empty();
+        this.allowRetry = error.allowRetry();
+    }
+
     public GiftCloudException(final GiftCloudUploaderError error, final String additionalMessage) {
         super(error.getMessageWithErrorCode() + " " + additionalMessage);
         this.error = error;
