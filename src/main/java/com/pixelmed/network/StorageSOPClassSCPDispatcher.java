@@ -6,6 +6,8 @@ import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.StoredFilePathStrategy;
 import com.pixelmed.query.QueryResponseGeneratorFactory;
 import com.pixelmed.query.RetrieveResponseGeneratorFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -118,6 +120,7 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 
 	private Thread mainThread = null;
 	private Thread executingThread = null;
+	private ServerSocket serverSocket = null;
 	
 	/**
 	 * <p>Is the dispatcher ready to receive connections?</p>
@@ -363,9 +366,23 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	/**
 	 * Start a new thread with a new dispatcher
 	 */
-	public void startup() {
-		mainThread = new Thread(this);
-		mainThread.start();
+	public void startup() throws IOException {
+		try {
+			serverSocket = getServerSocket();
+			mainThread = new Thread(this);
+			mainThread.start();
+		} catch (IOException e) {
+			if (serverSocket != null) {
+				try {
+					serverSocket.close();
+				} catch (IOException e2) {
+				}
+			}
+			if (e instanceof java.net.BindException) {
+				throw new GiftCloudException(GiftCloudUploaderError.PORT_ALREADY_IN_USE, e);
+			}
+			throw(e);
+		}
 	}
 
 	/**
@@ -400,33 +417,13 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	public void run() {
 		wantToShutdown = false;
 		isReady = false;
-		ServerSocket serverSocket = null;
 		try {
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher.run(): Trying to bind to port "+port);
-			if (secureTransport) {
-				SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
-				SSLServerSocket sslserversocket = (SSLServerSocket)sslserversocketfactory.createServerSocket(port);
-				String[] suites = Association.getCipherSuitesToEnable(sslserversocket.getSupportedCipherSuites());	
-				if (suites != null) {
-					sslserversocket.setEnabledCipherSuites(suites);
-				}
-				String[] protocols = Association.getProtocolsToEnable(sslserversocket.getEnabledProtocols());
-				if (protocols != null) {
-					sslserversocket.setEnabledProtocols(protocols);
-				}
-				//sslserversocket.setNeedClientAuth(true);
-				serverSocket = sslserversocket;
-			}
-			else {
-				serverSocket = new ServerSocket(port);
-			}
-			
+
 			isReady = true;
 			serverSocket.setSoTimeout(timeoutBeforeCheckingForInterrupted);
 			while (!wantToShutdown) {
 				try {
 					Socket socket = serverSocket.accept();
-if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher.run(): returned from accept");
 					//setSocketOptions(socket,ourMaximumLengthReceived,socketReceiveBufferSize,socketSendBufferSize,debugLevel);
 					// defer loading applicationEntityMap until each incoming connection, since may have been updated
 					ApplicationEntityMap applicationEntityMap = new ApplicationEntityMap();
@@ -440,7 +437,6 @@ if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": Storag
 							applicationEntityMap.put(calledAETitle,new PresentationAddress(ourAddress.getHostAddress(),port),
 								NetworkApplicationProperties.StudyRootQueryModel/*hmm... :(*/,null/*primaryDeviceType*/);
 						}
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher:run(): applicationEntityMap = "+applicationEntityMap);
 					}
 					try {
 
@@ -457,7 +453,6 @@ if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": Storag
 					}
 				}
 				catch (SocketTimeoutException e) {
-if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher.run(): timed out in accept");
 				}
 			}
 		}
@@ -474,7 +469,27 @@ if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": Storag
 			e.printStackTrace(System.err);
 		}
 		isReady = false;
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher.run(): has shutdown and is no longer listening");
+	}
+
+	private ServerSocket getServerSocket() throws IOException {
+		ServerSocket serverSocket;
+		if (secureTransport) {
+            SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
+            SSLServerSocket sslserversocket = (SSLServerSocket)sslserversocketfactory.createServerSocket(port);
+            String[] suites = Association.getCipherSuitesToEnable(sslserversocket.getSupportedCipherSuites());
+            if (suites != null) {
+                sslserversocket.setEnabledCipherSuites(suites);
+            }
+            String[] protocols = Association.getProtocolsToEnable(sslserversocket.getEnabledProtocols());
+            if (protocols != null) {
+                sslserversocket.setEnabledProtocols(protocols);
+            }
+            serverSocket = sslserversocket;
+        }
+        else {
+            serverSocket = new ServerSocket(port);
+        }
+		return serverSocket;
 	}
 
 }

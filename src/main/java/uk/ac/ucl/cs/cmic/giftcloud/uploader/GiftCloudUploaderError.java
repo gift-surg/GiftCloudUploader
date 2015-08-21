@@ -3,6 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 public enum GiftCloudUploaderError {
     OK(0, "Completed successfully.", "OK", true),
     SERVER_INVALID(21, "Unable to connect to the GIFT-Cloud server. Please verify that the GIFT-Cloud server is running, and that its URL is correctly specified in the uploader settings.", "GIFT-Cloud host name is incorrect or the server is down", true),
+    PORT_ALREADY_IN_USE(22, "The DICOM listening node cannot be started because the port is in use by another application. Please change the port in the settings or close the other application, then restart the listener.", "Listener cannot start because port is in use", false),
     QUERY_RETRIEVE_STILL_IN_PROGRESS(31, "A previous query/retrieve operation is still in progress. Please wait until this completes.", "Query/retrieve in progress", true),
     NO_QUERY_OR_QUERY_FAILED(32, "A query operation must be performed before a retrieve.", "No query", false),
     EMPTY_AE(33, "The PACS AE title has not been set. Please check the settings in the configuration dialog.", "No AE title has been specified in the settings.", false),

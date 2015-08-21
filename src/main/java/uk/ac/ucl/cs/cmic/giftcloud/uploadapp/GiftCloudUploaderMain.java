@@ -1,7 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.DicomException;
-import com.pixelmed.network.DicomNetworkException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
@@ -82,11 +81,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         Optional<Throwable> dicomNodeFailureException = Optional.empty();
         try {
             dicomNode.activateStorageSCP();
-        } catch (DicomNode.DicomNodeStartException e) {
-            dicomNodeFailureException = Optional.<Throwable>of(e);
-            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
-        } catch (DicomNetworkException e) {
-            dicomNodeFailureException = Optional.<Throwable>of(e);
+        } catch (Throwable e) {
+            dicomNodeFailureException = Optional.of(e);
             reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
         }
 
@@ -123,7 +119,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         } else {
             // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
             if (dicomNodeFailureException.isPresent()) {
-                reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
+                reporter.reportErrorToUser("The DICOM listening node failed to start. Please check the listener settings and restart the listener.", dicomNodeFailureException.get());
                 showConfigureDialog();
             }
         }
@@ -277,7 +273,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
         try {
             dicomNode.activateStorageSCP();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
             reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
         }
