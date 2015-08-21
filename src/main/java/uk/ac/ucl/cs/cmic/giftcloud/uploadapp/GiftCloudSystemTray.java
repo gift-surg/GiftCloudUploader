@@ -28,6 +28,7 @@ public class GiftCloudSystemTray {
     private final MenuItem importFromPacsItem;
     private final MenuItem startUploaderItem;
     private final MenuItem pauseUploaderItem;
+    private final MenuItem restartListenerItem;
 
     private boolean startIsResume = false;
     private final String resumeText;
@@ -99,6 +100,17 @@ public class GiftCloudSystemTray {
         });
 
         popup.addSeparator();
+
+        restartListenerItem = new MenuItem(resourceBundle.getString("systemTrayRestartListener"));
+        popup.add(restartListenerItem);
+        restartListenerItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                controller.restartDicomService();
+            }
+        });
+
+        popup.addSeparator();
+
 
         startUploaderItem = new MenuItem(resourceBundle.getString("systemTrayStartUploader"));
         popup.add(startUploaderItem);

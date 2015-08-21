@@ -58,10 +58,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             dicomNode.activateStorageSCP();
         } catch (DicomNode.DicomNodeStartException e) {
             reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
-            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the GIFT-Cloud Uploader.");
+            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
         } catch (DicomNetworkException e) {
             reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
-            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the GIFT-Cloud Uploader");
+            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
         }
 
 
@@ -216,7 +216,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         try {
             dicomNode.activateStorageSCP();
         } catch (Exception e) {
-            reporter.silentLogException(e, "Failed to startup the dicom node service");
+            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
+            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
         }
     }
 

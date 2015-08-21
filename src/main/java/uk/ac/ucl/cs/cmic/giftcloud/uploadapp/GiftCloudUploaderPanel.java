@@ -75,6 +75,14 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(exportButton);
         exportButton.addActionListener(new ExportActionListener());
 
+        // Restart listener button
+//        JButton restartListenerButton = new JButton(resourceBundle.getString("restartListenerButtonLabelText"));
+//        restartListenerButton.setToolTipText(resourceBundle.getString("restartListenerButtonToolTipText"));
+//        buttonPanel.add(restartListenerButton);
+//        restartListenerButton.addActionListener(new RestartListenerActionListener());
+
+
+        // Refresh button
 //        JButton refreshButton = new JButton(resourceBundle.getString("refreshButtonLabelText"));
 //        refreshButton.setToolTipText(resourceBundle.getString("refreshButtonToolTipText"));
 //        buttonPanel.add(refreshButton);
@@ -165,6 +173,12 @@ public class GiftCloudUploaderPanel extends JPanel {
     private class ExportActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             controller.selectAndExport(currentSourceFilePathSelections);
+        }
+    }
+
+    private class RestartListenerActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            controller.restartDicomService();
         }
     }
 
