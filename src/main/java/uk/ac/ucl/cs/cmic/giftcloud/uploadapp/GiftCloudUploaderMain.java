@@ -10,6 +10,10 @@ import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
+import javax.jnlp.ServiceManager;
+import javax.jnlp.SingleInstanceListener;
+import javax.jnlp.SingleInstanceService;
+import javax.jnlp.UnavailableServiceException;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -33,9 +37,20 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final QueryRetrieveController queryRetrieveController;
     private final SystemTrayController systemTrayController;
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
+    private Optional<SingleInstanceService> singleInstanceService;
 
     public GiftCloudUploaderMain(final RestServerFactory restServerFactory, final ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
+
+        try {
+            singleInstanceService = Optional.of((SingleInstanceService)ServiceManager.lookup("javax.jnlp.SingleInstanceService"));
+            GiftCloudUploaderSingleInstanceListener singleInstanceListener = new GiftCloudUploaderSingleInstanceListener();
+            singleInstanceService.get().addSingleInstanceListener(singleInstanceListener);
+        } catch (UnavailableServiceException e) {
+            singleInstanceService = Optional.empty();
+        }
+
+
         final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
 
         giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"), this);
@@ -292,6 +307,27 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
         runImport(pendingUploadFolder.getAbsolutePath(), false, reporter);
+    }
+
+    private class GiftCloudUploaderSingleInstanceListener implements SingleInstanceListener {
+
+        public GiftCloudUploaderSingleInstanceListener() {
+
+            // Add a shutdown hook to unregister the single instance
+            // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    if (singleInstanceService.isPresent()) {
+                        singleInstanceService.get().removeSingleInstanceListener(GiftCloudUploaderSingleInstanceListener.this);
+                    }
+                }
+            });
+
+        }
+        @Override
+        public void newActivation(String[] strings) {
+            show();
+        }
     }
 
     private class DatabaseListener implements Observer, Runnable {
