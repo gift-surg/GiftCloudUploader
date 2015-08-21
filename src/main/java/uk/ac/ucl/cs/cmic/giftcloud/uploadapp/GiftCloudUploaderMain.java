@@ -54,18 +54,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         uploadDatabase.addObserver(new DatabaseListener());
         dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploadDatabase, uploaderStatusModel, reporter);
 
-        try {
-            dicomNode.activateStorageSCP();
-        } catch (DicomNode.DicomNodeStartException e) {
-            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
-            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
-        } catch (DicomNetworkException e) {
-            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
-            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
-        }
-
-
-
         giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, uploadDatabase.getSrcDatabase(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, uploaderStatusModel, reporter);
 
@@ -74,6 +62,21 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         systemTrayController = new SystemTrayController(this, resourceBundle, reporter);
         giftCloudMainFrame.addListener(systemTrayController.new MainWindowVisibilityListener());
         giftCloudUploader.getBackgroundAddToUploaderService().addListener(systemTrayController.new BackgroundAddToUploaderServiceListener());
+
+
+        Optional<Throwable> dicomNodeFailureException = Optional.empty();
+        try {
+            dicomNode.activateStorageSCP();
+        } catch (DicomNode.DicomNodeStartException e) {
+            dicomNodeFailureException = Optional.<Throwable>of(e);
+            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
+        } catch (DicomNetworkException e) {
+            dicomNodeFailureException = Optional.<Throwable>of(e);
+            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
+        }
+
+
+
 
         final Optional<Boolean> hideWindowOnStartupProperty = giftCloudProperties.getHideWindowOnStartup();
 
@@ -96,6 +99,50 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             }
         }).start();
 
+        // We check whether the main properties have been set. If not, we warn the user and bring up the configuration dialog. We suppress the Dicom node start failure in this case, as we assume the lack of properties is responsible
+        final Optional<String> propertiesNotConfigured = checkProperties();
+        if (propertiesNotConfigured.isPresent()) {
+            reporter.showMessageToUser(propertiesNotConfigured.get());
+            showConfigureDialog();
+
+        } else {
+            // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
+            if (dicomNodeFailureException.isPresent()) {
+                reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
+                showConfigureDialog();
+            }
+        }
+    }
+
+    private Optional<String> checkProperties() {
+        final List<String> toBeSet = new ArrayList<String>();
+
+        if (!giftCloudProperties.getGiftCloudUrl().isPresent()) {
+            toBeSet.add("server URL");
+        }
+        if (!giftCloudProperties.getLastUserName().isPresent()) {
+            toBeSet.add("username");
+        }
+        if (!giftCloudProperties.getLastPassword().isPresent()) {
+            toBeSet.add("password");
+        }
+
+        final int numMessages = toBeSet.size();
+
+        if (numMessages > 0) {
+            String message = "Please set the GIFT-Cloud " + toBeSet.get(0);
+
+            if (numMessages > 1) {
+                for (int index = 1; index < toBeSet.size() - 1; index++) {
+                    message = message + ", " + toBeSet.get(index);
+                }
+                message = message + " and " + toBeSet.get(numMessages - 1);
+            }
+            message = message + " in the Settings dialog";
+            return Optional.of(message);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
