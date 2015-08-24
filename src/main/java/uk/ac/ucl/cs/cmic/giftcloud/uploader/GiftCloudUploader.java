@@ -230,29 +230,6 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         pendingUploadList.fileUploadFailure(fileCollection);
     }
 
-    public void addExistingFilesToUploadQueue() {
-        pendingUploadList.addExistingFiles();
-    }
-
-    public boolean requestProjectNameIfNotSet() throws IOException {
-
-        final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-
-        final Optional<String> lastProjectName = giftCloudProperties.getLastProject();
-        if (lastProjectName.isPresent() && StringUtils.isNotBlank(lastProjectName.get())) {
-            return true;
-        } else {
-            try {
-                final String selectedProject = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, lastProjectName);
-                giftCloudProperties.setLastProject(selectedProject);
-                return true;
-            } catch (IOException e) {
-                reporter.silentLogException(e, "Unable to retrieve project list due to following error: " + e.getMessage());
-                return false;
-            }
-        }
-    }
-
     /**
      * Force saving of the patient list
      */
