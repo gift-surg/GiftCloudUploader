@@ -26,6 +26,7 @@ public class GiftCloudAutoUploader {
     private final GiftCloudReporter reporter;
     private final NameGenerator.SubjectNameGenerator subjectNameGenerator;
     private final SubjectAliasStore subjectAliasStore;
+    private final GiftCloudProperties properties;
 
     /**
      * This class is used to automatically and asynchronously group and upload multiple files to a GIFT-Cloud server
@@ -34,6 +35,7 @@ public class GiftCloudAutoUploader {
      * @param reporter
      */
     public GiftCloudAutoUploader(final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
+        this.properties = properties;
         this.subjectNameGenerator = new NameGenerator.SubjectNameGenerator(properties.getSubjectPrefix());
         this.backgroundUploader = backgroundUploader;
         this.reporter = reporter;
@@ -84,7 +86,7 @@ public class GiftCloudAutoUploader {
 
         for (final Session session : sessions) {
 
-            addSessionToUploadList(server, project, projectApplicators, projectName, session);
+            addSessionToUploadList(server, project, projectApplicators, projectName, session, properties.getSubjectPrefix());
         }
 
 
@@ -101,7 +103,7 @@ public class GiftCloudAutoUploader {
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, final Session session) throws IOException {
+    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, final Session session, Optional<String> subjectPrefix) throws IOException {
         final String patientId = session.getPatientId();
         final String patientName = session.getPatientName();
         final String studyInstanceUid = session.getStudyUid();
@@ -164,6 +166,7 @@ public class GiftCloudAutoUploader {
             Map<String, String> subjectMapFromServer = server.getListOfSubjects(projectName);
 
             // Generate a new subject label
+            subjectNameGenerator.updateSubjectNamePrefix(properties.getSubjectPrefix());
             final GiftCloudLabel.SubjectLabel newSubjectLabel = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
 
             // Add the label and its uid alias
