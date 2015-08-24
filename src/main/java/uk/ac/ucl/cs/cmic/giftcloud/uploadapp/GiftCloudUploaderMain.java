@@ -159,7 +159,12 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void showConfigureDialog() {
         if (configurationDialog == null || !configurationDialog.isVisible()) {
-            configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                }
+            });
         }
     }
 
@@ -268,7 +273,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     public void restartDicomService() {
         try {
             dicomNode.shutdownStorageSCPAndWait(giftCloudProperties.getShutdownTimeoutMs());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             reporter.silentLogException(e, "Failed to shutdown the dicom node service");
         }
         try {
