@@ -258,6 +258,15 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         return getIntegerWithDefault(propertyName_StorageSCPDebugLevel, 0);
     }
 
+    @Override
+    public void save() {
+        try {
+            storeProperties("Auto-save after property change");
+        } catch (IOException e) {
+            reporter.silentLogException(e, "The following error occurred while saving the properties file:" + e.getLocalizedMessage());
+        }
+    }
+
     protected void storeProperties(String comment) throws IOException {
         applicationBase.storePropertiesToApplicationBase(comment);
     }

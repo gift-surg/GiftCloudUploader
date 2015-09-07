@@ -155,6 +155,11 @@ public class GiftCloudPropertiesFromApplet implements GiftCloudProperties {
     }
 
     @Override
+    public void save() {
+
+    }
+
+    @Override
     public void setLastUserName(final String lastUserName) {
         // We do not store the last username when using the applet, since the applet is typically launched after already logging into the server
     }
