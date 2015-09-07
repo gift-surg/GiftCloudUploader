@@ -27,7 +27,6 @@ import java.util.concurrent.CancellationException;
 public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
     private final LocalWaitingForUploadDatabase uploadDatabase;
     private final GiftCloudProperties giftCloudProperties;
-    private final UploaderStatusModel uploaderStatusModel;
     private final Container container;
     private final PendingUploadTaskList pendingUploadList;
     private final GiftCloudReporter reporter;
@@ -40,7 +39,6 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     public GiftCloudUploader(final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) {
         this.uploadDatabase = uploadDatabase;
         this.giftCloudProperties = giftCloudProperties;
-        this.uploaderStatusModel = uploaderStatusModel;
         this.container = reporter.getContainer();
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
