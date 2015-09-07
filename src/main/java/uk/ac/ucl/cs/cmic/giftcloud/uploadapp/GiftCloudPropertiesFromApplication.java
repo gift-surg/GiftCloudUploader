@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class GiftCloudPropertiesFromApplication extends Observable implements GiftCloudProperties {
 
     protected static String KEYSTORE_UPLOAD_PASSWORD_KEY = "GiftCloud.UploadPassword";
     protected static String KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY = "GiftCloud.PatientListSpreadsheetPassword";
@@ -259,10 +258,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         } catch (IOException e) {
             reporter.silentLogException(e, "The following error occurred while saving the properties file:" + e.getLocalizedMessage());
         }
-    }
-
-    protected void storeProperties(String comment) throws IOException {
-        applicationBase.storePropertiesToApplicationBase(comment);
     }
 
     public void setListeningPort(final int listeningPort) {
