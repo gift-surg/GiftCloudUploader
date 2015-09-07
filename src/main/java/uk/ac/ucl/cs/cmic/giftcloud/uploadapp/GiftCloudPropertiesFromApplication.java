@@ -362,19 +362,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         }
     }
 
-    private Optional<Integer> getOptionalInteger(final String propertyName) {
-        final String propertyValue = getPropertyValue(propertyName);
-        if (StringUtils.isNotBlank(propertyValue)) {
-            try {
-                return Optional.of(Integer.parseInt(propertyValue));
-            } catch (NumberFormatException e) {
-                return Optional.empty();
-            }
-        } else {
-            return Optional.empty();
-        }
-    }
-
     private int getIntegerWithDefault(final String propertyName, final int defaultValue) {
         final String propertyValue = getPropertyValue(propertyName);
         if (StringUtils.isNotBlank(propertyValue)) {
