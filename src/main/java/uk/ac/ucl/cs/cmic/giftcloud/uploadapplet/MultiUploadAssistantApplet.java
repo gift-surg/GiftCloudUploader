@@ -21,7 +21,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudUploaderRestServerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudPropertiesFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.LocalWaitingForUploadDatabase;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.PropertyStoreFromApplet;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
@@ -61,12 +63,12 @@ public class MultiUploadAssistantApplet extends JApplet {
             final MultiUploadAppletParameters multiUploadAppletParameters = new MultiUploadAppletParameters(this, reporter.get());
             multiUploadParameters = Optional.of(new MultiUploadParameters(multiUploadAppletParameters));
 
-            GiftCloudPropertiesFromApplet giftCloudPropertiesFromApplet = new GiftCloudPropertiesFromApplet(multiUploadParameters.get(), resourceBundle);
-            final File pendingUploadFolder = giftCloudPropertiesFromApplet.getUploadFolder(reporter.get());
+            GiftCloudPropertiesFromApplication giftCloudProperties = new GiftCloudPropertiesFromApplication(new PropertyStoreFromApplet(multiUploadParameters.get()), resourceBundle, reporter.get());
+            final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter.get());
 
             final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
             final LocalWaitingForUploadDatabase uploadDatabase = new LocalWaitingForUploadDatabase(resourceBundle.getString("DatabaseRootTitleForOriginal"), uploaderStatusModel, reporter.get());
-            giftCloudUploader = Optional.of(new GiftCloudUploader(new GiftCloudUploaderRestServerFactory(), uploadDatabase, pendingUploadFolder, giftCloudPropertiesFromApplet, uploaderStatusModel, reporter.get()));
+            giftCloudUploader = Optional.of(new GiftCloudUploader(new GiftCloudUploaderRestServerFactory(), uploadDatabase, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, reporter.get()));
 
         } catch (Throwable t) {
             if (reporter.isPresent()) {

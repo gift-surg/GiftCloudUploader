@@ -3,45 +3,37 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import com.pixelmed.network.NetworkDefaultValues;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
+
+public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
+
+    String propertyName_JsessionId = "jsessionid";
 
     protected static String KEYSTORE_UPLOAD_PASSWORD_KEY = "GiftCloud.UploadPassword";
     protected static String KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY = "GiftCloud.PatientListSpreadsheetPassword";
 
-    private Properties properties;
-
-    final private Optional<String> sessionCookie = Optional.empty();
-
-    private Optional<char[]> lastPassword = Optional.empty(); // Currently this is not stored anywhere, but consider putting it in a keystore
-    private final GiftCloudUploaderApplicationBase applicationBase;
-
     private final String userAgentString;
 
-    private Optional<PasswordStore> passwordStore = null;
+    private final PropertyStore properties;
+    private GiftCloudReporter reporter;
 
 
-    public GiftCloudPropertiesFromApplication(final GiftCloudUploaderApplicationBase applicationBase, final ResourceBundle resourceBundle) {
-        this.applicationBase = applicationBase;
-        this.properties = applicationBase.getPropertiesFromApplicationBase();
-
-        try {
-            passwordStore = Optional.of(new PasswordStore(new File(System.getProperty("user.home"), ".giftcloudkeys"), "k>9TG*"));
-        } catch (Throwable t) {
-        }
-
+    public GiftCloudPropertiesFromApplication(final PropertyStore properties, final ResourceBundle resourceBundle, final GiftCloudReporter reporter) {
+        this.reporter = reporter;
+        this.properties = properties;
 
         // Set the user agent string for the application
         final String nameString = resourceBundle.getString("userAgentNameApplication");
         final String versionString = resourceBundle.getString("mavenVersion");
-        userAgentString = nameString + (versionString != null ? versionString : "");
-
-        addObserver(new GiftCloudPropertiesListener());
+        userAgentString = (nameString != null ? nameString : "") + (versionString != null ? versionString : "");
     }
 
 
@@ -173,15 +165,7 @@ import java.util.*;
 
     @Override
     public Optional<char[]> getPatientListPassword() {
-        if (passwordStore.isPresent()) {
-            try {
-                final char[] password = passwordStore.get().retrieve(KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY);
-                return password.length > 0 ? Optional.of(password) : Optional.<char[]>empty();
-            } catch (Throwable t) {
-                return lastPassword;
-            }
-        }
-        return lastPassword;
+        return properties.getPassword(KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY);
     }
 
     @Override
@@ -196,43 +180,22 @@ import java.util.*;
 
     @Override
     public void setPatientListPassword(char[] patientListPassword) {
-        this.lastPassword = Optional.of(patientListPassword);
-        if (passwordStore.isPresent()) {
-            try {
-                passwordStore.get().store(KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY, patientListPassword);
-            } catch (Throwable t) {
-            }
-        }
+        properties.setPassword(KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY, patientListPassword);
     }
-
 
     @Override
     public Optional<char[]> getLastPassword() {
-        if (passwordStore.isPresent()) {
-            try {
-                final char[] password = passwordStore.get().retrieve(KEYSTORE_UPLOAD_PASSWORD_KEY);
-                return password.length > 0 ? Optional.of(password) : Optional.<char[]>empty();
-            } catch (Throwable t) {
-                return lastPassword;
-            }
-        }
-        return lastPassword;
+        return properties.getPassword(KEYSTORE_UPLOAD_PASSWORD_KEY);
     }
 
     @Override
     public void setLastPassword(char[] lastPassword) {
-        this.lastPassword = Optional.of(lastPassword);
-        if (passwordStore.isPresent()) {
-            try {
-                passwordStore.get().store(KEYSTORE_UPLOAD_PASSWORD_KEY, lastPassword);
-            } catch (Throwable t) {
-            }
-        }
+        properties.setPassword(KEYSTORE_UPLOAD_PASSWORD_KEY, lastPassword);
     }
 
     @Override
     public Optional<String> getSessionCookie() {
-        return sessionCookie;
+        return getOptionalProperty(propertyName_JsessionId);
     }
 
     public int getQueryDebugLevel() {
@@ -254,7 +217,7 @@ import java.util.*;
     @Override
     public void save() {
         try {
-            storeProperties("Auto-save after property change");
+            properties.save("Saving properties");
         } catch (IOException e) {
             reporter.silentLogException(e, "The following error occurred while saving the properties file:" + e.getLocalizedMessage());
         }
