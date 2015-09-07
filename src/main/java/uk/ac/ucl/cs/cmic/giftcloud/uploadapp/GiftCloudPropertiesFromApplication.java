@@ -54,8 +54,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     public void setGiftCloudUrl(final String giftCloudUrl) {
         if (!giftCloudUrl.equals(getGiftCloudUrl())) {
             properties.setProperty(propertyName_GiftCloudServerUrl, giftCloudUrl);
-            setChanged();
-            notifyObservers();
         }
     }
 
@@ -69,8 +67,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     public void setLastUserName(final String lastUserName) {
         if (!lastUserName.equals(getLastUserName())) {
             properties.setProperty(propertyName_GiftCloudLastUsername, lastUserName);
-            setChanged();
-            notifyObservers();
         }
     }
 
@@ -83,8 +79,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     public void setLastProject(final String lastProjectName) {
         if (!lastProjectName.equals(getLastProject())) {
             properties.setProperty(propertyName_GiftCloudLastProject, lastProjectName);
-            setChanged();
-            notifyObservers();
         }
     }
 
@@ -296,8 +290,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     public void setLastImportDirectory(final String lastImportDirectory) {
         if (!lastImportDirectory.equals(getLastImportDirectory())) {
             properties.setProperty(propertyName_LastImportDirectory, lastImportDirectory);
-            setChanged();
-            notifyObservers();
         }
     }
 
@@ -313,8 +305,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     public void setLastExportDirectory(final String lastExportDirectory) {
         if (!lastExportDirectory.equals(getLastExportDirectory())) {
             properties.setProperty(propertyName_LastExportDirectory, lastExportDirectory);
-            setChanged();
-            notifyObservers();
         }
     }
 
@@ -326,19 +316,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     // ToDo: Previously this was supported via a checkbox
     public boolean zipExport() {
         return false;
-    }
-
-    private class GiftCloudPropertiesListener implements Observer {
-        @Override
-        public void update(Observable o, Object arg) {
-            try {
-                storeProperties("Auto-save after property change");
-            } catch (IOException e) {
-                // ToDo
-                e.printStackTrace();
-            }
-
-        }
     }
 
     private void setPropertyString(final String propertyName, final String propertyValue) {

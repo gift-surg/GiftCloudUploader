@@ -237,6 +237,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
             if (selectDirectory.isPresent()) {
                 giftCloudProperties.setLastExportDirectory(selectDirectory.get());
+                giftCloudProperties.save();
                 export(selectDirectory.get(), filesToExport);
             }
         } catch (Exception e) {
@@ -259,6 +260,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
             if (selectFileOrDirectory.isPresent()) {
                 giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
+                giftCloudProperties.save();
                 String filePath = selectFileOrDirectory.get().getSelectedFile();
                 runImport(filePath, true, reporter);
             }

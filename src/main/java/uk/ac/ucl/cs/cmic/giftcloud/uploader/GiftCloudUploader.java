@@ -176,6 +176,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
             try {
                 final String selectedProject = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, lastProjectName);
                 giftCloudProperties.setLastProject(selectedProject);
+                giftCloudProperties.save();
                 return selectedProject;
             } catch (IOException e) {
                 throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);

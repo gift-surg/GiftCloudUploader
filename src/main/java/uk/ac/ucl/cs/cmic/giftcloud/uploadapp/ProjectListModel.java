@@ -15,6 +15,7 @@ public class ProjectListModel extends DropDownListModel {
     @Override
     void setLastUsedValue(String newValue) {
         giftCloudProperties.setLastProject(newValue);
+        giftCloudProperties.save();
     }
 
     @Override
