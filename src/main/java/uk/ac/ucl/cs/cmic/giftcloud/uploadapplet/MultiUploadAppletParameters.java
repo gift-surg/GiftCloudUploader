@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class MultiUploadAppletParameters extends MultiUploadParameters {
+public class MultiUploadAppletParameters {
 
     private final Applet applet;
     private GiftCloudReporter reporter;
@@ -46,16 +46,6 @@ public class MultiUploadAppletParameters extends MultiUploadParameters {
 
     public String getParameter(final String key) {
         return applet.getParameter(key);
-    }
-
-
-    @Override
-    public boolean getDateFromSession() {
-        if (UIUtils.getConfirmSessionDatePage()) {
-            return true;
-        }
-
-        return "no_session_date".equals(getParameter(MultiUploadParameters.XNAT_SCAN_DATE));
     }
 
     /**
@@ -112,6 +102,4 @@ public class MultiUploadAppletParameters extends MultiUploadParameters {
             }
         }
     }
-
-
 }
