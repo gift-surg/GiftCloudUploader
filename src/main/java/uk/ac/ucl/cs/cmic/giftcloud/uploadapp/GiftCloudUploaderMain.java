@@ -13,6 +13,9 @@ import javax.jnlp.ServiceManager;
 import javax.jnlp.SingleInstanceListener;
 import javax.jnlp.SingleInstanceService;
 import javax.jnlp.UnavailableServiceException;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.List;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -51,13 +54,14 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
 
         final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
+        setSystemLookAndFeel();
 
         giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"), this);
         giftCloudDialogs = new GiftCloudDialogs(giftCloudMainFrame);
         reporter = new GiftCloudReporterFromApplication(giftCloudMainFrame.getContainer(), giftCloudDialogs);
 
         // Initialise application properties
-        giftCloudProperties = new GiftCloudPropertiesFromApplication(new PropertyStoreFromApplication(applicationBase, reporter), resourceBundle, reporter);
+        giftCloudProperties = new GiftCloudPropertiesFromApplication(new PropertyStoreFromApplication(propertiesFileName, reporter), resourceBundle, reporter);
 
 
         // Initialise the main GIFT-Cloud class
@@ -154,6 +158,26 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         } else {
             return Optional.empty();
         }
+    }
+
+    private void setSystemLookAndFeel() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.put("Panel.background", Color.white);
+            UIManager.put("CheckBox.background", Color.lightGray);
+            UIManager.put("SplitPane.background", Color.white);
+            UIManager.put("OptionPane.background", Color.white);
+            UIManager.put("Panel.background", Color.white);
+
+            Font font = new Font("Arial Unicode MS",Font.PLAIN,12);
+            if (font != null) {
+                UIManager.put("Tree.font", font);
+                UIManager.put("Table.font", font);
+            }
+        } catch (Throwable t) {
+            reporter.silentLogException(t, "Error when setting the system look and feel");
+        }
+
     }
 
     @Override

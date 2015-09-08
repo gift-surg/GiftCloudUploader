@@ -19,7 +19,7 @@ public class GiftCloudDialogs {
         this.mainFrame = mainFrame;
 
         // Set the default background colour to white
-        UIManager UI =new UIManager();
+        UIManager UI = new UIManager();
         UI.put("OptionPane.background", Color.white);
         UI.put("Panel.background", Color.white);
 
