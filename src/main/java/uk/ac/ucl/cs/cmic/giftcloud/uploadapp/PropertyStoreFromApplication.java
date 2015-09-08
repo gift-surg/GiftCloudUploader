@@ -1,9 +1,12 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
+import com.pixelmed.utils.FileUtilities;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -16,33 +19,43 @@ import java.util.Properties;
 
 public class PropertyStoreFromApplication implements PropertyStore {
 
-    private final GiftCloudUploaderApplicationBase applicationBase;
     private GiftCloudReporter reporter;
-    private final Properties properties;
     private Optional<PasswordStore> passwordStore = null;
     private final Map<String, Optional<char[]>> passwords = new HashMap<String, Optional<char[]>>();
+    private final Properties applicationProperties;
+    private final String applicationPropertyFileName;
 
-
-    public PropertyStoreFromApplication(final GiftCloudUploaderApplicationBase applicationBase, final GiftCloudReporter reporter) {
-        this.applicationBase = applicationBase;
+    public PropertyStoreFromApplication(final String applicationPropertyFileName, final GiftCloudReporter reporter) {
+        this.applicationPropertyFileName = applicationPropertyFileName;
         this.reporter = reporter;
-        this.properties = applicationBase.getPropertiesFromApplicationBase();
         try {
             passwordStore = Optional.of(new PasswordStore(new File(System.getProperty("user.home"), ".giftcloudkeys"), "k>9TG*"));
         } catch (Throwable t) {
             reporter.silentLogException(t, "Unable to create or load local password keystore. Passwords will not be saved between sessions");
             passwordStore = Optional.empty();
         }
+
+        applicationProperties = new Properties();
+        try {
+            if (applicationPropertyFileName != null) {
+                String whereFrom = makePathToFileInUsersHomeDirectory(applicationPropertyFileName);
+                FileInputStream in = new FileInputStream(whereFrom);
+                applicationProperties.load(in);
+                in.close();
+            }
+        } catch (IOException e) {
+            reporter.silentLogException(e, "Unable to load properties");
+        }
     }
 
     @Override
     public String getProperty(final String propertyName) {
-        return properties.getProperty(propertyName);
+        return applicationProperties.getProperty(propertyName);
     }
 
     @Override
     public void setProperty(final String propertyName, final String propertyValue) {
-        properties.setProperty(propertyName, propertyValue);
+        applicationProperties.setProperty(propertyName, propertyValue);
     }
 
     @Override
@@ -91,6 +104,22 @@ public class PropertyStoreFromApplication implements PropertyStore {
 
     @Override
     public void save(String comment) throws IOException {
-        applicationBase.storePropertiesToApplicationBase(comment);
+        storeProperties(comment);
+    }
+
+    private void storeProperties(final String comment) throws IOException {
+        if (applicationPropertyFileName == null) {
+            throw new IOException("asked to store properties but no applicationPropertyFileName was ever set");
+        }
+        else {
+            String whereTo = makePathToFileInUsersHomeDirectory(applicationPropertyFileName);
+            FileOutputStream out = new FileOutputStream(whereTo);
+            applicationProperties.store(out,comment);
+            out.close();
+        }
+    }
+
+    private static String makePathToFileInUsersHomeDirectory(final String fileName) {
+        return FileUtilities.makePathToFileInUsersHomeDirectory(fileName);
     }
 }
