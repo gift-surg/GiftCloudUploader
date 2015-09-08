@@ -39,10 +39,11 @@ public class GiftCloudSystemTray {
      * @param controller        the controller used to perform menu actions
      * @param resourceBundle    the application resources used to choose menu text
      *
+     * @param reporter
      * @throws AWTException     if the desktop system tray is missing
      * @throws IOException      if an error occured while attempting to read the icon file
      */
-    private GiftCloudSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) throws AWTException, IOException {
+    private GiftCloudSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
         this.controller = controller;
 
         Image iconImage = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));
@@ -139,10 +140,9 @@ public class GiftCloudSystemTray {
             public void actionPerformed(ActionEvent e) {
                 try {
                     controller.showConfigureDialog();
-                } catch (Exception e1) {
-                    trayIcon.displayMessage("Warning", "Error occurred trying to change the settings", TrayIcon.MessageType.WARNING);
-                    // Here there was a failure
-                    e1.printStackTrace();
+                } catch (Throwable throwable) {
+                    trayIcon.displayMessage("Warning", "Error occurred while showing the settings dialog", TrayIcon.MessageType.WARNING);
+                    reporter.silentLogException(throwable, "Error occurred while showing the settings dialog");
                 }
             }
         });
@@ -179,7 +179,7 @@ public class GiftCloudSystemTray {
             return Optional.empty();
         } else {
             try {
-                return Optional.of(new GiftCloudSystemTray(controller, resourceBundle));
+                return Optional.of(new GiftCloudSystemTray(controller, resourceBundle, reporter));
             } catch (Throwable t) {
                 reporter.silentError("The system tray icon could not be created due to the following error: " + t.getLocalizedMessage(), t);
                 return Optional.empty();
