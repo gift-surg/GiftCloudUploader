@@ -1,7 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.DicomException;
-import com.pixelmed.network.DicomNetworkException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
@@ -10,6 +9,10 @@ import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
+import javax.jnlp.ServiceManager;
+import javax.jnlp.SingleInstanceListener;
+import javax.jnlp.SingleInstanceService;
+import javax.jnlp.UnavailableServiceException;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -33,9 +36,20 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final QueryRetrieveController queryRetrieveController;
     private final SystemTrayController systemTrayController;
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
+    private Optional<SingleInstanceService> singleInstanceService;
 
     public GiftCloudUploaderMain(final RestServerFactory restServerFactory, final ResourceBundle resourceBundle) throws DicomException, IOException {
         this.resourceBundle = resourceBundle;
+
+        try {
+            singleInstanceService = Optional.of((SingleInstanceService)ServiceManager.lookup("javax.jnlp.SingleInstanceService"));
+            GiftCloudUploaderSingleInstanceListener singleInstanceListener = new GiftCloudUploaderSingleInstanceListener();
+            singleInstanceService.get().addSingleInstanceListener(singleInstanceListener);
+        } catch (UnavailableServiceException e) {
+            singleInstanceService = Optional.empty();
+        }
+
+
         final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
 
         giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"), this);
@@ -54,26 +68,26 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         uploadDatabase.addObserver(new DatabaseListener());
         dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploadDatabase, uploaderStatusModel, reporter);
 
-        try {
-            dicomNode.activateStorageSCP();
-        } catch (DicomNode.DicomNodeStartException e) {
-            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
-            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the GIFT-Cloud Uploader.");
-        } catch (DicomNetworkException e) {
-            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
-            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the GIFT-Cloud Uploader");
-        }
-
-
-
         giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, uploadDatabase.getSrcDatabase(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
-        queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, reporter);
+        queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, uploaderStatusModel, reporter);
 
         giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
 
         systemTrayController = new SystemTrayController(this, resourceBundle, reporter);
         giftCloudMainFrame.addListener(systemTrayController.new MainWindowVisibilityListener());
         giftCloudUploader.getBackgroundAddToUploaderService().addListener(systemTrayController.new BackgroundAddToUploaderServiceListener());
+
+
+        Optional<Throwable> dicomNodeFailureException = Optional.empty();
+        try {
+            dicomNode.activateStorageSCP();
+        } catch (Throwable e) {
+            dicomNodeFailureException = Optional.of(e);
+            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
+        }
+
+
+
 
         final Optional<Boolean> hideWindowOnStartupProperty = giftCloudProperties.getHideWindowOnStartup();
 
@@ -96,12 +110,61 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             }
         }).start();
 
+        // We check whether the main properties have been set. If not, we warn the user and bring up the configuration dialog. We suppress the Dicom node start failure in this case, as we assume the lack of properties is responsible
+        final Optional<String> propertiesNotConfigured = checkProperties();
+        if (propertiesNotConfigured.isPresent()) {
+            reporter.showMessageToUser(propertiesNotConfigured.get());
+            showConfigureDialog();
+
+        } else {
+            // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
+            if (dicomNodeFailureException.isPresent()) {
+                reporter.reportErrorToUser("The DICOM listening node failed to start. Please check the listener settings and restart the listener.", dicomNodeFailureException.get());
+                showConfigureDialog();
+            }
+        }
+    }
+
+    private Optional<String> checkProperties() {
+        final List<String> toBeSet = new ArrayList<String>();
+
+        if (!giftCloudProperties.getGiftCloudUrl().isPresent()) {
+            toBeSet.add("server URL");
+        }
+        if (!giftCloudProperties.getLastUserName().isPresent()) {
+            toBeSet.add("username");
+        }
+        if (!giftCloudProperties.getLastPassword().isPresent()) {
+            toBeSet.add("password");
+        }
+
+        final int numMessages = toBeSet.size();
+
+        if (numMessages > 0) {
+            String message = "Please set the GIFT-Cloud " + toBeSet.get(0);
+
+            if (numMessages > 1) {
+                for (int index = 1; index < toBeSet.size() - 1; index++) {
+                    message = message + ", " + toBeSet.get(index);
+                }
+                message = message + " and " + toBeSet.get(numMessages - 1);
+            }
+            message = message + " in the Settings dialog";
+            return Optional.of(message);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public void showConfigureDialog() throws IOException, DicomNode.DicomNodeStartException {
+    public void showConfigureDialog() {
         if (configurationDialog == null || !configurationDialog.isVisible()) {
-            configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                }
+            });
         }
     }
 
@@ -209,14 +272,15 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void restartDicomService() {
         try {
-            dicomNode.shutdownStorageSCP();
-        } catch (Exception e) {
+            dicomNode.shutdownStorageSCPAndWait(giftCloudProperties.getShutdownTimeoutMs());
+        } catch (Throwable e) {
             reporter.silentLogException(e, "Failed to shutdown the dicom node service");
         }
         try {
             dicomNode.activateStorageSCP();
-        } catch (Exception e) {
-            reporter.silentLogException(e, "Failed to startup the dicom node service");
+        } catch (Throwable e) {
+            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
+            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
         }
     }
 
@@ -244,6 +308,27 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
         runImport(pendingUploadFolder.getAbsolutePath(), false, reporter);
+    }
+
+    private class GiftCloudUploaderSingleInstanceListener implements SingleInstanceListener {
+
+        public GiftCloudUploaderSingleInstanceListener() {
+
+            // Add a shutdown hook to unregister the single instance
+            // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    if (singleInstanceService.isPresent()) {
+                        singleInstanceService.get().removeSingleInstanceListener(GiftCloudUploaderSingleInstanceListener.this);
+                    }
+                }
+            });
+
+        }
+        @Override
+        public void newActivation(String[] strings) {
+            show();
+        }
     }
 
     private class DatabaseListener implements Observer, Runnable {

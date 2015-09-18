@@ -6,6 +6,8 @@ import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.StoredFilePathStrategy;
 import com.pixelmed.query.QueryResponseGeneratorFactory;
 import com.pixelmed.query.RetrieveResponseGeneratorFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -15,6 +17,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Optional;
 
 /**
  * <p>This class waits for incoming connections and association requests for
@@ -64,7 +67,7 @@ public class StorageSOPClassSCPDispatcher implements Runnable {
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/network/StorageSOPClassSCPDispatcher.java,v 1.45 2014/09/09 20:34:09 dclunie Exp $";
 	
 	private int timeoutBeforeCheckingForInterrupted = 5000;	// in mS ... should be a property :(
-	private ApplicationEntity remoteAe;
+	private Optional<ApplicationEntity> remoteAe;
 
 	/***/
 	private class DefaultReceivedObjectHandler extends ReceivedObjectHandler {
@@ -115,7 +118,9 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	/***/
 	private boolean isReady;
 
+	private Thread mainThread = null;
 	private Thread executingThread = null;
+	private ServerSocket serverSocket = null;
 	
 	/**
 	 * <p>Is the dispatcher ready to receive connections?</p>
@@ -309,7 +314,7 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	 * @param	debugLevel							zero for no debugging messages, higher values more verbose messages
 	 * @throws	IOException
 	 */
-	public StorageSOPClassSCPDispatcher(final ApplicationEntity remoteAe, int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,ReceivedObjectHandler receivedObjectHandler,
+	public StorageSOPClassSCPDispatcher(final Optional<ApplicationEntity> remoteAe, int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,ReceivedObjectHandler receivedObjectHandler,
 			QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,
 			PresentationContextSelectionPolicy presentationContextSelectionPolicy,
 			boolean secureTransport,int debugLevel) throws IOException {
@@ -336,7 +341,7 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	 * @param	debugLevel							zero for no debugging messages, higher values more verbose messages
 	 * @throws	IOException
 	 */
-	public StorageSOPClassSCPDispatcher(final ApplicationEntity remoteAe, int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,
+	public StorageSOPClassSCPDispatcher(final Optional<ApplicationEntity> remoteAe, int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,
 			ReceivedObjectHandler receivedObjectHandler,AssociationStatusHandler associationStatusHandler,
 			QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,
 			PresentationContextSelectionPolicy presentationContextSelectionPolicy,
@@ -359,6 +364,28 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	}
 
 	/**
+	 * Start a new thread with a new dispatcher
+	 */
+	public void startup() throws IOException {
+		try {
+			serverSocket = getServerSocket();
+			mainThread = new Thread(this);
+			mainThread.start();
+		} catch (IOException e) {
+			if (serverSocket != null) {
+				try {
+					serverSocket.close();
+				} catch (IOException e2) {
+				}
+			}
+			if (e instanceof java.net.BindException) {
+				throw new GiftCloudException(GiftCloudUploaderError.PORT_ALREADY_IN_USE, e);
+			}
+			throw(e);
+		}
+	}
+
+	/**
 	 * <p>Request the dispatcher to stop listening and exit the thread.</p>
 	 */
 	public void shutdown() {
@@ -373,6 +400,12 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 			} catch (InterruptedException e) {
 			}
 		}
+		if (mainThread != null) {
+			try {
+				mainThread.join(maximumThreadCompletionWaitTime);
+			} catch (InterruptedException e) {
+			}
+		}
 	}
 
 	/**
@@ -384,37 +417,19 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	public void run() {
 		wantToShutdown = false;
 		isReady = false;
-		ServerSocket serverSocket = null;
 		try {
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher.run(): Trying to bind to port "+port);
-			if (secureTransport) {
-				SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
-				SSLServerSocket sslserversocket = (SSLServerSocket)sslserversocketfactory.createServerSocket(port);
-				String[] suites = Association.getCipherSuitesToEnable(sslserversocket.getSupportedCipherSuites());	
-				if (suites != null) {
-					sslserversocket.setEnabledCipherSuites(suites);
-				}
-				String[] protocols = Association.getProtocolsToEnable(sslserversocket.getEnabledProtocols());
-				if (protocols != null) {
-					sslserversocket.setEnabledProtocols(protocols);
-				}
-				//sslserversocket.setNeedClientAuth(true);
-				serverSocket = sslserversocket;
-			}
-			else {
-				serverSocket = new ServerSocket(port);
-			}
-			
+
 			isReady = true;
 			serverSocket.setSoTimeout(timeoutBeforeCheckingForInterrupted);
 			while (!wantToShutdown) {
 				try {
 					Socket socket = serverSocket.accept();
-if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher.run(): returned from accept");
 					//setSocketOptions(socket,ourMaximumLengthReceived,socketReceiveBufferSize,socketSendBufferSize,debugLevel);
 					// defer loading applicationEntityMap until each incoming connection, since may have been updated
 					ApplicationEntityMap applicationEntityMap = new ApplicationEntityMap();
-        			applicationEntityMap.put(remoteAe.getDicomAETitle(), remoteAe);
+					if (remoteAe.isPresent()) {
+						applicationEntityMap.put(remoteAe.get().getDicomAETitle(), remoteAe.get());
+					}
 					{
 						// add ourselves to AET map, if not already there, in case we want to C-MOVE to ourselves
 						InetAddress ourAddress = serverSocket.getInetAddress();
@@ -422,7 +437,6 @@ if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": Storag
 							applicationEntityMap.put(calledAETitle,new PresentationAddress(ourAddress.getHostAddress(),port),
 								NetworkApplicationProperties.StudyRootQueryModel/*hmm... :(*/,null/*primaryDeviceType*/);
 						}
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher:run(): applicationEntityMap = "+applicationEntityMap);
 					}
 					try {
 
@@ -439,7 +453,6 @@ if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": Storag
 					}
 				}
 				catch (SocketTimeoutException e) {
-if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher.run(): timed out in accept");
 				}
 			}
 		}
@@ -456,7 +469,27 @@ if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": Storag
 			e.printStackTrace(System.err);
 		}
 		isReady = false;
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCPDispatcher.run(): has shutdown and is no longer listening");
+	}
+
+	private ServerSocket getServerSocket() throws IOException {
+		ServerSocket serverSocket;
+		if (secureTransport) {
+            SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
+            SSLServerSocket sslserversocket = (SSLServerSocket)sslserversocketfactory.createServerSocket(port);
+            String[] suites = Association.getCipherSuitesToEnable(sslserversocket.getSupportedCipherSuites());
+            if (suites != null) {
+                sslserversocket.setEnabledCipherSuites(suites);
+            }
+            String[] protocols = Association.getProtocolsToEnable(sslserversocket.getEnabledProtocols());
+            if (protocols != null) {
+                sslserversocket.setEnabledProtocols(protocols);
+            }
+            serverSocket = sslserversocket;
+        }
+        else {
+            serverSocket = new ServerSocket(port);
+        }
+		return serverSocket;
 	}
 
 }

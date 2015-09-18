@@ -30,6 +30,18 @@ public class NameGeneratorTest {
         Assert.assertSame(experimentNameGenerator1again, experimentNameGenerator1);
         final Set<String> knownNames = new HashSet<String>();
         Assert.assertEquals(experimentNameGenerator1again.getNewName(knownNames), GiftCloudLabel.ExperimentLabel.getFactory().create("Study9"));
+
+
+        final String newSubjectPrefix = "SubjectTest";
+
+        // Updating with a different prefix will change the prefix and reset the index number
+        subjectNameGenerator.updateSubjectNamePrefix(Optional.of(newSubjectPrefix));
+        Assert.assertEquals(subjectNameGenerator.getNewName(knownNames), subjectLabelFactory.create(newSubjectPrefix + "1"));
+        Assert.assertEquals(subjectNameGenerator.getNewName(knownNames), subjectLabelFactory.create(newSubjectPrefix + "2"));
+
+        // Updating with the same prefix will not update the index number
+        subjectNameGenerator.updateNamePrefix(newSubjectPrefix, 1);
+        Assert.assertEquals(subjectNameGenerator.getNewName(knownNames), subjectLabelFactory.create(newSubjectPrefix + "3"));
     }
     @Test
     public void testExperimentNameGenerator() throws Exception {
@@ -74,6 +86,20 @@ public class NameGeneratorTest {
 
         Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + "5"));
         Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + "7"));
+        Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + "8"));
+
+        final String newPrefix = "TestPrefix";
+        // Updating with a different prefix will change the prefix and reset the index number
+        nameGenerator.updateNamePrefix(newPrefix, 1);
+        Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(newPrefix + "1"));
+        Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(newPrefix + "2"));
+
+        // Updating with the same prefix will not update the index number
+        nameGenerator.updateNamePrefix(newPrefix, 1);
+        Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(newPrefix + "3"));
+
+        // Now switch to the original prefix and check it is set according to our supplied index
+        nameGenerator.updateNamePrefix(prefix, 8);
         Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + "8"));
     }
 }

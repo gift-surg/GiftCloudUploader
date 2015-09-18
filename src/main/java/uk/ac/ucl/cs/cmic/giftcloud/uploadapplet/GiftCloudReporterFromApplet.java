@@ -68,7 +68,16 @@ public class GiftCloudReporterFromApplet implements GiftCloudReporter {
         text.setEditable(false);
         applet.add(text);
         applet.validate();
+    }
 
+    public void messageBox(final String message) {
+        final StringWriter sw = new StringWriter();
+        final PrintWriter writer = new PrintWriter(sw);
+        writer.println(message);
+        final JTextArea text = new JTextArea(sw.toString());
+        text.setEditable(false);
+        applet.add(text);
+        applet.validate();
     }
 
     @Override
@@ -214,6 +223,13 @@ public class GiftCloudReporterFromApplet implements GiftCloudReporter {
         updateStatusText("GIFT-Cloud upload failed: " + throwable);
         error("GIFT-Cloud upload failed: " + throwable);
         throwable.printStackTrace(System.err);
+    }
+
+    @Override
+    public void showMessageToUser(String messageText) {
+        messageBox(messageText);
+        updateStatusText("GIFT-Cloud upload failed: " + messageText);
+        error("GIFT-Cloud upload failed: " + messageText);
     }
 
     @Override

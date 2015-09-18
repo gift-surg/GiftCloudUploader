@@ -193,6 +193,12 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     }
 
     @Override
+    public void showMessageToUser(final String messageText) {
+        giftCloudDialogs.showMessage(messageText);
+        updateStatusText(messageText);
+    }
+
+    @Override
     public void reportErrorToUser(String errorText, Throwable throwable) {
         String errorMessageForUser;
         String errorMessageForStatusBar;

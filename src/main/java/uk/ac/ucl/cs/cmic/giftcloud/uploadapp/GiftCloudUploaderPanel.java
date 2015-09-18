@@ -4,6 +4,7 @@ import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.database.DatabaseTreeBrowser;
 import com.pixelmed.database.DatabaseTreeRecord;
 import com.pixelmed.dicom.DicomException;
+import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 import javax.swing.*;
@@ -12,6 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
@@ -31,12 +33,14 @@ public class GiftCloudUploaderPanel extends JPanel {
     // Models for data selections by the user
     private Vector<String> currentSourceFilePathSelections;
 
+    private GiftCloudPropertiesFromApplication giftCloudProperties;
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
     public GiftCloudUploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
+        this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
 
         remoteQueryRetrieveDialog = new QueryRetrieveDialog(dialog, controller, resourceBundle);
@@ -71,6 +75,14 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(exportButton);
         exportButton.addActionListener(new ExportActionListener());
 
+        // Restart listener button
+//        JButton restartListenerButton = new JButton(resourceBundle.getString("restartListenerButtonLabelText"));
+//        restartListenerButton.setToolTipText(resourceBundle.getString("restartListenerButtonToolTipText"));
+//        buttonPanel.add(restartListenerButton);
+//        restartListenerButton.addActionListener(new RestartListenerActionListener());
+
+
+        // Refresh button
 //        JButton refreshButton = new JButton(resourceBundle.getString("refreshButtonLabelText"));
 //        refreshButton.setToolTipText(resourceBundle.getString("refreshButtonToolTipText"));
 //        buttonPanel.add(refreshButton);
@@ -130,6 +142,19 @@ public class GiftCloudUploaderPanel extends JPanel {
     }
 
     public void showQueryRetrieveDialog() {
+        final Optional<String> queryHost = giftCloudProperties.getPacsHostName();
+        if (!queryHost.isPresent() || StringUtils.isBlank(queryHost.get())) {
+            reporter.showMessageToUser("Please set the PACS host name before importing from PACS.");
+            controller.showConfigureDialog();
+            return;
+        }
+        final Optional<String> queryCalledAETitle = giftCloudProperties.getPacsAeTitle();
+        if (!queryCalledAETitle.isPresent() || StringUtils.isBlank(queryCalledAETitle.get())) {
+            reporter.showMessageToUser("Please set the PACS AE title before performing importing from PACS.");
+            controller.showConfigureDialog();
+            return;
+        }
+
         remoteQueryRetrieveDialog.setVisible(true);
     }
 
@@ -148,6 +173,12 @@ public class GiftCloudUploaderPanel extends JPanel {
     private class ExportActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             controller.selectAndExport(currentSourceFilePathSelections);
+        }
+    }
+
+    private class RestartListenerActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            controller.restartDicomService();
         }
     }
 

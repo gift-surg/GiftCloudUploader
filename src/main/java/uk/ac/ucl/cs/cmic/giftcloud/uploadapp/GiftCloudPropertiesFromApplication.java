@@ -48,7 +48,7 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
 
     @Override
     public Optional<String> getGiftCloudUrl() {
-        return getOptionalProperty(propertyName_GiftCloudServerUrl);
+        return Optional.of(getStringWithDefault(propertyName_GiftCloudServerUrl, "https://gift-cloud.cs.ucl.ac.uk"));
     }
 
     public void setGiftCloudUrl(final String giftCloudUrl) {

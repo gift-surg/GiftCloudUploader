@@ -50,35 +50,30 @@ public class DicomNode {
      *
      * @throws	com.pixelmed.dicom.DicomException
      */
-    public void activateStorageSCP() throws DicomNodeStartException, DicomNetworkException {
-        try {
-            uploaderStatusModel.setImportingStatusMessage("Starting up Dicom listening service");
-            final File savedImagesFolder = giftCloudProperties.getUploadFolder(reporter);
+    public void activateStorageSCP() throws IOException {
+        uploaderStatusModel.setImportingStatusMessage("Starting up Dicom listening service");
+        final File savedImagesFolder = giftCloudProperties.getUploadFolder(reporter);
 
-            // Start up DICOM association listener in background for receiving images and responding to echoes ...
-            {
-                int port = giftCloudProperties.getListeningPort();
-                if (port < 0) {
+        // Start up DICOM association listener in background for receiving images and responding to echoes ...
+        {
+            int port = giftCloudProperties.getListeningPort();
+            if (port < 0) {
 
-                    uploaderStatusModel.setImportingStatusMessage("Cannot listen to PACS because the port is not set");
-                    throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_PORT, "Could not start the Dicom storage SCP service because the port was not set");
-                }
-                final String ourAETitle = giftCloudProperties.getListenerAETitle();
-
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port  + " AET " + ourAETitle));
-                int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
-                int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
-                storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(getAe(), port, ourAETitle, savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
-                        databaseInformationModel == null ? null : databaseInformationModel.getQueryResponseGeneratorFactory(queryDebugLevel),
-                        databaseInformationModel == null ? null : databaseInformationModel.getRetrieveResponseGeneratorFactory(queryDebugLevel),
-                        new OurPresentationContextSelectionPolicy(),
-                        false/*secureTransport*/,
-                        storageSCPDebugLevel);
-                new Thread(storageSOPClassSCPDispatcher).start();
+                uploaderStatusModel.setImportingStatusMessage("Cannot listen to PACS because the port is not set");
+                throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_PORT, "Could not start the Dicom storage SCP service because the port was not set");
             }
-        } catch (IOException e) {
-            uploaderStatusModel.setImportingStatusMessage("Could not listen to the PACS due to the following error: " + e.getLocalizedMessage(), e);
-            throw new DicomNodeStartException("Could not start the Dicom storage SCP service due to the following error: " + e.getLocalizedMessage(), e);
+            final String ourAETitle = giftCloudProperties.getListenerAETitle();
+
+            ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port  + " AET " + ourAETitle));
+            int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
+            int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
+            storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(getAe(), port, ourAETitle, savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
+                    databaseInformationModel == null ? null : databaseInformationModel.getQueryResponseGeneratorFactory(queryDebugLevel),
+                    databaseInformationModel == null ? null : databaseInformationModel.getRetrieveResponseGeneratorFactory(queryDebugLevel),
+                    new OurPresentationContextSelectionPolicy(),
+                    false/*secureTransport*/,
+                    storageSCPDebugLevel);
+            storageSOPClassSCPDispatcher.startup();
         }
     }
 
@@ -88,7 +83,7 @@ public class DicomNode {
      * @return
      * @throws DicomNetworkException
      */
-    public ApplicationEntity getAe() throws GiftCloudException {
+    public Optional<ApplicationEntity> getAe() throws GiftCloudException {
         final Optional<String> aeTitle = giftCloudProperties.getPacsAeTitle();
         final Optional<String> hostname = giftCloudProperties.getPacsHostName();
         final int port = giftCloudProperties.getPacsPort();
@@ -96,14 +91,14 @@ public class DicomNode {
         final Optional<String> primaryDeviceType = giftCloudProperties.getPacsPrimaryDeviceType();
 
         if (!aeTitle.isPresent() || StringUtils.isBlank(aeTitle.get())) {
-            throw new GiftCloudException(GiftCloudUploaderError.NETWORK_PROPERTIES_INVALID, "The PACS AE title has not been set.");
+            return Optional.empty();
         }
         if (!hostname.isPresent() || StringUtils.isBlank(hostname.get())) {
-            throw new GiftCloudException(GiftCloudUploaderError.NETWORK_PROPERTIES_INVALID, "The PACS host name has not been set.");
+            return Optional.empty();
         }
 
         final PresentationAddress presentationAddress = new PresentationAddress(hostname.get(), port);
-        return new ApplicationEntity(aeTitle.get(), presentationAddress, queryModel.orElse(null), primaryDeviceType.orElse(null));
+        return Optional.of(new ApplicationEntity(aeTitle.get(), presentationAddress, queryModel.orElse(null), primaryDeviceType.orElse(null)));
     }
 
     public class DicomNodeStartException extends Exception {
