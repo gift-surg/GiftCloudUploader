@@ -8,13 +8,12 @@
  *
  * Last modified 7/10/13 12:40 PM
  */
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
-
-import java.awt.Component;
-
-import javax.swing.ProgressMonitor;
+package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 import org.nrg.util.EditProgressMonitor;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class SwingProgressMonitor implements EditProgressMonitor {
     private final ProgressMonitor monitor;
