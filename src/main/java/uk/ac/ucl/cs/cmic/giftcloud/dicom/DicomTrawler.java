@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SessionReviewPanel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
@@ -41,10 +40,18 @@ public final class DicomTrawler implements Trawler {
     public static final int APP_MAX_TAG = Collections.max(new ArrayList<Integer>() {{
         add(MAX_TAG);
         add(Series.MAX_TAG);
-        add(SessionReviewPanel.MAX_TAG);
+        add(DicomTrawler.getSeriesMaxTags());
         add(Study.MAX_TAG);
         add(CallableUploader.MAX_TAG);
     }});
+
+    private static int getSeriesMaxTags() {
+        return Collections.max(new ArrayList<Integer>() {
+            {
+                add(Tag.SeriesDescription);
+                add(Tag.SeriesNumber);
+            }});
+    }
 
     private SeriesImportFilterApplicatorRetriever _filters;
     private final Logger logger = LoggerFactory.getLogger(DicomTrawler.class);
@@ -110,7 +117,6 @@ public final class DicomTrawler implements Trawler {
 		return new ArrayList<Session>(studies.getAll());
 	}
 
-    @Override
     public final List<GiftCloudUploaderError> getErrorMessages() {
         return errors;
     }
