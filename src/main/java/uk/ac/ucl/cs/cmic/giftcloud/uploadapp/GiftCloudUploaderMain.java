@@ -15,10 +15,10 @@ import javax.jnlp.SingleInstanceService;
 import javax.jnlp.UnavailableServiceException;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.List;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 /**
  * The main controller class for the uploader
