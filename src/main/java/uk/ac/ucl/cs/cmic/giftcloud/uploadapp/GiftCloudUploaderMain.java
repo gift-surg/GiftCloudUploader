@@ -310,23 +310,28 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     @Override
     public void selectAndImport() {
-        try {
-            reporter.setWaitCursor();
-            reporter.showMesageLogger();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    reporter.setWaitCursor();
+                    reporter.showMesageLogger();
 
-            Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
+                    Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
 
-            if (selectFileOrDirectory.isPresent()) {
-                giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
-                giftCloudProperties.save();
-                String filePath = selectFileOrDirectory.get().getSelectedFile();
-                runImport(filePath, true, reporter);
+                    if (selectFileOrDirectory.isPresent()) {
+                        giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
+                        giftCloudProperties.save();
+                        String filePath = selectFileOrDirectory.get().getSelectedFile();
+                        runImport(filePath, true, reporter);
+                    }
+                } catch (Exception e) {
+                    reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
+                } finally {
+                    reporter.restoreCursor();
+                }
             }
-        } catch (Exception e) {
-            reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
-        } finally {
-            reporter.restoreCursor();
-        }
+        });
     }
 
     @Override
