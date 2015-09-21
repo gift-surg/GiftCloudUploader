@@ -53,7 +53,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
 
 
-        final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
         setSystemLookAndFeel();
 
         giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"), this);
