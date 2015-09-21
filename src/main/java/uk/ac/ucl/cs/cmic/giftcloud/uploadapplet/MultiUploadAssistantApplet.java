@@ -25,7 +25,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderMain;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.MainFrame;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.PropertyStoreFromApplet;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 
 import javax.swing.*;
@@ -33,12 +32,7 @@ import java.awt.*;
 import java.util.Optional;
 
 public class MultiUploadAssistantApplet extends JApplet {
-
-//    protected static String resourceBundleName  = "uk.ac.ucl.cs.cmic.giftcloud.GiftCloudUploader";
-
     private Optional<GiftCloudReporterFromApplet> reporter = Optional.empty();
-//    private Optional<MultiUploadParameters> multiUploadParameters = Optional.empty();
-    private Optional<GiftCloudUploader> giftCloudUploader = Optional.empty();
     private Optional<GiftCloudUploaderMain> giftCloudUploaderMain = Optional.empty();
 
     /**
