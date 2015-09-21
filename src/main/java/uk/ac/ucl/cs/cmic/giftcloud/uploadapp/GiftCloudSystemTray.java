@@ -19,7 +19,6 @@ import java.util.ResourceBundle;
  */
 public class GiftCloudSystemTray {
 
-    private final GiftCloudUploaderController controller;
     private final SystemTray tray;
     private final TrayIcon trayIcon;
     private final MenuItem hideItem;
@@ -44,7 +43,6 @@ public class GiftCloudSystemTray {
      * @throws IOException      if an error occured while attempting to read the icon file
      */
     private GiftCloudSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
-        this.controller = controller;
 
         Image iconImage = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));
         trayIcon = new TrayIcon(iconImage, resourceBundle.getString("systemTrayIconText"));
