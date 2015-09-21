@@ -1,5 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
+import com.apple.eawt.Application;
 import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
@@ -9,6 +10,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
+import javax.imageio.ImageIO;
 import javax.jnlp.ServiceManager;
 import javax.jnlp.SingleInstanceListener;
 import javax.jnlp.SingleInstanceService;
@@ -17,6 +19,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 
@@ -41,8 +44,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
     private Optional<SingleInstanceService> singleInstanceService;
 
-    public GiftCloudUploaderMain(final RestServerFactory restServerFactory, final ResourceBundle resourceBundle) throws DicomException, IOException {
-        this.resourceBundle = resourceBundle;
+    private static String resourceBundleName  = "uk.ac.ucl.cs.cmic.giftcloud.GiftCloudUploader";
+
+    public GiftCloudUploaderMain(final RestServerFactory restServerFactory) throws DicomException, IOException {
+        resourceBundle = ResourceBundle.getBundle(resourceBundleName);
 
         try {
             singleInstanceService = Optional.of((SingleInstanceService)ServiceManager.lookup("javax.jnlp.SingleInstanceService"));
@@ -51,6 +56,36 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         } catch (UnavailableServiceException e) {
             singleInstanceService = Optional.empty();
         }
+
+        // Set the dock icon - we need to do this before the main class is created
+        URL iconURL = GiftCloudUploaderApp.class.getResource("/uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png");
+
+        if (iconURL == null) {
+            System.out.println("Warning: could not find the icon resource");
+        } else {
+            if (isOSX()) {
+                try {
+                    Image iconImage = ImageIO.read(iconURL);
+                    if (iconImage == null) {
+                        System.out.println("Could not find icon");
+                    } else {
+                        Application.getApplication().setDockIconImage(new ImageIcon(iconImage).getImage());
+                    }
+                } catch (Exception e) {
+                    System.out.println("Warning: could not configure the dock menu");
+                    e.printStackTrace(System.err);
+                }
+            }
+        }
+
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+        System.setProperty("apple.awt.UIElement", "true");
+
+        final String applicationTitle = resourceBundle.getString("applicationTitle");
+
+        // This is used to set the application title on OSX, but may not work when run from the debugger
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", applicationTitle);
+
 
 
         setSystemLookAndFeel();
@@ -335,6 +370,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         runImport(pendingUploadFolder.getAbsolutePath(), false, reporter);
     }
 
+    public static boolean isOSX() {
+        return (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0);
+    }
+
     private class GiftCloudUploaderSingleInstanceListener implements SingleInstanceListener {
 
         public GiftCloudUploaderSingleInstanceListener() {
@@ -410,5 +449,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         private synchronized void resetUpdateStatus() {
             updateIsPending = false;
         }
+
+
     }
 }
