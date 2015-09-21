@@ -55,7 +55,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         setSystemLookAndFeel();
 
-        giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"), this);
+        giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"));
         giftCloudDialogs = new GiftCloudDialogs(giftCloudMainFrame);
         reporter = new GiftCloudReporterFromApplication(giftCloudMainFrame.getContainer(), giftCloudDialogs);
 

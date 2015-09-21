@@ -9,7 +9,6 @@ import java.awt.event.WindowEvent;
 
 class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowVisibility> implements MainFrame {
     protected final JFrame container;
-    private GiftCloudUploaderController controller;
 
     /**
      * Enumeration for the visible states of the main window. Less error-prone than passing round booleans for specifying visibility
@@ -29,8 +28,7 @@ class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowV
         }
     }
 
-    GiftCloudMainFrame(final String applicationTitle, final GiftCloudUploaderController controller) {
-        this.controller = controller;
+    GiftCloudMainFrame(final String applicationTitle) {
         container = new JFrame();
         container.setIconImage(new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png")).getImage()); // ToDo: This icon is loaded multiple times in the code
         container.setTitle(applicationTitle);
