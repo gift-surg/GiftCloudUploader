@@ -28,9 +28,9 @@ class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowV
         }
     }
 
-    GiftCloudMainFrame(final String applicationTitle) {
+    GiftCloudMainFrame(final String applicationTitle, final Image image) {
         container = new JFrame();
-        container.setIconImage(new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png")).getImage()); // ToDo: This icon is loaded multiple times in the code
+        container.setIconImage(image);
         container.setTitle(applicationTitle);
         container.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
