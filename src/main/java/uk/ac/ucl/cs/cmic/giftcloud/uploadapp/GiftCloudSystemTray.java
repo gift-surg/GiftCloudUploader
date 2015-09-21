@@ -137,7 +137,7 @@ public class GiftCloudSystemTray {
         configItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    controller.showConfigureDialog();
+                    controller.showConfigureDialog(false);
                 } catch (Throwable throwable) {
                     trayIcon.displayMessage("Warning", "Error occurred while showing the settings dialog", TrayIcon.MessageType.WARNING);
                     reporter.silentLogException(throwable, "Error occurred while showing the settings dialog");

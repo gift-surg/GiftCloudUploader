@@ -19,7 +19,8 @@ public class GiftCloudIntegrationTestApp {
 			final GiftCloudMainFrame mainFrame = new GiftCloudMainFrame(new JFrame());
 			final GiftCloudDialogs dialogs = new GiftCloudDialogs(mainFrame);
 			final GiftCloudReporterFromApplication reporter = new GiftCloudReporterFromApplication(mainFrame.getContainer(), dialogs);
-			new GiftCloudUploaderMain(mainFrame, new MockRestServerFactory(), new PropertyStoreFromApplication(GiftCloudMainFrame.propertiesFileName, reporter), dialogs, reporter);
+            GiftCloudUploaderMain uploaderMain = new GiftCloudUploaderMain(mainFrame, new MockRestServerFactory(), new PropertyStoreFromApplication(GiftCloudMainFrame.propertiesFileName, reporter), dialogs, reporter);
+            uploaderMain.start(false);
 		}
 		catch (Exception e) {
 			e.printStackTrace(System.err);

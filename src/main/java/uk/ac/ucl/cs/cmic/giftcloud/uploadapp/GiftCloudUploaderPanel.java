@@ -145,13 +145,13 @@ public class GiftCloudUploaderPanel extends JPanel {
         final Optional<String> queryHost = giftCloudProperties.getPacsHostName();
         if (!queryHost.isPresent() || StringUtils.isBlank(queryHost.get())) {
             reporter.showMessageToUser("Please set the PACS host name before importing from PACS.");
-            controller.showConfigureDialog();
+            controller.showConfigureDialog(false);
             return;
         }
         final Optional<String> queryCalledAETitle = giftCloudProperties.getPacsAeTitle();
         if (!queryCalledAETitle.isPresent() || StringUtils.isBlank(queryCalledAETitle.get())) {
             reporter.showMessageToUser("Please set the PACS AE title before performing importing from PACS.");
-            controller.showConfigureDialog();
+            controller.showConfigureDialog(false);
             return;
         }
 
@@ -211,7 +211,7 @@ public class GiftCloudUploaderPanel extends JPanel {
     private class ConfigureActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             try {
-                controller.showConfigureDialog();
+                controller.showConfigureDialog(false);
             } catch (Exception e) {
                 e.printStackTrace(System.err);
             }

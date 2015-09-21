@@ -20,6 +20,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
@@ -51,7 +52,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         this.reporter = reporter;
 
         try {
-            singleInstanceService = Optional.of((SingleInstanceService)ServiceManager.lookup("javax.jnlp.SingleInstanceService"));
+            singleInstanceService = Optional.of((SingleInstanceService) ServiceManager.lookup("javax.jnlp.SingleInstanceService"));
             GiftCloudUploaderSingleInstanceListener singleInstanceListener = new GiftCloudUploaderSingleInstanceListener();
             singleInstanceService.get().addSingleInstanceListener(singleInstanceListener);
         } catch (UnavailableServiceException e) {
@@ -110,18 +111,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         mainFrame.addListener(systemTrayController.new MainWindowVisibilityListener());
         giftCloudUploader.getBackgroundAddToUploaderService().addListener(systemTrayController.new BackgroundAddToUploaderServiceListener());
 
-
-        Optional<Throwable> dicomNodeFailureException = Optional.empty();
-        try {
-            dicomNode.activateStorageSCP();
-        } catch (Throwable e) {
-            dicomNodeFailureException = Optional.of(e);
-            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
-        }
-
-
-
-
         final Optional<Boolean> hideWindowOnStartupProperty = giftCloudProperties.getHideWindowOnStartup();
 
         // We hide the main window only if specified in the preferences, AND if the system tray is supported
@@ -133,6 +122,16 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
 
         addExistingFilesToUploadQueue(pendingUploadFolder);
+    }
+
+    public void start(final boolean showImportDialog) {
+        Optional<Throwable> dicomNodeFailureException = Optional.empty();
+        try {
+            dicomNode.activateStorageSCP();
+        } catch (Throwable e) {
+            dicomNodeFailureException = Optional.of(e);
+            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
+        }
 
         new Thread(new Runnable() {
             @Override
@@ -143,19 +142,33 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             }
         }).start();
 
-        // We check whether the main properties have been set. If not, we warn the user and bring up the configuration dialog. We suppress the Dicom node start failure in this case, as we assume the lack of properties is responsible
-        final Optional<String> propertiesNotConfigured = checkProperties();
-        if (propertiesNotConfigured.isPresent()) {
-            reporter.showMessageToUser(propertiesNotConfigured.get());
-            showConfigureDialog();
+        propertiesCheckAndImportLoop(dicomNodeFailureException, showImportDialog);
+    }
 
-        } else {
-            // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
-            if (dicomNodeFailureException.isPresent()) {
-                reporter.reportErrorToUser("The DICOM listening node failed to start. Please check the listener settings and restart the listener.", dicomNodeFailureException.get());
-                showConfigureDialog();
+    private void propertiesCheckAndImportLoop(final Optional<Throwable> dicomNodeFailureException, final boolean startImport) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // We check whether the main properties have been set. If not, we warn the user and bring up the configuration dialog. We suppress the Dicom node start failure in this case, as we assume the lack of properties is responsible
+                final Optional<String> propertiesNotConfigured = checkProperties();
+                if (propertiesNotConfigured.isPresent()) {
+                    reporter.showMessageToUser(propertiesNotConfigured.get());
+                    showConfigureDialog(startImport);
+
+                } else {
+                    // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
+                    if (dicomNodeFailureException.isPresent()) {
+                        reporter.reportErrorToUser("The DICOM listening node failed to start. Please check the listener settings and restart the listener.", dicomNodeFailureException.get());
+                        showConfigureDialog(startImport);
+                    }
+                }
+                if (startImport) {
+                    selectAndImport();
+                }
             }
-        }
+        }).start();
+
     }
 
     private Optional<String> checkProperties() {
@@ -210,14 +223,29 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void showConfigureDialog() {
+    public void showConfigureDialog(final boolean wait) {
         if (configurationDialog == null || !configurationDialog.isVisible()) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    configurationDialog = new GiftCloudConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+            if (wait) {
+                try {
+                    java.awt.EventQueue.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run() {
+                            configurationDialog = new GiftCloudConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                        }
+                    });
+                } catch (InvocationTargetException e) {
+                    reporter.silentLogException(e, "Failure in starting the configuration dialog");
+                } catch (InterruptedException e) {
+                    reporter.silentLogException(e, "Failure in starting the configuration dialog");
                 }
-            });
+            } else {
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        configurationDialog = new GiftCloudConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                    }
+                });
+            }
         }
     }
 

@@ -7,7 +7,7 @@ import java.util.Vector;
 
 public interface GiftCloudUploaderController {
 
-    void showConfigureDialog();
+    void showConfigureDialog(final boolean wait);
     void showAboutDialog();
 
     void hide();
