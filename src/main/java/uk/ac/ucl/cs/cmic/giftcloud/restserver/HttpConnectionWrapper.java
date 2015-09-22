@@ -91,7 +91,7 @@ class HttpConnectionWrapper implements HttpConnection {
     }
 
     @Override
-    public void setFixedLengthStreamingMode(int contentLength) {
+    public void setFixedLengthStreamingMode(long contentLength) {
         connection.setFixedLengthStreamingMode(contentLength);
     }
 

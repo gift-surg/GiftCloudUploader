@@ -48,7 +48,7 @@ public interface HttpConnection {
 
     void setRequestProperty(String key, String value);
 
-    void setFixedLengthStreamingMode(int contentLength);
+    void setFixedLengthStreamingMode(long contentLength);
 
     void connect() throws IOException;
 
