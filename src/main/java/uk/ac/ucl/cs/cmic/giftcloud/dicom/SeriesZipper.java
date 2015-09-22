@@ -42,7 +42,7 @@ public class SeriesZipper {
     
     private static StopTagInputHandler makeStopTagInputHandler(final Iterable<ScriptApplicator> scriptApplicators) {
 
-        // We will check the patient name, id and birth dateto ensure anonymisation. Therefore we always need to fetch these tags
+        // We will check the patient name, id and birth date to ensure anonymisation. Therefore we always need to fetch these tags
         long top = Tag.PatientBirthDate;
         for (final ScriptApplicator a : scriptApplicators) {
             final long atop = 0xffffffffL & a.getTopTag();
