@@ -156,7 +156,7 @@ public class SeriesZipper {
                 final String finalPatientId = o.getString(Tag.PatientID);
                 final String finalPatientBirthDate = o.getString(Tag.PatientBirthDate);
 
-                // Check critial tags have been anonymised
+                // Check critical tags have been anonymised
                 if (StringUtils.isNotBlank(finalPatientName) && finalPatientName.equals(originalPatientName)) {
                     throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
                 }
