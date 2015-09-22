@@ -49,26 +49,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
 
     /*
      * (non-Javadoc)
-     * @see SessionVariable#removeListener(ValueListener)
-     */
-    @Override
-    public void removeListener(final ValueListener listener) {
-        listeners.remove(listener);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see SessionVariable#addValidator(ValueValidator)
-     */
-    @Override
-    public final void addValidator(final ValueValidator validator) {
-        if (!validators.contains(validator)) {
-            validators.add(validator);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
      * @see SessionVariable#getDescription()
      */
     @Override
@@ -91,13 +71,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
      */
     @Override
     public final String getName() { return name; }
-
-    /*
-     * (non-Javadoc)
-     * @see SessionVariable#isEditable()
-     */
-    @Override
-    public boolean isMutable() { return isMutable; }
 
     /*
      * (non-Javadoc)

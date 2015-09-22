@@ -38,13 +38,7 @@ extends DicomSessionVariable implements DocumentListener {
 	public void changedUpdate(final DocumentEvent e) {
 		editTo(text.getText());
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see SessionVariable#getEditor()
-	 */
-	public JTextField getEditor() { return text; }
-		
+
 	/*
 	 * (non-Javadoc)
 	 * @see javax.swing.event.DocumentListener#insertUpdate(javax.swing.event.DocumentEvent)
@@ -60,11 +54,7 @@ extends DicomSessionVariable implements DocumentListener {
 	public void removeUpdate(final DocumentEvent e) {
 		editTo(text.getText());
 	}
-	
-	public void refresh() {
-		setDisplayValue(getValue());
-	}
-	
+
 	private String setDisplayValue(final String value) {
 		final String old = text.getText();
 		final Document d = text.getDocument();

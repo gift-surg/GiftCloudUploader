@@ -88,14 +88,6 @@ extends AbstractSessionVariable implements SessionVariable,ValueListener {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see SessionVariable#getValueMessage()
-     */
-    public String getValueMessage() {
-        return message;
-    }
-    
     /**
      * Gets the underlying DicomEdit script variable.
      * @return script variable
@@ -112,14 +104,6 @@ extends AbstractSessionVariable implements SessionVariable,ValueListener {
         } catch (InvalidValueException e) {
             fireIsInvalid(v, e.getMessage());
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see SessionVariable#isHidden()
-     */
-    public boolean isHidden() { 
-        return v.isHidden();
     }
 
     /*
