@@ -36,9 +36,6 @@ public interface RestServer {
 
     String getPreArcCode(String projectName) throws Exception;
 
-    Set<String> getProjectTracers(String projectName) throws Exception;
-
-    Set<String> getSiteTracers() throws Exception;
 
     Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception;
 

@@ -157,19 +157,6 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public Set<String> getProjectTracers(final String projectName) throws Exception {
-        final String uri = "/REST/projects/" + projectName + "/config/tracers/tracers?contents=true";
-        return restServerSessionHelper.getStringList(uri);
-    }
-
-    @Override
-    public Set<String> getSiteTracers() throws Exception {
-        final String uri = "/REST/config/tracers/tracers?contents=true";
-        return restServerSessionHelper.getStringList(uri);
-    }
-
-
-    @Override
     public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
 
         final String visit = sessionParameters.getVisit();

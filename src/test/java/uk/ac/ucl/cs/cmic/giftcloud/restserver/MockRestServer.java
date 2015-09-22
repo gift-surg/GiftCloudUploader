@@ -112,15 +112,6 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Set<String> getProjectTracers(String projectName) throws Exception {
-        return new HashSet<String>();
-    }
-
-    @Override
-    public Set<String> getSiteTracers() throws Exception {
-        return new HashSet<String>();
-    }
-
     @Override
     public Set<String> uploadZipFile(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
         final Set<String> uids = new HashSet<String>();
