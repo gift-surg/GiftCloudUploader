@@ -24,11 +24,8 @@ import netscape.javascript.JSObject;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
 import java.awt.*;
-import java.net.MalformedURLException;
 
 public interface GiftCloudReporter extends Progress {
-
-    void loadWebPage(String url) throws MalformedURLException;
 
     void exit();
 
@@ -52,11 +49,6 @@ public interface GiftCloudReporter extends Progress {
 
     void error(String format, Object arg);
     void error(String message);
-
-    boolean isDebugEnabled();
-
-    boolean askRetry(Component parentComponent, String title, String message);
-
 
 
     // The following methods are the new "preferred" methods for error and warning reporting

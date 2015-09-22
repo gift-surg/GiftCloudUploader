@@ -83,11 +83,6 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
     }
 
     @Override
-    public void loadWebPage(String url) throws MalformedURLException {
-        applet.getAppletContext().showDocument(new URL(url));
-    }
-
-    @Override
     public void exit() {
         final JSObject context = getJSContext();
         if (null == context) {
@@ -193,25 +188,6 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
         logger.error(message);
     }
 
-
-    @Override
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
-    }
-
-    @Override
-    public boolean askRetry(Component parentComponent, String title, String message) {
-        final Object[] options = {"Retry", "Cancel"};
-        final int n = JOptionPane.showOptionDialog(parentComponent,
-                message,
-                title,
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.ERROR_MESSAGE,
-                null,
-                options,
-                options[0]);
-        return (JOptionPane.NO_OPTION != n);
-    }
 
     @Override
     public void reportErrorToUser(String errorText, Throwable throwable) {

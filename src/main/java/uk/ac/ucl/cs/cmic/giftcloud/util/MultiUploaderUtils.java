@@ -30,41 +30,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.nrg.IOUtils;
-import org.nrg.util.Base64;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpUploadException;
 
 import java.io.*;
-import java.net.PasswordAuthentication;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class MultiUploaderUtils {
 
     final static String GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME = "GiftCloudUploader";
     final static String GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME = "WaitingForUpload";
-    final static String GIFT_CLOUD_PATIENT_LIST_FOLDER_NAME = "GiftCloudPatientList";
 
-
-    static final String AUTHORIZATION_HEADER = "Authorization";
-
-    private static final DateFormat PARSER_SQL = new SimpleDateFormat("yyyy-MM-dd");
-    private static final DateFormat PARSER_CAL = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-
-    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-
-
-    static String makeBasicAuthorization(final PasswordAuthentication auth) {
-        return "Basic " + Base64.encode(auth.getUserName() + ":" + Arrays.toString(auth.getPassword()));
-    }
-
-    static void addBasicAuthorizationToHeaderMap(final Map<String, String> m,
-                                                 final PasswordAuthentication auth) {
-        m.put(AUTHORIZATION_HEADER, makeBasicAuthorization(auth));
-    }
 
     public static JSONObject extractJSONEntity(final InputStream in)
             throws IOException, JSONException {
@@ -74,10 +56,6 @@ public class MultiUploaderUtils {
     public static JSONArray extractResultFromEntity(final JSONObject entity)
             throws JSONException {
         return entity.getJSONObject("ResultSet").getJSONArray("Result");
-    }
-
-    static void addBasicAuthorization(final URLConnection conn, final PasswordAuthentication auth) {
-        conn.addRequestProperty(AUTHORIZATION_HEADER, makeBasicAuthorization(auth));
     }
 
     public static String getErrorEntity(final InputStream errorStream) throws IOException {
@@ -106,21 +84,6 @@ public class MultiUploaderUtils {
         }
     }
 
-    public static Date safeParse(final String scanDate) {
-        if (StringUtils.isBlank(scanDate)) {
-            return null;
-        }
-        try {
-            return PARSER_CAL.parse(scanDate);
-        } catch (ParseException e) {
-            try {
-                return PARSER_SQL.parse(scanDate);
-            } catch (ParseException e1) {
-                return null;
-            }
-        }
-    }
-
     /**
      * Reads a list of newline-separated strings from the provided InputStream.
      * @param in InputStream from which strings will be read
@@ -137,18 +100,6 @@ public class MultiUploaderUtils {
             }
         }
         return items;
-    }
-
-    public static <T> StringBuilder buildEcatFailureMessage(final StringBuilder sb, final Map<File,T> failures) {
-        final Multimap<T,File> inverse = LinkedHashMultimap.create();
-        Multimaps.invertFrom(Multimaps.forMap(failures), inverse);
-        final Multimap<Object,File> causes = Utils.consolidateKeys(inverse, 4);
-        for (final Object key : causes.keySet()) {
-            final Collection<File> files = causes.get(key);
-            sb.append(files.size()).append(" files not uploaded: ").append(key);
-            sb.append(LINE_SEPARATOR);
-        }
-        return sb;
     }
 
     public static String buildFailureMessage(final Map<FileCollection, Throwable> failures) {
@@ -204,24 +155,6 @@ public class MultiUploaderUtils {
     }
 
     /**
-     * Returns the folder for storing details of subjects uploaded to the GIFT-Cloud server.
-     * Will attempt to create a folder in the user directory, but if this is not permitted, will create a folder in the system temporary directory
-     *
-     * @param reporter for logging warnings
-     * @return File object referencing the existing or newly created folder
-     */
-    public static File createOrGetPatientListFolder(final File baseFolder, final GiftCloudReporter reporter) {
-
-        final File patientListFolder = new File(baseFolder, GIFT_CLOUD_PATIENT_LIST_FOLDER_NAME);
-
-        if (createDirectoryIfNotExisting(patientListFolder)) {
-            return patientListFolder;
-        } else {
-            throw new RuntimeException("Unable to create patient list folder at " + patientListFolder.getAbsolutePath());
-        }
-    }
-
-    /**
      * Returns the folder for storing GiftCloud data, creating if it does not already exist.
      * Will attempt to create a folder in the user directory, but if this is not permitted, will create a folder in the system temporary directory
      *
@@ -260,14 +193,6 @@ public class MultiUploaderUtils {
                 return false;
             }
         }
-    }
-
-    public static int getFileCountFromFileCollection(final List<FileCollection> fileCollections) {
-        int count = 0;
-        for (final FileCollection fileCollection : fileCollections) {
-            count += fileCollection.getFileCount();
-        }
-        return count;
     }
 
 

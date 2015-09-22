@@ -37,7 +37,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.util.Optional;
 
 public class GiftCloudReporterFromApplication implements GiftCloudReporter, MessageLogger, Progress {
@@ -71,11 +70,6 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
         text.setEditable(false);
         container.add(text);
         container.validate();
-    }
-
-    @Override
-    public void loadWebPage(String url) throws MalformedURLException {
-//        container.getAppletContext().showDocument(new URL(url));
     }
 
     @Override
@@ -171,25 +165,6 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     @Override
     public void error(String message) {
         logger.error(message);
-    }
-
-    @Override
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
-    }
-
-    @Override
-    public boolean askRetry(Component parentComponent, String title, String message) {
-        final Object[] options = {"Retry", "Cancel"};
-        final int n = JOptionPane.showOptionDialog(parentComponent,
-                message,
-                title,
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.ERROR_MESSAGE,
-                null,
-                options,
-                options[0]);
-        return (JOptionPane.NO_OPTION != n);
     }
 
     @Override

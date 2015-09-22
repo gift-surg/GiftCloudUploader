@@ -116,7 +116,6 @@ public class GiftCloudAutoUploader {
         final GiftCloudLabel.ScanLabel scanName = getScanName(server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
 
         final GiftCloudSessionParameters sessionParameters = new GiftCloudSessionParameters();
-        sessionParameters.setAdminEmail("null@null.com");
         sessionParameters.setExperimentLabel(experimentLabel);
         sessionParameters.setProtocol("");
         sessionParameters.setVisit("");

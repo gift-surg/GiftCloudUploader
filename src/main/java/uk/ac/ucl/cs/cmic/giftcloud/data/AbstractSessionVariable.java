@@ -25,7 +25,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
     private final Set<ValueValidator> validators = Sets.newLinkedHashSet();
     private final Set<SessionVariable> shadows = Sets.newLinkedHashSet();
     private String description = null;
-    private boolean isMutable = true;
 
     protected AbstractSessionVariable(final String name, final String exportField) {
         this.name = name;
@@ -89,7 +88,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
      */
     @Override
     public SessionVariable fixValue() {
-        isMutable = false;
         return this;
     }
     
@@ -125,16 +123,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
             }
         }
         return null == sb ? null : sb.toString();
-    }
-
-    /**
-     * Adds a "shadow" variable to this session variable.
-     * @param shadow The shadow to add.
-     */
-    public final void addShadow(final SessionVariable shadow) {
-        if (!shadows.contains(shadow)) {
-            shadows.add(shadow);
-        }
     }
 
     /**

@@ -10,8 +10,6 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import com.google.common.base.Joiner;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,24 +19,6 @@ import java.util.List;
 
 public class HttpUtils {
     private HttpUtils() {}
-
-    public static String readEntity(final HttpConnectionWrapper connection) throws IOException {
-        InputStream in;
-        try {
-            in = connection.getInputStream();
-            if (null == in) {
-                in = connection.getErrorStream();
-            }
-        } catch (IOException e) {
-            in = connection.getErrorStream();
-        }
-        return null == in ? null : readEntity(in);
-    }
-
-    public static String readEntity(final InputStream in)
-    throws IOException{
-        return Joiner.on("<p>").join(readEntityLines(in));
-    }
 
 
     public static List<String> readEntityLines(final InputStream in) throws IOException {
