@@ -6,7 +6,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 public class MockRestServer implements RestServer {
@@ -120,16 +119,6 @@ public class MockRestServer implements RestServer {
     @Override
     public Set<String> getSiteTracers() throws Exception {
         return new HashSet<String>();
-    }
-
-    @Override
-    public String uploadSubject(String projectName, InputStream xmlStream) throws Exception {
-        return UUID.randomUUID().toString();
-    }
-
-    @Override
-    public UploadResult closeSession(String uri, SessionParameters sessionParameters, Map<FileCollection, Throwable> failures, Optional<TimeZone> timeZone) {
-        return new UploadResult(true);
     }
 
     @Override

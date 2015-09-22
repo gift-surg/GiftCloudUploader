@@ -5,7 +5,6 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 public interface RestServer {
@@ -40,10 +39,6 @@ public interface RestServer {
     Set<String> getProjectTracers(String projectName) throws Exception;
 
     Set<String> getSiteTracers() throws Exception;
-
-    String uploadSubject(String projectName, InputStream xmlStream) throws Exception;
-
-    UploadResult closeSession(String uri, SessionParameters sessionParameters, Map<FileCollection, Throwable> failures, Optional<TimeZone> timeZone);
 
     Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception;
 
