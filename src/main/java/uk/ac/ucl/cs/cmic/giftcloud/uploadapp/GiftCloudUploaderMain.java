@@ -1,31 +1,38 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
+import com.apple.eawt.Application;
 import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
+import javax.imageio.ImageIO;
 import javax.jnlp.ServiceManager;
 import javax.jnlp.SingleInstanceListener;
 import javax.jnlp.SingleInstanceService;
 import javax.jnlp.UnavailableServiceException;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.*;
+import java.util.List;
 
 /**
  * The main controller class for the uploader
  */
 public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
-	private static String propertiesFileName  = "GiftCloudUploader.properties";
     private final ResourceBundle resourceBundle;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
-    private final GiftCloudMainFrame giftCloudMainFrame;
+    private final MainFrame mainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
     private final DicomNode dicomNode;
     private final LocalWaitingForUploadDatabase uploadDatabase;
@@ -38,26 +45,53 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
     private Optional<SingleInstanceService> singleInstanceService;
 
-    public GiftCloudUploaderMain(final RestServerFactory restServerFactory, final ResourceBundle resourceBundle) throws DicomException, IOException {
-        this.resourceBundle = resourceBundle;
+    public GiftCloudUploaderMain(final MainFrame mainFrame, final RestServerFactory restServerFactory, final PropertyStore propertyStore, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+        resourceBundle = mainFrame.getResourceBundle();
+        this.mainFrame = mainFrame;
+        this.giftCloudDialogs = dialogs;
+        this.reporter = reporter;
 
         try {
-            singleInstanceService = Optional.of((SingleInstanceService)ServiceManager.lookup("javax.jnlp.SingleInstanceService"));
+            singleInstanceService = Optional.of((SingleInstanceService) ServiceManager.lookup("javax.jnlp.SingleInstanceService"));
             GiftCloudUploaderSingleInstanceListener singleInstanceListener = new GiftCloudUploaderSingleInstanceListener();
             singleInstanceService.get().addSingleInstanceListener(singleInstanceListener);
         } catch (UnavailableServiceException e) {
             singleInstanceService = Optional.empty();
         }
 
+        // Set the dock icon - we need to do this before the main class is created
+        URL iconURL = GiftCloudUploaderApp.class.getResource("/uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png");
 
-        final GiftCloudUploaderApplicationBase applicationBase = new GiftCloudUploaderApplicationBase(propertiesFileName);
+        if (iconURL == null) {
+            System.out.println("Warning: could not find the icon resource");
+        } else {
+            if (isOSX()) {
+                try {
+                    Image iconImage = ImageIO.read(iconURL);
+                    if (iconImage == null) {
+                        System.out.println("Could not find icon");
+                    } else {
+                        Application.getApplication().setDockIconImage(new ImageIcon(iconImage).getImage());
+                    }
+                } catch (Exception e) {
+                    System.out.println("Warning: could not configure the dock menu");
+                    e.printStackTrace(System.err);
+                }
+            }
+        }
 
-        giftCloudMainFrame = new GiftCloudMainFrame(resourceBundle.getString("applicationTitle"), this);
-        giftCloudDialogs = new GiftCloudDialogs(giftCloudMainFrame);
-        reporter = new GiftCloudReporterFromApplication(giftCloudMainFrame.getContainer(), giftCloudDialogs);
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+        System.setProperty("apple.awt.UIElement", "true");
+
+        final String applicationTitle = resourceBundle.getString("applicationTitle");
+
+        // This is used to set the application title on OSX, but may not work when run from the debugger
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", applicationTitle);
+
+        setSystemLookAndFeel();
 
         // Initialise application properties
-        giftCloudProperties = new GiftCloudPropertiesFromApplication(applicationBase, resourceBundle);
+        giftCloudProperties = new GiftCloudPropertiesFromApplication(propertyStore, resourceBundle, reporter);
 
 
         // Initialise the main GIFT-Cloud class
@@ -68,26 +102,14 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         uploadDatabase.addObserver(new DatabaseListener());
         dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploadDatabase, uploaderStatusModel, reporter);
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(giftCloudMainFrame.getDialog(), this, uploadDatabase.getSrcDatabase(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, uploadDatabase.getSrcDatabase(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, uploaderStatusModel, reporter);
 
-        giftCloudMainFrame.addMainPanel(giftCloudUploaderPanel);
+        mainFrame.addMainPanel(giftCloudUploaderPanel);
 
         systemTrayController = new SystemTrayController(this, resourceBundle, reporter);
-        giftCloudMainFrame.addListener(systemTrayController.new MainWindowVisibilityListener());
+        mainFrame.addListener(systemTrayController.new MainWindowVisibilityListener());
         giftCloudUploader.getBackgroundAddToUploaderService().addListener(systemTrayController.new BackgroundAddToUploaderServiceListener());
-
-
-        Optional<Throwable> dicomNodeFailureException = Optional.empty();
-        try {
-            dicomNode.activateStorageSCP();
-        } catch (Throwable e) {
-            dicomNodeFailureException = Optional.of(e);
-            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
-        }
-
-
-
 
         final Optional<Boolean> hideWindowOnStartupProperty = giftCloudProperties.getHideWindowOnStartup();
 
@@ -100,6 +122,16 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
 
         addExistingFilesToUploadQueue(pendingUploadFolder);
+    }
+
+    public void start(final boolean showImportDialog) {
+        Optional<Throwable> dicomNodeFailureException = Optional.empty();
+        try {
+            dicomNode.activateStorageSCP();
+        } catch (Throwable e) {
+            dicomNodeFailureException = Optional.of(e);
+            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
+        }
 
         new Thread(new Runnable() {
             @Override
@@ -110,19 +142,33 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             }
         }).start();
 
-        // We check whether the main properties have been set. If not, we warn the user and bring up the configuration dialog. We suppress the Dicom node start failure in this case, as we assume the lack of properties is responsible
-        final Optional<String> propertiesNotConfigured = checkProperties();
-        if (propertiesNotConfigured.isPresent()) {
-            reporter.showMessageToUser(propertiesNotConfigured.get());
-            showConfigureDialog();
+        propertiesCheckAndImportLoop(dicomNodeFailureException, showImportDialog);
+    }
 
-        } else {
-            // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
-            if (dicomNodeFailureException.isPresent()) {
-                reporter.reportErrorToUser("The DICOM listening node failed to start. Please check the listener settings and restart the listener.", dicomNodeFailureException.get());
-                showConfigureDialog();
+    private void propertiesCheckAndImportLoop(final Optional<Throwable> dicomNodeFailureException, final boolean startImport) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // We check whether the main properties have been set. If not, we warn the user and bring up the configuration dialog. We suppress the Dicom node start failure in this case, as we assume the lack of properties is responsible
+                final Optional<String> propertiesNotConfigured = checkProperties();
+                if (propertiesNotConfigured.isPresent()) {
+                    reporter.showMessageToUser(propertiesNotConfigured.get());
+                    showConfigureDialog(startImport);
+
+                } else {
+                    // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
+                    if (dicomNodeFailureException.isPresent()) {
+                        reporter.reportErrorToUser("The DICOM listening node failed to start. Please check the listener settings and restart the listener.", dicomNodeFailureException.get());
+                        showConfigureDialog(startImport);
+                    }
+                }
+                if (startImport) {
+                    selectAndImport();
+                }
             }
-        }
+        }).start();
+
     }
 
     private Optional<String> checkProperties() {
@@ -156,32 +202,67 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
+    private void setSystemLookAndFeel() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.put("Panel.background", Color.white);
+            UIManager.put("CheckBox.background", Color.lightGray);
+            UIManager.put("SplitPane.background", Color.white);
+            UIManager.put("OptionPane.background", Color.white);
+            UIManager.put("Panel.background", Color.white);
+
+            Font font = new Font("Arial Unicode MS",Font.PLAIN,12);
+            if (font != null) {
+                UIManager.put("Tree.font", font);
+                UIManager.put("Table.font", font);
+            }
+        } catch (Throwable t) {
+            reporter.silentLogException(t, "Error when setting the system look and feel");
+        }
+
+    }
+
     @Override
-    public void showConfigureDialog() {
+    public void showConfigureDialog(final boolean wait) {
         if (configurationDialog == null || !configurationDialog.isVisible()) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    configurationDialog = new GiftCloudConfigurationDialog(giftCloudMainFrame.getDialog(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+            if (wait) {
+                try {
+                    java.awt.EventQueue.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run() {
+                            configurationDialog = new GiftCloudConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                        }
+                    });
+                } catch (InvocationTargetException e) {
+                    reporter.silentLogException(e, "Failure in starting the configuration dialog");
+                } catch (InterruptedException e) {
+                    reporter.silentLogException(e, "Failure in starting the configuration dialog");
                 }
-            });
+            } else {
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        configurationDialog = new GiftCloudConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                    }
+                });
+            }
         }
     }
 
     @Override
     public void showAboutDialog() {
-        giftCloudMainFrame.show();
+        mainFrame.show();
         giftCloudDialogs.showMessage(resourceBundle.getString("giftCloudProductName"));
     }
 
     @Override
     public void hide() {
-        giftCloudMainFrame.hide();
+        mainFrame.hide();
     }
 
     @Override
     public void show() {
-        giftCloudMainFrame.show();
+        mainFrame.show();
     }
 
     @Override
@@ -237,6 +318,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
             if (selectDirectory.isPresent()) {
                 giftCloudProperties.setLastExportDirectory(selectDirectory.get());
+                giftCloudProperties.save();
                 export(selectDirectory.get(), filesToExport);
             }
         } catch (Exception e) {
@@ -251,22 +333,28 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     @Override
     public void selectAndImport() {
-        try {
-            reporter.setWaitCursor();
-            reporter.showMesageLogger();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    reporter.setWaitCursor();
+                    reporter.showMesageLogger();
 
-            Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
+                    Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
 
-            if (selectFileOrDirectory.isPresent()) {
-                giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
-                String filePath = selectFileOrDirectory.get().getSelectedFile();
-                runImport(filePath, true, reporter);
+                    if (selectFileOrDirectory.isPresent()) {
+                        giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
+                        giftCloudProperties.save();
+                        String filePath = selectFileOrDirectory.get().getSelectedFile();
+                        runImport(filePath, true, reporter);
+                    }
+                } catch (Exception e) {
+                    reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
+                } finally {
+                    reporter.restoreCursor();
+                }
             }
-        } catch (Exception e) {
-            reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
-        } finally {
-            reporter.restoreCursor();
-        }
+        });
     }
 
     @Override
@@ -308,6 +396,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
         runImport(pendingUploadFolder.getAbsolutePath(), false, reporter);
+    }
+
+    public static boolean isOSX() {
+        return (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0);
     }
 
     private class GiftCloudUploaderSingleInstanceListener implements SingleInstanceListener {
@@ -385,5 +477,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         private synchronized void resetUpdateStatus() {
             updateIsPending = false;
         }
+
+
     }
 }

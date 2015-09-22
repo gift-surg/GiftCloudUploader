@@ -1,43 +1,26 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.StatusObservable;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowVisibility> implements MainFrame {
-    protected final JFrame container;
-    private GiftCloudUploaderController controller;
+class GiftCloudMainFrame  extends MainFrame {
+    private JFrame frame;
 
-    /**
-     * Enumeration for the visible states of the main window. Less error-prone than passing round booleans for specifying visibility
-     */
-    public enum MainWindowVisibility {
-        VISIBLE(true),
-        HIDDEN(false);
+    public static String propertiesFileName  = "GiftCloudUploader.properties";
 
-        private final boolean isVisible;
 
-        MainWindowVisibility(final boolean isVisible) {
-            this.isVisible = isVisible;
-        }
-
-        boolean isVisible() {
-            return isVisible;
-        }
-    }
-
-    GiftCloudMainFrame(final String applicationTitle, final GiftCloudUploaderController controller) {
-        this.controller = controller;
-        container = new JFrame();
-        container.setIconImage(new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png")).getImage()); // ToDo: This icon is loaded multiple times in the code
-        container.setTitle(applicationTitle);
-        container.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    GiftCloudMainFrame(final JFrame frame) {
+        super(frame, frame);
+        this.frame = frame;
+        final Image image = new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png")).getImage();
+        frame.setIconImage(image);
+        frame.setTitle(getResourceBundle().getString("applicationTitle"));
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         // Invoke the hide method on the controller, to ensure the system tray menu gets updated correctly
-        container.addWindowListener(new WindowAdapter() {
+        frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent ev) {
                 System.exit(0);
             }
@@ -49,44 +32,24 @@ class GiftCloudMainFrame extends StatusObservable<GiftCloudMainFrame.MainWindowV
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                container.setVisible(true);
-
-                // If we were invoking a JFrame we should also set the extended state
-//                int state = container.getExtendedState();
-//                state &= ~JFrame.ICONIFIED;
-//                container.setExtendedState(state);
-
-                container.setAlwaysOnTop(true);
-                container.toFront();
-                container.requestFocus();
-                container.setAlwaysOnTop(false);
+                frame.setVisible(true);
+                frame.setAlwaysOnTop(true);
+                frame.toFront();
+                frame.requestFocus();
+                frame.setAlwaysOnTop(false);
                 notifyStatusChanged(MainWindowVisibility.VISIBLE);
             }
         });
     }
 
     @Override
-    public void hide() {
+    public void addMainPanel(final Container panel) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                container.setVisible(false);
-                notifyStatusChanged(MainWindowVisibility.HIDDEN);
+                frame.add(panel);
+                frame.pack();
             }
         });
-    }
-
-    @Override
-    public Container getContainer() {
-        return container;
-    }
-
-    public JFrame getDialog() {
-        return container;
-    }
-
-    public void addMainPanel(final Container panel) {
-        container.add(panel);
-        container.pack();
     }
 }

@@ -21,23 +21,19 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudUploaderRestServerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.LocalWaitingForUploadDatabase;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderMain;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.MainFrame;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.PropertyStoreFromApplet;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 public class MultiUploadAssistantApplet extends JApplet {
-
-    protected static String resourceBundleName  = "uk.ac.ucl.cs.cmic.giftcloud.GiftCloudUploader";
-
     private Optional<GiftCloudReporterFromApplet> reporter = Optional.empty();
-    private Optional<MultiUploadAppletParameters> multiUploadParameters = Optional.empty();
-    private Optional<GiftCloudUploader> giftCloudUploader = Optional.empty();
+    private Optional<GiftCloudUploaderMain> giftCloudUploaderMain = Optional.empty();
 
     /**
      * Default constructor.
@@ -55,17 +51,13 @@ public class MultiUploadAssistantApplet extends JApplet {
     @Override
     public void init() {
         try {
-            final ResourceBundle resourceBundle = ResourceBundle.getBundle(resourceBundleName);
-            reporter = Optional.of(new GiftCloudReporterFromApplet(this));
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            multiUploadParameters = Optional.of(new MultiUploadAppletParameters(this, reporter.get()));
+            final MainFrame mainFrame = new MainFrame(this, new JFrame());
+            final GiftCloudDialogs dialogs = new GiftCloudDialogs(mainFrame);
+            reporter = Optional.of(new GiftCloudReporterFromApplet(this, dialogs));
+            final MultiUploadAppletParameters multiUploadAppletParameters = new MultiUploadAppletParameters(this, reporter.get());
+            final PropertyStore propertyStore = new PropertyStoreFromApplet(new MultiUploadParameters(multiUploadAppletParameters));
+            giftCloudUploaderMain = Optional.of(new GiftCloudUploaderMain(mainFrame, new GiftCloudUploaderRestServerFactory(), propertyStore, dialogs, reporter.get()));
 
-            GiftCloudPropertiesFromApplet giftCloudPropertiesFromApplet = new GiftCloudPropertiesFromApplet(multiUploadParameters.get(), resourceBundle);
-            final File pendingUploadFolder = giftCloudPropertiesFromApplet.getUploadFolder(reporter.get());
-
-            final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
-            final LocalWaitingForUploadDatabase uploadDatabase = new LocalWaitingForUploadDatabase(resourceBundle.getString("DatabaseRootTitleForOriginal"), uploaderStatusModel, reporter.get());
-            giftCloudUploader = Optional.of(new GiftCloudUploader(new GiftCloudUploaderRestServerFactory(), uploadDatabase, pendingUploadFolder, giftCloudPropertiesFromApplet, uploaderStatusModel, reporter.get()));
 
         } catch (Throwable t) {
             if (reporter.isPresent()) {
@@ -83,8 +75,7 @@ public class MultiUploadAssistantApplet extends JApplet {
     @Override
     public void start() {
         try {
-            giftCloudUploader.get().tryAuthentication();
-            giftCloudUploader.get().runWizard(multiUploadParameters.get());
+            giftCloudUploaderMain.get().start(true);
 
         } catch (Throwable t) {
             reporter.get().reportErrorToUser("Applet startup failed", t);

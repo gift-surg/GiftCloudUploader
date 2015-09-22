@@ -10,12 +10,9 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.LocalWaitingForUploadDatabase;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadWizard;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import javax.security.sasl.AuthenticationException;
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +24,6 @@ import java.util.concurrent.CancellationException;
 public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
     private final LocalWaitingForUploadDatabase uploadDatabase;
     private final GiftCloudProperties giftCloudProperties;
-    private final UploaderStatusModel uploaderStatusModel;
     private final Container container;
     private final PendingUploadTaskList pendingUploadList;
     private final GiftCloudReporter reporter;
@@ -40,7 +36,6 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     public GiftCloudUploader(final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) {
         this.uploadDatabase = uploadDatabase;
         this.giftCloudProperties = giftCloudProperties;
-        this.uploaderStatusModel = uploaderStatusModel;
         this.container = reporter.getContainer();
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
@@ -72,41 +67,6 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     public BackgroundAddToUploaderService getBackgroundAddToUploaderService() {
         return backgroundAddToUploaderService;
-    }
-
-    /**
-     * Launches the interactive wizard for file uploading
-     * This method does not throw any exceptions
-     *
-     * @param multiUploadParameters
-     * @return true if the wizard was launched successfully
-     */
-    public boolean runWizard(final MultiUploadParameters multiUploadParameters) {
-        String giftCloudServerUrl = "";
-
-        try {
-            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-            giftCloudServerUrl = giftCloudServer.getGiftCloudServerUrl();
-
-            final Dimension windowSize = new Dimension(300, 300);
-            new MultiUploadWizard(giftCloudServer, giftCloudServer.getRestServer(), windowSize, multiUploadParameters, giftCloudServer.getGiftCloudServerUrl(), reporter);
-            return true;
-
-        } catch (CancellationException e) {
-            reporter.silentLogException(e, "The upload wizard was cancelled. Server:" + giftCloudServerUrl + ", error:" + e.getMessage());
-            // Do not report anything to user, since the user initiated the cancellation
-            return false;
-
-        } catch (AuthenticationException e) {
-            reporter.silentLogException(e, "The GIFT-Cloud username or password was not recognised. Server:" + giftCloudServerUrl + ", error:" + e.getMessage());
-            JOptionPane.showMessageDialog(container, "The GIFT-Cloud username or password was not recognised.", "Error", JOptionPane.DEFAULT_OPTION);
-            return false;
-
-        } catch (Exception e) {
-            reporter.silentLogException(e, "An error occurred while executing the upload wizard using the GIFT-Cloud server at " + giftCloudServerUrl + ": " + e.getMessage());
-            JOptionPane.showMessageDialog(container, "Could not launch the wizard due to the following error: " + e.getMessage(), "Error", JOptionPane.DEFAULT_OPTION);
-            return false;
-        }
     }
 
     /**
@@ -178,6 +138,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
             try {
                 final String selectedProject = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, lastProjectName);
                 giftCloudProperties.setLastProject(selectedProject);
+                giftCloudProperties.save();
                 return selectedProject;
             } catch (IOException e) {
                 throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);

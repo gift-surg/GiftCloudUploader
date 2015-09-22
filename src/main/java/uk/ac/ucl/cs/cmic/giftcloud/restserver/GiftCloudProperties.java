@@ -89,4 +89,6 @@ public interface GiftCloudProperties {
     Optional<String> getSubjectPrefix();
 
     void setSubjectPrefix(final String subjectNamePredix);
+
+    void save();
 }

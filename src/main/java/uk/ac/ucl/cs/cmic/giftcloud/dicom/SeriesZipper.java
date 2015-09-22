@@ -42,7 +42,7 @@ public class SeriesZipper {
     
     private static StopTagInputHandler makeStopTagInputHandler(final Iterable<ScriptApplicator> scriptApplicators) {
 
-        // We will check the patient name, id and birth dateto ensure anonymisation. Therefore we always need to fetch these tags
+        // We will check the patient name, id and birth date to ensure anonymisation. Therefore we always need to fetch these tags
         long top = Tag.PatientBirthDate;
         for (final ScriptApplicator a : scriptApplicators) {
             final long atop = 0xffffffffL & a.getTopTag();
@@ -156,7 +156,7 @@ public class SeriesZipper {
                 final String finalPatientId = o.getString(Tag.PatientID);
                 final String finalPatientBirthDate = o.getString(Tag.PatientBirthDate);
 
-                // Check critial tags have been anonymised
+                // Check critical tags have been anonymised
                 if (StringUtils.isNotBlank(finalPatientName) && finalPatientName.equals(originalPatientName)) {
                     throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
                 }

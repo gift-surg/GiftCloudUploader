@@ -24,41 +24,29 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.nrg.dcm.edit.ScriptApplicator;
-import org.slf4j.LoggerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 
 public class GiftCloudUploaderRestServer implements RestServer {
 
     private final RestServerSessionHelper restServerSessionHelper;
-    private final GiftCloudReporter reporter;
 
     // Access to these members is through a synchronized method to ensure thread safety
     private Optional<String> siteWideAnonScript = Optional.empty();
     private boolean siteWideAnonScriptHasBeenRetrieved = false;
 
-    public static final String PREVENT_ANON = "prevent_anon";
-    public static final String PREVENT_AUTO_COMMIT = "prevent_auto_commit";
-    public static final String SOURCE = "SOURCE";
-
-
 
     public GiftCloudUploaderRestServer(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
         this.restServerSessionHelper = new RestServerSessionHelper(giftCloudServerUrlString, giftCloudProperties, connectionFactory, reporter);
-        this.reporter = reporter;
+        GiftCloudReporter reporter1 = reporter;
     }
 
     @Override
@@ -180,138 +168,6 @@ public class GiftCloudUploaderRestServer implements RestServer {
         return restServerSessionHelper.getStringList(uri);
     }
 
-    @Override
-    public String uploadSubject(final String projectName, final InputStream xmlStream) throws Exception {
-        final String uri = "/REST/projects/" + projectName + "/subjects";
-        return restServerSessionHelper.getStringFromStream(uri, xmlStream);
-    }
-
-
-    @Override
-    public UploadResult closeSession(final String uri, final SessionParameters sessionParameters, final Map<FileCollection, Throwable> failures, final Optional<TimeZone> timeZone) {
-        final String adminEmail = sessionParameters.getAdminEmail();
-        final GiftCloudLabel.ExperimentLabel experimentLabel = sessionParameters.getExperimentLabel();
-
-        // Close session and return result
-        try {
-            if (failures.isEmpty()) {
-                final URL sessionViewUrl = commitSessionAndGetSessionViewUrl(uri, sessionParameters, timeZone);
-                return new UploadResultsSuccess(uri, experimentLabel, sessionViewUrl);
-            } else {
-                reporter.updateStatusText(MultiUploaderUtils.buildFailureMessage(failures));
-                return new UploadResultsFailure(MultiUploaderUtils.buildFailureMessage(failures));
-            }
-        } catch (JSONException e) {
-            reporter.error("unable to write commit request entity", e);
-            return new UploadResultsFailure("unable to write commit request entity");
-        } catch (GiftCloudHttpException e) {
-            reporter.error("session commit failed", e);
-            return new UploadResultsFailure(e.getHtmlText());
-        } catch (IOException e) {
-            reporter.error("Session commit failed", e);
-            final StringBuilder sb = new StringBuilder("<h3>Communications error</h3>");
-            sb.append("<p>The server at ");
-            sb.append(sessionParameters.getBaseURL() + uri);
-            sb.append(" is inaccessible (");
-            sb.append(e.getMessage());
-            sb.append("). Please contact your administrator ");
-            sb.append("<").append(adminEmail).append(">");
-            sb.append(" for help.</p>");
-            return new UploadResultsFailure(sb.toString());
-
-        } catch (Throwable t) {
-            reporter.error("Session commit failed", t);
-            final StringBuilder sb = new StringBuilder("<h3>Error in applet</h3>");
-            sb.append("<p>An error in the uploader (").append(t);
-            sb.append(" prevented the session from being committed.");
-            sb.append(" Please contact your administrator ");
-            sb.append("<").append(adminEmail).append(">");
-            sb.append(" for help.</p>");
-            return new UploadResultsFailure(sb.toString());
-        }
-    }
-
-
-    private final URL commitSessionAndGetSessionViewUrl(final String uri, final SessionParameters sessionParameters, final Optional<TimeZone> timeZone) throws Exception {
-        final String response = commitSession(uri, sessionParameters, timeZone);
-        String resultPath = GiftCloudUploaderRestServer.getWebAppRelativePath(sessionParameters.getBaseURL(), response);
-        final URL result = new URL(sessionParameters.getBaseURL() + "/" + resultPath);
-        return buildSessionViewURL(result, resultPath);
-    }
-
-    private final String commitSession(final String relativeUrl, final SessionParameters sessionParameters, final Optional<TimeZone> timeZone) throws Exception
-    {
-        String queryParams = "?action=commit&SOURCE=applet";
-
-        //add visit
-        if (null != sessionParameters.getVisit() && !Strings.isNullOrEmpty(sessionParameters.getVisit())) {
-            queryParams += "&VISIT=" + sessionParameters.getVisit();
-        }
-
-        //add protocol
-        if (null != sessionParameters.getProtocol() && !Strings.isNullOrEmpty(sessionParameters.getProtocol())) {
-            queryParams += "&PROTOCOL=" + sessionParameters.getProtocol();
-        }
-
-        //add timeZone
-        if (timeZone.isPresent()) {
-            queryParams += "&TIMEZONE=" + timeZone.get().getID();
-        }
-
-        return restServerSessionHelper.sendSessionVariables(relativeUrl + queryParams, sessionParameters);
-    }
-
-    /**
-     * The RestServerSessionHelper URL includes the web application part of the path.
-     * If the given path starts with the web application path, returns the path
-     * minus the web application context; otherwise return the full path. Either
-     * way, any leading /'s are removed.
-     *
-     * @param url  The URL to be inspected.
-     * @param path The relative path to validate.
-     * @return The relative path to the REST server URL, stripped of leading slashes.
-     */
-    private static String getWebAppRelativePath(final URL url, final String path) {
-        final StringBuilder buffer = new StringBuilder(path);
-        while ('/' == buffer.charAt(0)) {
-            buffer.deleteCharAt(0);
-        }
-        final String context = url.getPath();
-        boolean pathHasContext = true;
-        for (int i = 0; i < context.length(); i++) {
-            if (context.charAt(i) != path.charAt(i)) {
-                pathHasContext = false;
-                break;
-            }
-        }
-        if (pathHasContext) {
-            buffer.delete(0, context.length());
-        }
-        while ('/' == buffer.charAt(0)) {
-            buffer.deleteCharAt(0);
-        }
-        return buffer.toString();
-    }
-
-    private static URL buildSessionViewURL(final URL url, final String relativePath) {
-        final String[] components = relativePath.split("/");
-        if (!"data".equals(components[0]) && !"REST".equals(components[0])) {
-            LoggerFactory.getLogger(Study.class).warn("Strange session path {}: first component is neither \"data\" nor \"REST\"", relativePath);
-        }
-        if ("prearchive".equals(components[1])) {
-            // prearchive sessions need some extra help for nice display
-            try {
-                return new URL(url.toString() + "?screen=XDATScreen_uploaded_xnat_imageSessionData.vm");
-            } catch (MalformedURLException e) {
-                LoggerFactory.getLogger(Study.class).error("can't build prearchive session view url for " + url, e);
-                return url;
-            }
-        } else {
-            // archived sessions are viewable using REST url
-            return url;
-        }
-    }
-
 
     @Override
     public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
@@ -341,7 +197,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
         final AutoArchive autoArchive = sessionParameters.getAutoArchive();
         if (autoArchive != null) {
-            buffer.append("&").append(Project.AUTO_ARCHIVE).append("=").append(autoArchive);
+            buffer.append("&").append("autoArchive=").append(autoArchive);
         }
         dataPostURL = buffer.toString();
 

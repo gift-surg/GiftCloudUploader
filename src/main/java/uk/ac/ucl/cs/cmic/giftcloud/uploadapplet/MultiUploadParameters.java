@@ -21,22 +21,38 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.UIUtils;
 
 import java.util.Optional;
 
-public abstract class MultiUploadParameters {
+public class MultiUploadParameters {
 
-    public abstract String getParameter(final String key);
-    public abstract boolean getDateFromSession();
+    private MultiUploadAppletParameters multiUploadAppletParameters;
+
+    public MultiUploadParameters(final MultiUploadAppletParameters multiUploadAppletParameters) {
+        this.multiUploadAppletParameters = multiUploadAppletParameters;
+    }
+
+    public String getParameter(final String key) {
+        return multiUploadAppletParameters.getParameter(key);
+    }
+
+    public boolean getDateFromSession() {
+        if (UIUtils.getConfirmSessionDatePage()) {
+            return true;
+        }
+
+        return "no_session_date".equals(multiUploadAppletParameters.getParameter(MultiUploadParameters.XNAT_SCAN_DATE));
+    }
 
 
     public String getParameter(final String key, final String defaultValue) {
-        final String v = getParameter(key);
+        final String v = multiUploadAppletParameters.getParameter(key);
         return null == v ? defaultValue : v;
     }
 
     public Optional<String> getOptionalParameter(String key) {
-        final String value = getParameter(key);
+        final String value = multiUploadAppletParameters.getParameter(key);
         if (StringUtils.isBlank(value)) {
             return Optional.empty();
         } else {

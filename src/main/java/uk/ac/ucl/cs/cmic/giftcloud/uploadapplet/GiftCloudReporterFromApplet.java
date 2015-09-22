@@ -26,8 +26,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.SwingProgressMonitorWrapper;
 
 import javax.swing.*;
@@ -43,7 +44,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class GiftCloudReporterFromApplet implements GiftCloudReporter {
+public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplication {
 
     private Applet applet;
 
@@ -51,7 +52,8 @@ public class GiftCloudReporterFromApplet implements GiftCloudReporter {
 
     private final SwingProgressMonitorWrapper progressWrapper;
 
-    public GiftCloudReporterFromApplet(final Applet applet) {
+    public GiftCloudReporterFromApplet(final Applet applet, final GiftCloudDialogs dialogs) {
+        super(applet, dialogs);
         this.applet = applet;
         configureLogging();
 
@@ -78,11 +80,6 @@ public class GiftCloudReporterFromApplet implements GiftCloudReporter {
         text.setEditable(false);
         applet.add(text);
         applet.validate();
-    }
-
-    @Override
-    public void loadWebPage(String url) throws MalformedURLException {
-        applet.getAppletContext().showDocument(new URL(url));
     }
 
     @Override
@@ -191,25 +188,6 @@ public class GiftCloudReporterFromApplet implements GiftCloudReporter {
         logger.error(message);
     }
 
-
-    @Override
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
-    }
-
-    @Override
-    public boolean askRetry(Component parentComponent, String title, String message) {
-        final Object[] options = {"Retry", "Cancel"};
-        final int n = JOptionPane.showOptionDialog(parentComponent,
-                message,
-                title,
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.ERROR_MESSAGE,
-                null,
-                options,
-                options[0]);
-        return (JOptionPane.NO_OPTION != n);
-    }
 
     @Override
     public void reportErrorToUser(String errorText, Throwable throwable) {

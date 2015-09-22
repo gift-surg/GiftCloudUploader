@@ -25,7 +25,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
     private final Set<ValueValidator> validators = Sets.newLinkedHashSet();
     private final Set<SessionVariable> shadows = Sets.newLinkedHashSet();
     private String description = null;
-    private boolean isMutable = true;
 
     protected AbstractSessionVariable(final String name, final String exportField) {
         this.name = name;
@@ -45,26 +44,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
         if (!listeners.contains(listener)) {
         listeners.add(listener);
     }
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see SessionVariable#removeListener(ValueListener)
-     */
-    @Override
-    public void removeListener(final ValueListener listener) {
-        listeners.remove(listener);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see SessionVariable#addValidator(ValueValidator)
-     */
-    @Override
-    public final void addValidator(final ValueValidator validator) {
-        if (!validators.contains(validator)) {
-            validators.add(validator);
-        }
     }
 
     /*
@@ -94,13 +73,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
 
     /*
      * (non-Javadoc)
-     * @see SessionVariable#isEditable()
-     */
-    @Override
-    public boolean isMutable() { return isMutable; }
-
-    /*
-     * (non-Javadoc)
      * @see SessionVariable#setDescription(java.lang.String)
      */
     @Override
@@ -116,7 +88,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
      */
     @Override
     public SessionVariable fixValue() {
-        isMutable = false;
         return this;
     }
     
@@ -152,16 +123,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
             }
         }
         return null == sb ? null : sb.toString();
-    }
-
-    /**
-     * Adds a "shadow" variable to this session variable.
-     * @param shadow The shadow to add.
-     */
-    public final void addShadow(final SessionVariable shadow) {
-        if (!shadows.contains(shadow)) {
-            shadows.add(shadow);
-        }
     }
 
     /**

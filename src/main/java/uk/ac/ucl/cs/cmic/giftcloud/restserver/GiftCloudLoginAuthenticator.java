@@ -93,6 +93,9 @@ class GiftCloudLoginAuthenticator extends Authenticator {
         if (JOptionPane.OK_OPTION == returnValue) {
             giftCloudProperties.setLastUserName(usernameField.getText());
             giftCloudProperties.setLastPassword(passwordField.getPassword());
+            giftCloudProperties.save();
+
+
             return new PasswordAuthentication(usernameField.getText(), passwordField.getPassword());
         } else {
             return null;

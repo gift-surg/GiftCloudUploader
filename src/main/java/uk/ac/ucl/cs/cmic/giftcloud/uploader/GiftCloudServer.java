@@ -6,25 +6,25 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Vector;
 
 public class GiftCloudServer {
 
     private final String giftCloudServerUrlString;
-    private final GiftCloudReporter reporter;
     private final RestServer restServer;
     private final URI giftCloudUri;
     private final ProjectCache projectCache;
 
     public GiftCloudServer(final RestServerFactory restServerFactory, final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudServerUrlString = giftCloudServerUrlString;
-        this.reporter = reporter;
 
         if (StringUtils.isBlank(giftCloudServerUrlString)) {
             throw new MalformedURLException("Please set the URL for the GIFT-Cloud server.");
@@ -65,10 +65,6 @@ public class GiftCloudServer {
         }
     }
 
-    public RestServer getRestServer() {
-        return restServer;
-    }
-
     public String getGiftCloudServerUrl() {
         return giftCloudServerUrlString;
     }
@@ -91,55 +87,6 @@ public class GiftCloudServer {
 
     public Optional<Map<String, String>> getProjectSeriesImportFilter(final String projectName) throws IOException {
         return restServer.getProjectSeriesImportFilter(projectName);
-    }
-
-    /**
-     * Legacy method for uploading using the applet wizard
-     *
-     * @param fileCollections
-     * @param xnatModalityParams
-     * @param applicators
-     * @param projectLabel
-     * @param subjectLabel
-     * @param sessionParameters
-     * @param logger
-     * @return
-     */
-    public UploadResult uploadToStudy(List<FileCollection> fileCollections, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, GiftCloudReporter logger) {
-        final int nThreads = sessionParameters.getNumberOfThreads();
-        final BackgroundCompletionServiceTaskList uploaderTaskList = new BackgroundCompletionServiceTaskList<Set<String>, FileCollection>(nThreads);
-        MultiZipSeriesUploader uploader = new MultiZipSeriesUploader(uploaderTaskList, false, fileCollections, logger);
-        final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
-        final UploadStatisticsReporter stats = new UploadStatisticsReporter(reporter);
-
-        int fileCount = MultiUploaderUtils.getFileCountFromFileCollection(fileCollections);
-        reporter.startProgressBar(fileCount);
-        reporter.updateStatusText("Building sessionLabel manifest");
-        reporter.updateStatusText("Preparing upload...");
-        reporter.trace("creating thread pool and executors");
-        reporter.trace("submitting uploaders for {}", fileCollections);
-
-        for (final FileCollection s : fileCollections) {
-            stats.addToSend(s.getSize());
-            uploader.addFile(this, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, callableUploaderFactory, s);
-        }
-
-        final Optional<String> failureMessage = uploader.run(logger);
-        if (failureMessage.isPresent()) {
-            return new UploadResultsFailure(failureMessage.get());
-        }
-
-        Set<String> uris = uploader.getUris();
-
-        if (1 != uris.size()) {
-            logger.error("Server reports unexpected sessionLabel count:" + uris.size() + " : " + uris);
-            logger.updateStatusText("<p>The XNAT server reported receiving an unexpected number of sessions: (" + uris.size() + ")</p>" + "<p>Please contact the system manager for help.</p>");
-            return new UploadResultsFailure("<p>The XNAT server reported receiving an unexpected number of sessions: (" + uris.size() + ")</p>" + "<p>Please contact the system manager for help.</p>");
-        }
-
-        final String uri = uris.iterator().next();
-        final Optional<TimeZone> timeZone = Optional.empty();
-        return restServer.closeSession(uri, sessionParameters, uploader.getFailures(), timeZone);
     }
 
     public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {

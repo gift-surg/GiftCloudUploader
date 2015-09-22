@@ -3,46 +3,37 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import com.pixelmed.network.NetworkDefaultValues;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
-public class GiftCloudPropertiesFromApplication extends Observable implements GiftCloudProperties {
+
+public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
+
+    String propertyName_JsessionId = "jsessionid";
 
     protected static String KEYSTORE_UPLOAD_PASSWORD_KEY = "GiftCloud.UploadPassword";
     protected static String KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY = "GiftCloud.PatientListSpreadsheetPassword";
 
-    private Properties properties;
-
-    final private Optional<String> sessionCookie = Optional.empty();
-
-    private Optional<char[]> lastPassword = Optional.empty(); // Currently this is not stored anywhere, but consider putting it in a keystore
-    private final GiftCloudUploaderApplicationBase applicationBase;
-
     private final String userAgentString;
 
-    private Optional<PasswordStore> passwordStore = null;
+    private final PropertyStore properties;
+    private GiftCloudReporter reporter;
 
 
-    public GiftCloudPropertiesFromApplication(final GiftCloudUploaderApplicationBase applicationBase, final ResourceBundle resourceBundle) {
-        this.applicationBase = applicationBase;
-        this.properties = applicationBase.getPropertiesFromApplicationBase();
-
-        try {
-            passwordStore = Optional.of(new PasswordStore(new File(System.getProperty("user.home"), ".giftcloudkeys"), "k>9TG*"));
-        } catch (Throwable t) {
-        }
-
+    public GiftCloudPropertiesFromApplication(final PropertyStore properties, final ResourceBundle resourceBundle, final GiftCloudReporter reporter) {
+        this.reporter = reporter;
+        this.properties = properties;
 
         // Set the user agent string for the application
         final String nameString = resourceBundle.getString("userAgentNameApplication");
         final String versionString = resourceBundle.getString("mavenVersion");
-        userAgentString = nameString + (versionString != null ? versionString : "");
-
-        addObserver(new GiftCloudPropertiesListener());
+        userAgentString = (nameString != null ? nameString : "") + (versionString != null ? versionString : "");
     }
 
 
@@ -54,8 +45,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     public void setGiftCloudUrl(final String giftCloudUrl) {
         if (!giftCloudUrl.equals(getGiftCloudUrl())) {
             properties.setProperty(propertyName_GiftCloudServerUrl, giftCloudUrl);
-            setChanged();
-            notifyObservers();
         }
     }
 
@@ -69,8 +58,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     public void setLastUserName(final String lastUserName) {
         if (!lastUserName.equals(getLastUserName())) {
             properties.setProperty(propertyName_GiftCloudLastUsername, lastUserName);
-            setChanged();
-            notifyObservers();
         }
     }
 
@@ -83,8 +70,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     public void setLastProject(final String lastProjectName) {
         if (!lastProjectName.equals(getLastProject())) {
             properties.setProperty(propertyName_GiftCloudLastProject, lastProjectName);
-            setChanged();
-            notifyObservers();
         }
     }
 
@@ -180,15 +165,7 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
 
     @Override
     public Optional<char[]> getPatientListPassword() {
-        if (passwordStore.isPresent()) {
-            try {
-                final char[] password = passwordStore.get().retrieve(KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY);
-                return password.length > 0 ? Optional.of(password) : Optional.<char[]>empty();
-            } catch (Throwable t) {
-                return lastPassword;
-            }
-        }
-        return lastPassword;
+        return properties.getPassword(KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY);
     }
 
     @Override
@@ -203,43 +180,22 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
 
     @Override
     public void setPatientListPassword(char[] patientListPassword) {
-        this.lastPassword = Optional.of(patientListPassword);
-        if (passwordStore.isPresent()) {
-            try {
-                passwordStore.get().store(KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY, patientListPassword);
-            } catch (Throwable t) {
-            }
-        }
+        properties.setPassword(KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY, patientListPassword);
     }
-
 
     @Override
     public Optional<char[]> getLastPassword() {
-        if (passwordStore.isPresent()) {
-            try {
-                final char[] password = passwordStore.get().retrieve(KEYSTORE_UPLOAD_PASSWORD_KEY);
-                return password.length > 0 ? Optional.of(password) : Optional.<char[]>empty();
-            } catch (Throwable t) {
-                return lastPassword;
-            }
-        }
-        return lastPassword;
+        return properties.getPassword(KEYSTORE_UPLOAD_PASSWORD_KEY);
     }
 
     @Override
     public void setLastPassword(char[] lastPassword) {
-        this.lastPassword = Optional.of(lastPassword);
-        if (passwordStore.isPresent()) {
-            try {
-                passwordStore.get().store(KEYSTORE_UPLOAD_PASSWORD_KEY, lastPassword);
-            } catch (Throwable t) {
-            }
-        }
+        properties.setPassword(KEYSTORE_UPLOAD_PASSWORD_KEY, lastPassword);
     }
 
     @Override
     public Optional<String> getSessionCookie() {
-        return sessionCookie;
+        return getOptionalProperty(propertyName_JsessionId);
     }
 
     public int getQueryDebugLevel() {
@@ -258,8 +214,13 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
         return getIntegerWithDefault(propertyName_StorageSCPDebugLevel, 0);
     }
 
-    protected void storeProperties(String comment) throws IOException {
-        applicationBase.storePropertiesToApplicationBase(comment);
+    @Override
+    public void save() {
+        try {
+            properties.save("Saving properties");
+        } catch (IOException e) {
+            reporter.silentLogException(e, "The following error occurred while saving the properties file:" + e.getLocalizedMessage());
+        }
     }
 
     public void setListeningPort(final int listeningPort) {
@@ -287,8 +248,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     public void setLastImportDirectory(final String lastImportDirectory) {
         if (!lastImportDirectory.equals(getLastImportDirectory())) {
             properties.setProperty(propertyName_LastImportDirectory, lastImportDirectory);
-            setChanged();
-            notifyObservers();
         }
     }
 
@@ -304,8 +263,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     public void setLastExportDirectory(final String lastExportDirectory) {
         if (!lastExportDirectory.equals(getLastExportDirectory())) {
             properties.setProperty(propertyName_LastExportDirectory, lastExportDirectory);
-            setChanged();
-            notifyObservers();
         }
     }
 
@@ -317,19 +274,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
     // ToDo: Previously this was supported via a checkbox
     public boolean zipExport() {
         return false;
-    }
-
-    private class GiftCloudPropertiesListener implements Observer {
-        @Override
-        public void update(Observable o, Object arg) {
-            try {
-                storeProperties("Auto-save after property change");
-            } catch (IOException e) {
-                // ToDo
-                e.printStackTrace();
-            }
-
-        }
     }
 
     private void setPropertyString(final String propertyName, final String propertyValue) {
@@ -355,19 +299,6 @@ public class GiftCloudPropertiesFromApplication extends Observable implements Gi
             try {
                 return Optional.of(Boolean.parseBoolean(propertyValue));
             } catch (Throwable t) {
-                return Optional.empty();
-            }
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    private Optional<Integer> getOptionalInteger(final String propertyName) {
-        final String propertyValue = getPropertyValue(propertyName);
-        if (StringUtils.isNotBlank(propertyValue)) {
-            try {
-                return Optional.of(Integer.parseInt(propertyValue));
-            } catch (NumberFormatException e) {
                 return Optional.empty();
             }
         } else {

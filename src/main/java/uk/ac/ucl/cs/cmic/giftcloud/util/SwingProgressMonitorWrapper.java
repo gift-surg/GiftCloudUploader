@@ -2,7 +2,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 import org.nrg.util.EditProgressMonitor;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SwingProgressMonitor;
 
 import java.awt.*;
 import java.util.Optional;

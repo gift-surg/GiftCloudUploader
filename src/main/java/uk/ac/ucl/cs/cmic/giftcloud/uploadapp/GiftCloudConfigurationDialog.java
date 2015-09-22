@@ -11,7 +11,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class GiftCloudConfigurationDialog {
 
     private boolean isDisposed = false;
 
-    GiftCloudConfigurationDialog(final JFrame owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
+    GiftCloudConfigurationDialog(final Component owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.projectListModel = projectListModel;
@@ -567,12 +566,7 @@ public class GiftCloudConfigurationDialog {
             }
         }
 
-        try {
-            giftCloudProperties.storeProperties("Saved from GiftCloudConfigurationDialog");
-        } catch (IOException e) {
-            reporter.silentLogException(e, "The following error occurred while saving the properties file:" + e.getLocalizedMessage());
-        }
-
+        giftCloudProperties.save();
 
         if (restartDicomNode || restartUploader || forcePatientListExport) {
             Cursor was = dialog.getCursor();
