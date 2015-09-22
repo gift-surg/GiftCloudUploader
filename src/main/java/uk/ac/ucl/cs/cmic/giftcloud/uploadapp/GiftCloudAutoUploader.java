@@ -14,7 +14,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -120,8 +119,6 @@ public class GiftCloudAutoUploader {
         sessionParameters.setProtocol("");
         sessionParameters.setVisit("");
         sessionParameters.setScanLabel(scanName);
-        sessionParameters.setBaseUrl(new URL(server.getGiftCloudServerUrl()));
-        sessionParameters.setNumberOfThreads(1);
         sessionParameters.setUsedFixedSize(true);
 
         // Set the predefined variables for project, subject and session, so that these can be used in the DICOM anonymisation scripts
