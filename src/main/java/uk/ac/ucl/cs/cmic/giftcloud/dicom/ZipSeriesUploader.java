@@ -19,6 +19,7 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
+import java.io.File;
 import java.util.Set;
 
 public class ZipSeriesUploader extends CallableUploader {
@@ -37,7 +38,9 @@ public class ZipSeriesUploader extends CallableUploader {
 
     @Override
     public Set<String> call() throws Exception {
-        return server.uploadZipFile(projectLabel, subjectLabel, sessionParameters, useFixedSizeStreaming, fileCollection, applicators);
+        final SeriesZipper seriesZipper = new SeriesZipper(applicators);
+        final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
+        return server.uploadZipFile(projectLabel, subjectLabel, sessionParameters, temporaryZipFile);
     }
 
     public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {

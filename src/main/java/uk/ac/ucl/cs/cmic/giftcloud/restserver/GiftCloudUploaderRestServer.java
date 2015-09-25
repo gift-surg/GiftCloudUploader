@@ -23,8 +23,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
-import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
@@ -157,21 +155,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public Set<String> getProjectTracers(final String projectName) throws Exception {
-        final String uri = "/REST/projects/" + projectName + "/config/tracers/tracers?contents=true";
-        return restServerSessionHelper.getStringList(uri);
-    }
-
-    @Override
-    public Set<String> getSiteTracers() throws Exception {
-        final String uri = "/REST/config/tracers/tracers?contents=true";
-        return restServerSessionHelper.getStringList(uri);
-    }
-
-
-    @Override
-    public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
-
+    public Set<String> uploadZipFile(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, final File temporaryFile) throws Exception {
         final String visit = sessionParameters.getVisit();
         final String protocol = sessionParameters.getProtocol();
         final GiftCloudLabel.ExperimentLabel experimentLabel = sessionParameters.getExperimentLabel();
@@ -201,9 +185,9 @@ public class GiftCloudUploaderRestServer implements RestServer {
         }
         dataPostURL = buffer.toString();
 
-        ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
-        return restServerSessionHelper.uploadSeriesUsingZipUpload(dataPostURL, zipStreaming, fileCollection, applicators);
+        return restServerSessionHelper.uploadSeriesUsingZipUpload(dataPostURL, temporaryFile);
     }
+
 
     private synchronized void createSubjectIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel) throws IOException {
         restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel.getStringLabel());
@@ -259,8 +243,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
 
     @Override
-    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
-
+    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, final File temporaryFile) throws Exception {
         createSubjectIfNotExisting(projectLabel, subjectLabel);
 
         {
@@ -280,13 +263,10 @@ public class GiftCloudUploaderRestServer implements RestServer {
             createScanCollectionIfNotExisting(projectLabel, subjectLabel, sessionParameters.getExperimentLabel(), sessionParameters.getScanLabel(), collectionLabel, scanCollectionCreateParams);
         }
 
-        final Collection<File> files = fileCollection.getFiles();
-        final File firstFile = files.iterator().next();
         final String uriParams = "?extract=true";
-        final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getExperimentLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" +  collectionLabel + "/files/" + firstFile.getName() + ".zip" + uriParams;
+        final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getExperimentLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" +  collectionLabel + "/files/" + temporaryFile.getName() + ".zip" + uriParams;
 
-        ZipSeriesRequestFactory.ZipStreaming zipStreaming = useFixedSizeStreaming ? ZipSeriesRequestFactory.ZipStreaming.FixedSize : ZipSeriesRequestFactory.ZipStreaming.Chunked;
-        restServerSessionHelper.appendFileUsingZipUpload(uri, zipStreaming, fileCollection, applicators);
+        restServerSessionHelper.appendFileUsingZipUpload(uri, temporaryFile);
     }
 
 

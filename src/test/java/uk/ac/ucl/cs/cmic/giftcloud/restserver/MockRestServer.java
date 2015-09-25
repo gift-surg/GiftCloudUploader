@@ -1,10 +1,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.json.JSONException;
-import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -83,12 +82,20 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Collection<String> getScriptStatus(String projectName) throws IOException {
-        return new ArrayList<String>();
+        ArrayList status = new ArrayList();
+        status.add("true");
+        return status;
     }
 
     @Override
     public Collection<String> getScripts(String projectName) throws IOException {
-        return new ArrayList<String>();
+        ArrayList scripts = new ArrayList();
+        scripts.add("(0010,0010) := subject");
+        scripts.add("(0010,0020) := hashUID[(0010,0020)]");
+        scripts.add("(0020,000D) := hashUID[(0020,000D)]");
+        scripts.add("(0020,000E) := hashUID[(0020,000E)]");
+        scripts.add("-(0010,0030)");
+        return scripts;
     }
 
     @Override
@@ -112,20 +119,8 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Set<String> getProjectTracers(String projectName) throws Exception {
-        return new HashSet<String>();
-    }
-
-    @Override
-    public Set<String> getSiteTracers() throws Exception {
-        return new HashSet<String>();
-    }
-
-    @Override
-    public Set<String> uploadZipFile(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
-        final Set<String> uids = new HashSet<String>();
-        uids.add(UUID.randomUUID().toString());
-        return uids;
+    public Set<String> uploadZipFile(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, File temporaryFile) throws Exception {
+        return null;
     }
 
     @Override
@@ -137,8 +132,8 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public void appendZipFileToExistingScan(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, boolean useFixedSizeStreaming, FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws Exception {
-        System.out.println("Appending file for " + fileCollection);
+    public void appendZipFileToExistingScan(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, File temporaryFile) throws Exception {
+        System.out.println("Appending file for " + temporaryFile);
         Thread.sleep(10);
     }
 

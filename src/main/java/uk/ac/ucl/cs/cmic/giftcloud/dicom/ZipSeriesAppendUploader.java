@@ -15,9 +15,13 @@
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,7 +37,9 @@ public class ZipSeriesAppendUploader extends CallableUploader {
     }
 
     public Set<String> call() throws Exception {
-        server.appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators);
+        final SeriesZipper seriesZipper = new SeriesZipper(applicators);
+        final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
+        server.appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, temporaryZipFile);
         return new HashSet<String>();
     }
 
