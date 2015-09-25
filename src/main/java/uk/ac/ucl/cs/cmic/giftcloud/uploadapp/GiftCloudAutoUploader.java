@@ -128,8 +128,6 @@ public class GiftCloudAutoUploader {
         uploadParameters.setProjectName(projectName);
         uploadParameters.setSubjectLabel(subjectLabel);
         uploadParameters.setExperimentLabel(experimentLabel);
-        uploadParameters.setProtocol("");
-        uploadParameters.setVisit("");
         uploadParameters.setScanLabel(scanName);
         uploadParameters.setSessionVariables(sessionVariables);
         uploadParameters.setFileCollections(fileCollections);

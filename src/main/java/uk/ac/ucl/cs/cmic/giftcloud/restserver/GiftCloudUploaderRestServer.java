@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
-import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
@@ -155,8 +154,6 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
     @Override
     public Set<String> uploadZipFile(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, final File temporaryFile) throws Exception {
-        final String visit = sessionParameters.getVisit();
-        final String protocol = sessionParameters.getProtocol();
         final GiftCloudLabel.ExperimentLabel experimentLabel = sessionParameters.getExperimentLabel();
         final GiftCloudLabel.ScanLabel scanLabel = sessionParameters.getScanLabel();
 
@@ -170,18 +167,8 @@ public class GiftCloudUploaderRestServer implements RestServer {
         if (!Strings.isNullOrEmpty(scanLabel.getStringLabel())) {
             buffer.append("&SCAN=").append(scanLabel.getStringLabel());
         }
-        if (!Strings.isNullOrEmpty(visit)) {
-            buffer.append("&VISIT=").append(visit);
-        }
-        if (!Strings.isNullOrEmpty(protocol)) {
-            buffer.append("&PROTOCOL=").append(protocol);
-        }
         buffer.append("&rename=true&prevent_anon=true&prevent_auto_commit=true&SOURCE=applet");
 
-        final AutoArchive autoArchive = sessionParameters.getAutoArchive();
-        if (autoArchive != null) {
-            buffer.append("&").append("autoArchive=").append(autoArchive);
-        }
         dataPostURL = buffer.toString();
 
         return restServerSessionHelper.uploadSeriesUsingZipUpload(dataPostURL, temporaryFile);

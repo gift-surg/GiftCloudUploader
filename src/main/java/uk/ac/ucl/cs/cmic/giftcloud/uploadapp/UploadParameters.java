@@ -6,7 +6,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
-import uk.ac.ucl.cs.cmic.giftcloud.util.AutoArchive;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,10 +13,7 @@ import java.util.List;
 public class UploadParameters implements SessionParameters {
 
     private GiftCloudLabel.ExperimentLabel experimentLabel = null;
-    private String visit = null;
     private GiftCloudLabel.ScanLabel scanLabel = null;
-    private String protocol = null;
-    private AutoArchive autoArchive = null;
     private Collection<SessionVariable> sessionVariables = null;
     private String projectName = null;
     private GiftCloudLabel.SubjectLabel subjectLabel;
@@ -31,21 +27,6 @@ public class UploadParameters implements SessionParameters {
     @Override
     public GiftCloudLabel.ExperimentLabel getExperimentLabel() {
         return experimentLabel;
-    }
-
-    @Override
-    public String getVisit() {
-        return visit;
-    }
-
-    @Override
-    public String getProtocol() {
-        return protocol;
-    }
-
-    @Override
-    public AutoArchive getAutoArchive() {
-        return autoArchive;
     }
 
     @Override
@@ -64,13 +45,6 @@ public class UploadParameters implements SessionParameters {
 
     public void setScanLabel(final GiftCloudLabel.ScanLabel scanLabel) {
         this.scanLabel = scanLabel;
-    }
-
-    public void setVisit(final String visit) {
-        this.visit = visit;
-    }
-    public void setProtocol(final String protocol) {
-        this.protocol = protocol;
     }
 
     public void setSessionVariables(Collection<SessionVariable> sessionVariables) {
