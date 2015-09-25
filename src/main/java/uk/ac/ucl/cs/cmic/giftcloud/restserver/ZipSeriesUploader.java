@@ -40,7 +40,7 @@ public class ZipSeriesUploader extends CallableUploader {
     public Set<String> call() throws Exception {
         final SeriesZipper seriesZipper = new SeriesZipper(applicators);
         final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
-        return server.uploadZipFile(projectLabel, subjectLabel, uploadParameters, temporaryZipFile);
+        return server.uploadZipFile(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), temporaryZipFile);
     }
 
     public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {

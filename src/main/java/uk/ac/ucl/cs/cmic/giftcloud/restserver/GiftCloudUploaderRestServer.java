@@ -153,10 +153,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public Set<String> uploadZipFile(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, final File temporaryFile) throws Exception {
-        final GiftCloudLabel.ExperimentLabel experimentLabel = sessionParameters.getExperimentLabel();
-        final GiftCloudLabel.ScanLabel scanLabel = sessionParameters.getScanLabel();
-
+    public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final File temporaryFile) throws Exception {
         final String dataPostURL;
         final StringBuilder buffer = new StringBuilder();
         buffer.append("/REST/services/import?import-handler=DICOM-zip");
@@ -229,28 +226,28 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
 
     @Override
-    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, final XnatModalityParams xnatModalityParams, final File temporaryFile) throws Exception {
+    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final XnatModalityParams xnatModalityParams, final File temporaryFile) throws Exception {
         createSubjectIfNotExisting(projectLabel, subjectLabel);
 
         {
             final String sessionCreateParams = "?xsiType=" + xnatModalityParams.getXnatSessionTag();
-            createExperimentIfNotExisting(projectLabel, subjectLabel, sessionParameters.getExperimentLabel(), sessionCreateParams);
+            createExperimentIfNotExisting(projectLabel, subjectLabel, experimentLabel, sessionCreateParams);
         }
 
         {
             final String scanCreateParams = "?xsiType=" + xnatModalityParams.getXnatScanTag();
-            createScanIfNotExisting(projectLabel, subjectLabel, sessionParameters.getExperimentLabel(), sessionParameters.getScanLabel(), scanCreateParams);
+            createScanIfNotExisting(projectLabel, subjectLabel, experimentLabel, scanLabel, scanCreateParams);
         }
 
         final String collectionLabel = xnatModalityParams.getCollectionString();
 
         {
             final String scanCollectionCreateParams = "?xsiType=xnat:resourceCatalog" + "&format=" + xnatModalityParams.getFormatString();
-            createScanCollectionIfNotExisting(projectLabel, subjectLabel, sessionParameters.getExperimentLabel(), sessionParameters.getScanLabel(), collectionLabel, scanCollectionCreateParams);
+            createScanCollectionIfNotExisting(projectLabel, subjectLabel, experimentLabel, scanLabel, collectionLabel, scanCollectionCreateParams);
         }
 
         final String uriParams = "?extract=true";
-        final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + sessionParameters.getExperimentLabel() + "/scans/" + sessionParameters.getScanLabel() + "/resources/" +  collectionLabel + "/files/" + temporaryFile.getName() + ".zip" + uriParams;
+        final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + experimentLabel + "/scans/" + scanLabel + "/resources/" +  collectionLabel + "/files/" + temporaryFile.getName() + ".zip" + uriParams;
 
         restServerSessionHelper.appendFileUsingZipUpload(uri, temporaryFile);
     }

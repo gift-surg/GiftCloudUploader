@@ -38,7 +38,7 @@ public class ZipSeriesAppendUploader extends CallableUploader {
     public Set<String> call() throws Exception {
         final SeriesZipper seriesZipper = new SeriesZipper(applicators);
         final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
-        server.appendZipFileToExistingScan(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters, xnatModalityParams, temporaryZipFile);
+        server.appendZipFileToExistingScan(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), uploadParameters.getXnatModalityParams(), temporaryZipFile);
         return new HashSet<String>();
     }
 
