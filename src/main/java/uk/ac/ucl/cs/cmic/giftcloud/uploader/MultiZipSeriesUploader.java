@@ -78,7 +78,7 @@ public class MultiZipSeriesUploader {
         }
 
         if (!backgroundCompletionServiceTaskList.isEmpty()) {
-            logger.error("progress failed before uploaders complete: {}");
+            logger.silentWarning("progress failed before uploaders complete: {}");
             return Optional.of("progress failed before uploaders complete: {}");
         }
 

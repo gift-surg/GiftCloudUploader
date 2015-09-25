@@ -94,7 +94,7 @@ public class GiftCloudAutoUploader {
         // If any files failed to upload, we log all of them and throw an exception for the first one
         if (errors.size() > 0) {
             for (final GiftCloudUploaderError error : errors) {
-                reporter.warn("Failed to upload file: " + error.getUserVisibleMessage());
+                reporter.showMessageToUser("Failed to upload file: " + error.getUserVisibleMessage());
             }
             throw new GiftCloudException(errors.get(0));
         }

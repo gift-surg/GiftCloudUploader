@@ -77,27 +77,6 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     }
 
     @Override
-    public void error(String msg, Throwable t) {
-        logger.error(msg, t);
-    }
-
-    @Override
-    public void info(String msg, Throwable t) {
-        logger.info(msg, t);
-    }
-
-    @Override
-    public void warn(String msg) {
-        logger.warn(msg);
-
-    }
-
-    @Override
-    public void error(String message) {
-        logger.error(message);
-    }
-
-    @Override
     public void showMessageToUser(final String messageText) {
         giftCloudDialogs.showMessage(messageText);
         updateStatusText(messageText);
@@ -124,7 +103,7 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
 
         giftCloudDialogs.showError(errorMessageForUser, additionalText);
         updateStatusText(errorMessageForStatusBar);
-        error(errorMessageForLog);
+        logger.error(errorMessageForLog);
         throwable.printStackTrace(System.err);
     }
 

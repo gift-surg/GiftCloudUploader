@@ -64,7 +64,7 @@ public class MultiUploadAppletParameters {
                 properties.load(appletProperties);
             }
         } catch (IOException exception) {
-            reporter.info("Unable to find the applet.properties resource for initialization", exception);
+            reporter.silentLogException(exception, "Unable to find the applet.properties resource for initialization");
         } finally {
             if (appletProperties != null) {
                 try {
@@ -90,7 +90,7 @@ public class MultiUploadAppletParameters {
                 customProperties = applet.getClass().getResourceAsStream(customProps);
                 properties.load(customProperties);
             } catch (IOException exception) {
-                reporter.info("Unable to find the custom properties resource " + customProps + " for initialization", exception);
+                reporter.silentLogException(exception, "Unable to find the custom properties resource " + customProps + " for initialization");
             } finally {
                 if (customProperties != null) {
                     try {

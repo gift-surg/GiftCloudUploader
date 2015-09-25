@@ -28,17 +28,6 @@ public interface GiftCloudReporter extends Progress {
 
     Container getContainer();
 
-    void error(String msg, Throwable t);
-
-    void info(String msg, Throwable t);
-    void warn(String msg);
-
-    void error(String message);
-
-
-    // The following methods are the new "preferred" methods for error and warning reporting
-
-
     /**
      * Used to display a message to the end user, unless running in background mode
      * @param errorText error text to display, unless a GiftCloudException is received
@@ -64,5 +53,4 @@ public interface GiftCloudReporter extends Progress {
      * @param errorMessage the text of the error
      */
     void silentLogException(final Throwable throwable, final String errorMessage);
-
 }

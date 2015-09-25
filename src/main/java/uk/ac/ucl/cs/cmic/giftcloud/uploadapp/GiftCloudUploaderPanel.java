@@ -132,7 +132,7 @@ public class GiftCloudUploaderPanel extends JPanel {
             new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
 
         } catch (DicomException e) {
-            reporter.error("Refresh of the file database failed: " + e.getLocalizedMessage(), e);
+            reporter.silentLogException(e, "Refresh of the file database failed: " + e.getLocalizedMessage());
         }
         srcDatabasePanel.validate();
     }

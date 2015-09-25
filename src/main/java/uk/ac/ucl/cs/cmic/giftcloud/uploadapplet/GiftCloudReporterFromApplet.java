@@ -80,27 +80,6 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
         return applet;
     }
 
-    @Override
-    public void error(String msg, Throwable t) {
-        logger.error(msg, t);
-    }
-
-    @Override
-    public void info(String msg, Throwable t) {
-        logger.info(msg, t);
-    }
-
-    @Override
-    public void warn(String msg) {
-        logger.warn(msg);
-
-    }
-
-    @Override
-    public void error(String message) {
-        logger.error(message);
-    }
-
 
     @Override
     public void reportErrorToUser(String errorText, Throwable throwable) {
@@ -112,7 +91,7 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
         }
         errorBox(finalErrorText, throwable);
         updateStatusText("GIFT-Cloud upload failed: " + throwable);
-        error("GIFT-Cloud upload failed: " + throwable);
+        logger.error("GIFT-Cloud upload failed: " + throwable.getLocalizedMessage(), throwable);
         throwable.printStackTrace(System.err);
     }
 
@@ -120,7 +99,7 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
     public void showMessageToUser(String messageText) {
         messageBox(messageText);
         updateStatusText("GIFT-Cloud upload failed: " + messageText);
-        error("GIFT-Cloud upload failed: " + messageText);
+        logger.error("GIFT-Cloud upload failed: " + messageText);
     }
 
     @Override
@@ -143,7 +122,7 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
             try {
                 PropertyConfigurator.configure(new URL(log4jProps));
             } catch (MalformedURLException e) {
-                error("Unable to read remote log4j configuration file " + log4jProps, e);
+                logger.error("Unable to read remote log4j configuration file " + log4jProps, e);
             }
         }
     }
