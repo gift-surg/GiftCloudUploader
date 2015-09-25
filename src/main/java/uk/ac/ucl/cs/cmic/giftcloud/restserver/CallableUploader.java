@@ -19,7 +19,6 @@ import org.dcm4che2.data.Tag;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.CallableWithParameter;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
 import java.util.Collections;
 import java.util.Set;

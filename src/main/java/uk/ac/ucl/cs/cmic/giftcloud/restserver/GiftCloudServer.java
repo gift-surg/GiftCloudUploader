@@ -1,8 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.ProjectCache;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 

@@ -12,7 +12,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -22,7 +22,7 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import org.nrg.dcm.edit.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;

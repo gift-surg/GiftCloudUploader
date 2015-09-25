@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServer;
 
 import java.util.HashMap;

@@ -2,10 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.util.List;
