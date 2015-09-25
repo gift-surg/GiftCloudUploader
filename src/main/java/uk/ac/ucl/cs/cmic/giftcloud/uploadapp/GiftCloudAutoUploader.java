@@ -117,25 +117,29 @@ public class GiftCloudAutoUploader {
 
         final LinkedList<SessionVariable> sessionVariables = getSessionVariables(project, projectName, session, subjectLabel, experimentLabel);
 
-
         final List<FileCollection> fileCollections = session.getFiles();
 
         if (fileCollections.isEmpty()) {
             throw new IOException("No files were selected for upload");
         }
 
-        final UploadParameters uploadParameters = new UploadParameters();
-        uploadParameters.setProjectName(projectName);
-        uploadParameters.setSubjectLabel(subjectLabel);
-        uploadParameters.setExperimentLabel(experimentLabel);
-        uploadParameters.setScanLabel(scanName);
-        uploadParameters.setSessionVariables(sessionVariables);
-        uploadParameters.setFileCollections(fileCollections);
-        uploadParameters.setXnatModalityParams(xnatModalityParams);
-
         final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
 
-        backgroundUploader.addFiles(server, fileCollections, xnatModalityParams, projectApplicators, projectName, subjectLabel, uploadParameters, callableUploaderFactory);
+        // Iterate through each set of files
+        for (final FileCollection fileCollection : fileCollections) {
+            final UploadParameters uploadParameters = new UploadParameters();
+            uploadParameters.setProjectName(projectName);
+            uploadParameters.setSubjectLabel(subjectLabel);
+            uploadParameters.setExperimentLabel(experimentLabel);
+            uploadParameters.setScanLabel(scanName);
+            uploadParameters.setSessionVariables(sessionVariables);
+            uploadParameters.setFileCollection(fileCollection);
+            uploadParameters.setXnatModalityParams(xnatModalityParams);
+            uploadParameters.setProjectApplicators(projectApplicators);
+
+            final CallableUploader uploader = callableUploaderFactory.create(uploadParameters, server);
+            backgroundUploader.addUploader(uploader);
+        }
     }
 
     private LinkedList<SessionVariable> getSessionVariables(Project project, String projectName, Session session, GiftCloudLabel.SubjectLabel subjectLabel, GiftCloudLabel.ExperimentLabel experimentLabel) {

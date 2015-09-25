@@ -1,40 +1,37 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 
+import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 
 import java.util.Collection;
-import java.util.List;
 
-public class UploadParameters implements SessionParameters {
+public class UploadParameters {
 
     private GiftCloudLabel.ExperimentLabel experimentLabel = null;
     private GiftCloudLabel.ScanLabel scanLabel = null;
     private Collection<SessionVariable> sessionVariables = null;
     private String projectName = null;
     private GiftCloudLabel.SubjectLabel subjectLabel;
-    private List<FileCollection> fileCollections;
+    private FileCollection fileCollection;
     private XnatModalityParams xnatModalityParams;
+    private Iterable<ScriptApplicator> projectApplicators;
 
     public String getProjectName() {
         return projectName;
     }
 
-    @Override
     public GiftCloudLabel.ExperimentLabel getExperimentLabel() {
         return experimentLabel;
     }
 
-    @Override
     public Collection<?> getSessionVariables() {
         return sessionVariables;
     }
 
-    @Override
     public GiftCloudLabel.ScanLabel getScanLabel() {
         return scanLabel;
     }
@@ -47,15 +44,15 @@ public class UploadParameters implements SessionParameters {
         this.scanLabel = scanLabel;
     }
 
-    public void setSessionVariables(Collection<SessionVariable> sessionVariables) {
+    public void setSessionVariables(final Collection<SessionVariable> sessionVariables) {
         this.sessionVariables = sessionVariables;
     }
 
-    public void setProjectName(String projectName) {
+    public void setProjectName(final String projectName) {
         this.projectName = projectName;
     }
 
-    public void setSubjectLabel(GiftCloudLabel.SubjectLabel subjectLabel) {
+    public void setSubjectLabel(final GiftCloudLabel.SubjectLabel subjectLabel) {
         this.subjectLabel = subjectLabel;
     }
 
@@ -63,19 +60,27 @@ public class UploadParameters implements SessionParameters {
         return subjectLabel;
     }
 
-    public void setFileCollections(List<FileCollection> fileCollections) {
-        this.fileCollections = fileCollections;
+    public void setFileCollection(final FileCollection fileCollection) {
+        this.fileCollection = fileCollection;
     }
 
-    public List<FileCollection> getFileCollections() {
-        return fileCollections;
+    public FileCollection getFileCollection() {
+        return fileCollection;
     }
 
-    public void setXnatModalityParams(XnatModalityParams xnatModalityParams) {
+    public void setXnatModalityParams(final XnatModalityParams xnatModalityParams) {
         this.xnatModalityParams = xnatModalityParams;
     }
 
     public XnatModalityParams getXnatModalityParams() {
         return xnatModalityParams;
+    }
+
+    public void setProjectApplicators(Iterable<ScriptApplicator> projectApplicators) {
+        this.projectApplicators = projectApplicators;
+    }
+
+    public Iterable<ScriptApplicator> getProjectApplicators() {
+        return projectApplicators;
     }
 }

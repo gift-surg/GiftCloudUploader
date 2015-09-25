@@ -16,7 +16,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
 
@@ -27,15 +26,13 @@ public class ZipSeriesUploader extends CallableUploader {
 
     private ZipSeriesUploader(
             final UploadParameters uploadParameters,
-            final FileCollection fileCollection,
-            final Iterable<ScriptApplicator> applicators,
             final GiftCloudServer server) {
-        super(uploadParameters, fileCollection, applicators, server);
+        super(uploadParameters, server);
     }
 
     @Override
     public Set<String> call() throws Exception {
-        final SeriesZipper seriesZipper = new SeriesZipper(applicators);
+        final SeriesZipper seriesZipper = new SeriesZipper(uploadParameters.getProjectApplicators());
         final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
         return server.uploadZipFile(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), temporaryZipFile);
     }
@@ -43,10 +40,8 @@ public class ZipSeriesUploader extends CallableUploader {
     public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {
         public CallableUploader create(
                 final UploadParameters uploadParameters,
-                final FileCollection fileCollection,
-                final Iterable<ScriptApplicator> applicators,
                 final GiftCloudServer server) {
-            return new ZipSeriesUploader(uploadParameters, fileCollection, applicators, server);
+            return new ZipSeriesUploader(uploadParameters, server);
         }
     }
 }
