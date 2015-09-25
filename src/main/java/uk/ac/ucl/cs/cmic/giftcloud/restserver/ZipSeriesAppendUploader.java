@@ -17,6 +17,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
 
 import java.io.File;
 import java.util.HashSet;
@@ -24,18 +25,20 @@ import java.util.Set;
 
 public class ZipSeriesAppendUploader extends CallableUploader {
 
-    public ZipSeriesAppendUploader(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters,
+    public ZipSeriesAppendUploader(final String projectLabel,
+                                   final GiftCloudLabel.SubjectLabel subjectLabel,
+                                   final UploadParameters uploadParameters,
                                    final XnatModalityParams xnatModalityParams,
                                    final FileCollection fileCollection,
                                    final Iterable<ScriptApplicator> applicators,
                                    final GiftCloudServer server) {
-        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, fileCollection, applicators, server);
+        super(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters, xnatModalityParams, fileCollection, applicators, server);
     }
 
     public Set<String> call() throws Exception {
         final SeriesZipper seriesZipper = new SeriesZipper(applicators);
         final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
-        server.appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, temporaryZipFile);
+        server.appendZipFileToExistingScan(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters, xnatModalityParams, temporaryZipFile);
         return new HashSet<String>();
     }
 
@@ -44,12 +47,12 @@ public class ZipSeriesAppendUploader extends CallableUploader {
         public CallableUploader create(
                 final String projectLabel,
                 final GiftCloudLabel.SubjectLabel subjectLabel,
-                final SessionParameters sessionParameters,
+                final UploadParameters uploadParameters,
                 final XnatModalityParams xnatModalityParams,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final GiftCloudServer server) {
-            return new ZipSeriesAppendUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, fileCollection, applicators, server);
+            return new ZipSeriesAppendUploader(projectLabel, subjectLabel, uploadParameters, xnatModalityParams, fileCollection, applicators, server);
         }
     }
 }
