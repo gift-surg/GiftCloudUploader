@@ -13,11 +13,10 @@
 =============================================================================*/
 
 
-package uk.ac.ucl.cs.cmic.giftcloud.dicom;
+package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 
 import java.io.File;
 import java.util.Set;

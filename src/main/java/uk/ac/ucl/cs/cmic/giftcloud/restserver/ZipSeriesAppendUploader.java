@@ -12,14 +12,11 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.dicom;
+package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
 
 import java.io.File;
 import java.util.HashSet;

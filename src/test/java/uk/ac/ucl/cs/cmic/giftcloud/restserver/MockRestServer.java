@@ -120,7 +120,9 @@ public class MockRestServer implements RestServer {
 
     @Override
     public Set<String> uploadZipFile(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, File temporaryFile) throws Exception {
-        return null;
+        final Set<String> uids = new HashSet<String>();
+        uids.add(UUID.randomUUID().toString());
+        return uids;
     }
 
     @Override

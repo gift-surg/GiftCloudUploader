@@ -44,7 +44,6 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
     public GiftCloudUploaderRestServer(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
         this.restServerSessionHelper = new RestServerSessionHelper(giftCloudServerUrlString, giftCloudProperties, connectionFactory, reporter);
-        GiftCloudReporter reporter1 = reporter;
     }
 
     @Override
