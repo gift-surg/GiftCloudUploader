@@ -72,10 +72,6 @@ public class RestServerSessionHelper {
         return giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.GET, path, new HttpStringResponseProcessor(), giftCloudProperties, reporter));
     }
 
-    public Set<String> getStringList(final String path) throws IOException {
-        return giftCloudSession.request(new HttpRequestWithoutOutput<Set<String>>(HttpConnection.ConnectionType.GET, path, new HttpStringListResponseProcessor(), giftCloudProperties, reporter));
-    }
-
     public void appendFileUsingZipUpload(final String relativeUrl, final File temporaryFile) throws IOException {
         giftCloudSession.request(new UploadFileRequest(HttpConnection.ConnectionType.PUT, relativeUrl, temporaryFile, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter));
     }
