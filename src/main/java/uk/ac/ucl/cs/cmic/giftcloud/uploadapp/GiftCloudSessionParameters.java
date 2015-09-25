@@ -65,9 +65,6 @@ public class GiftCloudSessionParameters implements SessionParameters {
         this.protocol = protocol;
     }
 
-    public void setUsedFixedSize(final Boolean useFixedSize) {
-    }
-
     public void setSessionVariables(Collection<SessionVariable> sessionVariables) {
         this.sessionVariables = sessionVariables;
     }

@@ -29,11 +29,10 @@ public class ZipSeriesUploader extends CallableUploader {
             final GiftCloudLabel.SubjectLabel subjectLabel,
             final SessionParameters sessionParameters,
             final XnatModalityParams xnatModalityParams,
-            final boolean useFixedSizeStreaming,
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
             final GiftCloudServer server) {
-        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, server);
+        super(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, fileCollection, applicators, server);
     }
 
     @Override
@@ -49,11 +48,10 @@ public class ZipSeriesUploader extends CallableUploader {
                 final GiftCloudLabel.SubjectLabel subjectLabel,
                 final SessionParameters sessionParameters,
                 final XnatModalityParams xnatModalityParams,
-                final boolean useFixedSizeStreaming,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final GiftCloudServer server) {
-            return new ZipSeriesUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSizeStreaming, fileCollection, applicators, server);
+            return new ZipSeriesUploader(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, fileCollection, applicators, server);
         }
     }
 }

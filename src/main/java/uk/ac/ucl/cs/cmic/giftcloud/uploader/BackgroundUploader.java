@@ -17,7 +17,6 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
      */
     private static final long MAXIMUM_THREAD_COMPLETION_WAIT_MS = 10000;
 
-    private final boolean useFixedSize = true;
     final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList;
     private BackgroundUploadOutcomeCallback outcomeCallback;
     private UploaderStatusModel uploaderStatusModel;
@@ -39,7 +38,7 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
     }
 
     private void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, FileCollection fileCollection) {
-        final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, fileCollection, applicators, server);
+        final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, fileCollection, applicators, server);
         backgroundCompletionServiceTaskList.addNewTask(uploader);
     }
 

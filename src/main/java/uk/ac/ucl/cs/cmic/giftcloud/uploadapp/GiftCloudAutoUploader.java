@@ -85,7 +85,7 @@ public class GiftCloudAutoUploader {
 
         for (final Session session : sessions) {
 
-            addSessionToUploadList(server, project, projectApplicators, projectName, session, properties.getSubjectPrefix());
+            addSessionToUploadList(server, project, projectApplicators, projectName, session);
         }
 
 
@@ -102,7 +102,7 @@ public class GiftCloudAutoUploader {
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, final Session session, Optional<String> subjectPrefix) throws IOException {
+    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, final Session session) throws IOException {
         final String patientId = session.getPatientId();
         final String patientName = session.getPatientName();
         final String studyInstanceUid = session.getStudyUid();
@@ -119,7 +119,6 @@ public class GiftCloudAutoUploader {
         sessionParameters.setProtocol("");
         sessionParameters.setVisit("");
         sessionParameters.setScanLabel(scanName);
-        sessionParameters.setUsedFixedSize(true);
 
         // Set the predefined variables for project, subject and session, so that these can be used in the DICOM anonymisation scripts
         final Map<String, SessionVariable> predefs = Maps.newLinkedHashMap();

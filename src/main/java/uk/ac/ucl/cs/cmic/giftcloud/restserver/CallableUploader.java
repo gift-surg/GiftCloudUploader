@@ -30,7 +30,6 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
     protected final SessionParameters sessionParameters;
     protected final XnatModalityParams xnatModalityParams;
     protected final FileCollection fileCollection;
-    protected final boolean useFixedSizeStreaming;
     protected final GiftCloudServer server;
     protected final Iterable<ScriptApplicator> applicators;
 
@@ -42,7 +41,6 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
             final GiftCloudLabel.SubjectLabel subjectLabel,
             final SessionParameters sessionParameters,
             final XnatModalityParams xnatModalityParams,
-            final boolean useFixedSizeStreaming,
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
             final GiftCloudServer server) {
@@ -50,7 +48,6 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
         this.subjectLabel = subjectLabel;
         this.sessionParameters = sessionParameters;
         this.xnatModalityParams = xnatModalityParams;
-        this.useFixedSizeStreaming = useFixedSizeStreaming;
         this.fileCollection = fileCollection;
         this.server = server;
         this.applicators = applicators;
@@ -72,7 +69,6 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
                 final GiftCloudLabel.SubjectLabel subjectLabel,
                 final SessionParameters sessionParameters,
                 final XnatModalityParams xnatModalityParams,
-                final boolean useFixedSizeStreaming,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final GiftCloudServer server);
