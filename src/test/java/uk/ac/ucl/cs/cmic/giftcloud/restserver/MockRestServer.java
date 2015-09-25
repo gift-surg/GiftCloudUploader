@@ -119,7 +119,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Set<String> uploadZipFile(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, File temporaryFile) throws Exception {
+    public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final File temporaryFile) throws Exception {
         final Set<String> uids = new HashSet<String>();
         uids.add(UUID.randomUUID().toString());
         return uids;
@@ -134,7 +134,7 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public void appendZipFileToExistingScan(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, File temporaryFile) throws Exception {
+    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final XnatModalityParams xnatModalityParams, final File temporaryFile) throws Exception {
         System.out.println("Appending file for " + temporaryFile);
         Thread.sleep(10);
     }

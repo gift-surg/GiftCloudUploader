@@ -34,12 +34,12 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
 
     public void addFiles(final GiftCloudServer server, List<FileCollection> uploads, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, UploadParameters uploadParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory) {
         for (final FileCollection fileCollection : uploads) {
-            addFile(server, xnatModalityParams, applicators, projectLabel, subjectLabel, uploadParameters, callableUploaderFactory, fileCollection);
+            addFile(server, applicators, uploadParameters, callableUploaderFactory, fileCollection);
         }
     }
 
-    private void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, UploadParameters uploadParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, FileCollection fileCollection) {
-        final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, uploadParameters, xnatModalityParams, fileCollection, applicators, server);
+    private void addFile(final GiftCloudServer server, Iterable<ScriptApplicator> applicators, UploadParameters uploadParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, FileCollection fileCollection) {
+        final CallableUploader uploader = callableUploaderFactory.create(uploadParameters, fileCollection, applicators, server);
         backgroundCompletionServiceTaskList.addNewTask(uploader);
     }
 

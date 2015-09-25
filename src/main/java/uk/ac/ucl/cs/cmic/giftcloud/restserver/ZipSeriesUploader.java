@@ -26,14 +26,11 @@ import java.util.Set;
 public class ZipSeriesUploader extends CallableUploader {
 
     private ZipSeriesUploader(
-            final String projectLabel,
-            final GiftCloudLabel.SubjectLabel subjectLabel,
             final UploadParameters uploadParameters,
-            final XnatModalityParams xnatModalityParams,
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
             final GiftCloudServer server) {
-        super(projectLabel, subjectLabel, uploadParameters, xnatModalityParams, fileCollection, applicators, server);
+        super(uploadParameters, fileCollection, applicators, server);
     }
 
     @Override
@@ -45,14 +42,11 @@ public class ZipSeriesUploader extends CallableUploader {
 
     public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {
         public CallableUploader create(
-                final String projectLabel,
-                final GiftCloudLabel.SubjectLabel subjectLabel,
                 final UploadParameters uploadParameters,
-                final XnatModalityParams xnatModalityParams,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final GiftCloudServer server) {
-            return new ZipSeriesUploader(projectLabel, subjectLabel, uploadParameters, xnatModalityParams, fileCollection, applicators, server);
+            return new ZipSeriesUploader(uploadParameters, fileCollection, applicators, server);
         }
     }
 }

@@ -25,14 +25,11 @@ import java.util.Set;
 
 public class ZipSeriesAppendUploader extends CallableUploader {
 
-    public ZipSeriesAppendUploader(final String projectLabel,
-                                   final GiftCloudLabel.SubjectLabel subjectLabel,
-                                   final UploadParameters uploadParameters,
-                                   final XnatModalityParams xnatModalityParams,
+    public ZipSeriesAppendUploader(final UploadParameters uploadParameters,
                                    final FileCollection fileCollection,
                                    final Iterable<ScriptApplicator> applicators,
                                    final GiftCloudServer server) {
-        super(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters, xnatModalityParams, fileCollection, applicators, server);
+        super(uploadParameters, fileCollection, applicators, server);
     }
 
     public Set<String> call() throws Exception {
@@ -45,14 +42,11 @@ public class ZipSeriesAppendUploader extends CallableUploader {
 
     public static class ZipSeriesAppendUploaderFactory implements CallableUploaderFactory {
         public CallableUploader create(
-                final String projectLabel,
-                final GiftCloudLabel.SubjectLabel subjectLabel,
                 final UploadParameters uploadParameters,
-                final XnatModalityParams xnatModalityParams,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final GiftCloudServer server) {
-            return new ZipSeriesAppendUploader(projectLabel, subjectLabel, uploadParameters, xnatModalityParams, fileCollection, applicators, server);
+            return new ZipSeriesAppendUploader(uploadParameters, fileCollection, applicators, server);
         }
     }
 }

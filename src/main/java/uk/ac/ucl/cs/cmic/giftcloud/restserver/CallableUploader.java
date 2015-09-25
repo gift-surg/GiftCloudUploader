@@ -26,10 +26,7 @@ import java.util.Set;
 
 
 public abstract class CallableUploader implements CallableWithParameter<Set<String>, FileCollection> {
-    protected final String projectLabel;
-    protected final GiftCloudLabel.SubjectLabel subjectLabel;
     protected final UploadParameters uploadParameters;
-    protected final XnatModalityParams xnatModalityParams;
     protected final FileCollection fileCollection;
     protected final GiftCloudServer server;
     protected final Iterable<ScriptApplicator> applicators;
@@ -38,17 +35,11 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
             Tag.TransferSyntaxUID, Tag.FileMetaInformationVersion, Tag.SOPClassUID));
 
     public CallableUploader(
-            final String projectLabel,
-            final GiftCloudLabel.SubjectLabel subjectLabel,
             final UploadParameters uploadParameters,
-            final XnatModalityParams xnatModalityParams,
             final FileCollection fileCollection,
             final Iterable<ScriptApplicator> applicators,
             final GiftCloudServer server) {
-        this.projectLabel = projectLabel;
-        this.subjectLabel = subjectLabel;
         this.uploadParameters = uploadParameters;
-        this.xnatModalityParams = xnatModalityParams;
         this.fileCollection = fileCollection;
         this.server = server;
         this.applicators = applicators;
@@ -66,10 +57,7 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
 
     public interface CallableUploaderFactory {
         CallableUploader create(
-                final String projectLabel,
-                final GiftCloudLabel.SubjectLabel subjectLabel,
                 final UploadParameters uploadParameters,
-                final XnatModalityParams xnatModalityParams,
                 final FileCollection fileCollection,
                 final Iterable<ScriptApplicator> applicators,
                 final GiftCloudServer server);
