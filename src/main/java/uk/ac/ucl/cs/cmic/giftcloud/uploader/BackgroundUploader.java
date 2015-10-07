@@ -1,11 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.SessionParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.util.List;
@@ -20,7 +16,6 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
      */
     private static final long MAXIMUM_THREAD_COMPLETION_WAIT_MS = 10000;
 
-    private final boolean useFixedSize = true;
     final BackgroundCompletionServiceTaskList backgroundCompletionServiceTaskList;
     private BackgroundUploadOutcomeCallback outcomeCallback;
     private UploaderStatusModel uploaderStatusModel;
@@ -34,18 +29,9 @@ public class BackgroundUploader extends BackgroundService<CallableUploader, Futu
         this.uploaderStatusModel = uploaderStatusModel;
     }
 
-
-    public void addFiles(final GiftCloudServer server, List<FileCollection> uploads, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory) {
-        for (final FileCollection fileCollection : uploads) {
-            addFile(server, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, callableUploaderFactory, fileCollection);
-        }
-    }
-
-    private void addFile(final GiftCloudServer server, XnatModalityParams xnatModalityParams, Iterable<ScriptApplicator> applicators, String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, CallableUploader.CallableUploaderFactory callableUploaderFactory, FileCollection fileCollection) {
-        final CallableUploader uploader = callableUploaderFactory.create(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, useFixedSize, fileCollection, applicators, server);
+    public void addUploader(final CallableUploader uploader) {
         backgroundCompletionServiceTaskList.addNewTask(uploader);
     }
-
 
     @Override
     protected void processItem(final Future<Set<String>> futureResult) throws Exception {

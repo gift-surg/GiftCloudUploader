@@ -85,7 +85,7 @@ public class GiftCloudAutoUploader {
 
         for (final Session session : sessions) {
 
-            addSessionToUploadList(server, project, projectApplicators, projectName, session, properties.getSubjectPrefix());
+            addSessionToUploadList(server, project, projectApplicators, projectName, session);
         }
 
 
@@ -94,7 +94,7 @@ public class GiftCloudAutoUploader {
         // If any files failed to upload, we log all of them and throw an exception for the first one
         if (errors.size() > 0) {
             for (final GiftCloudUploaderError error : errors) {
-                reporter.warn("Failed to upload file: " + error.getUserVisibleMessage());
+                reporter.showMessageToUser("Failed to upload file: " + error.getUserVisibleMessage());
             }
             throw new GiftCloudException(errors.get(0));
         }
@@ -102,7 +102,7 @@ public class GiftCloudAutoUploader {
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, final Session session, Optional<String> subjectPrefix) throws IOException {
+    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, final Session session) throws IOException {
         final String patientId = session.getPatientId();
         final String patientName = session.getPatientName();
         final String studyInstanceUid = session.getStudyUid();
@@ -114,13 +114,35 @@ public class GiftCloudAutoUploader {
         final GiftCloudLabel.ExperimentLabel experimentLabel = getSessionName(server, projectName, subjectLabel, studyInstanceUid, xnatModalityParams);
         final GiftCloudLabel.ScanLabel scanName = getScanName(server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
 
-        final GiftCloudSessionParameters sessionParameters = new GiftCloudSessionParameters();
-        sessionParameters.setExperimentLabel(experimentLabel);
-        sessionParameters.setProtocol("");
-        sessionParameters.setVisit("");
-        sessionParameters.setScanLabel(scanName);
-        sessionParameters.setUsedFixedSize(true);
 
+        final LinkedList<SessionVariable> sessionVariables = getSessionVariables(project, projectName, session, subjectLabel, experimentLabel);
+
+        final List<FileCollection> fileCollections = session.getFiles();
+
+        if (fileCollections.isEmpty()) {
+            throw new IOException("No files were selected for upload");
+        }
+
+        final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
+
+        // Iterate through each set of files
+        for (final FileCollection fileCollection : fileCollections) {
+            final UploadParameters uploadParameters = new UploadParameters();
+            uploadParameters.setProjectName(projectName);
+            uploadParameters.setSubjectLabel(subjectLabel);
+            uploadParameters.setExperimentLabel(experimentLabel);
+            uploadParameters.setScanLabel(scanName);
+            uploadParameters.setSessionVariables(sessionVariables);
+            uploadParameters.setFileCollection(fileCollection);
+            uploadParameters.setXnatModalityParams(xnatModalityParams);
+            uploadParameters.setProjectApplicators(projectApplicators);
+
+            final CallableUploader uploader = callableUploaderFactory.create(uploadParameters, server);
+            backgroundUploader.addUploader(uploader);
+        }
+    }
+
+    private LinkedList<SessionVariable> getSessionVariables(Project project, String projectName, Session session, GiftCloudLabel.SubjectLabel subjectLabel, GiftCloudLabel.ExperimentLabel experimentLabel) {
         // Set the predefined variables for project, subject and session, so that these can be used in the DICOM anonymisation scripts
         final Map<String, SessionVariable> predefs = Maps.newLinkedHashMap();
         predefs.put(SessionVariableNames.PROJECT, new AssignedSessionVariable(SessionVariableNames.PROJECT, projectName));
@@ -138,19 +160,7 @@ public class GiftCloudAutoUploader {
             }
         }
 
-        final LinkedList<SessionVariable> sessionVariables = Lists.newLinkedList(session.getVariables(project, session));
-        sessionParameters.setSessionVariables(sessionVariables);
-
-        final List<FileCollection> fileCollections = session.getFiles();
-
-        if (fileCollections.isEmpty()) {
-            throw new IOException("No files were selected for upload");
-        }
-
-
-        final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
-
-        backgroundUploader.addFiles(server, fileCollections, xnatModalityParams, projectApplicators, projectName, subjectLabel, sessionParameters, callableUploaderFactory);
+        return Lists.newLinkedList(session.getVariables(project, session));
     }
 
     private synchronized GiftCloudLabel.SubjectLabel getSubjectName(final GiftCloudServer server, final String projectName, final String patientId, final String patientName) throws IOException {

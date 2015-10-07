@@ -94,7 +94,6 @@ abstract class HttpRequest<T> {
      * @param connectionBuilder a builder object used to set the connection parameters in advance of creating the connection
      * @throws IOException not thrown by the base class but might be thrown by subclasses
      */
-    // Get the connection parameters. These may be altered by subclasses
     protected void prepareConnection(final HttpConnectionBuilder connectionBuilder) throws IOException
     {
         // Add version

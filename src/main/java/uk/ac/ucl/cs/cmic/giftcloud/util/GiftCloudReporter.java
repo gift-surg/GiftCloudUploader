@@ -20,39 +20,13 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.util;
 
-import netscape.javascript.JSObject;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
 import java.awt.*;
 
 public interface GiftCloudReporter extends Progress {
 
-    void exit();
-
     Container getContainer();
-
-    JSObject getJSContext();
-
-    void trace(String msg);
-    void trace(String format, Object arg);
-    void error(String msg, Throwable t);
-    void info(String msg);
-    void info(String msg, Throwable t);
-    void warn(String msg);
-    void debug(String msg);
-    void debug(String format, Object arg1, Object arg2);
-    void trace(String format, Object arg1, Object arg2);
-
-    void debug(String msg, Throwable t);
-
-    void info(String format, Object arg);
-
-    void error(String format, Object arg);
-    void error(String message);
-
-
-    // The following methods are the new "preferred" methods for error and warning reporting
-
 
     /**
      * Used to display a message to the end user, unless running in background mode
@@ -79,11 +53,4 @@ public interface GiftCloudReporter extends Progress {
      * @param errorMessage the text of the error
      */
     void silentLogException(final Throwable throwable, final String errorMessage);
-
-    /**
-     * Indicates that we wish to log an exception because it may be swallowed, but this is normal and we do not want it
-     * clogging up the log
-     * @param errorMessage the text of the error
-     */
-    void silentLogDebugException(final Throwable throwable, final String errorMessage);
 }

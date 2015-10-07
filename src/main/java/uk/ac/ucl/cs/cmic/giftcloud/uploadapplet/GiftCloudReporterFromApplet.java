@@ -20,8 +20,6 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
-import netscape.javascript.JSException;
-import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -38,11 +36,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplication {
 
@@ -83,109 +76,8 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
     }
 
     @Override
-    public void exit() {
-        final JSObject context = getJSContext();
-        if (null == context) {
-
-            warn("Unable to retrieve JavaScript window context, possibly running in non-browser-hosted mode like appletviewer?");
-
-            System.err.println("javascript close failed");
-            // this usually means we're in a non-browser applet viewer
-        } else {
-            context.call("close", (Object[])null);
-        }
-    }
-
-    @Override
     public Container getContainer() {
         return applet;
-    }
-
-    /**
-     * Retrieves the Javascript object context if available.
-     *
-     * @return The Javascript object if available. Returns null if not available (e.g. if running in a debugger or
-     *         non-Javascript-enabled browser.
-     */
-    public JSObject getJSContext() {
-        final Callable<JSObject> getWindow = new Callable<JSObject>() {
-            public JSObject call() throws JSException {
-                return JSObject.getWindow(applet);
-            }
-        };
-        final ExecutorService es = Executors.newSingleThreadExecutor();
-        try {
-            return es.invokeAny(Collections.singleton(getWindow), 10, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            warn("Unable to retrieve JavaScript window context, possibly running in non-browser-hosted mode like appletviewer?");
-            return null;
-        }
-    }
-
-    @Override
-    public void trace(String msg) {
-        logger.trace(msg);
-    }
-
-    @Override
-    public void trace(String format, Object arg) {
-        logger.trace(format, arg);
-    }
-
-    @Override
-    public void error(String msg, Throwable t) {
-        logger.error(msg, t);
-    }
-
-    @Override
-    public void info(String msg) {
-        logger.info(msg);
-    }
-
-    @Override
-    public void info(String msg, Throwable t) {
-        logger.info(msg, t);
-    }
-
-    @Override
-    public void warn(String msg) {
-        logger.warn(msg);
-
-    }
-
-    @Override
-    public void debug(String msg) {
-        logger.debug(msg);
-    }
-
-    @Override
-    public void debug(String format, Object arg1, Object arg2) {
-        logger.debug(format, arg1, arg2);
-    }
-
-    @Override
-    public void trace(String format, Object arg1, Object arg2) {
-        logger.trace(format, arg1, arg2);
-    }
-
-    @Override
-    public void debug(String msg, Throwable t) {
-        logger.debug(msg, t);
-    }
-
-    @Override
-    public void info(String format, Object arg) {
-        logger.info(format, arg);
-    }
-
-    @Override
-    public void error(String format, Object arg) {
-        logger.error(format, arg);
-    }
-
-    @Override
-    public void error(String message) {
-        logger.error(message);
     }
 
 
@@ -199,7 +91,7 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
         }
         errorBox(finalErrorText, throwable);
         updateStatusText("GIFT-Cloud upload failed: " + throwable);
-        error("GIFT-Cloud upload failed: " + throwable);
+        logger.error("GIFT-Cloud upload failed: " + throwable.getLocalizedMessage(), throwable);
         throwable.printStackTrace(System.err);
     }
 
@@ -207,7 +99,7 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
     public void showMessageToUser(String messageText) {
         messageBox(messageText);
         updateStatusText("GIFT-Cloud upload failed: " + messageText);
-        error("GIFT-Cloud upload failed: " + messageText);
+        logger.error("GIFT-Cloud upload failed: " + messageText);
     }
 
     @Override
@@ -217,11 +109,6 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
 
     @Override
     public void silentLogException(final Throwable throwable, final String errorMessage) {
-        logger.info(errorMessage + ":" + throwable.getLocalizedMessage());
-    }
-
-    @Override
-    public void silentLogDebugException(Throwable throwable, String errorMessage) {
         logger.info(errorMessage + ":" + throwable.getLocalizedMessage());
     }
 
@@ -235,7 +122,7 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
             try {
                 PropertyConfigurator.configure(new URL(log4jProps));
             } catch (MalformedURLException e) {
-                error("Unable to read remote log4j configuration file " + log4jProps, e);
+                logger.error("Unable to read remote log4j configuration file " + log4jProps, e);
             }
         }
     }

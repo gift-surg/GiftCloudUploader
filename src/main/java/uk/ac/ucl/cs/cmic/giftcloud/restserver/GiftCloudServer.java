@@ -1,8 +1,7 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploader;
+package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.ProjectCache;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
@@ -88,12 +87,12 @@ public class GiftCloudServer {
         return restServer.getProjectSeriesImportFilter(projectName);
     }
 
-    public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final SessionParameters sessionParameters, final File temporaryFile) throws Exception {
-        return restServer.uploadZipFile(projectLabel, subjectLabel, sessionParameters, temporaryFile);
+    public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final File temporaryFile) throws Exception {
+        return restServer.uploadZipFile(projectLabel, subjectLabel, experimentLabel, scanLabel, temporaryFile);
     }
 
-    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, SessionParameters sessionParameters, XnatModalityParams xnatModalityParams, final File temporaryFile) throws Exception {
-        restServer.appendZipFileToExistingScan(projectLabel, subjectLabel, sessionParameters, xnatModalityParams, temporaryFile);
+    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final XnatModalityParams xnatModalityParams, final File temporaryFile) throws Exception {
+        restServer.appendZipFileToExistingScan(projectLabel, subjectLabel, experimentLabel, scanLabel, xnatModalityParams, temporaryFile);
     }
 
     public void createSubjectAliasIfNotExisting(final String projectName, final GiftCloudLabel.SubjectLabel subjectName, final String hashedPatientId) throws IOException {

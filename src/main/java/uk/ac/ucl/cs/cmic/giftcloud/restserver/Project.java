@@ -8,11 +8,10 @@
  *
  * Last modified 2/11/14 4:28 PM
  */
-package uk.ac.ucl.cs.cmic.giftcloud.data;
+package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.nrg.dcm.edit.ScriptFunction;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.IndexedSessionLabelFunction;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 
 import java.io.IOException;
 import java.util.Collections;

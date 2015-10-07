@@ -16,45 +16,28 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import com.google.common.collect.ImmutableList;
 import org.dcm4che2.data.Tag;
-import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.CallableWithParameter;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 
 import java.util.Collections;
 import java.util.Set;
 
 
 public abstract class CallableUploader implements CallableWithParameter<Set<String>, FileCollection> {
-    protected final String projectLabel;
-    protected final GiftCloudLabel.SubjectLabel subjectLabel;
-    protected final SessionParameters sessionParameters;
-    protected final XnatModalityParams xnatModalityParams;
+    protected final UploadParameters uploadParameters;
     protected final FileCollection fileCollection;
-    protected final boolean useFixedSizeStreaming;
     protected final GiftCloudServer server;
-    protected final Iterable<ScriptApplicator> applicators;
 
     public static int MAX_TAG = Collections.max(ImmutableList.of(Tag.SOPInstanceUID,
             Tag.TransferSyntaxUID, Tag.FileMetaInformationVersion, Tag.SOPClassUID));
 
     public CallableUploader(
-            final String projectLabel,
-            final GiftCloudLabel.SubjectLabel subjectLabel,
-            final SessionParameters sessionParameters,
-            final XnatModalityParams xnatModalityParams,
-            final boolean useFixedSizeStreaming,
-            final FileCollection fileCollection,
-            final Iterable<ScriptApplicator> applicators,
+            final UploadParameters uploadParameters,
             final GiftCloudServer server) {
-        this.projectLabel = projectLabel;
-        this.subjectLabel = subjectLabel;
-        this.sessionParameters = sessionParameters;
-        this.xnatModalityParams = xnatModalityParams;
-        this.useFixedSizeStreaming = useFixedSizeStreaming;
-        this.fileCollection = fileCollection;
+        this.uploadParameters = uploadParameters;
+        this.fileCollection = uploadParameters.getFileCollection();
         this.server = server;
-        this.applicators = applicators;
     }
 
 
@@ -69,13 +52,7 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
 
     public interface CallableUploaderFactory {
         CallableUploader create(
-                final String projectLabel,
-                final GiftCloudLabel.SubjectLabel subjectLabel,
-                final SessionParameters sessionParameters,
-                final XnatModalityParams xnatModalityParams,
-                final boolean useFixedSizeStreaming,
-                final FileCollection fileCollection,
-                final Iterable<ScriptApplicator> applicators,
+                final UploadParameters uploadParameters,
                 final GiftCloudServer server);
     }
 }

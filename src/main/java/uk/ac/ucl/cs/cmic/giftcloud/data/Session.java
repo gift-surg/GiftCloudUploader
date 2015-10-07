@@ -11,6 +11,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.data;
 
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 
 import java.util.List;
