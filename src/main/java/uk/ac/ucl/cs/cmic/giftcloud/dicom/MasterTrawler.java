@@ -14,8 +14,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.nrg.io.FileWalkIterator;
 import org.nrg.util.EditProgressMonitor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
@@ -29,8 +27,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class MasterTrawler implements Callable<List<Session>> {
-    private final Logger logger = LoggerFactory.getLogger(MasterTrawler.class);
-    // TODO: hard-coded? configurable?
     private final Trawler[] trawlers = {
             new DicomTrawler()
     };
@@ -48,9 +44,6 @@ public class MasterTrawler implements Callable<List<Session>> {
 
     @SuppressWarnings("unchecked")
     public List<Session> call() {
-        // TODO: a really clever implementation could multithread the trawlers
-        // by using a lazy, blocking collection for remaining.  This is a cool
-        // idea but may add lots of complexity for no real performance gain.
         final List<Session> sessions = Lists.newArrayList();
         final Iterator<File> filei = new FileWalkIterator(roots, pm);   // TODO: progress monitor
         final Iterator<Trawler> trawleri = new ArrayIterator<Trawler>(trawlers);
@@ -71,7 +64,6 @@ public class MasterTrawler implements Callable<List<Session>> {
             }
             sessions.addAll(trawler.trawl(files.iterator(), remaining, pm));
             if (null != pm && pm.isCanceled()) {
-                logger.debug("user canceled file search");
                 sessions.clear();
                 return sessions;
             }
