@@ -118,7 +118,7 @@ public class Study extends MapEntity implements Entity, Session {
         return Objects.hashCode(get(Tag.StudyInstanceUID));
     }
 
-    public Series getSeries(final DicomObject o, final File f) {
+    public Series addFileAndGetSeries(final DicomObject o, final File f) {
         final Series s = series.get(new Series(this, o));
         s.addFile(f, o);
         return s;
