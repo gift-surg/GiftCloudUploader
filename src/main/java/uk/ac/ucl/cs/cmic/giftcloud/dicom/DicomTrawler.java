@@ -99,14 +99,14 @@ public final class DicomTrawler implements Trawler {
                         if (_filters.checkSeries(description)) {
                             logger.debug("Series description {} matched series import filter restrictions, including in session", description);
                             final Study study = studies.get(new Study(o));
-                            study.getSeries(o, f);
+                            study.addFileAndGetSeries(o, f);
                         } else {
                             logger.debug("Series description {} did not match series import filter restrictions, excluding from session", description);
                         }
                     } else {
                         logger.debug("Series import filters not found, including series in session");
                         final Study study = studies.get(new Study(o));
-                        study.getSeries(o, f);
+                        study.addFileAndGetSeries(o, f);
                     }
                 }
 
@@ -125,6 +125,8 @@ public final class DicomTrawler implements Trawler {
         if (StringUtils.isBlank(modality)) {
             return false;
         } else if (modality.equals("MR")) {
+            return true;
+        } else if (modality.equals("ES")) {
             return true;
         } else if (modality.equals("CT")) {
             return true;
