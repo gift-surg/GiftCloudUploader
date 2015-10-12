@@ -33,7 +33,7 @@ public class XmlFileImporter {
                 // For each XML file we will attempt to convert it into a DICOM file in a temporary directory. If this succeeds then we import that temporary directory
                 final File dicomOutputPath = Files.createTempDir();
                 EndoscopicXmlToDicomConverter.convert(nextXmlFile, dicomOutputPath.getCanonicalPath());
-                anyFiles = mediaImporter.importDicomFiles(pathName, progress) || anyFiles;
+                anyFiles = mediaImporter.importDicomFiles(dicomOutputPath.getAbsolutePath(), progress) || anyFiles;
             } catch (Throwable t) {
             }
         }
