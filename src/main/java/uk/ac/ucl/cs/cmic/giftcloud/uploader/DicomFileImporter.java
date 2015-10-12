@@ -11,12 +11,8 @@ import java.io.IOException;
  */
 public class DicomFileImporter {
     private final UploaderMediaImporter mediaImporter;
-    private final GiftCloudUploader giftCloudUploader;
-    private final boolean importAsReference;
 
     public DicomFileImporter(final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporterFromApplication reporter) {
-        this.giftCloudUploader = giftCloudUploader;
-        this.importAsReference = importAsReference;
         mediaImporter = new UploaderMediaImporter(reporter, acceptAnyTransferSyntax, giftCloudUploader, importAsReference);
     }
 
