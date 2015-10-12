@@ -11,6 +11,9 @@ package com.tomdoel.mpg2dcm;
 
 import org.apache.commons.io.FilenameUtils;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.util.UIDUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -33,16 +36,30 @@ public class EndoscopicXmlToDicomConverter {
         final EndoscopicFileProcessor converter = new EndoscopicFileProcessor(xmlInputFile);
 
         // Generate DICOM tags from the XML file - these will be shared across all files
-        final Attributes dicomAttributes = converter.getDicomAttributes();
+        final Attributes sharedDicomAttributes = converter.getDicomAttributes();
+
+        int seriesNumber = 0;
 
         // Iterate over all video files
         for (final File videoFile : converter.getVideoFileNames()) {
 
+            seriesNumber++;
+
+            final Attributes fileDicomAttributes = new Attributes(sharedDicomAttributes);
+
             // Create a DICOM file in the output directory
             final File dicomOutputFile = new File(dicomOutputPath, FilenameUtils.getBaseName(videoFile.getName()) + ".dcm");
 
+            // Add a series number
+            fileDicomAttributes.setString(Tag.SeriesNumber, VR.IS, Integer.toString(seriesNumber));
+
+            // We give a unique series instance UID to each video. For the first video we use the provided series UID if it exists.
+            if (seriesNumber > 1 || !fileDicomAttributes.contains(Tag.SeriesNumber)) {
+                fileDicomAttributes.setString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
+            }
+
             // Add the shared DICOM tags and write to a DICOM file
-            MpegFileConverter.convertWithAttributes(videoFile, dicomOutputFile, dicomAttributes);
+            MpegFileConverter.convertWithAttributes(videoFile, dicomOutputFile, fileDicomAttributes);
         }
     }
 }
