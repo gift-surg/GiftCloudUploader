@@ -22,9 +22,9 @@ import java.util.Vector;
 
 /**
  * <p>This class displays images and allows the user to black out burned-in annotation, and save the result.</p>
- * 
+ *
  * <p>A main method is provided, which can be supplied with a list of file names or pop up a file chooser dialog.</p>
- * 
+ *
  * @author	dclunie
  */
 public class DicomImageBlackout extends JFrame {
@@ -247,7 +247,7 @@ public class DicomImageBlackout extends JFrame {
 					imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
 					imagePanel.setShowOverlays(burnInOverlays);
 					imagePanel.setApplyShutter(false);    // we do not want to "hide" from view any identification information hidden behind shutters (000607)
-					addSingleImagePanelToMultiPanelAndEstablishLayout();
+					addSingleImagePanelToMultiPanelAndEstablishLayout(sImg);
 					createCineSliderIfNecessary(1, Attribute.getSingleIntegerValueOrDefault(list, TagFromName.NumberOfFrames, 1), 1);
 					cursorChanger.restoreCursor();    // needs to be here and not later, else interferes with cursor in repaint() of  SingleImagePanel
 					showUIComponents();                // will pack, revalidate, etc, perhaps for the first time
@@ -272,6 +272,46 @@ public class DicomImageBlackout extends JFrame {
 		}
 	}
 
+	private void apply() {
+		recordStateOfDrawingShapesForFileChange();
+		if (imagePanel != null && sImg != null && list != null) {
+			if (imagePanel != null) {
+				Vector shapes = imagePanel.getPersistentDrawingShapes();
+				if ((shapes != null && shapes.size() > 0) || burnInOverlays) {
+					changesWereMade = true;
+					String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.TransferSyntaxUID);
+					try {
+						if (transferSyntaxUID.equals(TransferSyntax.JPEGBaseline) && !burnInOverlays && CapabilitiesAvailable.haveJPEGBaselineSelectiveBlockRedaction()) {
+							usedjpegblockredaction = true;
+							if (redactedJPEGFile != null) {
+								redactedJPEGFile.delete();
+							}
+							redactedJPEGFile = File.createTempFile("DicomImageBlackout", ".dcm");
+							ImageEditUtilities.blackoutJPEGBlocks(new File(currentFileName), redactedJPEGFile, shapes);
+							// Need to re-read the file because we need to decompress the redacted JPEG to use to display it again
+							DicomInputStream i = new DicomInputStream(redactedJPEGFile);
+							list = new AttributeList();
+							list.read(i);
+							i.close();
+							// do NOT delete redactedJPEGFile, since will reuse it when "saving", and also file may need to hang around for display of cached pixel data
+						} else {
+							usedjpegblockredaction = false;
+							ImageEditUtilities.blackout(sImg, list, shapes, burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, 0);
+						}
+						sImg = new SourceImage(list);    // remake SourceImage, in case blackout() changed the AttributeList (e.g., removed overlays)
+						imagePanel.dirty(sImg);
+						imagePanel.repaint();
+					} catch (Exception e) {
+						// Blackout failed
+						dispose();
+					}
+				} else {
+				}
+			}
+		} else {
+		}
+	}
+
 	protected class ApplyActionListener implements ActionListener {
 		DicomImageBlackout application;
 		SafeCursorChanger cursorChanger;
@@ -282,154 +322,107 @@ public class DicomImageBlackout extends JFrame {
 		}
 
 		public void actionPerformed(ActionEvent event) {
-			recordStateOfDrawingShapesForFileChange();
 			cursorChanger.setWaitCursor();
-			if (application.imagePanel != null && application.sImg != null && application.list != null) {
-				if (application.imagePanel != null) {
-					Vector shapes = application.imagePanel.getPersistentDrawingShapes();
-					if ((shapes != null && shapes.size() > 0) || application.burnInOverlays) {
-						changesWereMade = true;
-						String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.TransferSyntaxUID);
-						try {
-							if (transferSyntaxUID.equals(TransferSyntax.JPEGBaseline) && !application.burnInOverlays && CapabilitiesAvailable.haveJPEGBaselineSelectiveBlockRedaction()) {
-								usedjpegblockredaction = true;
-								if (redactedJPEGFile != null) {
-									redactedJPEGFile.delete();
-								}
-								redactedJPEGFile = File.createTempFile("DicomImageBlackout", ".dcm");
-								ImageEditUtilities.blackoutJPEGBlocks(new File(application.currentFileName), redactedJPEGFile, shapes);
-								// Need to re-read the file because we need to decompress the redacted JPEG to use to display it again
-								DicomInputStream i = new DicomInputStream(redactedJPEGFile);
-								list = new AttributeList();
-								list.read(i);
-								i.close();
-								// do NOT delete redactedJPEGFile, since will reuse it when "saving", and also file may need to hang around for display of cached pixel data
-							} else {
-								usedjpegblockredaction = false;
-								ImageEditUtilities.blackout(application.sImg, application.list, shapes, application.burnInOverlays, application.usePixelPaddingBlackoutValue, application.useZeroBlackoutValue, 0);
-							}
-							application.sImg = new SourceImage(application.list);    // remake SourceImage, in case blackout() changed the AttributeList (e.g., removed overlays)
-							application.imagePanel.dirty(application.sImg);
-							application.imagePanel.repaint();
-						} catch (Exception e) {
-							// Blackout failed
-							application.dispose();
-						}
-					} else {
-					}
-				}
-			} else {
-			}
+			apply();
 			cursorChanger.restoreCursor();
 		}
 	}
 
-	protected class SaveActionListener implements ActionListener {
-		DicomImageBlackout application;
-		SafeCursorChanger cursorChanger;
-
-		public SaveActionListener(DicomImageBlackout application) {
-			this.application = application;
-			cursorChanger = new SafeCursorChanger(application);
+	private void save() {
+		recordStateOfDrawingShapesForFileChange();
+		boolean success = true;
+		try {
+			sImg.close();        // in case memory-mapped pixel data open; would inhibit Windows rename or copy/reopen otherwise
+			sImg = null;
+			System.gc();                    // cannot guarantee that buffers will be released, causing problems on Windows, but try ... http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4715154 :(
+			System.runFinalization();
+			System.gc();
+		} catch (Throwable t) {
+			// Save failed - unable to close image - not saving modifications
+			success = false;
 		}
-
-		public void actionPerformed(ActionEvent event) {
-			recordStateOfDrawingShapesForFileChange();
-			cursorChanger.setWaitCursor();
-			boolean success = true;
+		File currentFile = new File(blackoutDicomFiles.getCurrentFileName());
+		File newFile = new File(blackoutDicomFiles.getCurrentFileName() + ".new");
+		if (success) {
+			String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.TransferSyntaxUID);
 			try {
-				application.sImg.close();        // in case memory-mapped pixel data open; would inhibit Windows rename or copy/reopen otherwise
-				application.sImg = null;
-				System.gc();                    // cannot guarantee that buffers will be released, causing problems on Windows, but try ... http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4715154 :(
-				System.runFinalization();
-				System.gc();
-			} catch (Throwable t) {
-				// Save failed - unable to close image - not saving modifications
-				success = false;
-			}
-			File currentFile = new File(blackoutDicomFiles.getCurrentFileName());
-			File newFile = new File(blackoutDicomFiles.getCurrentFileName() + ".new");
-			if (success) {
-				String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.TransferSyntaxUID);
-				try {
-					String outputTransferSyntaxUID = null;
-					if (usedjpegblockredaction && redactedJPEGFile != null) {
-						// do not repeat the redaction, reuse redactedJPEGFile, without decompressing the pixels, so that we can update the technique stuff in the list
-						DicomInputStream i = new DicomInputStream(redactedJPEGFile);
-						list = new AttributeList();
-						list.setDecompressPixelData(false);
-						list.read(i);
-						i.close();
-						outputTransferSyntaxUID = TransferSyntax.JPEGBaseline;
-					} else {
-						outputTransferSyntaxUID = TransferSyntax.ExplicitVRLittleEndian;
-						list.correctDecompressedImagePixelModule();
-						list.insertLossyImageCompressionHistoryIfDecompressed();
-					}
-					if (burnedinflag != BurnedInAnnotationFlagAction.LEAVE_ALONE) {
-						list.remove(TagFromName.BurnedInAnnotation);
-						if (burnedinflag == BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED
-								|| (burnedinflag == BurnedInAnnotationFlagAction.ADD_AS_NO_IF_CHANGED && changesWereMade)) {
-							Attribute a = new CodeStringAttribute(TagFromName.BurnedInAnnotation);
-							a.addValue("NO");
-							list.put(a);
-						}
-					}
-					if (changesWereMade) {
-						{
-							Attribute aDeidentificationMethod = list.get(TagFromName.DeidentificationMethod);
-							if (aDeidentificationMethod == null) {
-								aDeidentificationMethod = new LongStringAttribute(TagFromName.DeidentificationMethod);
-								list.put(aDeidentificationMethod);
-							}
-							if (application.burnInOverlays) {
-								aDeidentificationMethod.addValue("Overlays burned in then blacked out");
-							}
-							aDeidentificationMethod.addValue("Burned in text blacked out");
-						}
-						{
-							SequenceAttribute aDeidentificationMethodCodeSequence = (SequenceAttribute) (list.get(TagFromName.DeidentificationMethodCodeSequence));
-							if (aDeidentificationMethodCodeSequence == null) {
-								aDeidentificationMethodCodeSequence = new SequenceAttribute(TagFromName.DeidentificationMethodCodeSequence);
-								list.put(aDeidentificationMethodCodeSequence);
-							}
-							aDeidentificationMethodCodeSequence.addItem(new CodedSequenceItem("113101", "DCM", "Clean Pixel Data Option").getAttributeList());
-						}
-					}
-					list.removeGroupLengthAttributes();
-					list.removeMetaInformationHeaderAttributes();
-					list.remove(TagFromName.DataSetTrailingPadding);
-
-					FileMetaInformation.addFileMetaInformation(list, outputTransferSyntaxUID, ourAETitle);
-					list.write(newFile, outputTransferSyntaxUID, true/*useMeta*/, true/*useBufferedStream*/);
-
-					list = null;
-					try {
-						currentFile.delete();
-						FileUtilities.renameElseCopyTo(newFile, currentFile);
-					} catch (IOException e) {
-						// Unable to rename or copy - save failed - not saving modifications
-						success = false;
-					}
-
-					if (redactedJPEGFile != null) {
-						redactedJPEGFile.delete();
-						redactedJPEGFile = null;
-					}
-					usedjpegblockredaction = false;
-
-					changesWereMade = false;
-					// "Save of "+currentFileName+" succeeded"
-				} catch (DicomException e) {
-					// Save failed
-				} catch (IOException e) {
-					// Save failed
+				String outputTransferSyntaxUID = null;
+				if (usedjpegblockredaction && redactedJPEGFile != null) {
+					// do not repeat the redaction, reuse redactedJPEGFile, without decompressing the pixels, so that we can update the technique stuff in the list
+					DicomInputStream i = new DicomInputStream(redactedJPEGFile);
+					list = new AttributeList();
+					list.setDecompressPixelData(false);
+					list.read(i);
+					i.close();
+					outputTransferSyntaxUID = TransferSyntax.JPEGBaseline;
+				} else {
+					outputTransferSyntaxUID = TransferSyntax.ExplicitVRLittleEndian;
+					list.correctDecompressedImagePixelModule();
+					list.insertLossyImageCompressionHistoryIfDecompressed();
 				}
+				if (burnedinflag != BurnedInAnnotationFlagAction.LEAVE_ALONE) {
+					list.remove(TagFromName.BurnedInAnnotation);
+					if (burnedinflag == BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED
+							|| (burnedinflag == BurnedInAnnotationFlagAction.ADD_AS_NO_IF_CHANGED && changesWereMade)) {
+						Attribute a = new CodeStringAttribute(TagFromName.BurnedInAnnotation);
+						a.addValue("NO");
+						list.put(a);
+					}
+				}
+				if (changesWereMade) {
+					{
+						Attribute aDeidentificationMethod = list.get(TagFromName.DeidentificationMethod);
+						if (aDeidentificationMethod == null) {
+							aDeidentificationMethod = new LongStringAttribute(TagFromName.DeidentificationMethod);
+							list.put(aDeidentificationMethod);
+						}
+						if (burnInOverlays) {
+							aDeidentificationMethod.addValue("Overlays burned in then blacked out");
+						}
+						aDeidentificationMethod.addValue("Burned in text blacked out");
+					}
+					{
+						SequenceAttribute aDeidentificationMethodCodeSequence = (SequenceAttribute) (list.get(TagFromName.DeidentificationMethodCodeSequence));
+						if (aDeidentificationMethodCodeSequence == null) {
+							aDeidentificationMethodCodeSequence = new SequenceAttribute(TagFromName.DeidentificationMethodCodeSequence);
+							list.put(aDeidentificationMethodCodeSequence);
+						}
+						aDeidentificationMethodCodeSequence.addItem(new CodedSequenceItem("113101", "DCM", "Clean Pixel Data Option").getAttributeList());
+					}
+				}
+				list.removeGroupLengthAttributes();
+				list.removeMetaInformationHeaderAttributes();
+				list.remove(TagFromName.DataSetTrailingPadding);
+
+				FileMetaInformation.addFileMetaInformation(list, outputTransferSyntaxUID, ourAETitle);
+				list.write(newFile, outputTransferSyntaxUID, true/*useMeta*/, true/*useBufferedStream*/);
+
+				list = null;
+				try {
+					currentFile.delete();
+					FileUtilities.renameElseCopyTo(newFile, currentFile);
+				} catch (IOException e) {
+					// Unable to rename or copy - save failed - not saving modifications
+					success = false;
+				}
+
+				if (redactedJPEGFile != null) {
+					redactedJPEGFile.delete();
+					redactedJPEGFile = null;
+				}
+				usedjpegblockredaction = false;
+
+				changesWereMade = false;
+				// "Save of "+currentFileName+" succeeded"
+			} catch (DicomException e) {
+				// Save failed
+			} catch (IOException e) {
+				// Save failed
 			}
-			loadDicomFileOrDirectory(currentFile);
-			cursorChanger.restoreCursor();
 		}
+		loadDicomFileOrDirectory(currentFile);
 	}
+
 
 	protected ApplyActionListener applyActionListener;
 	protected SaveActionListener saveActionListener;
@@ -450,6 +443,7 @@ public class DicomImageBlackout extends JFrame {
 
 		public void actionPerformed(ActionEvent event) {
 			do {
+				applyAll();
 				applyActionListener.actionPerformed(null);
 				saveActionListener.actionPerformed(null);
 				nextActionListener.actionPerformed(null);
@@ -458,6 +452,14 @@ public class DicomImageBlackout extends JFrame {
 				//blackoutNextButton.doClick();
 			} while (blackoutDicomFiles.filesExist() && blackoutDicomFiles.getCurrentFileNumber() < blackoutDicomFiles.getNumberOfFiles());
 		}
+	}
+
+	private void applyAll() {
+		do {
+			apply();
+			save();
+			goToNext();
+		} while (blackoutDicomFiles.filesExist() && blackoutDicomFiles.getCurrentFileNumber() < blackoutDicomFiles.getNumberOfFiles());
 	}
 
 	protected class CancelActionListener implements ActionListener {
@@ -655,12 +657,12 @@ public class DicomImageBlackout extends JFrame {
 		}
 	}
 
-	protected void addSingleImagePanelToMultiPanelAndEstablishLayout() {
+	protected void addSingleImagePanelToMultiPanelAndEstablishLayout(SourceImage sImg) {
 		// Need to have some kind of layout manager, else imagePanel does not resize when frame is resized by user
-		addSingleImagePanelToMultiPanelAndEstablishLayoutWithCenterMaximumAfterInitialSizeLayout();
+		addSingleImagePanelToMultiPanelAndEstablishLayoutWithCenterMaximumAfterInitialSizeLayout(sImg);
 	}
 
-	protected void addSingleImagePanelToMultiPanelAndEstablishLayoutWithCenterMaximumAfterInitialSizeLayout() {
+	protected void addSingleImagePanelToMultiPanelAndEstablishLayoutWithCenterMaximumAfterInitialSizeLayout(SourceImage sImg) {
 		Dimension useDimension = reduceDimensionToFitInMaximumAvailable(sImg.getDimension());
 
 		imagePanel.setPreferredSize(useDimension);
@@ -842,20 +844,41 @@ public class DicomImageBlackout extends JFrame {
 		}
 
 		public void actionPerformed(ActionEvent event) {
-			recordStateOfDrawingShapesForFileChange();
-			if (changesWereMade) {
-				// Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
-			}
-
-			if (blackoutDicomFiles.goToNext()) {
-				updateDisplayedFileNumber();
-				loadDicomFileOrDirectory();
-			} else {
-				// Normal completion
-				application.dispose();
-			}
+			goToNext();
 		}
 	}
+
+	private void goToNext() {
+		recordStateOfDrawingShapesForFileChange();
+		if (changesWereMade) {
+			// Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
+		}
+
+		if (blackoutDicomFiles.goToNext()) {
+			updateDisplayedFileNumber();
+			loadDicomFileOrDirectory();
+		} else {
+			// Normal completion
+			dispose();
+		}
+	}
+
+	protected class SaveActionListener implements ActionListener {
+		DicomImageBlackout application;
+		SafeCursorChanger cursorChanger;
+
+		public SaveActionListener(DicomImageBlackout application) {
+			this.application = application;
+			cursorChanger = new SafeCursorChanger(application);
+		}
+
+		public void actionPerformed(ActionEvent event) {
+			cursorChanger.setWaitCursor();
+			save();
+			cursorChanger.restoreCursor();
+		}
+	}
+
 
 }
 
