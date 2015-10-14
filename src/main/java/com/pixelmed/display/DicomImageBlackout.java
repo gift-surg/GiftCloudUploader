@@ -31,6 +31,7 @@ public class DicomImageBlackout extends JFrame {
 
 
 	private final BlackoutDicomFiles blackoutDicomFiles;
+	private BlackoutShapeDefinition blackoutShapeDefinition;
 
 	/**
 	 * <p>Opens a window to display the supplied list of DICOM files to allow them to have burned in annotation blacked out.</p>
@@ -86,14 +87,10 @@ public class DicomImageBlackout extends JFrame {
 
 	protected File redactedJPEGFile;
 
-	protected int previousRows;
-	protected int previousColumns;
-	protected Vector previousPersistentDrawingShapes;
 
 	protected void recordStateOfDrawingShapesForFileChange() {
-		previousRows = sImg.getHeight();
-		previousColumns = sImg.getWidth();
-		previousPersistentDrawingShapes = imagePanel.getPersistentDrawingShapes();
+		BlackoutShapeDefinition shapeDefinition = new BlackoutShapeDefinition(sImg, imagePanel.getPersistentDrawingShapes());
+		blackoutShapeDefinition = shapeDefinition;
 	}
 
 	protected JPanel cineSliderControlsPanel;
@@ -252,13 +249,11 @@ public class DicomImageBlackout extends JFrame {
 					cursorChanger.restoreCursor();    // needs to be here and not later, else interferes with cursor in repaint() of  SingleImagePanel
 					showUIComponents();                // will pack, revalidate, etc, perhaps for the first time
 
-					if (previousPersistentDrawingShapes != null) {
-						if (previousRows == sImg.getHeight() && previousColumns == sImg.getWidth()) {
-							imagePanel.setPersistentDrawingShapes(previousPersistentDrawingShapes);
+					if (blackoutShapeDefinition != null) {
+						if (blackoutShapeDefinition.getPreviousRows() == sImg.getHeight() && blackoutShapeDefinition.getPreviousColumns() == sImg.getWidth()) {
+							imagePanel.setPersistentDrawingShapes(blackoutShapeDefinition.getPreviousPersistentDrawingShapes());
 						} else {
-							previousRows = 0;
-							previousColumns = 0;
-							previousPersistentDrawingShapes = null;
+							blackoutShapeDefinition = null;
 						}
 					}
 				} else {
@@ -444,12 +439,6 @@ public class DicomImageBlackout extends JFrame {
 		public void actionPerformed(ActionEvent event) {
 			do {
 				applyAll();
-				applyActionListener.actionPerformed(null);
-				saveActionListener.actionPerformed(null);
-				nextActionListener.actionPerformed(null);
-				//blackoutApplyButton.doClick();
-				//blackoutSaveButton.doClick();
-				//blackoutNextButton.doClick();
 			} while (blackoutDicomFiles.filesExist() && blackoutDicomFiles.getCurrentFileNumber() < blackoutDicomFiles.getNumberOfFiles());
 		}
 	}
