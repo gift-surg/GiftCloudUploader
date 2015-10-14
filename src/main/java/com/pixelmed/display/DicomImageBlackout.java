@@ -178,7 +178,7 @@ public class DicomImageBlackout extends JFrame {
 		cursorChanger.setWaitCursor();
 
 		try {
-			blackoutCurrentImage.loadDicomFileOrDirectory(shapeDefinition);
+			blackoutCurrentImage.loadDicomFileOrDirectory();
 			SourceImage sImg = blackoutCurrentImage.getSourceImage();
 			imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
 			imagePanel.setShowOverlays(burnInOverlays);
@@ -213,7 +213,7 @@ public class DicomImageBlackout extends JFrame {
 		cursorChanger.setWaitCursor();
 
 		try {
-			blackoutCurrentImage.save(burnInOverlays, ourAETitle, burnedinflag, blackoutShapeDefinition);
+			blackoutCurrentImage.save(burnInOverlays, ourAETitle, burnedinflag);
 			SourceImage sImg = blackoutCurrentImage.getSourceImage();
 			imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
 			imagePanel.setShowOverlays(burnInOverlays);

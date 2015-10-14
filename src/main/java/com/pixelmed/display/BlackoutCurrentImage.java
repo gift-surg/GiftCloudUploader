@@ -26,7 +26,7 @@ public class BlackoutCurrentImage {
         return sImg;
     }
 
-    public void save(boolean burnInOverlays, String ourAETitle, int burnedinflag, BlackoutShapeDefinition shapeDefinition) throws IOException, DicomException {
+    public void save(boolean burnInOverlays, String ourAETitle, int burnedinflag) throws IOException, DicomException {
         boolean success = true;
         try {
             sImg.close();        // in case memory-mapped pixel data open; would inhibit Windows rename or copy/reopen otherwise
@@ -117,12 +117,12 @@ public class BlackoutCurrentImage {
                 // Save failed
             }
         }
-        loadDicomFileOrDirectory(currentFile, shapeDefinition);
+        loadDicomFileOrDirectory(currentFile);
     }
 
-    public void loadDicomFileOrDirectory(BlackoutShapeDefinition shapeDefinition) throws IOException, DicomException {
+    public void loadDicomFileOrDirectory() throws IOException, DicomException {
         File currentFile = FileUtilities.getFileFromNameInsensitiveToCaseIfNecessary(blackoutDicomFiles.getCurrentFileName());
-        loadDicomFileOrDirectory(currentFile, shapeDefinition);
+        loadDicomFileOrDirectory(currentFile);
     }
 
     /**
@@ -130,20 +130,18 @@ public class BlackoutCurrentImage {
      *
      * @param    currentFile
      */
-    protected void loadDicomFileOrDirectory(File currentFile, BlackoutShapeDefinition shapeDefinition) throws IOException, DicomException {
+    protected void loadDicomFileOrDirectory(File currentFile) throws IOException, DicomException {
         changesWereMade = false;
-        {
-                currentFileName = currentFile.getAbsolutePath();        // set to what we actually used, used for later save
-                DicomInputStream i = new DicomInputStream(currentFile);
-                list = new AttributeList();
-                list.read(i);
-                i.close();
-                String useSOPClassUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.SOPClassUID);
-                if (SOPClass.isImageStorage(useSOPClassUID)) {
-                    sImg = new SourceImage(list);
-                } else {
-                    throw new DicomException("unsupported SOP Class " + useSOPClassUID);
-                }
+        currentFileName = currentFile.getAbsolutePath();        // set to what we actually used, used for later save
+        DicomInputStream i = new DicomInputStream(currentFile);
+        list = new AttributeList();
+        list.read(i);
+        i.close();
+        String useSOPClassUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.SOPClassUID);
+        if (SOPClass.isImageStorage(useSOPClassUID)) {
+            sImg = new SourceImage(list);
+        } else {
+            throw new DicomException("unsupported SOP Class " + useSOPClassUID);
         }
     }
 
