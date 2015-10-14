@@ -654,7 +654,7 @@ public class DicomImageBlackout extends JFrame {
 		// use static methods from ApplicationFrame to establish L&F, even though not inheriting from ApplicationFrame
 		ApplicationFrame.setInternationalizedFontsForGUI();
 		ApplicationFrame.setBackgroundForGUI();
-		new DicomImageBlackout("Dicom Image Blackout", arg, BlackoutCurrentImage.BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED);
+		new DicomImageBlackout("Dicom Image Blackout", arg, BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED);
 	}
 
 	protected class PreviousActionListener implements ActionListener {
