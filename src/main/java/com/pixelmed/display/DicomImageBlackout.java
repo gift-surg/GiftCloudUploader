@@ -2,71 +2,26 @@
 
 package com.pixelmed.display;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.LayoutManager;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import java.io.File;
-import java.io.IOException;
-
-import java.lang.reflect.InvocationTargetException;
-
-import java.util.Vector;
-
-//import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JSplitPane;
-import javax.swing.Spring;
-import javax.swing.SpringLayout;
-//import javax.swing.border.EmptyBorder;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import com.pixelmed.dicom.Attribute;
-import com.pixelmed.dicom.AttributeList;
-import com.pixelmed.dicom.CodedSequenceItem;
-import com.pixelmed.dicom.CodeStringAttribute;
-import com.pixelmed.dicom.DicomException;
-import com.pixelmed.dicom.DicomInputStream;
-import com.pixelmed.dicom.FileMetaInformation;
-import com.pixelmed.dicom.LongStringAttribute;
-import com.pixelmed.dicom.SequenceAttribute;
-import com.pixelmed.dicom.SOPClass;
-import com.pixelmed.dicom.TagFromName;
-import com.pixelmed.dicom.TransferSyntax;
-
+import com.pixelmed.dicom.*;
 import com.pixelmed.display.event.FrameSelectionChangeEvent;
 import com.pixelmed.display.event.GraphicDisplayChangeEvent;
-
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.event.EventContext;
 import com.pixelmed.event.SelfRegisteringListener;
-
 import com.pixelmed.utils.CapabilitiesAvailable;
 import com.pixelmed.utils.FileUtilities;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Vector;
+
+//import javax.swing.BorderFactory;
+//import javax.swing.border.EmptyBorder;
 
 /**
  * <p>This class displays images and allows the user to black out burned-in annotation, and save the result.</p>
@@ -76,6 +31,48 @@ import com.pixelmed.utils.FileUtilities;
  * @author	dclunie
  */
 public class DicomImageBlackout extends JFrame  {
+
+
+	private final BlackoutDicomFiles blackoutDicomFiles;
+
+	/**
+	 * <p>Opens a window to display the supplied list of DICOM files to allow them to have burned in annotation blacked out.</p>
+	 *
+	 * <p>Each file will be processed sequentially, with the edited pixel data overwriting the original file.</p>
+	 *
+	 * @param	title				the string to use in the title bar of the window
+	 * @param	dicomFileNames		the list of file names to process, if null a file chooser dialog will be raised
+	 * @param	snh					an instance of {@link StatusNotificationHandler StatusNotificationHandler}; if null, a default handler will be used that writes to stderr
+	 * @param	burnedinflag		whether or not and under what circumstances to to add/change BurnedInAnnotation attribute; takes one of the values of {@link BurnedInAnnotationFlagAction BurnedInAnnotationFlagAction}
+	 */
+	public DicomImageBlackout(String title,String dicomFileNames[],StatusNotificationHandler snh,int burnedinflag) {
+		super(title);
+		blackoutDicomFiles = new BlackoutDicomFiles(dicomFileNames);
+		this.burnedinflag = burnedinflag;
+		//No need to setBackground(Color.lightGray) .. we set this via L&F UIManager properties for the application that uses this class
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				if (statusNotificationHandler != null) {
+					statusNotificationHandler.notify(StatusNotificationHandler.WINDOW_CLOSED,"Window closed",null);
+				}
+				dispose();
+			}
+		});
+
+		buildUIComponents();
+
+		if (dicomFileNames != null && dicomFileNames.length > 0) {
+			currentFileNumber = 0;
+			updateDisplayedFileNumber(currentFileNumber,dicomFileNames.length);
+			loadDicomFileOrDirectory(dicomFileNames[currentFileNumber]);
+		}
+	}
+
+
+
+
+
+
 
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/display/DicomImageBlackout.java,v 1.45 2014/12/06 16:51:43 dclunie Exp $";
 	
@@ -89,7 +86,6 @@ public class DicomImageBlackout extends JFrame  {
 	//private static final int heightWantedForButtons = 50;
 	private static final double splitPaneResizeWeight = 0.9;
 
-	protected String[] dicomFileNames;
 	protected String currentFileName;
 	protected int currentFileNumber;
 	protected Box mainPanel;
@@ -193,7 +189,7 @@ public class DicomImageBlackout extends JFrame  {
 	}
 
 	/**
-	 *<p>A class of values for the Burned in Annotation action argument of the {@link com.pixelmed.display.DicomImageBlackout#DicomImageBlackout(String,String [],StatusNotificationHandler,int) DicomImageBlackout()} constructor.</p>
+	 *<p>A class of values for the Burned in Annotation action argument of the DicomImageBlackout constructor.</p>
 	 */
 	public abstract class BurnedInAnnotationFlagAction {
 		private BurnedInAnnotationFlagAction() {}
@@ -221,7 +217,7 @@ public class DicomImageBlackout extends JFrame  {
 
 	/**
 	 *<p>An abstract class for the user of to supply a callback notification method,
-	 * supplied as an argument of the {@link com.pixelmed.display.DicomImageBlackout#DicomImageBlackout(String,String [],StatusNotificationHandler,int) DicomImageBlackout()} constructor.</p>
+	 * supplied as an argument of the DicomImageBlackout constructor.</p>
 	 */
 	public abstract class StatusNotificationHandler {
 		protected StatusNotificationHandler() {}
@@ -507,21 +503,13 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 					usedjpegblockredaction = false;
 					
 					changesWereMade = false;
-					if (application.statusNotificationHandler != null) {
-						application.statusNotificationHandler.notify(StatusNotificationHandler.SAVE_SUCCEEDED,"Save of "+currentFileName+" succeeded",null);
-					}
+					// "Save of "+currentFileName+" succeeded"
 				}
 				catch (DicomException e) {
-					//e.printStackTrace(System.err);
-					if (application.statusNotificationHandler != null) {
-						application.statusNotificationHandler.notify(StatusNotificationHandler.SAVE_FAILED,"Save failed",e);
-					}
+					// Save failed
 				}
 				catch (IOException e) {
-					//e.printStackTrace(System.err);
-					if (application.statusNotificationHandler != null) {
-						application.statusNotificationHandler.notify(StatusNotificationHandler.SAVE_FAILED,"Save failed",e);
-					}
+					// Save failed
 				}
 			}
 			loadDicomFileOrDirectory(currentFile);
@@ -537,23 +525,17 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		}
 		
 		public void actionPerformed(ActionEvent event) {
-//System.err.println("DicomImageBlackout.NextActionListener.actionPerformed()");
 			recordStateOfDrawingShapesForFileChange();
 			if (changesWereMade) {
-				if (application.statusNotificationHandler != null) {
-					application.statusNotificationHandler.notify(StatusNotificationHandler.UNSAVED_CHANGES,
-						"Changes were applied to "+dicomFileNames[currentFileNumber]+" but were discarded and not saved",null);
-				}
+				// Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
 			}
 			++currentFileNumber;
-			if (dicomFileNames != null && currentFileNumber < dicomFileNames.length) {
-				updateDisplayedFileNumber(currentFileNumber,dicomFileNames.length);
-				loadDicomFileOrDirectory(dicomFileNames[currentFileNumber]);
+			if (blackoutDicomFiles.filesExist() && currentFileNumber < blackoutDicomFiles.getNumberOfFiles()) {
+				updateDisplayedFileNumber(currentFileNumber, blackoutDicomFiles.getNumberOfFiles());
+				loadDicomFileOrDirectory(blackoutDicomFiles.getFileName(currentFileNumber));
 			}
 			else {
-				if (application.statusNotificationHandler != null) {
-					application.statusNotificationHandler.notify(StatusNotificationHandler.COMPLETED,"Normal completion",null);
-				}
+				// Normal completion
 				application.dispose();
 			}
 		}
@@ -569,15 +551,12 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		public void actionPerformed(ActionEvent event) {
 			recordStateOfDrawingShapesForFileChange();
 			if (changesWereMade) {
-				if (application.statusNotificationHandler != null) {
-					application.statusNotificationHandler.notify(StatusNotificationHandler.UNSAVED_CHANGES,
-						"Changes were applied to "+dicomFileNames[currentFileNumber]+" but were discarded and not saved",null);
-				}
+				// Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
 			}
 			--currentFileNumber;
-			if (dicomFileNames != null && currentFileNumber >= 0) {
-				updateDisplayedFileNumber(currentFileNumber,dicomFileNames.length);
-				loadDicomFileOrDirectory(dicomFileNames[currentFileNumber]);
+			if (blackoutDicomFiles.filesExist() && currentFileNumber >= 0) {
+				updateDisplayedFileNumber(currentFileNumber, blackoutDicomFiles.getNumberOfFiles());
+				loadDicomFileOrDirectory(blackoutDicomFiles.getFileName(currentFileNumber));
 			}
 			else {
 				if (application.statusNotificationHandler != null) {
@@ -606,7 +585,6 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		}
 		
 		public void actionPerformed(ActionEvent event) {
-//System.err.println("DicomImageBlackout.ApplySaveAllActionListener.actionPerformed()");
 			do {
 				applyActionListener.actionPerformed(null);
 				saveActionListener.actionPerformed(null);
@@ -614,7 +592,7 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 				//blackoutApplyButton.doClick();
 				//blackoutSaveButton.doClick();
 				//blackoutNextButton.doClick();
-			} while (dicomFileNames != null && currentFileNumber < dicomFileNames.length);
+			} while (blackoutDicomFiles.filesExist() && currentFileNumber < blackoutDicomFiles.getNumberOfFiles());
 		}
 	}
 	
@@ -971,39 +949,6 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		mainPanel.add(helpBar);
 	}
 
-	/**
-	 * <p>Opens a window to display the supplied list of DICOM files to allow them to have burned in annotation blacked out.</p>
-	 *
-	 * <p>Each file will be processed sequentially, with the edited pixel data overwriting the original file.</p>
-	 *
-	 * @param	title				the string to use in the title bar of the window
-	 * @param	dicomFileNames		the list of file names to process, if null a file chooser dialog will be raised
-	 * @param	snh					an instance of {@link StatusNotificationHandler StatusNotificationHandler}; if null, a default handler will be used that writes to stderr
-	 * @param	burnedinflag		whether or not and under what circumstances to to add/change BurnedInAnnotation attribute; takes one of the values of {@link BurnedInAnnotationFlagAction BurnedInAnnotationFlagAction}
-	 */
-	public DicomImageBlackout(String title,String dicomFileNames[],StatusNotificationHandler snh,int burnedinflag) {
-		super(title);
-		this.statusNotificationHandler = snh == null ? new DefaultStatusNotificationHandler() : snh;
-		this.burnedinflag = burnedinflag;
-		//No need to setBackground(Color.lightGray) .. we set this via L&F UIManager properties for the application that uses this class
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				if (statusNotificationHandler != null) {
-					statusNotificationHandler.notify(StatusNotificationHandler.WINDOW_CLOSED,"Window closed",null);
-				}
-				dispose();
-			}
-		});
-		
-		buildUIComponents();
-		
-		if (dicomFileNames != null && dicomFileNames.length > 0) {
-			this.dicomFileNames = dicomFileNames;
-			currentFileNumber = 0;
-			updateDisplayedFileNumber(currentFileNumber,dicomFileNames.length);
-			loadDicomFileOrDirectory(dicomFileNames[currentFileNumber]);
-		}
-	}
 
 	public void deconstruct() {
 //System.err.println("DicomImageBlackout.deconstruct()");
