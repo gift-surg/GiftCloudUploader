@@ -2,22 +2,17 @@
 
 package com.pixelmed.display;
 
-import com.pixelmed.dicom.*;
 import com.pixelmed.display.event.FrameSelectionChangeEvent;
 import com.pixelmed.display.event.GraphicDisplayChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.event.EventContext;
 import com.pixelmed.event.SelfRegisteringListener;
-import com.pixelmed.utils.CapabilitiesAvailable;
-import com.pixelmed.utils.FileUtilities;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
 import java.util.Vector;
 
 /**
@@ -28,9 +23,8 @@ import java.util.Vector;
  * @author	dclunie
  */
 public class DicomImageBlackout extends JFrame {
+	private BlackoutCurrentImage blackoutCurrentImage;
 
-
-	private final BlackoutDicomFiles blackoutDicomFiles;
 	private BlackoutShapeDefinition blackoutShapeDefinition;
 
 	/**
@@ -40,12 +34,12 @@ public class DicomImageBlackout extends JFrame {
 	 *
 	 * @param    title                the string to use in the title bar of the window
 	 * @param    dicomFileNames        the list of file names to process, if null a file chooser dialog will be raised
-	 * @param    burnedinflag        whether or not and under what circumstances to to add/change BurnedInAnnotation attribute; takes one of the values of {@link BurnedInAnnotationFlagAction BurnedInAnnotationFlagAction}
+	 * @param    burnedinflag        whether or not and under what circumstances to to add/change BurnedInAnnotation attribute; takes one of the values of BurnedInAnnotationFlagAction
 	 */
 	public DicomImageBlackout(String title, String dicomFileNames[], int burnedinflag) {
 		super(title);
-		blackoutDicomFiles = new BlackoutDicomFiles(dicomFileNames);
 		blackoutShapeDefinition = null;
+		blackoutCurrentImage = new BlackoutCurrentImage(dicomFileNames);
 		this.burnedinflag = burnedinflag;
 		//No need to setBackground(Color.lightGray) .. we set this via L&F UIManager properties for the application that uses this class
 		addWindowListener(new WindowAdapter() {
@@ -76,22 +70,16 @@ public class DicomImageBlackout extends JFrame {
 	//private static final int heightWantedForButtons = 50;
 	private static final double splitPaneResizeWeight = 0.9;
 
-	protected String currentFileName;
 	protected Box mainPanel;
 	protected JPanel multiPanel;
 
 	protected SingleImagePanel imagePanel;
-	protected AttributeList list;
-	protected SourceImage sImg;
-	protected boolean changesWereMade;
-	protected boolean usedjpegblockredaction;
-
-	protected File redactedJPEGFile;
 
 
-	protected void recordStateOfDrawingShapesForFileChange() {
-		BlackoutShapeDefinition shapeDefinition = new BlackoutShapeDefinition(sImg, imagePanel.getPersistentDrawingShapes());
+	protected BlackoutShapeDefinition recordStateOfDrawingShapesForFileChange() {
+		BlackoutShapeDefinition shapeDefinition = new BlackoutShapeDefinition(blackoutCurrentImage.getSourceImage(), imagePanel.getPersistentDrawingShapes());
 		blackoutShapeDefinition = shapeDefinition;
+		return blackoutShapeDefinition;
 	}
 
 	protected JPanel cineSliderControlsPanel;
@@ -168,38 +156,11 @@ public class DicomImageBlackout extends JFrame {
 	}
 
 	protected void updateDisplayedFileNumber() {
-		if (imagesRemainingLabel != null) {
-			int current = blackoutDicomFiles.getCurrentFileNumber();
-			int total = blackoutDicomFiles.getNumberOfFiles();
-			imagesRemainingLabel.setText(Integer.toString(current + 1) + " of " + Integer.toString(total));
-		}
-	}
-
-	/**
-	 * <p>A class of values for the Burned in Annotation action argument of the DicomImageBlackout constructor.</p>
-	 */
-	public abstract class BurnedInAnnotationFlagAction {
-		private BurnedInAnnotationFlagAction() {
-		}
-
-		/**
-		 * <p>Leave any existing Burned in Annotation attribute value alone.</p>
-		 */
-		public static final int LEAVE_ALONE = 1;
-		/**
-		 * <p>Always remove the Burned in Annotation attribute when the file is saved, without replacing it.</p>
-		 */
-		public static final int ALWAYS_REMOVE = 2;
-		/**
-		 * <p>Always remove the Burned in Annotation attribute when the file is saved, only replacing it and using a value of NO when regions have been blacked out.</p>
-		 */
-		public static final int ADD_AS_NO_IF_CHANGED = 3;
-		/**
-		 * <p>Always remove the Burned in Annotation attribute when the file is saved, always replacing it with a value of NO,
-		 * regardless of whether when regions have been blacked out, such as when visual inspection confirms that there is no
-		 * burned in annotation.</p>
-		 */
-		public static final int ADD_AS_NO_IF_SAVED = 4;
+//		if (imagesRemainingLabel != null) {
+//			int current = blackoutDicomFiles.getCurrentFileNumber();
+//			int total = blackoutDicomFiles.getNumberOfFiles();
+//			imagesRemainingLabel.setText(Integer.toString(current + 1) + " of " + Integer.toString(total));
+//		}
 	}
 
 	protected int burnedinflag;
@@ -209,102 +170,80 @@ public class DicomImageBlackout extends JFrame {
 	 *
 	 */
 	protected void loadDicomFileOrDirectory(BlackoutShapeDefinition shapeDefinition) {
-		try {
-			File currentFile = FileUtilities.getFileFromNameInsensitiveToCaseIfNecessary(blackoutDicomFiles.getCurrentFileName());
-			loadDicomFileOrDirectory(currentFile, shapeDefinition);
-		} catch (Exception e) {
-			// Read failed
-			dispose();
-		}
-	}
-
-	/**
-	 * <p>Load the named DICOM file and display it in the image panel.</p>
-	 *
-	 * @param    currentFile
-	 */
-	protected void loadDicomFileOrDirectory(File currentFile, BlackoutShapeDefinition shapeDefinition) {
-		changesWereMade = false;
 		SingleImagePanel.deconstructAllSingleImagePanelsInContainer(multiPanel);
 		multiPanel.removeAll();
 		multiPanel.revalidate();        // needed because contents have changed
 		multiPanel.repaint();            // because if one dimension of the size does not change but the other shrinks, then the old image is left underneath, not overwritten by background (000446)
-		//multiPanel.paintImmediately(new Rectangle(multiPanel.getSize(null)));
-		{
-			SafeCursorChanger cursorChanger = new SafeCursorChanger(this);
-			cursorChanger.setWaitCursor();
-			try {
-				currentFileName = currentFile.getAbsolutePath();        // set to what we actually used, used for later save
-				DicomInputStream i = new DicomInputStream(currentFile);
-				list = new AttributeList();
-				list.read(i);
-				i.close();
-				String useSOPClassUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.SOPClassUID);
-				if (SOPClass.isImageStorage(useSOPClassUID)) {
-					sImg = new SourceImage(list);
-					imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
-					imagePanel.setShowOverlays(burnInOverlays);
-					imagePanel.setApplyShutter(false);    // we do not want to "hide" from view any identification information hidden behind shutters (000607)
-					addSingleImagePanelToMultiPanelAndEstablishLayout(sImg);
-					createCineSliderIfNecessary(1, Attribute.getSingleIntegerValueOrDefault(list, TagFromName.NumberOfFrames, 1), 1);
-					cursorChanger.restoreCursor();    // needs to be here and not later, else interferes with cursor in repaint() of  SingleImagePanel
-					showUIComponents();                // will pack, revalidate, etc, perhaps for the first time
+		SafeCursorChanger cursorChanger = new SafeCursorChanger(this);
+		cursorChanger.setWaitCursor();
 
-					if (shapeDefinition != null) {
-						if (shapeDefinition.getPreviousRows() == sImg.getHeight() && shapeDefinition.getPreviousColumns() == sImg.getWidth()) {
-							imagePanel.setPersistentDrawingShapes(shapeDefinition.getPreviousPersistentDrawingShapes());
-						} else {
-//							shapeDefinition = null;
-						}
-					}
+		try {
+			blackoutCurrentImage.loadDicomFileOrDirectory(shapeDefinition);
+			SourceImage sImg = blackoutCurrentImage.getSourceImage();
+			imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
+			imagePanel.setShowOverlays(burnInOverlays);
+			imagePanel.setApplyShutter(false);    // we do not want to "hide" from view any identification information hidden behind shutters (000607)
+			addSingleImagePanelToMultiPanelAndEstablishLayout(sImg);
+			createCineSliderIfNecessary(1, blackoutCurrentImage.getNumberOfImages(), 1);
+			cursorChanger.restoreCursor();    // needs to be here and not later, else interferes with cursor in repaint() of  SingleImagePanel
+			showUIComponents();                // will pack, revalidate, etc, perhaps for the first time
+
+			if (shapeDefinition != null) {
+				if (shapeDefinition.getPreviousRows() == sImg.getHeight() && shapeDefinition.getPreviousColumns() == sImg.getWidth()) {
+					imagePanel.setPersistentDrawingShapes(shapeDefinition.getPreviousPersistentDrawingShapes());
 				} else {
-					throw new DicomException("unsupported SOP Class " + useSOPClassUID);
+//					shapeDefinition = null;
 				}
-			} catch (Exception e) {
-				// Read failed
-				cursorChanger.restoreCursor();
-				dispose();
 			}
+
+		} catch (Exception e) {
+			// Read failed
+			cursorChanger.restoreCursor();
+			dispose();
 		}
 	}
 
-	private void apply() {
+	public void save() {
 		recordStateOfDrawingShapesForFileChange();
-		if (imagePanel != null && sImg != null && list != null) {
-			if (imagePanel != null) {
-				Vector shapes = imagePanel.getPersistentDrawingShapes();
-				if ((shapes != null && shapes.size() > 0) || burnInOverlays) {
-					changesWereMade = true;
-					String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.TransferSyntaxUID);
-					try {
-						if (transferSyntaxUID.equals(TransferSyntax.JPEGBaseline) && !burnInOverlays && CapabilitiesAvailable.haveJPEGBaselineSelectiveBlockRedaction()) {
-							usedjpegblockredaction = true;
-							if (redactedJPEGFile != null) {
-								redactedJPEGFile.delete();
-							}
-							redactedJPEGFile = File.createTempFile("DicomImageBlackout", ".dcm");
-							ImageEditUtilities.blackoutJPEGBlocks(new File(currentFileName), redactedJPEGFile, shapes);
-							// Need to re-read the file because we need to decompress the redacted JPEG to use to display it again
-							DicomInputStream i = new DicomInputStream(redactedJPEGFile);
-							list = new AttributeList();
-							list.read(i);
-							i.close();
-							// do NOT delete redactedJPEGFile, since will reuse it when "saving", and also file may need to hang around for display of cached pixel data
-						} else {
-							usedjpegblockredaction = false;
-							ImageEditUtilities.blackout(sImg, list, shapes, burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, 0);
-						}
-						sImg = new SourceImage(list);    // remake SourceImage, in case blackout() changed the AttributeList (e.g., removed overlays)
-						imagePanel.dirty(sImg);
-						imagePanel.repaint();
-					} catch (Exception e) {
-						// Blackout failed
-						dispose();
-					}
+		SingleImagePanel.deconstructAllSingleImagePanelsInContainer(multiPanel);
+		multiPanel.removeAll();
+		multiPanel.revalidate();        // needed because contents have changed
+		multiPanel.repaint();            // because if one dimension of the size does not change but the other shrinks, then the old image is left underneath, not overwritten by background (000446)
+		SafeCursorChanger cursorChanger = new SafeCursorChanger(this);
+		cursorChanger.setWaitCursor();
+
+		try {
+			blackoutCurrentImage.save(burnInOverlays, ourAETitle, burnedinflag, blackoutShapeDefinition);
+			SourceImage sImg = blackoutCurrentImage.getSourceImage();
+			imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
+			imagePanel.setShowOverlays(burnInOverlays);
+			imagePanel.setApplyShutter(false);    // we do not want to "hide" from view any identification information hidden behind shutters (000607)
+			addSingleImagePanelToMultiPanelAndEstablishLayout(sImg);
+			createCineSliderIfNecessary(1, blackoutCurrentImage.getNumberOfImages(), 1);
+			cursorChanger.restoreCursor();    // needs to be here and not later, else interferes with cursor in repaint() of  SingleImagePanel
+			showUIComponents();                // will pack, revalidate, etc, perhaps for the first time
+
+			if (blackoutShapeDefinition!= null) {
+				if (blackoutShapeDefinition.getPreviousRows() == sImg.getHeight() && blackoutShapeDefinition.getPreviousColumns() == sImg.getWidth()) {
+					imagePanel.setPersistentDrawingShapes(blackoutShapeDefinition.getPreviousPersistentDrawingShapes());
 				} else {
+					blackoutShapeDefinition = null;
 				}
 			}
-		} else {
+
+		} catch (Exception e) {
+			cursorChanger.restoreCursor();
+			dispose();
+		}
+	}
+
+
+	private void apply(Vector shapes, boolean burnInOverlays) {
+		recordStateOfDrawingShapesForFileChange();
+		try {
+			blackoutCurrentImage.apply(shapes, burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue);
+		} catch (Exception ex) {
+			dispose();
 		}
 	}
 
@@ -319,105 +258,16 @@ public class DicomImageBlackout extends JFrame {
 
 		public void actionPerformed(ActionEvent event) {
 			cursorChanger.setWaitCursor();
-			apply();
+			if (imagePanel != null) {
+				apply(imagePanel.getPersistentDrawingShapes(), burnInOverlays);
+				imagePanel.dirty(blackoutCurrentImage.getSourceImage());
+				imagePanel.repaint();
+			}
+
 			cursorChanger.restoreCursor();
 		}
 	}
 
-	private void save() {
-		recordStateOfDrawingShapesForFileChange();
-		boolean success = true;
-		try {
-			sImg.close();        // in case memory-mapped pixel data open; would inhibit Windows rename or copy/reopen otherwise
-			sImg = null;
-			System.gc();                    // cannot guarantee that buffers will be released, causing problems on Windows, but try ... http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4715154 :(
-			System.runFinalization();
-			System.gc();
-		} catch (Throwable t) {
-			// Save failed - unable to close image - not saving modifications
-			success = false;
-		}
-		File currentFile = new File(blackoutDicomFiles.getCurrentFileName());
-		File newFile = new File(blackoutDicomFiles.getCurrentFileName() + ".new");
-		if (success) {
-			String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.TransferSyntaxUID);
-			try {
-				String outputTransferSyntaxUID = null;
-				if (usedjpegblockredaction && redactedJPEGFile != null) {
-					// do not repeat the redaction, reuse redactedJPEGFile, without decompressing the pixels, so that we can update the technique stuff in the list
-					DicomInputStream i = new DicomInputStream(redactedJPEGFile);
-					list = new AttributeList();
-					list.setDecompressPixelData(false);
-					list.read(i);
-					i.close();
-					outputTransferSyntaxUID = TransferSyntax.JPEGBaseline;
-				} else {
-					outputTransferSyntaxUID = TransferSyntax.ExplicitVRLittleEndian;
-					list.correctDecompressedImagePixelModule();
-					list.insertLossyImageCompressionHistoryIfDecompressed();
-				}
-				if (burnedinflag != BurnedInAnnotationFlagAction.LEAVE_ALONE) {
-					list.remove(TagFromName.BurnedInAnnotation);
-					if (burnedinflag == BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED
-							|| (burnedinflag == BurnedInAnnotationFlagAction.ADD_AS_NO_IF_CHANGED && changesWereMade)) {
-						Attribute a = new CodeStringAttribute(TagFromName.BurnedInAnnotation);
-						a.addValue("NO");
-						list.put(a);
-					}
-				}
-				if (changesWereMade) {
-					{
-						Attribute aDeidentificationMethod = list.get(TagFromName.DeidentificationMethod);
-						if (aDeidentificationMethod == null) {
-							aDeidentificationMethod = new LongStringAttribute(TagFromName.DeidentificationMethod);
-							list.put(aDeidentificationMethod);
-						}
-						if (burnInOverlays) {
-							aDeidentificationMethod.addValue("Overlays burned in then blacked out");
-						}
-						aDeidentificationMethod.addValue("Burned in text blacked out");
-					}
-					{
-						SequenceAttribute aDeidentificationMethodCodeSequence = (SequenceAttribute) (list.get(TagFromName.DeidentificationMethodCodeSequence));
-						if (aDeidentificationMethodCodeSequence == null) {
-							aDeidentificationMethodCodeSequence = new SequenceAttribute(TagFromName.DeidentificationMethodCodeSequence);
-							list.put(aDeidentificationMethodCodeSequence);
-						}
-						aDeidentificationMethodCodeSequence.addItem(new CodedSequenceItem("113101", "DCM", "Clean Pixel Data Option").getAttributeList());
-					}
-				}
-				list.removeGroupLengthAttributes();
-				list.removeMetaInformationHeaderAttributes();
-				list.remove(TagFromName.DataSetTrailingPadding);
-
-				FileMetaInformation.addFileMetaInformation(list, outputTransferSyntaxUID, ourAETitle);
-				list.write(newFile, outputTransferSyntaxUID, true/*useMeta*/, true/*useBufferedStream*/);
-
-				list = null;
-				try {
-					currentFile.delete();
-					FileUtilities.renameElseCopyTo(newFile, currentFile);
-				} catch (IOException e) {
-					// Unable to rename or copy - save failed - not saving modifications
-					success = false;
-				}
-
-				if (redactedJPEGFile != null) {
-					redactedJPEGFile.delete();
-					redactedJPEGFile = null;
-				}
-				usedjpegblockredaction = false;
-
-				changesWereMade = false;
-				// "Save of "+currentFileName+" succeeded"
-			} catch (DicomException e) {
-				// Save failed
-			} catch (IOException e) {
-				// Save failed
-			}
-		}
-		loadDicomFileOrDirectory(currentFile, blackoutShapeDefinition);
-	}
 
 
 	protected ApplyActionListener applyActionListener;
@@ -438,18 +288,21 @@ public class DicomImageBlackout extends JFrame {
 		}
 
 		public void actionPerformed(ActionEvent event) {
-			do {
-				applyAll();
-			} while (blackoutDicomFiles.filesExist() && blackoutDicomFiles.getCurrentFileNumber() < blackoutDicomFiles.getNumberOfFiles());
+			applyAll();
 		}
 	}
 
 	private void applyAll() {
 		do {
-			apply();
+			if (imagePanel != null) {
+				apply(imagePanel.getPersistentDrawingShapes(), burnInOverlays);
+				imagePanel.dirty(blackoutCurrentImage.getSourceImage());
+				imagePanel.repaint();
+			}
+
 			save();
 			goToNext();
-		} while (blackoutDicomFiles.filesExist() && blackoutDicomFiles.getCurrentFileNumber() < blackoutDicomFiles.getNumberOfFiles());
+		} while (blackoutCurrentImage.moreFiles());
 	}
 
 	protected class CancelActionListener implements ActionListener {
@@ -800,7 +653,7 @@ public class DicomImageBlackout extends JFrame {
 		// use static methods from ApplicationFrame to establish L&F, even though not inheriting from ApplicationFrame
 		ApplicationFrame.setInternationalizedFontsForGUI();
 		ApplicationFrame.setBackgroundForGUI();
-		new DicomImageBlackout("Dicom Image Blackout", arg, BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED);
+		new DicomImageBlackout("Dicom Image Blackout", arg, BlackoutCurrentImage.BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED);
 	}
 
 	protected class PreviousActionListener implements ActionListener {
@@ -830,11 +683,11 @@ public class DicomImageBlackout extends JFrame {
 
 	private void goToNext() {
 		recordStateOfDrawingShapesForFileChange();
-		if (changesWereMade) {
+		if (blackoutCurrentImage.UnsavedChanges()) {
 			// Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
 		}
 
-		if (blackoutDicomFiles.goToNext()) {
+		if (blackoutCurrentImage.goToNext()) {
 			updateDisplayedFileNumber();
 			loadDicomFileOrDirectory(blackoutShapeDefinition);
 		} else {
@@ -845,11 +698,11 @@ public class DicomImageBlackout extends JFrame {
 
 	private void goToPrevious() {
 		recordStateOfDrawingShapesForFileChange();
-		if (changesWereMade) {
+		if (blackoutCurrentImage.UnsavedChanges()) {
 			// Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
 		}
 
-		if (blackoutDicomFiles.goToPrevious()) {
+		if (blackoutCurrentImage.goToPrevious()) {
 			updateDisplayedFileNumber();
 			loadDicomFileOrDirectory(blackoutShapeDefinition);
 		} else {
