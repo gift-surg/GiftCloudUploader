@@ -45,6 +45,7 @@ public class DicomImageBlackout extends JFrame {
 	public DicomImageBlackout(String title, String dicomFileNames[], int burnedinflag) {
 		super(title);
 		blackoutDicomFiles = new BlackoutDicomFiles(dicomFileNames);
+		blackoutShapeDefinition = null;
 		this.burnedinflag = burnedinflag;
 		//No need to setBackground(Color.lightGray) .. we set this via L&F UIManager properties for the application that uses this class
 		addWindowListener(new WindowAdapter() {
@@ -58,7 +59,7 @@ public class DicomImageBlackout extends JFrame {
 
 		if (dicomFileNames != null && dicomFileNames.length > 0) {
 			updateDisplayedFileNumber();
-			loadDicomFileOrDirectory();
+			loadDicomFileOrDirectory(blackoutShapeDefinition);
 		}
 	}
 
@@ -207,10 +208,10 @@ public class DicomImageBlackout extends JFrame {
 	 * <p>Load the named DICOM file and display it in the image panel.</p>
 	 *
 	 */
-	protected void loadDicomFileOrDirectory() {
+	protected void loadDicomFileOrDirectory(BlackoutShapeDefinition shapeDefinition) {
 		try {
 			File currentFile = FileUtilities.getFileFromNameInsensitiveToCaseIfNecessary(blackoutDicomFiles.getCurrentFileName());
-			loadDicomFileOrDirectory(currentFile);
+			loadDicomFileOrDirectory(currentFile, shapeDefinition);
 		} catch (Exception e) {
 			// Read failed
 			dispose();
@@ -222,7 +223,7 @@ public class DicomImageBlackout extends JFrame {
 	 *
 	 * @param    currentFile
 	 */
-	protected void loadDicomFileOrDirectory(File currentFile) {
+	protected void loadDicomFileOrDirectory(File currentFile, BlackoutShapeDefinition shapeDefinition) {
 		changesWereMade = false;
 		SingleImagePanel.deconstructAllSingleImagePanelsInContainer(multiPanel);
 		multiPanel.removeAll();
@@ -249,11 +250,11 @@ public class DicomImageBlackout extends JFrame {
 					cursorChanger.restoreCursor();    // needs to be here and not later, else interferes with cursor in repaint() of  SingleImagePanel
 					showUIComponents();                // will pack, revalidate, etc, perhaps for the first time
 
-					if (blackoutShapeDefinition != null) {
-						if (blackoutShapeDefinition.getPreviousRows() == sImg.getHeight() && blackoutShapeDefinition.getPreviousColumns() == sImg.getWidth()) {
-							imagePanel.setPersistentDrawingShapes(blackoutShapeDefinition.getPreviousPersistentDrawingShapes());
+					if (shapeDefinition != null) {
+						if (shapeDefinition.getPreviousRows() == sImg.getHeight() && shapeDefinition.getPreviousColumns() == sImg.getWidth()) {
+							imagePanel.setPersistentDrawingShapes(shapeDefinition.getPreviousPersistentDrawingShapes());
 						} else {
-							blackoutShapeDefinition = null;
+//							shapeDefinition = null;
 						}
 					}
 				} else {
@@ -415,7 +416,7 @@ public class DicomImageBlackout extends JFrame {
 				// Save failed
 			}
 		}
-		loadDicomFileOrDirectory(currentFile);
+		loadDicomFileOrDirectory(currentFile, blackoutShapeDefinition);
 	}
 
 
@@ -810,20 +811,10 @@ public class DicomImageBlackout extends JFrame {
 		}
 
 		public void actionPerformed(ActionEvent event) {
-			recordStateOfDrawingShapesForFileChange();
-			if (changesWereMade) {
-				// Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
-			}
-
-			if (blackoutDicomFiles.goToPrevious()) {
-				updateDisplayedFileNumber();
-				loadDicomFileOrDirectory();
-			} else {
-				// Normal completion
-				application.dispose();
-			}
+			goToPrevious();
 		}
 	}
+
 
 	protected class NextActionListener implements ActionListener {
 		DicomImageBlackout application;
@@ -845,7 +836,22 @@ public class DicomImageBlackout extends JFrame {
 
 		if (blackoutDicomFiles.goToNext()) {
 			updateDisplayedFileNumber();
-			loadDicomFileOrDirectory();
+			loadDicomFileOrDirectory(blackoutShapeDefinition);
+		} else {
+			// Normal completion
+			dispose();
+		}
+	}
+
+	private void goToPrevious() {
+		recordStateOfDrawingShapesForFileChange();
+		if (changesWereMade) {
+			// Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
+		}
+
+		if (blackoutDicomFiles.goToPrevious()) {
+			updateDisplayedFileNumber();
+			loadDicomFileOrDirectory(blackoutShapeDefinition);
 		} else {
 			// Normal completion
 			dispose();
