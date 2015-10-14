@@ -16,17 +16,15 @@ public class BlackoutCurrentImage {
     private boolean usedjpegblockredaction;
     private String currentFileName;
     private File redactedJPEGFile;
-    private BlackoutDicomFiles blackoutDicomFiles;
 
-    public BlackoutCurrentImage(String dicomFileNames[]) {
-        blackoutDicomFiles = new BlackoutDicomFiles(dicomFileNames);
+    public BlackoutCurrentImage() {
     }
 
     public SourceImage getSourceImage() {
         return sImg;
     }
 
-    public void save(boolean burnInOverlays, String ourAETitle, int burnedinflag) throws IOException, DicomException {
+    public void save(String currentFileName, boolean burnInOverlays, String ourAETitle, int burnedinflag) throws IOException, DicomException {
         boolean success = true;
         try {
             sImg.close();        // in case memory-mapped pixel data open; would inhibit Windows rename or copy/reopen otherwise
@@ -38,8 +36,8 @@ public class BlackoutCurrentImage {
             // Save failed - unable to close image - not saving modifications
             success = false;
         }
-        File currentFile = new File(blackoutDicomFiles.getCurrentFileName());
-        File newFile = new File(blackoutDicomFiles.getCurrentFileName() + ".new");
+        File currentFile = new File(currentFileName);
+        File newFile = new File(currentFileName + ".new");
         if (success) {
             String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.TransferSyntaxUID);
             try {
@@ -120,8 +118,8 @@ public class BlackoutCurrentImage {
         loadDicomFileOrDirectory(currentFile);
     }
 
-    public void loadDicomFileOrDirectory() throws IOException, DicomException {
-        File currentFile = FileUtilities.getFileFromNameInsensitiveToCaseIfNecessary(blackoutDicomFiles.getCurrentFileName());
+    public void loadDicomFileOrDirectory(String currentFileName) throws IOException, DicomException {
+        File currentFile = FileUtilities.getFileFromNameInsensitiveToCaseIfNecessary(currentFileName);
         loadDicomFileOrDirectory(currentFile);
     }
 
@@ -178,20 +176,8 @@ public class BlackoutCurrentImage {
         return changesWereMade;
     }
 
-    public boolean goToNext() {
-        return blackoutDicomFiles.goToNext();
-    }
-
-    public boolean goToPrevious() {
-        return blackoutDicomFiles.goToPrevious();
-    }
-
     public int getNumberOfImages() {
         return Attribute.getSingleIntegerValueOrDefault(list, TagFromName.NumberOfFrames, 1);
-    }
-
-    public boolean moreFiles() {
-        return blackoutDicomFiles.filesExist() && blackoutDicomFiles.getCurrentFileNumber() < blackoutDicomFiles.getNumberOfFiles();
     }
 
     /**

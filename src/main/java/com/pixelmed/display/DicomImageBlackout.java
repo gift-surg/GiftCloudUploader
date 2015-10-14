@@ -24,8 +24,8 @@ import java.util.Vector;
  */
 public class DicomImageBlackout extends JFrame {
 	private BlackoutCurrentImage blackoutCurrentImage;
-
 	private BlackoutShapeDefinition blackoutShapeDefinition;
+	private BlackoutDicomFiles blackoutDicomFiles;
 
 	/**
 	 * <p>Opens a window to display the supplied list of DICOM files to allow them to have burned in annotation blacked out.</p>
@@ -38,8 +38,9 @@ public class DicomImageBlackout extends JFrame {
 	 */
 	public DicomImageBlackout(String title, String dicomFileNames[], int burnedinflag) {
 		super(title);
+		blackoutDicomFiles = new BlackoutDicomFiles(dicomFileNames);
 		blackoutShapeDefinition = null;
-		blackoutCurrentImage = new BlackoutCurrentImage(dicomFileNames);
+		blackoutCurrentImage = new BlackoutCurrentImage();
 		this.burnedinflag = burnedinflag;
 		//No need to setBackground(Color.lightGray) .. we set this via L&F UIManager properties for the application that uses this class
 		addWindowListener(new WindowAdapter() {
@@ -178,7 +179,7 @@ public class DicomImageBlackout extends JFrame {
 		cursorChanger.setWaitCursor();
 
 		try {
-			blackoutCurrentImage.loadDicomFileOrDirectory();
+			blackoutCurrentImage.loadDicomFileOrDirectory(blackoutDicomFiles.getCurrentFileName());
 			SourceImage sImg = blackoutCurrentImage.getSourceImage();
 			imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
 			imagePanel.setShowOverlays(burnInOverlays);
@@ -213,7 +214,7 @@ public class DicomImageBlackout extends JFrame {
 		cursorChanger.setWaitCursor();
 
 		try {
-			blackoutCurrentImage.save(burnInOverlays, ourAETitle, burnedinflag);
+			blackoutCurrentImage.save(blackoutDicomFiles.getCurrentFileName(), burnInOverlays, ourAETitle, burnedinflag);
 			SourceImage sImg = blackoutCurrentImage.getSourceImage();
 			imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
 			imagePanel.setShowOverlays(burnInOverlays);
@@ -302,7 +303,7 @@ public class DicomImageBlackout extends JFrame {
 
 			save();
 			goToNext();
-		} while (blackoutCurrentImage.moreFiles());
+		} while (blackoutDicomFiles.filesExist() && blackoutDicomFiles.getCurrentFileNumber() < blackoutDicomFiles.getNumberOfFiles());
 	}
 
 	protected class CancelActionListener implements ActionListener {
@@ -687,7 +688,7 @@ public class DicomImageBlackout extends JFrame {
 			// Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
 		}
 
-		if (blackoutCurrentImage.goToNext()) {
+		if (blackoutDicomFiles.goToNext()) {
 			updateDisplayedFileNumber();
 			loadDicomFileOrDirectory(blackoutShapeDefinition);
 		} else {
@@ -702,7 +703,7 @@ public class DicomImageBlackout extends JFrame {
 			// Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
 		}
 
-		if (blackoutCurrentImage.goToPrevious()) {
+		if (blackoutDicomFiles.goToPrevious()) {
 			updateDisplayedFileNumber();
 			loadDicomFileOrDirectory(blackoutShapeDefinition);
 		} else {
