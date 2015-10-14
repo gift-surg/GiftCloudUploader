@@ -56,8 +56,8 @@ public class DicomImageBlackout extends JFrame {
 		buildUIComponents();
 
 		if (dicomFileNames != null && dicomFileNames.length > 0) {
-			updateDisplayedFileNumber(blackoutDicomFiles.getCurrentFileNumber(), blackoutDicomFiles.getNumberOfFiles());
-			loadDicomFileOrDirectory(blackoutDicomFiles.getCurrentFileName());
+			updateDisplayedFileNumber();
+			loadDicomFileOrDirectory();
 		}
 	}
 
@@ -169,8 +169,10 @@ public class DicomImageBlackout extends JFrame {
 		}
 	}
 
-	protected void updateDisplayedFileNumber(int current, int total) {
+	protected void updateDisplayedFileNumber() {
 		if (imagesRemainingLabel != null) {
+			int current = blackoutDicomFiles.getCurrentFileNumber();
+			int total = blackoutDicomFiles.getNumberOfFiles();
 			imagesRemainingLabel.setText(Integer.toString(current + 1) + " of " + Integer.toString(total));
 		}
 	}
@@ -207,11 +209,10 @@ public class DicomImageBlackout extends JFrame {
 	/**
 	 * <p>Load the named DICOM file and display it in the image panel.</p>
 	 *
-	 * @param    dicomFileName
 	 */
-	protected void loadDicomFileOrDirectory(String dicomFileName) {
+	protected void loadDicomFileOrDirectory() {
 		try {
-			File currentFile = FileUtilities.getFileFromNameInsensitiveToCaseIfNecessary(dicomFileName);
+			File currentFile = FileUtilities.getFileFromNameInsensitiveToCaseIfNecessary(blackoutDicomFiles.getCurrentFileName());
 			loadDicomFileOrDirectory(currentFile);
 		} catch (Exception e) {
 			// Read failed
@@ -824,8 +825,8 @@ public class DicomImageBlackout extends JFrame {
 			}
 
 			if (blackoutDicomFiles.goToPrevious()) {
-				updateDisplayedFileNumber(blackoutDicomFiles.getCurrentFileNumber(), blackoutDicomFiles.getNumberOfFiles());
-				loadDicomFileOrDirectory(blackoutDicomFiles.getCurrentFileName());
+				updateDisplayedFileNumber();
+				loadDicomFileOrDirectory();
 			} else {
 				// Normal completion
 				application.dispose();
@@ -847,8 +848,8 @@ public class DicomImageBlackout extends JFrame {
 			}
 
 			if (blackoutDicomFiles.goToNext()) {
-				updateDisplayedFileNumber(blackoutDicomFiles.getCurrentFileNumber(), blackoutDicomFiles.getNumberOfFiles());
-				loadDicomFileOrDirectory(blackoutDicomFiles.getCurrentFileName());
+				updateDisplayedFileNumber();
+				loadDicomFileOrDirectory();
 			} else {
 				// Normal completion
 				application.dispose();
