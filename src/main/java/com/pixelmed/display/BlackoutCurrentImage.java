@@ -14,7 +14,6 @@ public class BlackoutCurrentImage {
     private SourceImage sImg;
     private boolean changesWereMade;
     private boolean usedjpegblockredaction;
-    private String currentFileName;
     private File redactedJPEGFile;
     private BlackoutImage blackoutImage;
 
@@ -130,13 +129,9 @@ public class BlackoutCurrentImage {
      * @param    currentFile
      */
     protected void loadDicomFileOrDirectory(File currentFile) throws IOException, DicomException {
-        blackoutImage = new BlackoutImage();
+        blackoutImage = new BlackoutImage(currentFile);
         changesWereMade = false;
-        currentFileName = currentFile.getAbsolutePath();        // set to what we actually used, used for later save
-        DicomInputStream i = new DicomInputStream(currentFile);
-        list = new AttributeList();
-        list.read(i);
-        i.close();
+        list = readAttributeList(currentFile);
         String useSOPClassUID = Attribute.getSingleStringValueOrEmptyString(list, TagFromName.SOPClassUID);
         if (SOPClass.isImageStorage(useSOPClassUID)) {
             sImg = new SourceImage(list);
@@ -144,6 +139,7 @@ public class BlackoutCurrentImage {
             throw new DicomException("unsupported SOP Class " + useSOPClassUID);
         }
     }
+
 
     public void apply(Vector shapes, boolean burnInOverlays, boolean usePixelPaddingBlackoutValue, boolean useZeroBlackoutValue) throws Exception {
         if (sImg != null && list != null) {
@@ -156,12 +152,9 @@ public class BlackoutCurrentImage {
                         redactedJPEGFile.delete();
                     }
                     redactedJPEGFile = File.createTempFile("DicomImageBlackout", ".dcm");
-                    ImageEditUtilities.blackoutJPEGBlocks(new File(currentFileName), redactedJPEGFile, shapes);
+                    ImageEditUtilities.blackoutJPEGBlocks(new File(blackoutImage.getCurrentFileName()), redactedJPEGFile, shapes);
                     // Need to re-read the file because we need to decompress the redacted JPEG to use to display it again
-                    DicomInputStream i = new DicomInputStream(redactedJPEGFile);
-                    list = new AttributeList();
-                    list.read(i);
-                    i.close();
+                    list = readAttributeList(redactedJPEGFile);
                     // do NOT delete redactedJPEGFile, since will reuse it when "saving", and also file may need to hang around for display of cached pixel data
                 } else {
                     usedjpegblockredaction = false;
@@ -182,5 +175,12 @@ public class BlackoutCurrentImage {
         return Attribute.getSingleIntegerValueOrDefault(list, TagFromName.NumberOfFrames, 1);
     }
 
+    private AttributeList readAttributeList(File currentFile) throws IOException, DicomException {
+        DicomInputStream i = new DicomInputStream(currentFile);
+        AttributeList attributeList = new AttributeList();
+        attributeList.read(i);
+        i.close();
+        return attributeList;
+    }
 
 }
