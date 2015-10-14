@@ -20,9 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
 
-//import javax.swing.BorderFactory;
-//import javax.swing.border.EmptyBorder;
-
 /**
  * <p>This class displays images and allows the user to black out burned-in annotation, and save the result.</p>
  * 
@@ -42,19 +39,16 @@ public class DicomImageBlackout extends JFrame  {
 	 *
 	 * @param	title				the string to use in the title bar of the window
 	 * @param	dicomFileNames		the list of file names to process, if null a file chooser dialog will be raised
-	 * @param	snh					an instance of {@link StatusNotificationHandler StatusNotificationHandler}; if null, a default handler will be used that writes to stderr
 	 * @param	burnedinflag		whether or not and under what circumstances to to add/change BurnedInAnnotation attribute; takes one of the values of {@link BurnedInAnnotationFlagAction BurnedInAnnotationFlagAction}
 	 */
-	public DicomImageBlackout(String title,String dicomFileNames[],StatusNotificationHandler snh,int burnedinflag) {
+	public DicomImageBlackout(String title, String dicomFileNames[], int burnedinflag) {
 		super(title);
 		blackoutDicomFiles = new BlackoutDicomFiles(dicomFileNames);
 		this.burnedinflag = burnedinflag;
 		//No need to setBackground(Color.lightGray) .. we set this via L&F UIManager properties for the application that uses this class
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				if (statusNotificationHandler != null) {
-					statusNotificationHandler.notify(StatusNotificationHandler.WINDOW_CLOSED,"Window closed",null);
-				}
+				// Window closed
 				dispose();
 			}
 		});
@@ -216,45 +210,6 @@ public class DicomImageBlackout extends JFrame  {
 	protected int burnedinflag;
 
 	/**
-	 *<p>An abstract class for the user of to supply a callback notification method,
-	 * supplied as an argument of the DicomImageBlackout constructor.</p>
-	 */
-	public abstract class StatusNotificationHandler {
-		protected StatusNotificationHandler() {}
-		public static final int WINDOW_CLOSED = 1;
-		public static final int CANCELLED = 2;
-		public static final int COMPLETED = 3;
-		public static final int SAVE_FAILED = 4;
-		public static final int UNSAVED_CHANGES = 5;
-		public static final int SAVE_SUCCEEDED = 6;
-		public static final int READ_FAILED = 7;
-		public static final int BLACKOUT_FAILED = 8;
-		/**
-		 * <p>The callback method when status is updated.</p>
-		 *
-		 * @param	status		a numeric status
-		 * @param	message		a description of the status, and in some cases, affected file names
-		 * @param	t			the exception that lead to the status notification, if caused by an exception, else null
-		 */
-		public abstract void notify(int status,String message,Throwable t);
-	}
-
-	/**
-	 *<p>A default status notification implementation, which just writes everything to stderr.</p>
-	 */
-	public class DefaultStatusNotificationHandler extends StatusNotificationHandler {
-		public void notify(int status,String message,Throwable t) {
-			System.err.println("DicomImageBlackout.DefaultStatusNotificationHandler.notify(): status = "+status);
-			System.err.println("DicomImageBlackout.DefaultStatusNotificationHandler.notify(): message = "+message);
-			if (t != null) {
-				t.printStackTrace(System.err);
-			}
-		}
-	}
-
-	protected StatusNotificationHandler statusNotificationHandler;
-	
-	/**
 	 * <p>Load the named DICOM file and display it in the image panel.</p>
 	 *
 	 * @param	dicomFileName
@@ -265,10 +220,7 @@ public class DicomImageBlackout extends JFrame  {
 			loadDicomFileOrDirectory(currentFile);
 		}
 		catch (Exception e) {
-			//e.printStackTrace(System.err);
-			if (statusNotificationHandler != null) {
-				statusNotificationHandler.notify(StatusNotificationHandler.READ_FAILED,"Read failed",e);
-			}
+			// Read failed
 			dispose();
 		}
 	}
@@ -320,9 +272,7 @@ public class DicomImageBlackout extends JFrame  {
 					throw new DicomException("unsupported SOP Class "+useSOPClassUID);
 				}
 			} catch (Exception e) {
-				if (statusNotificationHandler != null) {
-					statusNotificationHandler.notify(StatusNotificationHandler.READ_FAILED,"Read failed",e);
-				}
+				// Read failed
 				cursorChanger.restoreCursor();
 				dispose();
 			}
@@ -339,10 +289,6 @@ public class DicomImageBlackout extends JFrame  {
 		}
 		
 		public void actionPerformed(ActionEvent event) {
-//System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed()");
-//System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): burnInOverlays = "+application.burnInOverlays);
-//System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): useZeroBlackoutValue = "+application.useZeroBlackoutValue);
-//System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): usePixelPaddingBlackoutValue = "+application.usePixelPaddingBlackoutValue);
 			recordStateOfDrawingShapesForFileChange();
 			cursorChanger.setWaitCursor();
 			if (application.imagePanel != null && application.sImg != null && application.list != null) {
@@ -353,7 +299,6 @@ public class DicomImageBlackout extends JFrame  {
 						String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list,TagFromName.TransferSyntaxUID);
 						try {
 							if (transferSyntaxUID.equals(TransferSyntax.JPEGBaseline) && !application.burnInOverlays && CapabilitiesAvailable.haveJPEGBaselineSelectiveBlockRedaction()) {
-System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Blackout JPEG blocks");
 								usedjpegblockredaction = true;
 								if (redactedJPEGFile != null) {
 									redactedJPEGFile.delete();
@@ -368,7 +313,6 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 								// do NOT delete redactedJPEGFile, since will reuse it when "saving", and also file may need to hang around for display of cached pixel data
 							}
 							else {
-System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Blackout decompressed image");
 								usedjpegblockredaction = false;
 								ImageEditUtilities.blackout(application.sImg,application.list,shapes,application.burnInOverlays,application.usePixelPaddingBlackoutValue,application.useZeroBlackoutValue,0);
 							}
@@ -377,20 +321,15 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 							application.imagePanel.repaint();
 						}
 						catch (Exception e) {
-							//e.printStackTrace(System.err);
-							if (application.statusNotificationHandler != null) {
-								application.statusNotificationHandler.notify(StatusNotificationHandler.BLACKOUT_FAILED,"Blackout failed",e);
-							}
+							// Blackoout failed
 							application.dispose();
 						}
 					}
 					else {
-//System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): no shapes or burning in of overlays to do");
 					}
 				}
 			}
 			else {
-//System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): no panel or image or list to do");
 			}
 			cursorChanger.restoreCursor();
 		}
@@ -406,7 +345,6 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		}
 		
 		public void actionPerformed(ActionEvent event) {
-//System.err.println("DicomImageBlackout.SaveActionListener.actionPerformed()");
 			recordStateOfDrawingShapesForFileChange();
 			cursorChanger.setWaitCursor();
 			boolean success = true;
@@ -418,17 +356,11 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 				System.gc();
 			}
 			catch (Throwable t) {
-//System.err.println("DicomImageBlackout.SaveActionListener.actionPerformed(): unable to close image - not saving modifications");
-				if (application.statusNotificationHandler != null) {
-					application.statusNotificationHandler.notify(StatusNotificationHandler.SAVE_FAILED,
-						"Save failed - unable to close image - not saving modifications",t);
-				}
+				// Save failed - unable to close image - not saving modifications
 				success=false;
 			}
 			File currentFile = new File(currentFileName);
-//System.err.println("DicomImageBlackout.SaveActionListener.actionPerformed(): currentFile = "+currentFile);
 			File newFile = new File(currentFileName+".new");
-//System.err.println("DicomImageBlackout.SaveActionListener.actionPerformed(): newFile = "+newFile);
 			if (success) {
 				String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(list,TagFromName.TransferSyntaxUID);
 				try {
@@ -488,11 +420,7 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 						FileUtilities.renameElseCopyTo(newFile,currentFile);
 					}
 					catch (IOException e) {
-//System.err.println("DicomImageBlackout.SaveActionListener.actionPerformed(): unable to rename "+newFile+" to "+currentFile+ " - not saving modifications");
-						if (application.statusNotificationHandler != null) {
-							application.statusNotificationHandler.notify(StatusNotificationHandler.SAVE_FAILED,
-								"Save failed - unable to rename or copy "+newFile+" to "+currentFile+ " - not saving modifications",e);
-						}
+						// Unable to rename or copy - save failed - not saving modifications
 						success=false;
 					}
 					
@@ -559,9 +487,7 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 				loadDicomFileOrDirectory(blackoutDicomFiles.getFileName(currentFileNumber));
 			}
 			else {
-				if (application.statusNotificationHandler != null) {
-					application.statusNotificationHandler.notify(StatusNotificationHandler.COMPLETED,"Normal completion",null);
-				}
+				// Normal completion
 				application.dispose();
 			}
 		}
@@ -604,10 +530,7 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		}
 		
 		public void actionPerformed(ActionEvent event) {
-//System.err.println("DicomImageBlackout.CancelActionListener.actionPerformed()");
-			if (application.statusNotificationHandler != null) {
-				application.statusNotificationHandler.notify(StatusNotificationHandler.CANCELLED,"Cancelled",null);
-			}
+			// Cancelled
 			application.dispose();
 		}
 	}
@@ -622,10 +545,8 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		}
 		
 		public void stateChanged(ChangeEvent e) {
-//System.err.println("DicomImageBlackout.OverlaysChangeListener.stateChanged(): event = "+e);
 			if (e != null && e.getSource() instanceof JCheckBox) {
 				application.burnInOverlays = ((JCheckBox)(e.getSource())).isSelected();
-//System.err.println("DicomImageBlackout.OverlaysChangeListener.stateChanged(): burnInOverlays = "+application.burnInOverlays);
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new GraphicDisplayChangeEvent(eventContext,application.burnInOverlays));
 			}
 		}
@@ -641,14 +562,12 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		}
 		
 		public void stateChanged(ChangeEvent e) {
-//System.err.println("DicomImageBlackout.ZeroBlackoutValueChangeListener.stateChanged(): event = "+e);
 			if (e != null && e.getSource() instanceof JCheckBox) {
 				application.useZeroBlackoutValue = ((JCheckBox)(e.getSource())).isSelected();
 				if (application.useZeroBlackoutValue) {
 					application.usePixelPaddingBlackoutValue=false;
 					application.usePixelPaddingBlackoutValueCheckBox.setSelected(application.usePixelPaddingBlackoutValue);
 				}
-//System.err.println("DicomImageBlackout.ZeroBlackoutValueChangeListener.stateChanged(): useZeroBlackoutValue = "+application.useZeroBlackoutValue);
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new GraphicDisplayChangeEvent(eventContext,application.useZeroBlackoutValue));
 			}
 		}
@@ -664,14 +583,12 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		}
 		
 		public void stateChanged(ChangeEvent e) {
-//System.err.println("DicomImageBlackout.PixelPaddingBlackoutValueChangeListener.stateChanged(): event = "+e);
 			if (e != null && e.getSource() instanceof JCheckBox) {
 				application.usePixelPaddingBlackoutValue = ((JCheckBox)(e.getSource())).isSelected();
 				if (application.usePixelPaddingBlackoutValue) {
 					application.useZeroBlackoutValue=false;
 					application.useZeroBlackoutValueCheckBox.setSelected(application.useZeroBlackoutValue);
 				}
-//System.err.println("DicomImageBlackout.PixelPaddingBlackoutValueChangeListener.stateChanged(): usePixelPaddingBlackoutValue = "+application.usePixelPaddingBlackoutValue);
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new GraphicDisplayChangeEvent(eventContext,application.usePixelPaddingBlackoutValue));
 			}
 		}
@@ -679,18 +596,13 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 	
 	protected double getScaleFactorToFitInMaximumAvailable(double useWidth,double useHeight,double maxWidth,double maxHeight) {
 		double sx = maxWidth/useWidth;
-//System.err.println("DicomImageBlackout.getScaleFactorToFitInMaximumAvailable(): sx = "+sx);
 		double sy = maxHeight/useHeight;
-//System.err.println("DicomImageBlackout.getScaleFactorToFitInMaximumAvailable(): sy = "+sy);
 		// always choose smallest, regardless of whether scaling up or down
 		double useScaleFactor = sx < sy ? sx : sy;
-//System.err.println("DicomImageBlackout.getScaleFactorToFitInMaximumAvailable(): useScaleFactor = "+useScaleFactor);
 		return useScaleFactor;
 	}
 	
 	protected Dimension changeDimensionToFitInMaximumAvailable(Dimension useDimension,Dimension maxDimension,boolean onlySmaller) {
-//System.err.println("DicomImageBlackout.changeDimensionToFitInMaximumAvailable(): have dimension "+useDimension);
-//System.err.println("DicomImageBlackout.changeDimensionToFitInMaximumAvailable(): maximum dimension "+maxDimension);
 		double useWidth = useDimension.getWidth();
 		double useHeight = useDimension.getHeight();
 		double maxWidth = maxDimension.getWidth();
@@ -701,7 +613,6 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 			useHeight = useHeight*useScaleFactor;
 		}
 		useDimension = new Dimension((int)useWidth,(int)useHeight);
-//System.err.println("DicomImageBlackout.changeDimensionToFitInMaximumAvailable(): use new dimension "+useDimension);
 		return useDimension;
 	}
 	
@@ -719,14 +630,12 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 				Insets insets = parent.getInsets();
 				int componentCount = parent.getComponentCount();
 				Dimension parentSize = parent.getSize();
-//System.err.println("CenterMaximumAfterInitialSizeLayout.layoutContainer(): parentSize = "+parentSize);
-				
+
 				int sumOfComponentWidths  = 0;
 				int sumOfComponentHeights = 0;
 				for (int c=0; c<componentCount; ++c) {
 					Component component = parent.getComponent(c);
 					Dimension componentSize = component.getPreferredSize();
-//System.err.println("CenterMaximumAfterInitialSizeLayout.layoutContainer(): component "+c+" preferred size = "+componentSize);
 					sumOfComponentWidths  += componentSize.getWidth();
 					sumOfComponentHeights += componentSize.getHeight();
 				}
@@ -744,23 +653,17 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 					// First time, the sum of either the widths or the heights will equal what
 					// is available, since the parent size was derived from calls to minimumLayoutSize()
 					// and preferredLayoutSize(), hence no scaling is required or should be performed ...
-//System.err.println("CenterMaximumAfterInitialSizeLayout.layoutContainer(): not scaling since once size matches and fits inside");
 					leftOffset = (availableWidth  - sumOfComponentWidths ) / 2;
 					topOffset  = (availableHeight - sumOfComponentHeights) / 2;
 				}
 				else {
 					// Subsequently, if a resize on the parent has been performed, we should ALWAYS pay
 					// attention to it ...
-//System.err.println("CenterMaximumAfterInitialSizeLayout.layoutContainer(): scaling");
 					useScale = true;
 					useScaleFactor = getScaleFactorToFitInMaximumAvailable(sumOfComponentWidths,sumOfComponentHeights,availableWidth,availableHeight);
 					leftOffset = (int)((availableWidth  - sumOfComponentWidths*useScaleFactor ) / 2);
 					topOffset  = (int)((availableHeight - sumOfComponentHeights*useScaleFactor) / 2);
 				}
-//System.err.println("CenterMaximumAfterInitialSizeLayout.layoutContainer(): useScale = "+useScale);
-//System.err.println("CenterMaximumAfterInitialSizeLayout.layoutContainer(): useScaleFactor = "+useScaleFactor);
-//System.err.println("CenterMaximumAfterInitialSizeLayout.layoutContainer(): leftOffset = "+leftOffset);
-//System.err.println("CenterMaximumAfterInitialSizeLayout.layoutContainer(): topOffset  = "+topOffset);
 				for (int c=0; c<componentCount; ++c) {
 					Component component = parent.getComponent(c);
 					Dimension componentSize = component.getPreferredSize();
@@ -789,7 +692,6 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 					w += componentSize.getWidth();
 					h += componentSize.getHeight();
 				}
-//System.err.println("CenterMaximumAfterInitialSizeLayout.minimumLayoutSize() = "+w+","+h);
 				return new Dimension(w,h);
 			}
 		}
@@ -806,7 +708,6 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 					w += componentSize.getWidth();
 					h += componentSize.getHeight();
 				}
-//System.err.println("CenterMaximumAfterInitialSizeLayout.preferredLayoutSize() = "+w+","+h);
 				return new Dimension(w,h);
 			}
 		}
@@ -815,21 +716,8 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
  	}
 	
 	protected void addSingleImagePanelToMultiPanelAndEstablishLayout() {
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): start sImg.getDimension() = "+sImg.getDimension());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): start multiPanel.getPreferredSize() = "+multiPanel.getPreferredSize());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): start multiPanel.getMinimumSize() = "+multiPanel.getMinimumSize());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): start multiPanel.getMaximumSize() = "+multiPanel.getMaximumSize());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): start imagePanel.getPreferredSize() = "+imagePanel.getPreferredSize());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): start imagePanel.getMinimumSize() = "+imagePanel.getMinimumSize());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): start imagePanel.getMaximumSize() = "+imagePanel.getMaximumSize());
 		// Need to have some kind of layout manager, else imagePanel does not resize when frame is resized by user
 		addSingleImagePanelToMultiPanelAndEstablishLayoutWithCenterMaximumAfterInitialSizeLayout();
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): end multiPanel.getPreferredSize() = "+multiPanel.getPreferredSize());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): end multiPanel.getMinimumSize() = "+multiPanel.getMinimumSize());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): end multiPanel.getMaximumSize() = "+multiPanel.getMaximumSize());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): end imagePanel.getPreferredSize() = "+imagePanel.getPreferredSize());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): end imagePanel.getMinimumSize() = "+imagePanel.getMinimumSize());
-//System.err.println("DicomImageBlackout.addSingleImagePanelToMultiPanelAndEstablishLayout(): end imagePanel.getMaximumSize() = "+imagePanel.getMaximumSize());
 	}
 	
 	protected void addSingleImagePanelToMultiPanelAndEstablishLayoutWithCenterMaximumAfterInitialSizeLayout() {
@@ -951,27 +839,22 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 
 
 	public void deconstruct() {
-//System.err.println("DicomImageBlackout.deconstruct()");
 		// avoid "listener leak"
 		if (ourFrameSelectionChangeListener != null) {
-//System.err.println("DicomImageBlackout.deconstruct(): removing ourFrameSelectionChangeListener");
 			ApplicationEventDispatcher.getApplicationEventDispatcher().removeListener(ourFrameSelectionChangeListener);
 			ourFrameSelectionChangeListener=null;
 		}
 		if (multiPanel != null) {
-//System.err.println("DicomImageBlackout.deconstruct(): call deconstructAllSingleImagePanelsInContainer in case any listeners hanging around");
 			SingleImagePanel.deconstructAllSingleImagePanelsInContainer(multiPanel);
 		}
 	}
 	
 	public void dispose() {
-//System.err.println("DicomImageBlackout.dispose()");
 		deconstruct();		// just in case wasn't already called, and garbage collection occurs
 		super.dispose();
 	}
 	
 	protected void finalize() throws Throwable {
-//System.err.println("DicomImageBlackout.finalize()");
 		deconstruct();		// just in case wasn't already called, and garbage collection occurs
 		super.finalize();
 	}
@@ -985,7 +868,7 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		// use static methods from ApplicationFrame to establish L&F, even though not inheriting from ApplicationFrame
 		ApplicationFrame.setInternationalizedFontsForGUI();
 		ApplicationFrame.setBackgroundForGUI();
-		new DicomImageBlackout("Dicom Image Blackout",arg,null,BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED);
+		new DicomImageBlackout("Dicom Image Blackout",arg, BurnedInAnnotationFlagAction.ADD_AS_NO_IF_SAVED);
 	}
 }
 
