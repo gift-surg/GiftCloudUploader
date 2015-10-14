@@ -997,25 +997,6 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		
 		buildUIComponents();
 		
-		if (dicomFileNames == null || dicomFileNames.length == 0) {
-			// we are not on the Swing event dispatcher thread, so ...
-			String dicomFileName = null;
-			SafeFileChooser.SafeFileChooserThread fileChooserThread = new SafeFileChooser.SafeFileChooserThread();
-			try {
-				java.awt.EventQueue.invokeAndWait(fileChooserThread);
-				dicomFileName=fileChooserThread.getSelectedFileName();
-			}
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-			if (dicomFileName != null) {
-				String[] fileNames = { dicomFileName };
-				dicomFileNames = fileNames;
-			}
-		}
 		if (dicomFileNames != null && dicomFileNames.length > 0) {
 			this.dicomFileNames = dicomFileNames;
 			currentFileNumber = 0;
