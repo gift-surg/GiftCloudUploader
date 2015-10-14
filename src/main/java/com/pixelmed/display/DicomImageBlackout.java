@@ -137,7 +137,6 @@ public class DicomImageBlackout extends JFrame  {
 	
 		public OurFrameSelectionChangeListener(EventContext eventContext) {
 			super("com.pixelmed.display.event.FrameSelectionChangeEvent",eventContext);
-//System.err.println("DicomImageBlackout.OurFrameSelectionChangeListener():");
 		}
 		
 		/**
@@ -145,7 +144,6 @@ public class DicomImageBlackout extends JFrame  {
 		 */
 		public void changed(com.pixelmed.event.Event e) {
 			FrameSelectionChangeEvent fse = (FrameSelectionChangeEvent)e;
-//System.err.println("DicomImageBlackout.OurFrameSelectionChangeListener.changed(): event="+fse);
 			cineSlider.setValue(fse.getIndex()+1);
 		}
 	}
@@ -295,7 +293,6 @@ public class DicomImageBlackout extends JFrame  {
 			SafeCursorChanger cursorChanger = new SafeCursorChanger(this);
 			cursorChanger.setWaitCursor();
 			try {
-System.err.println("DicomImageBlackout.loadDicomFileOrDirectory(): Open "+currentFile);
 				currentFileName = currentFile.getAbsolutePath();		// set to what we actually used, used for later save
 				DicomInputStream i = new DicomInputStream(currentFile);
 				list = new AttributeList();
@@ -327,7 +324,6 @@ System.err.println("DicomImageBlackout.loadDicomFileOrDirectory(): Open "+curren
 					throw new DicomException("unsupported SOP Class "+useSOPClassUID);
 				}
 			} catch (Exception e) {
-				//e.printStackTrace(System.err);
 				if (statusNotificationHandler != null) {
 					statusNotificationHandler.notify(StatusNotificationHandler.READ_FAILED,"Read failed",e);
 				}
@@ -571,7 +567,6 @@ System.err.println("DicomImageBlackout.ApplyActionListener.actionPerformed(): Bl
 		}
 		
 		public void actionPerformed(ActionEvent event) {
-//System.err.println("DicomImageBlackout.PreviousActionListener.actionPerformed()");
 			recordStateOfDrawingShapesForFileChange();
 			if (changesWereMade) {
 				if (application.statusNotificationHandler != null) {
