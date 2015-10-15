@@ -1,4 +1,3 @@
-/* Copyright (c) 2001-2014, David A. Clunie DBA Pixelmed Publishing. All rights reserved. */
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
@@ -19,13 +18,6 @@ import java.io.File;
 import java.util.Optional;
 import java.util.Vector;
 
-/**
- * <p>This class displays images and allows the user to black out burned-in annotation, and save the result.</p>
- *
- * <p>A main method is provided, which can be supplied with a list of file names or pop up a file chooser dialog.</p>
- *
- * @author	dclunie
- */
 public class PixelDataTemplateDialog extends JFrame {
     private BlackoutCurrentImage blackoutCurrentImage;
     private BlackoutShapeDefinition blackoutShapeDefinition;
@@ -287,11 +279,13 @@ public class PixelDataTemplateDialog extends JFrame {
 
     protected ApplyActionListener applyActionListener;
     protected SaveActionListener saveActionListener;
+    protected SaveActionListener saveTemplateActionListener;
     protected NextActionListener nextActionListener;
     protected PreviousActionListener previousActionListener;
 
     protected JButton blackoutApplyButton;
     protected JButton blackoutSaveButton;
+    protected JButton blackoutSaveTemplateButton;
     protected JButton blackoutNextButton;
     protected JButton blackoutPreviousButton;
 
@@ -650,6 +644,12 @@ public class PixelDataTemplateDialog extends JFrame {
         blackoutButtonsPanel.add(blackoutApplySaveAllButton);
         blackoutApplySaveAllButton.addActionListener(new ApplySaveAllActionListener(this));
 
+        saveTemplateButton = new JButton("Save template");
+        saveTemplateButton.setToolTipText("Save an image template for the defined shapes");
+        blackoutButtonsPanel.add(saveTemplateButton);
+        saveTemplateActionListener = new SaveTemplateActionListener(this);
+        saveTemplateButton.addActionListener(saveTemplateActionListener);
+
         imagesRemainingLabel = new JLabel("0 of 0");
         blackoutButtonsPanel.add(imagesRemainingLabel);
 
@@ -768,6 +768,25 @@ public class PixelDataTemplateDialog extends JFrame {
         }
     }
 
+    protected class SaveTemplateActionListener implements ActionListener {
+        PixelDataTemplateDialog application;
+        SafeCursorChanger cursorChanger;
+
+        public SaveTemplateActionListener(PixelDataTemplateDialog application) {
+            this.application = application;
+            cursorChanger = new SafeCursorChanger(application);
+        }
+
+        public void actionPerformed(ActionEvent event) {
+            cursorChanger.setWaitCursor();
+            saveTemplate();
+            cursorChanger.restoreCursor();
+        }
+    }
+
+    private void saveTemplate() {
+        
+    }
 
 }
 
