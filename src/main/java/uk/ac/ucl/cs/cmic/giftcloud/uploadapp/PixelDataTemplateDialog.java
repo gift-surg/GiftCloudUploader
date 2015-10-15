@@ -7,16 +7,13 @@ import com.pixelmed.display.event.GraphicDisplayChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.event.EventContext;
 import com.pixelmed.event.SelfRegisteringListener;
-import com.pixelmed.utils.FileUtilities;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.util.Optional;
-import java.util.Vector;
 
 public class PixelDataTemplateDialog extends JFrame {
     private BlackoutCurrentImage blackoutCurrentImage;
@@ -104,8 +101,6 @@ public class PixelDataTemplateDialog extends JFrame {
 
     protected JCheckBox useZeroBlackoutValueCheckBox;
     protected JCheckBox usePixelPaddingBlackoutValueCheckBox;
-
-    // implement FrameSelectionChangeListener ...
 
     protected OurFrameSelectionChangeListener ourFrameSelectionChangeListener;
 
@@ -244,113 +239,9 @@ public class PixelDataTemplateDialog extends JFrame {
         }
     }
 
+    protected SaveTemplateActionListener saveTemplateActionListener;
 
-    private void apply(Vector shapes, boolean burnInOverlays) {
-        recordStateOfDrawingShapesForFileChange();
-        try {
-            blackoutCurrentImage.apply(shapes, burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue);
-        } catch (Exception ex) {
-            dispose();
-        }
-    }
-
-    protected class ApplyActionListener implements ActionListener {
-        PixelDataTemplateDialog application;
-        SafeCursorChanger cursorChanger;
-
-        public ApplyActionListener(PixelDataTemplateDialog application) {
-            this.application = application;
-            cursorChanger = new SafeCursorChanger(application);
-        }
-
-        public void actionPerformed(ActionEvent event) {
-            cursorChanger.setWaitCursor();
-            if (imagePanel != null) {
-                apply(imagePanel.getPersistentDrawingShapes(), burnInOverlays);
-                imagePanel.dirty(blackoutCurrentImage.getSourceImage());
-                imagePanel.repaint();
-            }
-
-            cursorChanger.restoreCursor();
-        }
-    }
-
-
-
-    protected ApplyActionListener applyActionListener;
-    protected SaveActionListener saveActionListener;
-    protected SaveActionListener saveTemplateActionListener;
-    protected NextActionListener nextActionListener;
-    protected PreviousActionListener previousActionListener;
-
-    protected JButton blackoutApplyButton;
-    protected JButton blackoutSaveButton;
-    protected JButton blackoutSaveTemplateButton;
-    protected JButton blackoutNextButton;
-    protected JButton blackoutPreviousButton;
-
-    protected class ApplySaveAllActionListener implements ActionListener {
-        PixelDataTemplateDialog application;
-
-        public ApplySaveAllActionListener(PixelDataTemplateDialog application) {
-            this.application = application;
-        }
-
-        public void actionPerformed(ActionEvent event) {
-            applyAll();
-        }
-    }
-
-    private void applyAll() {
-        if (imagePanel != null) {
-            Vector persistentDrawingShapes = imagePanel.getPersistentDrawingShapes();
-            do {
-                loadAndApplyAndSave(persistentDrawingShapes, burnInOverlays);
-                goToNext();
-            }
-            while (blackoutDicomFiles.filesExist() && blackoutDicomFiles.getCurrentFileNumber() < blackoutDicomFiles.getNumberOfFiles());
-            imagePanel.dirty(blackoutCurrentImage.getSourceImage());
-            imagePanel.repaint();
-        }
-    }
-
-    private void loadAndApplyAndSave(Vector persistentDrawingShapes, boolean burnInOverlays) {
-        SafeCursorChanger cursorChanger = new SafeCursorChanger(this);
-        cursorChanger.setWaitCursor();
-        recordStateOfDrawingShapesForFileChange();
-
-        SingleImagePanel.deconstructAllSingleImagePanelsInContainer(multiPanel);
-        multiPanel.removeAll();
-        multiPanel.revalidate();        // needed because contents have changed
-        multiPanel.repaint();            // because if one dimension of the size does not change but the other shrinks, then the old image is left underneath, not overwritten by background (000446)
-
-        try {
-            File inputFile = FileUtilities.getFileFromNameInsensitiveToCaseIfNecessary(blackoutDicomFiles.getCurrentFileName());
-            File outputFile = new File(inputFile.getAbsolutePath() + ".new");
-            blackoutCurrentImage.loadAndApplyAndSave(inputFile, outputFile, persistentDrawingShapes, burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, ourAETitle);
-
-            SourceImage sImg = blackoutCurrentImage.getSourceImage();
-            imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
-            imagePanel.setShowOverlays(burnInOverlays);
-            imagePanel.setApplyShutter(false);    // we do not want to "hide" from view any identification information hidden behind shutters (000607)
-            addSingleImagePanelToMultiPanelAndEstablishLayout(sImg);
-            createCineSliderIfNecessary(1, blackoutCurrentImage.getNumberOfImages(), 1);
-
-            if (blackoutShapeDefinition!= null) {
-                if (blackoutShapeDefinition.getPreviousRows() == sImg.getHeight() && blackoutShapeDefinition.getPreviousColumns() == sImg.getWidth()) {
-                    imagePanel.setPersistentDrawingShapes(blackoutShapeDefinition.getPreviousPersistentDrawingShapes());
-                } else {
-                    blackoutShapeDefinition = null;
-                }
-            }
-
-            cursorChanger.restoreCursor();
-            showUIComponents();                // will pack, revalidate, etc, perhaps for the first time
-        } catch (Exception e) {
-            cursorChanger.restoreCursor();
-            dispose();
-        }
-    }
+    protected JButton saveTemplateButton;
 
     protected class CancelActionListener implements ActionListener {
         PixelDataTemplateDialog application;
@@ -615,35 +506,6 @@ public class PixelDataTemplateDialog extends JFrame {
         blackoutButtonsPanel.add(useZeroBlackoutValueCheckBox);
         useZeroBlackoutValueCheckBox.addChangeListener(new ZeroBlackoutValueChangeListener(this, ourEventContext));
 
-        blackoutPreviousButton = new JButton("Previous");
-        blackoutPreviousButton.setToolTipText("Move to the previous, skipping this image, if not already saved");
-        blackoutButtonsPanel.add(blackoutPreviousButton);
-        previousActionListener = new PreviousActionListener(this);
-        blackoutPreviousButton.addActionListener(previousActionListener);
-
-        blackoutApplyButton = new JButton("Apply");
-        blackoutApplyButton.setToolTipText("Blackout the regions");
-        blackoutButtonsPanel.add(blackoutApplyButton);
-        applyActionListener = new ApplyActionListener(this);
-        blackoutApplyButton.addActionListener(applyActionListener);
-
-        blackoutSaveButton = new JButton("Save");
-        blackoutSaveButton.setToolTipText("Save the blacked-out image");
-        blackoutButtonsPanel.add(blackoutSaveButton);
-        saveActionListener = new SaveActionListener(this);
-        blackoutSaveButton.addActionListener(saveActionListener);
-
-        blackoutNextButton = new JButton("Next");
-        blackoutNextButton.setToolTipText("Move to the next, skipping this image, if not already saved");
-        blackoutButtonsPanel.add(blackoutNextButton);
-        nextActionListener = new NextActionListener(this);
-        blackoutNextButton.addActionListener(nextActionListener);
-
-        JButton blackoutApplySaveAllButton = new JButton("Apply All & Save");
-        blackoutApplySaveAllButton.setToolTipText("Blackout the regions and save the blacked-out image for this and all remaining selected images");
-        blackoutButtonsPanel.add(blackoutApplySaveAllButton);
-        blackoutApplySaveAllButton.addActionListener(new ApplySaveAllActionListener(this));
-
         saveTemplateButton = new JButton("Save template");
         saveTemplateButton.setToolTipText("Save an image template for the defined shapes");
         blackoutButtonsPanel.add(saveTemplateButton);
@@ -697,77 +559,6 @@ public class PixelDataTemplateDialog extends JFrame {
         super.finalize();
     }
 
-    protected class PreviousActionListener implements ActionListener {
-        PixelDataTemplateDialog application;
-
-        public PreviousActionListener(PixelDataTemplateDialog application) {
-            this.application = application;
-        }
-
-        public void actionPerformed(ActionEvent event) {
-            goToPrevious();
-        }
-    }
-
-
-    protected class NextActionListener implements ActionListener {
-        PixelDataTemplateDialog application;
-
-        public NextActionListener(PixelDataTemplateDialog application) {
-            this.application = application;
-        }
-
-        public void actionPerformed(ActionEvent event) {
-            goToNext();
-        }
-    }
-
-    private void goToNext() {
-        recordStateOfDrawingShapesForFileChange();
-        if (blackoutCurrentImage.UnsavedChanges()) {
-            // Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
-        }
-
-        if (blackoutDicomFiles.goToNext()) {
-            updateDisplayedFileNumber();
-            loadDicomFileOrDirectory(blackoutShapeDefinition);
-        } else {
-            // Normal completion
-            dispose();
-        }
-    }
-
-    private void goToPrevious() {
-        recordStateOfDrawingShapesForFileChange();
-        if (blackoutCurrentImage.UnsavedChanges()) {
-            // Changes were made to the dicom file [currentFileNumber] but were discarded and not saved
-        }
-
-        if (blackoutDicomFiles.goToPrevious()) {
-            updateDisplayedFileNumber();
-            loadDicomFileOrDirectory(blackoutShapeDefinition);
-        } else {
-            // Normal completion
-            dispose();
-        }
-    }
-
-    protected class SaveActionListener implements ActionListener {
-        PixelDataTemplateDialog application;
-        SafeCursorChanger cursorChanger;
-
-        public SaveActionListener(PixelDataTemplateDialog application) {
-            this.application = application;
-            cursorChanger = new SafeCursorChanger(application);
-        }
-
-        public void actionPerformed(ActionEvent event) {
-            cursorChanger.setWaitCursor();
-            save();
-            cursorChanger.restoreCursor();
-        }
-    }
-
     protected class SaveTemplateActionListener implements ActionListener {
         PixelDataTemplateDialog application;
         SafeCursorChanger cursorChanger;
@@ -785,7 +576,7 @@ public class PixelDataTemplateDialog extends JFrame {
     }
 
     private void saveTemplate() {
-        
+
     }
 
 }
