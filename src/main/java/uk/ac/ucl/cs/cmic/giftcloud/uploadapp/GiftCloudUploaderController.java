@@ -40,4 +40,6 @@ public interface GiftCloudUploaderController {
     void refreshFileList();
 
     void exportPatientList();
+
+    void showPixelDataTemplateDialog();
 }

@@ -75,6 +75,11 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(exportButton);
         exportButton.addActionListener(new ExportActionListener());
 
+        JButton pixelDataButton = new JButton(resourceBundle.getString("pixelDataButtonLabelText"));
+        pixelDataButton.setToolTipText(resourceBundle.getString("pixelDataButtonToolTipText"));
+        buttonPanel.add(pixelDataButton);
+        pixelDataButton.addActionListener(new ConfigurePixelDataAnonymisationActionListener());
+
         // Restart listener button
 //        JButton restartListenerButton = new JButton(resourceBundle.getString("restartListenerButtonLabelText"));
 //        restartListenerButton.setToolTipText(resourceBundle.getString("restartListenerButtonToolTipText"));
@@ -179,6 +184,16 @@ public class GiftCloudUploaderPanel extends JPanel {
     private class RestartListenerActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             controller.restartDicomService();
+        }
+    }
+
+    private class ConfigurePixelDataAnonymisationActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            try {
+                controller.showPixelDataTemplateDialog();
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
+            }
         }
     }
 

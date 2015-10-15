@@ -39,6 +39,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
     private GiftCloudConfigurationDialog configurationDialog = null;
+    private PixelDataTemplateDialog pixelDataDialog = null;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
     private final SystemTrayController systemTrayController;
@@ -392,6 +393,19 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void exportPatientList() {
         giftCloudUploader.exportPatientList();
+    }
+
+    @Override
+    public void showPixelDataTemplateDialog() {
+        if (pixelDataDialog == null || !pixelDataDialog.isVisible()) {
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), giftCloudProperties, giftCloudDialogs);
+
+                }
+            });
+        }
     }
 
     private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
