@@ -25,7 +25,7 @@ public class PixelDataTemplateDialog extends JFrame {
     protected JCheckBox useZeroBlackoutValueCheckBox;
     protected JCheckBox usePixelPaddingBlackoutValueCheckBox;
 
-    private static final String helpText = "Buttons: left windows; right drag draws box; right click selects box; delete key discards selection";
+    private static final String helpText = "Left button: drag to draw box. Left click: select or unselect box. Delete: delete selected boxes. Right mouse: adjust window.";
     private static final Dimension maximumMultiPanelDimension = new Dimension(800, 600);
     private static final double splitPaneResizeWeight = 0.9;
     protected Box mainPanel;

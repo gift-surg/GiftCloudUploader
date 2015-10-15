@@ -2,34 +2,20 @@
 
 package com.pixelmed.display;
 
-import java.awt.Point;
-import java.awt.Shape;
+import com.pixelmed.display.event.RegionSelectionChangeEvent;
+import com.pixelmed.event.ApplicationEventDispatcher;
+import com.pixelmed.event.EventContext;
+import com.pixelmed.geometry.GeometryOfVolume;
 
-import java.awt.geom.GeneralPath;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-
-import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
-
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-
-import javax.swing.SwingUtilities;
-
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
-
-import com.pixelmed.event.ApplicationEventDispatcher;
-import com.pixelmed.event.EventContext;
-
-import com.pixelmed.display.event.RegionSelectionChangeEvent; 
-
-import com.pixelmed.geometry.GeometryOfSlice;
-import com.pixelmed.geometry.GeometryOfVolume;
 
 /**
  * <p>Implements a component that extends a SingleImagePanel to also draw regions.</p>
@@ -79,7 +65,6 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 	 * @param	otherCornerY
 	 */
 	private void setRegionSelection(double centerX,double centerY,double oneCornerX,double oneCornerY,double otherCornerX,double otherCornerY) {
-//System.err.println("SingleImagePanelWithRegionDrawing.setRegionSelection() event: centerX="+centerX+" centerY="+centerY+" oneCornerX="+oneCornerX+" oneCornerY="+oneCornerY+" otherCornerX="+otherCornerX+" otherCornerY="+otherCornerY);
 		regionSelectionCenterX = centerX;
 		regionSelectionCenterY = centerY;
 		if (oneCornerX < otherCornerX) {
@@ -106,9 +91,7 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 	 * @param	e
 	 */
 	public void keyPressed(KeyEvent e) {
-//System.err.println("Key pressed event"+e);
 		if (e.getKeyCode() == KeyEvent.VK_DELETE || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-//System.err.println("Delete or backspace pressed");
 			setSelectedDrawingShapes(null);
 			repaint();
 		}
@@ -121,8 +104,7 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 	 * @param	e
 	 */
 	public void mouseClicked(MouseEvent e) {
-		if (SwingUtilities.isRightMouseButton(e)) {
-//System.err.println("Right clicked "+e.getX()+" "+e.getY());
+		if (SwingUtilities.isLeftMouseButton(e)) {
 			checkForHitOnPersistentShapes(e.getX(),e.getY());
 		}
 		else {
@@ -135,8 +117,7 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 	 * @param	e
 	 */
 	public void mouseDragged(MouseEvent e) {
-		if (SwingUtilities.isRightMouseButton(e)) {
-//System.err.println("Right dragged "+e.getX()+" "+e.getY());
+		if (SwingUtilities.isLeftMouseButton(e)) {
 			dragInteractiveDrawing(e.getX(),e.getY());
 		}
 		else {
@@ -148,7 +129,6 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 	 * @param	e
 	 */
 	public void mouseMoved(MouseEvent e) {
-//System.err.println(e.getX()+" "+e.getY());
 		super.mouseMoved(e);
 	}
 
@@ -156,8 +136,7 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 	 * @param	e
 	 */
 	public void mousePressed(MouseEvent e) {
-		if (SwingUtilities.isRightMouseButton(e)) {
-//System.err.println("Right pressed "+e.getX()+" "+e.getY());
+		if (SwingUtilities.isLeftMouseButton(e)) {
 			startInteractiveDrawing(e.getX(),e.getY());
 		}
 		else {
@@ -169,8 +148,7 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 	 * @param	e
 	 */
 	public void mouseReleased(MouseEvent e) {
-		if (SwingUtilities.isRightMouseButton(e)) {
-//System.err.println("Right released "+e.getX()+" "+e.getY());
+		if (SwingUtilities.isLeftMouseButton(e)) {
 			endInteractiveDrawing(e.getX(),e.getY());	// sets region selection parameters to propagate in change event
 			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new RegionSelectionChangeEvent(typeOfPanelEventContext,
 				regionSelectionCenterX,regionSelectionCenterY,regionSelectionTLHCX,regionSelectionTLHCY,regionSelectionBRHCX,regionSelectionBRHCY));
@@ -187,8 +165,8 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 	 *
 	 * <p>The default is a rectangle - override this method in a sub-class to use a different shape (e.g., an ellipse).<p>
 	 *
-	 * @param	x
-	 * @param	y
+	 * @param	tlhcX
+	 * @param	tlhcY
 	 * @param	width
 	 * @param	height
 	 */

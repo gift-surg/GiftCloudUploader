@@ -2,94 +2,26 @@
 
 package com.pixelmed.display;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.RenderingHints;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-
-import java.awt.Font;
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BandCombineOp;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.ComponentSampleModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferDouble;
-import java.awt.image.DataBufferFloat;
-import java.awt.image.DataBufferShort;
-import java.awt.image.DataBufferUShort;
-import java.awt.image.IndexColorModel;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
-
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-
-import javax.swing.SwingUtilities;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Vector;
-
+import com.pixelmed.dicom.*;
+import com.pixelmed.display.event.*;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.event.Event;
 import com.pixelmed.event.EventContext;
 import com.pixelmed.event.SelfRegisteringListener;
-
-import com.pixelmed.display.event.ApplyShutterChangeEvent;
-import com.pixelmed.display.event.FrameSelectionChangeEvent;
-import com.pixelmed.display.event.FrameSortOrderChangeEvent;
-import com.pixelmed.display.event.GraphicDisplayChangeEvent;
-import com.pixelmed.display.event.StatusChangeEvent;
-import com.pixelmed.display.event.VOIFunctionChangeEvent;
-import com.pixelmed.display.event.WindowingAccelerationValueChangeEvent;
-import com.pixelmed.display.event.WindowLinearCalculationChangeEvent;
-import com.pixelmed.display.event.WindowCenterAndWidthChangeEvent;
-
-import com.pixelmed.dicom.AttributeList;
-import com.pixelmed.dicom.DisplayShutter;
-import com.pixelmed.dicom.ModalityTransform;
-import com.pixelmed.dicom.Overlay;
-import com.pixelmed.dicom.RealWorldValueTransform;
-import com.pixelmed.dicom.SUVTransform;
-import com.pixelmed.dicom.VOITransform;
-
+import com.pixelmed.geometry.GeometryOfSlice;
+import com.pixelmed.geometry.GeometryOfVolume;
 import com.pixelmed.utils.ColorUtilities;
 import com.pixelmed.utils.FloatFormatter;
 
-import com.pixelmed.geometry.GeometryOfSlice;
-import com.pixelmed.geometry.GeometryOfVolume;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
+import java.awt.image.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Vector;
 
 /**
  * <p>Implements a component that can display a single or multi-frame image in a
@@ -762,9 +694,7 @@ public class SingleImagePanel extends JComponent implements KeyListener, MouseLi
 	 * @param	e
 	 */
 	public void keyReleased(KeyEvent e) {
-//System.err.println("Key released event"+e);
 		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-//System.err.println("Shift released");
 			windowingMultiplier=1;
 			panningMultiplier=1;
 		}
@@ -809,7 +739,6 @@ public class SingleImagePanel extends JComponent implements KeyListener, MouseLi
 	 * @param	e
 	 */
 	public void keyTyped(KeyEvent e) {
-//System.err.println("Key typed event"+e);
 	}
 
 	/**
@@ -817,13 +746,9 @@ public class SingleImagePanel extends JComponent implements KeyListener, MouseLi
 	 */
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		int delta = e.getWheelRotation();
-//System.err.println("Mouse wheel delta = "+delta);
-//System.err.println("Mouse wheel currentSrcImageIndex = "+currentSrcImageIndex);
 		int newSrcImageIndex = currentSrcImageIndex + delta;
-//System.err.println("Mouse wheel newSrcImageIndex = "+newSrcImageIndex);
 		if (newSrcImageIndex >= sImg.getNumberOfBufferedImages()) newSrcImageIndex=sImg.getNumberOfBufferedImages()-1;
 		if (newSrcImageIndex < 0) newSrcImageIndex=0;
-//System.err.println("Mouse wheel newSrcImageIndex clipped = "+newSrcImageIndex);
 		// don't send an event unless it is actually necessary ...
 		if (newSrcImageIndex != currentSrcImageIndex) {
 			ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new FrameSelectionChangeEvent(typeOfPanelEventContext,newSrcImageIndex));
@@ -851,9 +776,7 @@ public class SingleImagePanel extends JComponent implements KeyListener, MouseLi
 	 * @param	e
 	 */
 	public void mouseDragged(MouseEvent e) {
-//System.err.println("SingleImagePanel.mouseDragged(): "+e);
-		if (SwingUtilities.isLeftMouseButton(e)) {
-//System.err.println("Left dragged "+e.getX()+" "+e.getY());
+		if (SwingUtilities.isRightMouseButton(e)) {
 			int newx=e.getX();
 			int newy=e.getY();
 			int deltax=newx-lastx;
@@ -882,23 +805,17 @@ public class SingleImagePanel extends JComponent implements KeyListener, MouseLi
 			}
 		}
 		else if (SwingUtilities.isMiddleMouseButton(e)) {
-//System.err.println("Middle dragged "+e.getX()+" "+e.getY());
 			//selectNewSrcImage(e.getY()-lastmiddley);
 			int delta = e.getY()-lastmiddley;
-//System.err.println("Middle dragged delta = "+delta);
-//System.err.println("Middle dragged currentSrcImageIndex = "+currentSrcImageIndex);
 			int newSrcImageIndex = currentSrcImageIndex + delta;
-//System.err.println("Middle dragged newSrcImageIndex = "+newSrcImageIndex);
 			if (newSrcImageIndex >= sImg.getNumberOfBufferedImages()) newSrcImageIndex=sImg.getNumberOfBufferedImages()-1;
 			if (newSrcImageIndex < 0) newSrcImageIndex=0;
-//System.err.println("Middle dragged newSrcImageIndex clipped = "+newSrcImageIndex);
 			// don't send an event unless it is actually necessary ...
 			if (newSrcImageIndex != currentSrcImageIndex)
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new FrameSelectionChangeEvent(typeOfPanelEventContext,newSrcImageIndex));
 			lastmiddley=e.getY();		// helps a lot when clipped at top or bottom of range
 		}
-		else if (SwingUtilities.isRightMouseButton(e)) {
-//System.err.println("Right dragged "+e.getX()+" "+e.getY());
+		else if (SwingUtilities.isLeftMouseButton(e)) {
 		}
 	}
 
@@ -938,7 +855,6 @@ public class SingleImagePanel extends JComponent implements KeyListener, MouseLi
 			pointd = windowToImageCoordinateTransform.transform(pointd,pointd);	// overwrites self rather than allocating a new point
 			xi = pointd.getX();
 			yi = pointd.getY();
-//System.err.println("SingeImagePanel.getImageCoordinateFromWindowCoordinate(): window ("+xw+","+yw+") -> ("+xi+","+yi+")");
 			if (xi < 0) {
 				xi=0;
 			}
@@ -1057,17 +973,14 @@ System.err.println("Round trip imageGeometry.getGeometryOfSlice().lookupImageCoo
 	 * @param	e
 	 */
 	public void mousePressed(MouseEvent e) {
-		if (SwingUtilities.isLeftMouseButton(e)) {
-//System.err.println("Left pressed "+e.getX()+" "+e.getY());
+		if (SwingUtilities.isRightMouseButton(e)) {
 			lastx=e.getX();
 			lasty=e.getY();
 		}
 		else if (SwingUtilities.isMiddleMouseButton(e)) {
-//System.err.println("Middle pressed "+e.getX()+" "+e.getY());
 			lastmiddley=e.getY();
 		}
-		else if (SwingUtilities.isRightMouseButton(e)) {
-//System.err.println("Right pressed "+e.getX()+" "+e.getY());
+		else if (SwingUtilities.isLeftMouseButton(e)) {
 		}
 	}
 
@@ -1075,18 +988,15 @@ System.err.println("Round trip imageGeometry.getGeometryOfSlice().lookupImageCoo
 	 * @param	e
 	 */
 	public void mouseReleased(MouseEvent e) {
-		if (SwingUtilities.isLeftMouseButton(e)) {
-//System.err.println("Left released "+e.getX()+" "+e.getY());
+		if (SwingUtilities.isRightMouseButton(e)) {
 			// on button release (but not during drag) propagate changed window values to self (a nop) and other registered SingleImagePanels ...
 			if (leftMouseMode.isWindowing()) {
 				ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new WindowCenterAndWidthChangeEvent(typeOfPanelEventContext,windowCenter,windowWidth));
 			}
 		}
 		else if (SwingUtilities.isMiddleMouseButton(e)) {
-//System.err.println("Middle released "+e.getX()+" "+e.getY());
 		}
-		else if (SwingUtilities.isRightMouseButton(e)) {
-//System.err.println("Right released "+e.getX()+" "+e.getY());
+		else if (SwingUtilities.isLeftMouseButton(e)) {
 		}
 	}
 
