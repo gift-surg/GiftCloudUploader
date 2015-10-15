@@ -12,6 +12,7 @@ public interface GiftCloudProperties {
     String propertyName_GiftCloudLastProject = "GiftCloud_LastUploadProject";
     String propertyName_GiftCloudLocalUploadFolder = "GiftCloud_LocalUploadFolder";
     String propertyName_LastImportDirectory = "LastImportDirectory";
+    String propertyName_LastTemplateImageImportDirectory = "LastTemplateImageImportDirectory";
     String propertyName_LastExportDirectory = "LastExportDirectory";
     String propertyName_PatientListLocalCacheDirectory = "GiftCloud_PatientListLocalCacheFolder";
     String propertyName_PatientListExportDirectory = "GiftCloud_PatientListExportFolder";

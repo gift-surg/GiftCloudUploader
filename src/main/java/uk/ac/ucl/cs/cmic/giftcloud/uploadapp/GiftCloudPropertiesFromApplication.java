@@ -223,6 +223,22 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         }
     }
 
+    public Optional<String> getLastTemplateImageSourceDirectory() {
+        final String lastImportDirectory = properties.getProperty(propertyName_LastTemplateImageImportDirectory);
+        if (StringUtils.isNotBlank(lastImportDirectory)) {
+            return Optional.of(lastImportDirectory);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public void setLastTemplateImageSourceDirectory(final String lastTemplateImageSourceDirectory) {
+        if (!lastTemplateImageSourceDirectory.equals(getLastTemplateImageSourceDirectory())) {
+            properties.setProperty(propertyName_LastTemplateImageImportDirectory, lastTemplateImageSourceDirectory);
+        }
+    }
+
+
     public void setListeningPort(final int listeningPort) {
         setPropertyInteger(propertyName_ListenerPort, listeningPort);
     }
