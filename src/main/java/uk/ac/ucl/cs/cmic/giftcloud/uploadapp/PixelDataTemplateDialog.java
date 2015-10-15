@@ -2,15 +2,14 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.display.*;
-import com.pixelmed.display.event.GraphicDisplayChangeEvent;
-import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.event.EventContext;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Optional;
 
 public class PixelDataTemplateDialog extends JFrame {
@@ -19,22 +18,23 @@ public class PixelDataTemplateDialog extends JFrame {
     private BlackoutDicomFiles blackoutDicomFiles;
     private GiftCloudPropertiesFromApplication giftCloudProperties;
     private final GiftCloudDialogs giftCloudDialogs;
-    protected SaveTemplateActionListener saveTemplateActionListener;
+    private SaveTemplateActionListener saveTemplateActionListener;
+    private LoadImageActionListener loadImageActionListener;
 
-    protected JButton saveTemplateButton;
-    protected JCheckBox useZeroBlackoutValueCheckBox;
-    protected JCheckBox usePixelPaddingBlackoutValueCheckBox;
+    private JButton saveTemplateButton;
+    private JButton loadImageButton;
 
     private static final String helpText = "Left button: drag to draw box. Left click: select or unselect box. Delete: delete selected boxes. Right mouse: adjust window.";
     private static final Dimension maximumMultiPanelDimension = new Dimension(800, 600);
     private static final double splitPaneResizeWeight = 0.9;
-    protected Box mainPanel;
-    protected JPanel multiPanel;
-    protected SingleImagePanel imagePanel;
-    protected EventContext ourEventContext;
-    protected boolean burnInOverlays;
-    protected boolean useZeroBlackoutValue;
-    protected boolean usePixelPaddingBlackoutValue;
+    private Box mainPanel;
+    private JPanel multiPanel;
+    private SingleImagePanel imagePanel;
+    private EventContext ourEventContext;
+
+    private boolean burnInOverlays = false;
+    private boolean useZeroBlackoutValue = false;
+    private boolean usePixelPaddingBlackoutValue = true;
 
     public PixelDataTemplateDialog(final Component owner, final String title, final GiftCloudPropertiesFromApplication giftCloudProperties, final GiftCloudDialogs giftCloudDialogs) {
         super(title);
@@ -172,40 +172,19 @@ public class PixelDataTemplateDialog extends JFrame {
         multiPanel = new JPanel();
 
         JPanel blackoutButtonsPanel = new JPanel();
-        // don't set button panel height, else interacts with validate during showUIComponents() needed for no initial image resizing, and cuts off button panel
-        //blackoutButtonsPanel.setPreferredSize(new Dimension((int)multiPanel.getPreferredSize().getWidth(),heightWantedForButtons));
-
         blackoutButtonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-
-        burnInOverlays = false;
-        useZeroBlackoutValue = false;
-        usePixelPaddingBlackoutValue = true;
-
-        JCheckBox keepOverlaysCheckBox = new JCheckBox("Overlays", burnInOverlays);
-        keepOverlaysCheckBox.setToolTipText("Toggle whether or not to display overlays, and if displayed burn them into the image and remove them from the header");
-        keepOverlaysCheckBox.setMnemonic(KeyEvent.VK_O);
-        blackoutButtonsPanel.add(keepOverlaysCheckBox);
-        keepOverlaysCheckBox.addChangeListener(new OverlaysChangeListener(ourEventContext));
-
-        // application scope not local, since change listener needs access to make mutually exclusive with useZeroBlackoutValueCheckBox
-        usePixelPaddingBlackoutValueCheckBox = new JCheckBox("Use Padding", usePixelPaddingBlackoutValue);
-        usePixelPaddingBlackoutValueCheckBox.setToolTipText("Toggle whether or not to use the pixel padding value for blackout pixels, rather than the default minimum possible pixel value based on signedness and bit depth");
-        usePixelPaddingBlackoutValueCheckBox.setMnemonic(KeyEvent.VK_P);
-        blackoutButtonsPanel.add(usePixelPaddingBlackoutValueCheckBox);
-        usePixelPaddingBlackoutValueCheckBox.addChangeListener(new PixelPaddingBlackoutValueChangeListener(ourEventContext));
-
-        // application scope not local, since change listener needs access to make mutually exclusive with usePixelPaddingBlackoutValueCheckBox
-        useZeroBlackoutValueCheckBox = new JCheckBox("Use Zero", useZeroBlackoutValue);
-        useZeroBlackoutValueCheckBox.setToolTipText("Toggle whether or not to use a zero value for blackout pixels, rather than the pixel padding value or default minimum possible pixel value based on signedness and bit depth");
-        useZeroBlackoutValueCheckBox.setMnemonic(KeyEvent.VK_Z);
-        blackoutButtonsPanel.add(useZeroBlackoutValueCheckBox);
-        useZeroBlackoutValueCheckBox.addChangeListener(new ZeroBlackoutValueChangeListener(ourEventContext));
 
         saveTemplateButton = new JButton("Save template");
         saveTemplateButton.setToolTipText("Save an image template for the defined shapes");
         blackoutButtonsPanel.add(saveTemplateButton);
         saveTemplateActionListener = new SaveTemplateActionListener(this);
         saveTemplateButton.addActionListener(saveTemplateActionListener);
+
+        loadImageButton = new JButton("Select new image");
+        loadImageButton.setToolTipText("Save an image template for the defined shapes");
+        blackoutButtonsPanel.add(loadImageButton);
+        loadImageActionListener = new LoadImageActionListener(this);
+        loadImageButton.addActionListener(loadImageActionListener);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, multiPanel, blackoutButtonsPanel);
         splitPane.setOneTouchExpandable(false);
@@ -239,27 +218,6 @@ public class PixelDataTemplateDialog extends JFrame {
 
     }
 
-
-
-    protected class ZeroBlackoutValueChangeListener implements ChangeListener {
-        EventContext eventContext;
-
-        public ZeroBlackoutValueChangeListener(EventContext eventContext) {
-            this.eventContext = eventContext;
-        }
-
-        public void stateChanged(ChangeEvent e) {
-            if (e != null && e.getSource() instanceof JCheckBox) {
-                useZeroBlackoutValue = ((JCheckBox) (e.getSource())).isSelected();
-                if (useZeroBlackoutValue) {
-                    usePixelPaddingBlackoutValue = false;
-                    usePixelPaddingBlackoutValueCheckBox.setSelected(usePixelPaddingBlackoutValue);
-                }
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new GraphicDisplayChangeEvent(eventContext, useZeroBlackoutValue));
-            }
-        }
-    }
-
     protected class SaveTemplateActionListener implements ActionListener {
         PixelDataTemplateDialog application;
         SafeCursorChanger cursorChanger;
@@ -276,39 +234,20 @@ public class PixelDataTemplateDialog extends JFrame {
         }
     }
 
-    protected class OverlaysChangeListener implements ChangeListener {
-        EventContext eventContext;
+    protected class LoadImageActionListener implements ActionListener {
+        PixelDataTemplateDialog application;
+        SafeCursorChanger cursorChanger;
 
-        public OverlaysChangeListener(EventContext eventContext) {
-            this.eventContext = eventContext;
+        public LoadImageActionListener(PixelDataTemplateDialog application) {
+            this.application = application;
+            cursorChanger = new SafeCursorChanger(application);
         }
 
-        public void stateChanged(ChangeEvent e) {
-            if (e != null && e.getSource() instanceof JCheckBox) {
-                burnInOverlays = ((JCheckBox) (e.getSource())).isSelected();
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new GraphicDisplayChangeEvent(eventContext, burnInOverlays));
-            }
-        }
-    }
-
-    protected class PixelPaddingBlackoutValueChangeListener implements ChangeListener {
-        EventContext eventContext;
-
-        public PixelPaddingBlackoutValueChangeListener(EventContext eventContext) {
-            this.eventContext = eventContext;
-        }
-
-        public void stateChanged(ChangeEvent e) {
-            if (e != null && e.getSource() instanceof JCheckBox) {
-                usePixelPaddingBlackoutValue = ((JCheckBox) (e.getSource())).isSelected();
-                if (usePixelPaddingBlackoutValue) {
-                    useZeroBlackoutValue = false;
-                    useZeroBlackoutValueCheckBox.setSelected(useZeroBlackoutValue);
-                }
-                ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new GraphicDisplayChangeEvent(eventContext, usePixelPaddingBlackoutValue));
-            }
+        public void actionPerformed(ActionEvent event) {
+            cursorChanger.setWaitCursor();
+            selectAndLoadImages();
+            cursorChanger.restoreCursor();
         }
     }
-
 }
 
