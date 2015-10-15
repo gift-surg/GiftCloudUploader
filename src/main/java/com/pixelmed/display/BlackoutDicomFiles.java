@@ -4,7 +4,7 @@ public class BlackoutDicomFiles {
     private final String[] dicomFiles;
     private int currentFileNumber;
 
-    BlackoutDicomFiles(final String[] dicomFiles) {
+    public BlackoutDicomFiles(final String[] dicomFiles) {
         currentFileNumber = 0;
         this.dicomFiles = dicomFiles;
     }

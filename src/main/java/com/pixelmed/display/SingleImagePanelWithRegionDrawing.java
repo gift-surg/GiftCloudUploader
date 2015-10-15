@@ -38,7 +38,7 @@ import com.pixelmed.geometry.GeometryOfVolume;
  *
  * @author	dclunie
  */
-class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
+public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 
 	/***/
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/display/SingleImagePanelWithRegionDrawing.java,v 1.4 2011/05/25 14:19:17 dclunie Exp $";
