@@ -401,7 +401,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             java.awt.EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), giftCloudProperties, giftCloudDialogs);
+                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), giftCloudProperties, giftCloudDialogs, reporter);
 
                 }
             });

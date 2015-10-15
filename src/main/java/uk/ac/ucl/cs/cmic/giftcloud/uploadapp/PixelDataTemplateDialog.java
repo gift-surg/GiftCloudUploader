@@ -3,6 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.display.*;
 import com.pixelmed.event.EventContext;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,7 @@ public class PixelDataTemplateDialog extends JFrame {
     private BlackoutDicomFiles blackoutDicomFiles;
     private GiftCloudPropertiesFromApplication giftCloudProperties;
     private final GiftCloudDialogs giftCloudDialogs;
+    private GiftCloudReporter reporter;
     private SaveTemplateActionListener saveTemplateActionListener;
     private LoadImageActionListener loadImageActionListener;
 
@@ -36,10 +38,11 @@ public class PixelDataTemplateDialog extends JFrame {
     private boolean useZeroBlackoutValue = false;
     private boolean usePixelPaddingBlackoutValue = true;
 
-    public PixelDataTemplateDialog(final Component owner, final String title, final GiftCloudPropertiesFromApplication giftCloudProperties, final GiftCloudDialogs giftCloudDialogs) {
+    public PixelDataTemplateDialog(final Component owner, final String title, final GiftCloudPropertiesFromApplication giftCloudProperties, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         super(title);
         this.giftCloudProperties = giftCloudProperties;
         this.giftCloudDialogs = giftCloudDialogs;
+        this.reporter = reporter;
         setLocationRelativeTo(owner);	// without this, appears at TLHC rather then center of parent or screen
 
         blackoutShapeDefinition = null;
