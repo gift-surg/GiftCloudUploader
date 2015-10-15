@@ -7,12 +7,14 @@ import com.pixelmed.display.event.GraphicDisplayChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.event.EventContext;
 import com.pixelmed.event.SelfRegisteringListener;
+import com.pixelmed.utils.FileUtilities;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.Vector;
 
 /**
@@ -294,16 +296,54 @@ public class DicomImageBlackout extends JFrame {
 	}
 
 	private void applyAll() {
-		do {
-			if (imagePanel != null) {
-				apply(imagePanel.getPersistentDrawingShapes(), burnInOverlays);
-				imagePanel.dirty(blackoutCurrentImage.getSourceImage());
-				imagePanel.repaint();
+		if (imagePanel != null) {
+			Vector persistentDrawingShapes = imagePanel.getPersistentDrawingShapes();
+			do {
+				loadAndApplyAndSave(persistentDrawingShapes, burnInOverlays);
+				goToNext();
+			}
+			while (blackoutDicomFiles.filesExist() && blackoutDicomFiles.getCurrentFileNumber() < blackoutDicomFiles.getNumberOfFiles());
+			imagePanel.dirty(blackoutCurrentImage.getSourceImage());
+			imagePanel.repaint();
+		}
+	}
+
+	private void loadAndApplyAndSave(Vector persistentDrawingShapes, boolean burnInOverlays) {
+		SafeCursorChanger cursorChanger = new SafeCursorChanger(this);
+		cursorChanger.setWaitCursor();
+		recordStateOfDrawingShapesForFileChange();
+
+		SingleImagePanel.deconstructAllSingleImagePanelsInContainer(multiPanel);
+		multiPanel.removeAll();
+		multiPanel.revalidate();        // needed because contents have changed
+		multiPanel.repaint();            // because if one dimension of the size does not change but the other shrinks, then the old image is left underneath, not overwritten by background (000446)
+
+		try {
+			File inputFile = FileUtilities.getFileFromNameInsensitiveToCaseIfNecessary(blackoutDicomFiles.getCurrentFileName());
+			File outputFile = new File(inputFile.getAbsolutePath() + ".new");
+			blackoutCurrentImage.loadAndApplyAndSave(inputFile, outputFile, persistentDrawingShapes, burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, ourAETitle);
+
+			SourceImage sImg = blackoutCurrentImage.getSourceImage();
+			imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
+			imagePanel.setShowOverlays(burnInOverlays);
+			imagePanel.setApplyShutter(false);    // we do not want to "hide" from view any identification information hidden behind shutters (000607)
+			addSingleImagePanelToMultiPanelAndEstablishLayout(sImg);
+			createCineSliderIfNecessary(1, blackoutCurrentImage.getNumberOfImages(), 1);
+
+			if (blackoutShapeDefinition!= null) {
+				if (blackoutShapeDefinition.getPreviousRows() == sImg.getHeight() && blackoutShapeDefinition.getPreviousColumns() == sImg.getWidth()) {
+					imagePanel.setPersistentDrawingShapes(blackoutShapeDefinition.getPreviousPersistentDrawingShapes());
+				} else {
+					blackoutShapeDefinition = null;
+				}
 			}
 
-			save();
-			goToNext();
-		} while (blackoutDicomFiles.filesExist() && blackoutDicomFiles.getCurrentFileNumber() < blackoutDicomFiles.getNumberOfFiles());
+			cursorChanger.restoreCursor();
+			showUIComponents();                // will pack, revalidate, etc, perhaps for the first time
+		} catch (Exception e) {
+			cursorChanger.restoreCursor();
+			dispose();
+		}
 	}
 
 	protected class CancelActionListener implements ActionListener {
