@@ -14,6 +14,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.Vector;
 
@@ -241,7 +242,7 @@ public class DicomImageBlackout extends JFrame {
 	}
 
 
-	private void apply(Vector shapes, boolean burnInOverlays) {
+	private void apply(Vector<Rectangle2D.Double> shapes, boolean burnInOverlays) {
 		recordStateOfDrawingShapesForFileChange();
 		try {
 			blackoutCurrentImage.apply(shapes, burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue);
@@ -297,7 +298,7 @@ public class DicomImageBlackout extends JFrame {
 
 	private void applyAll() {
 		if (imagePanel != null) {
-			Vector persistentDrawingShapes = imagePanel.getPersistentDrawingShapes();
+			Vector<Rectangle2D.Double> persistentDrawingShapes = imagePanel.getPersistentDrawingShapes();
 			do {
 				loadAndApplyAndSave(persistentDrawingShapes, burnInOverlays);
 				goToNext();
@@ -308,7 +309,7 @@ public class DicomImageBlackout extends JFrame {
 		}
 	}
 
-	private void loadAndApplyAndSave(Vector persistentDrawingShapes, boolean burnInOverlays) {
+	private void loadAndApplyAndSave(Vector<Rectangle2D.Double> persistentDrawingShapes, boolean burnInOverlays) {
 		SafeCursorChanger cursorChanger = new SafeCursorChanger(this);
 		cursorChanger.setWaitCursor();
 		recordStateOfDrawingShapesForFileChange();

@@ -1,5 +1,6 @@
 package com.pixelmed.display;
 
+import java.awt.geom.Rectangle2D;
 import java.util.Vector;
 
 public class BlackoutShapeDefinition {
@@ -7,7 +8,7 @@ public class BlackoutShapeDefinition {
     private int previousColumns;
     private Vector previousPersistentDrawingShapes;
 
-    public BlackoutShapeDefinition(SourceImage sImg, Vector persistentDrawingShapes) {
+    public BlackoutShapeDefinition(SourceImage sImg, Vector<Rectangle2D.Double> persistentDrawingShapes) {
         previousRows = sImg.getHeight();
         previousColumns = sImg.getWidth();
         previousPersistentDrawingShapes = persistentDrawingShapes;

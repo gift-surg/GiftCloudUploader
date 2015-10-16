@@ -4,6 +4,7 @@ import com.pixelmed.dicom.*;
 import com.pixelmed.utils.CapabilitiesAvailable;
 import com.pixelmed.utils.FileUtilities;
 
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
@@ -123,7 +124,7 @@ public class BlackoutCurrentImage {
     }
 
 
-    public void apply(Vector shapes, boolean burnInOverlays, boolean usePixelPaddingBlackoutValue, boolean useZeroBlackoutValue) throws Exception {
+    public void apply(Vector<Rectangle2D.Double> shapes, boolean burnInOverlays, boolean usePixelPaddingBlackoutValue, boolean useZeroBlackoutValue) throws Exception {
         if (sImg != null && list != null) {
             if ((shapes != null && shapes.size() > 0) || burnInOverlays) {
                 changesWereMade = true;
@@ -168,7 +169,7 @@ public class BlackoutCurrentImage {
         return attributeList;
     }
 
-    public static void loadAndApplyAndSave(File inputFile, File outputFile, Vector shapes, boolean burnInOverlays, boolean usePixelPaddingBlackoutValue, boolean useZeroBlackoutValue, String ourAETitle) throws IOException, DicomException {
+    public static void loadAndApplyAndSave(File inputFile, File outputFile, Vector<Rectangle2D.Double> shapes, boolean burnInOverlays, boolean usePixelPaddingBlackoutValue, boolean useZeroBlackoutValue, String ourAETitle) throws IOException, DicomException {
         AttributeList attributeList = readAttributeList(inputFile, true);
         if (attributeList == null) {
             throw new DicomException("Could not read image");

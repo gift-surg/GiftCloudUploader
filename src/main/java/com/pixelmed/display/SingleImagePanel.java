@@ -238,8 +238,8 @@ public class SingleImagePanel extends JComponent implements KeyListener, MouseLi
 	protected Vector<Shape> localizerShapes;
 	protected Vector<Shape> volumeLocalizationShapes;
 	protected Vector<Shape> interactiveDrawingShapes;
-	protected Vector<Shape> persistentDrawingShapes;
-	protected Vector<Shape> selectedDrawingShapes;
+	protected Vector<Rectangle2D.Double> persistentDrawingShapes;
+	protected Vector<Rectangle2D.Double> selectedDrawingShapes;
 	protected Vector<TextAnnotation> persistentDrawingText;
 	protected Vector<Shape>[] perFrameDrawingShapes;	// array size will be number of frames; will be indexed by currentSrcImageIndex just like the image frames
 	protected Vector<SuperimposedImage> superimposedImages;
@@ -250,10 +250,6 @@ public class SingleImagePanel extends JComponent implements KeyListener, MouseLi
 	 * @param	shapes	a {@link java.util.Vector java.util.Vector} of {@link java.awt.Shape java.awt.Shape}, may be null or empty
 	 */
 	public final void setPreDefinedShapes(Vector shapes) {
-//System.err.println("SingleImagePanel.setPreDefinedShapes(): preDefinedShapes was:");
-//com.pixelmed.geometry.LocalizerPosterFactory.dumpShapes(preDefinedShapes);
-//System.err.println("SingleImagePanel.setPreDefinedShapes(): setting preDefinedShapes to:");
-//com.pixelmed.geometry.LocalizerPosterFactory.dumpShapes(shapes);
 		this.preDefinedShapes=shapes;
 	}
 
@@ -276,14 +272,14 @@ public class SingleImagePanel extends JComponent implements KeyListener, MouseLi
 	 *
 	 * @param	shapes	a {@link java.util.Vector java.util.Vector} of {@link java.awt.Shape java.awt.Shape}, may be null or empty
 	 */
-	public final void setPersistentDrawingShapes(Vector shapes) { persistentDrawingShapes=shapes; }
+	public final void setPersistentDrawingShapes(Vector<Rectangle2D.Double> shapes) { persistentDrawingShapes=shapes; }
 	
 	/**
 	 * <p>Get the unselected region shapes to to be displayed on the currently selected and displayed frame.</p>
 	 *
 	 * @return	a {@link java.util.Vector java.util.Vector} of {@link java.awt.Shape java.awt.Shape}, may be null or empty
 	 */
-	public final Vector getPersistentDrawingShapes() { return persistentDrawingShapes; }
+	public final Vector<Rectangle2D.Double> getPersistentDrawingShapes() { return persistentDrawingShapes; }
 	
 	/**
 	 * <p>Set the selected region shapes to to be displayed on the currently selected and displayed frame.</p>
@@ -2195,9 +2191,9 @@ System.err.println("SingleImagePanel.paintComponent(): not ARGB superimposed ima
 //System.err.println("SingleImagePanel.paintComponent(): Draw persistent shapes:");
 //LocalizerPosterFactory.dumpShapes(persistentDrawingShapes);
 			g2d.setColor(persistentColor);
-			Iterator i = persistentDrawingShapes.iterator();
+			Iterator<Rectangle2D.Double> i = persistentDrawingShapes.iterator();
 			while (i.hasNext()) {
-				DrawingUtilities.drawShadowedShape((Shape)i.next(),g2d);
+				DrawingUtilities.drawShadowedShape(i.next(),g2d);
 			}
 		}
 

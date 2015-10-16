@@ -14,6 +14,7 @@ import com.pixelmed.display.ImageEditUtilities;
 import com.pixelmed.display.SourceImage;
 import com.pixelmed.utils.CapabilitiesAvailable;
 
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
@@ -21,7 +22,7 @@ import java.util.Vector;
 
 public class PixelDataAnonymiser {
 
-    public static void anonymisePixelData(File inputFile, File outputFile, Vector shapes, boolean burnInOverlays, boolean usePixelPaddingBlackoutValue, boolean useZeroBlackoutValue, String ourAETitle) throws IOException, DicomException {
+    public static void anonymisePixelData(File inputFile, File outputFile, Vector<Rectangle2D.Double> shapes, boolean burnInOverlays, boolean usePixelPaddingBlackoutValue, boolean useZeroBlackoutValue, String ourAETitle) throws IOException, DicomException {
         AttributeList attributeList = readAttributeList(inputFile, true);
         if (attributeList == null) {
             throw new DicomException("Could not read image");

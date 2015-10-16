@@ -174,6 +174,10 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 		return new Rectangle2D.Double(tlhcX,tlhcY,width,height);
 	}
 
+	protected Rectangle2D.Double makeNewDrawingRectangle(double tlhcX,double tlhcY,double width,double height) {
+		return new Rectangle2D.Double(tlhcX,tlhcY,width,height);
+	}
+
 	/***/
 	protected Point2D startPoint;
 	/***/
@@ -244,9 +248,9 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 			setRegionSelection((tlhcX+width)/2,(tlhcY+height)/2,tlhcX,tlhcY,tlhcX+width,tlhcY+height);
 			interactiveDrawingShapes = null;
 			if (persistentDrawingShapes == null) {
-				persistentDrawingShapes = new Vector();
+				persistentDrawingShapes = new Vector<Rectangle2D.Double>();
 			}
-			persistentDrawingShapes.add(makeNewDrawingShape(tlhcX,tlhcY,width,height));
+			persistentDrawingShapes.add(makeNewDrawingRectangle(tlhcX, tlhcY, width, height));
 			repaint();
 		}
 		// else ignore, was click, not drag
@@ -264,16 +268,16 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 		Vector doneShapes = new Vector();
 		// check previously selected shapes to toggle selection off if selected again ...
 		if (selectedDrawingShapes != null) {
-			Iterator i = selectedDrawingShapes.iterator();
+			Iterator<Rectangle2D.Double> i = selectedDrawingShapes.iterator();
 			while (i.hasNext()) {
-				Shape shape = (Shape)i.next();
+				Rectangle2D.Double shape = i.next();
 				if (!doneShapes.contains(shape)) {
 					doneShapes.add(shape);
 					if (shape.contains(testX,testY)) {
 //System.err.println("De-select shape "+shape);
 						doneShapes.add(shape);
 						if (persistentDrawingShapes == null) {
-							persistentDrawingShapes = new Vector();
+							persistentDrawingShapes = new Vector<Rectangle2D.Double>();
 						}
 						persistentDrawingShapes.add(shape);
 						selectedDrawingShapes.remove(shape);
@@ -285,15 +289,15 @@ public class SingleImagePanelWithRegionDrawing extends SingleImagePanel {
 		}
 		// not previously selected ... select any hit shape without undoing any de-selection from the previous step
 		if (persistentDrawingShapes != null) {
-			Iterator i = persistentDrawingShapes.iterator();
+			Iterator<Rectangle2D.Double> i = persistentDrawingShapes.iterator();
 			while (i.hasNext()) {
-				Shape shape = (Shape)i.next();
+				Rectangle2D.Double shape = i.next();
 				if (!doneShapes.contains(shape)) {
 					doneShapes.add(shape);
 					if (shape.contains(testX,testY)) {
 //System.err.println("Select shape "+shape);
 						if (selectedDrawingShapes == null) {
-							selectedDrawingShapes = new Vector();
+							selectedDrawingShapes = new Vector<Rectangle2D.Double>();
 						}
 						selectedDrawingShapes.add(shape);
 						persistentDrawingShapes.remove(shape);
