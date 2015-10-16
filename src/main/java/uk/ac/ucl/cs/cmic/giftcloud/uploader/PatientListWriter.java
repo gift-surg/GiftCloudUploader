@@ -146,7 +146,7 @@ public abstract class PatientListWriter {
     }
 
     /**
-     * An abstract representation of a list of patiets for a particular GIFT-Cloud project. This should be implemented in a manner appropriate for however the list is be stored
+     * An abstract representation of a list of patients for a particular GIFT-Cloud project. This should be implemented in a manner appropriate for however the list is be stored
      */
     protected static abstract class PatientListForProject {
         public abstract void addEntry(final String hashedPatientId, final String subjectLabel, final String patientId, final String patientName);
