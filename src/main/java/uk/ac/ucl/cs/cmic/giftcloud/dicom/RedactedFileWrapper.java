@@ -1,11 +1,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
-import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -21,7 +19,7 @@ public class RedactedFileWrapper {
     private Optional<File> redactedFile;
     private final File originalFile;
 
-    public RedactedFileWrapper(final File originalFile, final Optional<File> redactedFile, final FileRedactionStatus redactionStatus) throws IOException, DicomException {
+    public RedactedFileWrapper(final File originalFile, final Optional<File> redactedFile, final FileRedactionStatus redactionStatus) {
         this.originalFile = originalFile;
         this.redactedFile = redactedFile;
         this.redactionStatus = redactionStatus;
