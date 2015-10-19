@@ -29,9 +29,13 @@ public class ZipSeriesAppendUploader extends CallableUploader {
     }
 
     public Set<String> call() throws Exception {
-        final SeriesZipper seriesZipper = new SeriesZipper(uploadParameters.getProjectApplicators());
+        final SeriesZipper seriesZipper = new SeriesZipper(uploadParameters.getProjectApplicators(), server.getPixelDataAnonymiser());
         final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
-        server.appendZipFileToExistingScan(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), uploadParameters.getXnatModalityParams(), temporaryZipFile);
+        try {
+            server.appendZipFileToExistingScan(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), uploadParameters.getXnatModalityParams(), temporaryZipFile);
+        } finally {
+            temporaryZipFile.delete();
+        }
         return new HashSet<String>();
     }
 

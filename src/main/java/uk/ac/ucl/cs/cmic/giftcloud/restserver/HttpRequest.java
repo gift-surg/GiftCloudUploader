@@ -116,63 +116,52 @@ abstract class HttpRequest<T> {
 
     private void doRequest(final String baseUrlString, final ConnectionFactory connectionFactory, final boolean rapidTimeout) throws IOException {
 
+        final HttpConnectionBuilder connectionBuilder = new HttpConnectionBuilder(relativeUrlString);
+
+        prepareConnection(connectionBuilder);
+
+        connectionBuilder.setConnectTimeout(rapidTimeout ? shortTimeout : longTimeout);
+
+        // Build the connection
+        final String fullUrl = HttpRequest.getFullUrl(baseUrlString, relativeUrlString);
+        final HttpConnection connection = connectionFactory.createConnection(fullUrl, connectionBuilder);
+
+        // Send data to the connection if required
+        processOutputStream(connection);
+
         try {
-            final HttpConnectionBuilder connectionBuilder = new HttpConnectionBuilder(relativeUrlString);
-
-            prepareConnection(connectionBuilder);
-
-            connectionBuilder.setConnectTimeout(rapidTimeout ? shortTimeout : longTimeout);
-
-            // Build the connection
-            final String fullUrl = HttpRequest.getFullUrl(baseUrlString, relativeUrlString);
-            final HttpConnection connection = connectionFactory.createConnection(fullUrl, connectionBuilder);
-
-            // Send data to the connection if required
-            processOutputStream(connection);
+            // Explicitly initiate the connection
+            connection.connect();
 
             try {
-                // Explicitly initiate the connection
-                connection.connect();
-
-                try {
-                    throwIfBadResponse(connection);
-
-                    // Get data from the connection and process. In the case of an error, this will process the error stream
-                    response = Optional.of(Optional.ofNullable(responseProcessor.processInputStream(connection)));
-
-                } finally {
-                    connection.disconnect();
-                }
-
-            } catch (IOException e) {
-                if (e instanceof ConnectException) {
-                    throw new GiftCloudException(GiftCloudUploaderError.SERVER_INVALID);
-                }
-                if (e instanceof SocketTimeoutException) {
-                    throw new GiftCloudException(GiftCloudUploaderError.SERVER_INVALID);
-                }
-                if (e instanceof UnknownHostException) {
-                    throw new GiftCloudException(GiftCloudUploaderError.SERVER_INVALID);
-                }
-                if (e.getCause() instanceof sun.security.validator.ValidatorException) {
-                    throw new GiftCloudException(GiftCloudUploaderError.SERVER_CERTIFICATE_FAILURE);
-                }
-                if (!(e instanceof GiftCloudHttpException && ((GiftCloudHttpException)e).getResponseCode() == HTTP_NOT_FOUND)) {
-                    reporter.silentLogException(e, "An error occurred while processing request " + connection.getUrlString());
-                }
                 throwIfBadResponse(connection);
-                throw e;
-            }
-        } finally {
-            cleanup();
-        }
-    }
 
-    /**
-     * This method will be called after the request has completed, even if it failed.
-     * Subclasses use this method to perform any required cleanup.
-     */
-    protected void cleanup() {
+                // Get data from the connection and process. In the case of an error, this will process the error stream
+                response = Optional.of(Optional.ofNullable(responseProcessor.processInputStream(connection)));
+
+            } finally {
+                connection.disconnect();
+            }
+
+        } catch (IOException e) {
+            if (e instanceof ConnectException) {
+                throw new GiftCloudException(GiftCloudUploaderError.SERVER_INVALID);
+            }
+            if (e instanceof SocketTimeoutException) {
+                throw new GiftCloudException(GiftCloudUploaderError.SERVER_INVALID);
+            }
+            if (e instanceof UnknownHostException) {
+                throw new GiftCloudException(GiftCloudUploaderError.SERVER_INVALID);
+            }
+            if (e.getCause() instanceof sun.security.validator.ValidatorException) {
+                throw new GiftCloudException(GiftCloudUploaderError.SERVER_CERTIFICATE_FAILURE);
+            }
+            if (!(e instanceof GiftCloudHttpException && ((GiftCloudHttpException)e).getResponseCode() == HTTP_NOT_FOUND)) {
+                reporter.silentLogException(e, "An error occurred while processing request " + connection.getUrlString());
+            }
+            throwIfBadResponse(connection);
+            throw e;
+        }
     }
 
     private void throwIfBadResponse(final HttpConnection connection) throws IOException {
