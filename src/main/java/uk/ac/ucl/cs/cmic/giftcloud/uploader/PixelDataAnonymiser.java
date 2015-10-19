@@ -16,6 +16,7 @@ import com.pixelmed.utils.CapabilitiesAvailable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.RedactedFileWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -93,7 +94,9 @@ public class PixelDataAnonymiser {
     }
 
     private PixelDataAnonymiseFilter getFilter() {
-        return new PixelDataAnonymiseFilter(); // ToDo
+        List<PixelDataAnonymiseFilterRequiredTag> requiredTags = new ArrayList<PixelDataAnonymiseFilterRequiredTag>();
+        final List<Rectangle2D.Double> redactedShapes = new ArrayList<Rectangle2D.Double>();
+        return new PixelDataAnonymiseFilter("DefaultFilter", requiredTags, redactedShapes); // ToDo
     }
 
     private static void anonymisePixelDataUsingFilter(File inputFile, File outputFile, Vector shapes, boolean burnInOverlays, boolean usePixelPaddingBlackoutValue, boolean useZeroBlackoutValue, String ourAETitle) throws IOException, DicomException {
@@ -107,7 +110,7 @@ public class PixelDataAnonymiser {
             throw new IOException("unsupported SOP Class " + useSOPClassUID);
         }
 
-        String outputTransferSyntaxUID = null;
+        String outputTransferSyntaxUID = TransferSyntax.ExplicitVRLittleEndian;
         if ((shapes != null && shapes.size() > 0) || burnInOverlays) {
             String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(attributeList, TagFromName.TransferSyntaxUID);
 
