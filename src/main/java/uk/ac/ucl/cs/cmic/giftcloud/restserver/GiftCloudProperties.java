@@ -91,5 +91,13 @@ public interface GiftCloudProperties {
 
     void setSubjectPrefix(final String subjectNamePredix);
 
+    String getListenerAETitle();
+
     void save();
+
+    boolean getBurnInOverlays();
+
+    boolean getUseZeroBlackoutValue();
+
+    boolean getUsePixelPaddingBlackoutValue();
 }

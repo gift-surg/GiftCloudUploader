@@ -202,6 +202,7 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         return getIntegerWithDefault(propertyName_QueryDebugLevel, 0);
     }
 
+    @Override
     public String getListenerAETitle() {
         return getStringWithDefault(propertyName_ListenerAeTitle, "GiftUploader");
     }
@@ -221,6 +222,21 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         } catch (IOException e) {
             reporter.silentLogException(e, "The following error occurred while saving the properties file:" + e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public boolean getBurnInOverlays() {
+        return false;
+    }
+
+    @Override
+    public boolean getUseZeroBlackoutValue() {
+        return false;
+    }
+
+    @Override
+    public boolean getUsePixelPaddingBlackoutValue() {
+        return true;
     }
 
     public Optional<String> getLastTemplateImageSourceDirectory() {
