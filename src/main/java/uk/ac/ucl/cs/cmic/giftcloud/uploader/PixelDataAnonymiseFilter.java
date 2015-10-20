@@ -16,11 +16,23 @@ public class PixelDataAnonymiseFilter {
         this.redactedShapes = redactedShapes;
     }
 
-    public Vector<Shape> getRedactedShapes() {
+    public Vector<Shape> getRedactedShapesAsShapeVector() {
         final Vector<Shape> shapes = new Vector<Shape>();
         for (Rectangle2D.Double redactedRectangle : redactedShapes) {
             shapes.add(redactedRectangle);
         }
         return shapes;
+    }
+
+    public String getFilterName() {
+        return filterName;
+    }
+
+    public List<PixelDataAnonymiseFilterRequiredTag> getRequiredTags() {
+        return requiredTags;
+    }
+
+    public List<Rectangle2D.Double> getRedactedShapes() {
+        return redactedShapes;
     }
 }

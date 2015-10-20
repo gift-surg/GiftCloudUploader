@@ -78,7 +78,7 @@ public class PixelDataAnonymiser {
 
         final File outputFile = File.createTempFile("pixel_data_anonymised", ".dcm");
         try {
-            PixelDataAnonymiser.anonymisePixelDataUsingFilter(inputFile, outputFile, filter.getRedactedShapes(), burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, aeTitle);
+            PixelDataAnonymiser.anonymisePixelDataUsingFilter(inputFile, outputFile, filter.getRedactedShapesAsShapeVector(), burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, aeTitle);
         } catch (DicomException exception) {
             throw new IOException(exception.getCause());
         }
