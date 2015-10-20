@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Vector;
@@ -89,7 +90,7 @@ public class GiftCloudDialogs {
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
         if (chooser.showOpenDialog(mainFrame.getContainer()) == JFileChooser.APPROVE_OPTION) {
-            return Optional.of(new SelectedPathAndFile(chooser.getCurrentDirectory().getAbsolutePath(), chooser.getSelectedFile().getAbsolutePath()));
+            return Optional.of(new SelectedPathAndFile(chooser));
         } else {
             return Optional.empty();
         }
@@ -118,19 +119,44 @@ public class GiftCloudDialogs {
         return (String)returnValue;
     }
 
+    /**
+     * A helper class used to represent a file or directory selection
+     */
     class SelectedPathAndFile {
-        private String selectedPath;
-        private String selectedFile;
+        private final String parentPath;
+        private final String selectedPath;
+        private final String selectedFile;
 
-        SelectedPathAndFile(final String selectedPath, final String selectedFile) {
-            this.selectedPath = selectedPath;
-            this.selectedFile = selectedFile;
+        SelectedPathAndFile(final SafeFileChooser chooser) {
+            this.parentPath = chooser.getCurrentDirectory().getAbsolutePath();
+            this.selectedFile = chooser.getSelectedFile().getAbsolutePath();
+
+            final File selectedFile = chooser.getSelectedFile();
+            if (selectedFile.isDirectory()) {
+                this.selectedPath = chooser.getSelectedFile().getAbsolutePath();
+
+            } else {
+                this.selectedPath = chooser.getCurrentDirectory().getAbsolutePath();
+            }
         }
 
+        /**
+         * @return the currently visible path from the file dialog. If the selected file is actually a directory, getParentPath() will return the parent directory, whereas getSelectedPath() will return the selected directory. If the selected file is not a path, these will be the same
+         */
+        public String getParentPath() {
+            return parentPath;
+        }
+
+        /**
+         * @return tha path containing the file that has been selected, or the selected directory.
+         */
         public String getSelectedPath() {
             return selectedPath;
         }
 
+        /**
+         * @return the file or directory that has been selected
+         */
         public String getSelectedFile() {
             return selectedFile;
         }

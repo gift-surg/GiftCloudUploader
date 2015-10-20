@@ -344,7 +344,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
 
                     if (selectFileOrDirectory.isPresent()) {
-                        giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
+                        giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getParentPath());
                         giftCloudProperties.save();
                         String filePath = selectFileOrDirectory.get().getSelectedPath();
                         runImport(filePath, true, reporter);

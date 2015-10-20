@@ -66,7 +66,7 @@ public class PixelDataTemplateDialog extends JFrame {
         Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastTemplateImageSourceDirectory());
 
         if (selectFileOrDirectory.isPresent()) {
-            giftCloudProperties.setLastTemplateImageSourceDirectory(selectFileOrDirectory.get().getSelectedPath());
+            giftCloudProperties.setLastTemplateImageSourceDirectory(selectFileOrDirectory.get().getParentPath());
             giftCloudProperties.save();
             String filePath = selectFileOrDirectory.get().getSelectedFile();
             String[] fileNames = {filePath};
