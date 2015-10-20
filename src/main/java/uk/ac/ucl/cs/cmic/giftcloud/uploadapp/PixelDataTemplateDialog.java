@@ -1,8 +1,12 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
+import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.display.*;
 import com.pixelmed.event.EventContext;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiseFilter;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiseFilterRequiredTag;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterJsonWriter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import javax.swing.*;
@@ -11,6 +15,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class PixelDataTemplateDialog extends JFrame {
@@ -218,7 +225,25 @@ public class PixelDataTemplateDialog extends JFrame {
     }
 
     private void saveTemplate() {
+        final String filterName = "MyFilter"; // ToDo: Need to fetch this filter name
 
+        final PixelDataAnonymiseFilter filter = createFilter(filterName);
+        final String filterPath = giftCloudProperties.getFilterDirectory().getAbsolutePath();
+        final File filterFile = new File(filterPath, filterName + ".gcfilter");
+        try {
+            PixelDataAnonymiserFilterJsonWriter.writeJsonfile(filterFile, filter, reporter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private PixelDataAnonymiseFilter createFilter(final String filterName) {
+        final java.util.List<PixelDataAnonymiseFilterRequiredTag> requiredTags = new ArrayList<PixelDataAnonymiseFilterRequiredTag>();
+
+        AttributeList dicomAttributes = blackoutCurrentImage.getDicomAttributes();
+        // ToDo: Add attributes to required tags
+
+        return new PixelDataAnonymiseFilter(filterName, requiredTags, imagePanel.getPersistentDrawingShapes());
     }
 
     protected class SaveTemplateActionListener implements ActionListener {

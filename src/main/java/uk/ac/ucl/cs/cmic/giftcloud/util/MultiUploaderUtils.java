@@ -46,6 +46,7 @@ public class MultiUploaderUtils {
 
     final static String GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME = "GiftCloudUploader";
     final static String GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME = "WaitingForUpload";
+    final static String GIFT_CLOUD_REDACTION_TEMPLATES_FOLDER_NAME = "RedactionTemplates";
 
 
     public static JSONObject extractJSONEntity(final InputStream in)
@@ -151,6 +152,26 @@ public class MultiUploaderUtils {
             return uploadCacheFolder;
         } else {
             throw new RuntimeException("Unable to create an upload folder at " + uploadCacheFolder.getAbsolutePath());
+        }
+    }
+
+    /**
+     * Returns the folder for storing GiftCloud pixel data anonymisastion templates, creating the folder if it does not already exist.
+     * Will attempt to create a folder in the user directory, but if this is not permitted, will create a folder in the system temporary directory
+     *
+     * @param reporter for logging warnings
+     * @return File object referencing the existing or newly created folder
+     */
+    public static File createOrGetTemplateDirectory(final GiftCloudReporter reporter) {
+
+        final File appFolder = createOrGetGiftCloudFolder(reporter);
+
+        final File templateFolder = new File(appFolder, GIFT_CLOUD_REDACTION_TEMPLATES_FOLDER_NAME);
+
+        if (createDirectoryIfNotExisting(templateFolder)) {
+            return templateFolder;
+        } else {
+            throw new RuntimeException("Unable to create a template folder at " + templateFolder.getAbsolutePath());
         }
     }
 

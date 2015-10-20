@@ -18,9 +18,6 @@ public class BlackoutCurrentImage {
     private File redactedJPEGFile;
     private BlackoutImage blackoutImage;
 
-    public BlackoutCurrentImage() {
-    }
-
     public SourceImage getSourceImage() {
         return sImg;
     }
@@ -104,6 +101,10 @@ public class BlackoutCurrentImage {
     public void loadDicomFileOrDirectory(String currentFileName) throws IOException, DicomException {
         File currentFile = FileUtilities.getFileFromNameInsensitiveToCaseIfNecessary(currentFileName);
         loadDicomFileOrDirectory(currentFile);
+    }
+
+    public AttributeList getDicomAttributes() {
+        return list;
     }
 
     /**
