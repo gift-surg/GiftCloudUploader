@@ -25,9 +25,9 @@ import java.util.Optional;
 public class PixelDataTemplateDialog extends JFrame {
     private BlackoutCurrentImage blackoutCurrentImage;
     private BlackoutDicomFiles blackoutDicomFiles;
-    private GiftCloudPropertiesFromApplication giftCloudProperties;
+    private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final GiftCloudDialogs giftCloudDialogs;
-    private GiftCloudReporter reporter;
+    private final GiftCloudReporter reporter;
     private SaveTemplateActionListener saveTemplateActionListener;
     private LoadImageActionListener loadImageActionListener;
 
