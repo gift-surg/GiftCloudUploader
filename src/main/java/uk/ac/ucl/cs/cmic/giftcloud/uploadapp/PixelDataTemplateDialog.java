@@ -24,7 +24,6 @@ import java.util.Optional;
 
 public class PixelDataTemplateDialog extends JFrame {
     private BlackoutCurrentImage blackoutCurrentImage;
-    private BlackoutDicomFiles blackoutDicomFiles;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final GiftCloudDialogs giftCloudDialogs;
     private final GiftCloudReporter reporter;
@@ -49,7 +48,6 @@ public class PixelDataTemplateDialog extends JFrame {
         this.reporter = reporter;
         setLocationRelativeTo(owner);	// without this, appears at TLHC rather then center of parent or screen
 
-        blackoutDicomFiles = null;
         blackoutCurrentImage = new BlackoutCurrentImage();
 
         //No need to setBackground(Color.lightGray) .. we set this via L&F UIManager properties for the application that uses this class
@@ -74,17 +72,17 @@ public class PixelDataTemplateDialog extends JFrame {
             String filePath = selectFileOrDirectory.get().getSelectedFile();
             String[] fileNames = {filePath};
             String dicomFileNames[] = fileNames;
-            blackoutDicomFiles = new BlackoutDicomFiles(dicomFileNames);
 
-            loadDicomFileOrDirectory();
+            loadDicomFileOrDirectory(dicomFileNames);
         }
     }
 
     /**
      * <p>Load the named DICOM file and display it in the image panel.</p>
      *
+     * @param dicomFileNames
      */
-    protected void loadDicomFileOrDirectory() {
+    protected void loadDicomFileOrDirectory(String[] dicomFileNames) {
         SingleImagePanel.deconstructAllSingleImagePanelsInContainer(multiPanel);
         multiPanel.removeAll();
         multiPanel.revalidate();        // needed because contents have changed
@@ -93,7 +91,7 @@ public class PixelDataTemplateDialog extends JFrame {
         cursorChanger.setWaitCursor();
 
         try {
-            blackoutCurrentImage.loadDicomFileOrDirectory(blackoutDicomFiles.getCurrentFileName());
+            blackoutCurrentImage.loadDicomFileOrDirectory(dicomFileNames[0]);
             SourceImage sImg = blackoutCurrentImage.getSourceImage();
             imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
             imagePanel.setShowOverlays(giftCloudProperties.getBurnInOverlays());
