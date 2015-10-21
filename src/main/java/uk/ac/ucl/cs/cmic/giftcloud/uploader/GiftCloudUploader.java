@@ -25,6 +25,7 @@ import java.util.concurrent.CancellationException;
 public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
     private final LocalWaitingForUploadDatabase uploadDatabase;
     private final GiftCloudProperties giftCloudProperties;
+    private GiftCloudDialogs dialogs;
     private final Container container;
     private final PendingUploadTaskList pendingUploadList;
     private final GiftCloudReporter reporter;
@@ -34,9 +35,10 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
-    public GiftCloudUploader(final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
         this.uploadDatabase = uploadDatabase;
         this.giftCloudProperties = giftCloudProperties;
+        this.dialogs = dialogs;
         this.container = reporter.getContainer();
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
@@ -137,7 +139,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
             return lastProjectName.get();
         } else {
             try {
-                final String selectedProject = GiftCloudDialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, lastProjectName);
+                final String selectedProject = dialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, lastProjectName);
                 giftCloudProperties.setLastProject(selectedProject);
                 giftCloudProperties.save();
                 return selectedProject;

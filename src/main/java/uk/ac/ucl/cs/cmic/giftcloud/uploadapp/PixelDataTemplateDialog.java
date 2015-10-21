@@ -2,11 +2,12 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.AttributeList;
+import com.pixelmed.dicom.AttributeTag;
+import com.pixelmed.dicom.DicomException;
+import com.pixelmed.dicom.TagFromName;
 import com.pixelmed.display.*;
 import com.pixelmed.event.EventContext;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiseFilter;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiseFilterRequiredTag;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterJsonWriter;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import javax.swing.*;
@@ -18,6 +19,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class PixelDataTemplateDialog extends JFrame {
@@ -224,8 +226,8 @@ public class PixelDataTemplateDialog extends JFrame {
         super.finalize();
     }
 
-    private void saveTemplate() {
-        final String filterName = "MyFilter"; // ToDo: Need to fetch this filter name
+    private void saveTemplate() throws DicomException, IOException {
+        final String filterName = giftCloudDialogs.showTextInputDialog(this, "Please enter a name for this template:", Optional.<String>empty());
 
         final PixelDataAnonymiseFilter filter = createFilter(filterName);
         final String filterPath = giftCloudProperties.getFilterDirectory().getAbsolutePath();
@@ -237,13 +239,34 @@ public class PixelDataTemplateDialog extends JFrame {
         }
     }
 
-    private PixelDataAnonymiseFilter createFilter(final String filterName) {
+    private PixelDataAnonymiseFilter createFilter(final String filterName) throws DicomException {
+        return new PixelDataAnonymiseFilter(filterName, getRequiredTagsFromAttributes(blackoutCurrentImage.getDicomAttributes()), imagePanel.getPersistentDrawingShapes());
+    }
+
+    private static List<PixelDataAnonymiseFilterRequiredTag> getRequiredTagsFromAttributes(final AttributeList dicomAttributes) throws DicomException {
         final java.util.List<PixelDataAnonymiseFilterRequiredTag> requiredTags = new ArrayList<PixelDataAnonymiseFilterRequiredTag>();
 
-        AttributeList dicomAttributes = blackoutCurrentImage.getDicomAttributes();
-        // ToDo: Add attributes to required tags
+        addStringIfPresent(requiredTags, dicomAttributes, TagFromName.TransferSyntaxUID);
+        addStringIfPresent(requiredTags, dicomAttributes, TagFromName.SOPClassUID);
+        addStringIfPresent(requiredTags, dicomAttributes, TagFromName.Modality);
+        addStringIfPresent(requiredTags, dicomAttributes, TagFromName.Manufacturer);
+        addStringIfPresent(requiredTags, dicomAttributes, TagFromName.ManufacturerModelName);
+        addIntIfPresent(requiredTags, dicomAttributes, TagFromName.Rows);
+        addIntIfPresent(requiredTags, dicomAttributes, TagFromName.Columns);
 
-        return new PixelDataAnonymiseFilter(filterName, requiredTags, imagePanel.getPersistentDrawingShapes());
+        return requiredTags;
+    }
+
+    private static void addIntIfPresent(final java.util.List<PixelDataAnonymiseFilterRequiredTag> requiredTags, final AttributeList dicomAttributes, final AttributeTag tag) throws DicomException {
+        if (dicomAttributes.containsKey(tag)) {
+            requiredTags.add(new IntFilterTag(dicomAttributes.get(tag)));
+        }
+    }
+
+    private static void addStringIfPresent(final java.util.List<PixelDataAnonymiseFilterRequiredTag> requiredTags, final AttributeList dicomAttributes, final AttributeTag tag) throws DicomException {
+        if (dicomAttributes.containsKey(tag)) {
+            requiredTags.add(new StringFilterTag(dicomAttributes.get(tag)));
+        }
     }
 
     protected class SaveTemplateActionListener implements ActionListener {
@@ -257,7 +280,11 @@ public class PixelDataTemplateDialog extends JFrame {
 
         public void actionPerformed(ActionEvent event) {
             cursorChanger.setWaitCursor();
-            saveTemplate();
+            try {
+                saveTemplate();
+            } catch (Exception e) {
+                reporter.reportErrorToUser("Saving the template failed due to the following error: " + e.getLocalizedMessage(), e);
+            }
             cursorChanger.restoreCursor();
         }
     }

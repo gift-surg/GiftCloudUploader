@@ -96,7 +96,7 @@ public class GiftCloudDialogs {
         }
     }
 
-    public static String showInputDialogToSelectProject(final Vector<String> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
+    public String showInputDialogToSelectProject(final Vector<String> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
         final String lastProjectName = lastProject.isPresent() ? lastProject.get() : "";
 
         if (projectMap.size() < 1) {
@@ -117,6 +117,24 @@ public class GiftCloudDialogs {
             throw new RuntimeException("Bad return type");
         }
         return (String)returnValue;
+    }
+
+    public String showTextInputDialog(final Component component, final String message, final Optional<String> defaultName) throws IOException {
+        final String initialName = defaultName.isPresent() ? defaultName.get() : "";
+
+        String returnString = "";
+
+        while (returnString.length() < 1) {
+            final Object returnValue = JOptionPane.showInputDialog(component, message, "GIFT-Cloud", JOptionPane.PLAIN_MESSAGE, icon, null, initialName);
+            if (returnValue == null) {
+                throw new CancellationException("User cancelled template saving");
+            }
+            if (!(returnValue instanceof String)) {
+                throw new RuntimeException("Bad return type");
+            }
+            returnString = (String)returnValue;
+        }
+        return returnString;
     }
 
     /**
