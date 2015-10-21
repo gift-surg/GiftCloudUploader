@@ -24,7 +24,6 @@ import java.util.Optional;
 
 public class PixelDataTemplateDialog extends JFrame {
     private BlackoutCurrentImage blackoutCurrentImage;
-    private BlackoutShapeDefinition blackoutShapeDefinition;
     private BlackoutDicomFiles blackoutDicomFiles;
     private GiftCloudPropertiesFromApplication giftCloudProperties;
     private final GiftCloudDialogs giftCloudDialogs;
@@ -50,7 +49,6 @@ public class PixelDataTemplateDialog extends JFrame {
         this.reporter = reporter;
         setLocationRelativeTo(owner);	// without this, appears at TLHC rather then center of parent or screen
 
-        blackoutShapeDefinition = null;
         blackoutDicomFiles = null;
         blackoutCurrentImage = new BlackoutCurrentImage();
 
@@ -78,7 +76,7 @@ public class PixelDataTemplateDialog extends JFrame {
             String dicomFileNames[] = fileNames;
             blackoutDicomFiles = new BlackoutDicomFiles(dicomFileNames);
 
-            loadDicomFileOrDirectory(blackoutShapeDefinition);
+            loadDicomFileOrDirectory();
         }
     }
 
@@ -86,7 +84,7 @@ public class PixelDataTemplateDialog extends JFrame {
      * <p>Load the named DICOM file and display it in the image panel.</p>
      *
      */
-    protected void loadDicomFileOrDirectory(BlackoutShapeDefinition shapeDefinition) {
+    protected void loadDicomFileOrDirectory() {
         SingleImagePanel.deconstructAllSingleImagePanelsInContainer(multiPanel);
         multiPanel.removeAll();
         multiPanel.revalidate();        // needed because contents have changed
@@ -103,14 +101,6 @@ public class PixelDataTemplateDialog extends JFrame {
             addSingleImagePanelToMultiPanelAndEstablishLayout(sImg);
             cursorChanger.restoreCursor();    // needs to be here and not later, else interferes with cursor in repaint() of  SingleImagePanel
             showUIComponents();                // will pack, revalidate, etc, perhaps for the first time
-
-            if (shapeDefinition != null) {
-                if (shapeDefinition.getPreviousRows() == sImg.getHeight() && shapeDefinition.getPreviousColumns() == sImg.getWidth()) {
-                    imagePanel.setPersistentDrawingShapes(shapeDefinition.getPreviousPersistentDrawingShapes());
-                } else {
-//					shapeDefinition = null;
-                }
-            }
 
         } catch (Exception e) {
             // Read failed
