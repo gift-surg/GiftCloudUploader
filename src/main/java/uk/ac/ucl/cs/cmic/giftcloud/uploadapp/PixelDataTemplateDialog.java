@@ -43,10 +43,6 @@ public class PixelDataTemplateDialog extends JFrame {
     private SingleImagePanel imagePanel;
     private EventContext ourEventContext;
 
-    private boolean burnInOverlays = false;
-    private boolean useZeroBlackoutValue = false;
-    private boolean usePixelPaddingBlackoutValue = true;
-
     public PixelDataTemplateDialog(final Component owner, final String title, final GiftCloudPropertiesFromApplication giftCloudProperties, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         super(title);
         this.giftCloudProperties = giftCloudProperties;
@@ -102,7 +98,7 @@ public class PixelDataTemplateDialog extends JFrame {
             blackoutCurrentImage.loadDicomFileOrDirectory(blackoutDicomFiles.getCurrentFileName());
             SourceImage sImg = blackoutCurrentImage.getSourceImage();
             imagePanel = new SingleImagePanelWithRegionDrawing(sImg, ourEventContext);
-            imagePanel.setShowOverlays(burnInOverlays);
+            imagePanel.setShowOverlays(giftCloudProperties.getBurnInOverlays());
             imagePanel.setApplyShutter(false);    // we do not want to "hide" from view any identification information hidden behind shutters (000607)
             addSingleImagePanelToMultiPanelAndEstablishLayout(sImg);
             cursorChanger.restoreCursor();    // needs to be here and not later, else interferes with cursor in repaint() of  SingleImagePanel
