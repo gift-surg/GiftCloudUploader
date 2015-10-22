@@ -1,5 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import com.google.common.base.Objects;
+
 /**
  * Stores a DICOM tag and value for a filter. An image may use the filter if the tag is present and equal to the specified value
  * @param <T> the Java data type of the tag
@@ -37,5 +39,26 @@ public class PixelDataAnonymiseFilterRequiredTag<T> {
         return valueType;
     }
 
+    /**
+     * Determines if another object refers to the same scan alias
+     *
+     * @param otherOb the object to compare to this one
+     * @return true if the other object is an ScanAliasRecord referring to the same scan alias
+     */
+    @Override
+    public boolean equals(Object otherOb) {
+        if (this == otherOb) return true;
+
+        if (!(otherOb instanceof PixelDataAnonymiseFilterRequiredTag)) return false;
+
+        final PixelDataAnonymiseFilterRequiredTag<T> other = (PixelDataAnonymiseFilterRequiredTag<T>) otherOb;
+
+        return this.dicomGroup == other.dicomGroup && this.dicomElement == other.dicomElement && this.value.equals(other.value) && this.valueType.equals(other.valueType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(dicomGroup, dicomElement, value, valueType);
+    }
 }
 

@@ -2,12 +2,17 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -41,6 +46,73 @@ public class PixelDataAnonymiserFilterJsonWriter {
     private static final String SHAPE_WIDTH = "Width";
     private static final String SHAPE_HEIGHT = "Height";
 
+
+    public static PixelDataAnonymiseFilter readJsonFile(final File filterFile) throws IOException, ParseException {
+        JSONParser parser = new JSONParser();
+        final Object obj = parser.parse(new FileReader(filterFile));
+
+        final JSONObject jsonObject = (JSONObject) obj;
+        final String applicationName = (String) jsonObject.get(APPLICATION_LABEL);
+        if (!applicationName.equals(APPLICATION_VALUE)) {
+            throw new IOException("Not a GIFT-Cloud anonymisation filter");
+        }
+        final String versionName = (String) jsonObject.get(VERSION_LABEL);
+        final String minimumVersionName = (String) jsonObject.get(MINIMUM_VERSION_LABEL);
+        // ToDo: check version numbers
+
+        final String filterName = (String) jsonObject.get(FILTER_NAME_LABEL);
+        final JSONArray requiredTagsJson = (JSONArray) jsonObject.get(REQUIRED_TAGS_LABEL);
+        final JSONArray redactedShapesJson = (JSONArray) jsonObject.get(REDACTED_SHAPES_LABEL);
+
+        final List<PixelDataAnonymiseFilterRequiredTag> requiredTags = parseTagArray(requiredTagsJson);
+        final List<Rectangle2D.Double> redactedShapes = parseRedactedShapes(redactedShapesJson);
+
+
+        return new PixelDataAnonymiseFilter(filterName, requiredTags, redactedShapes);
+    }
+
+    private static List<Rectangle2D.Double> parseRedactedShapes(final JSONArray redactedShapesJson) {
+        final List<Rectangle2D.Double> redactedShapes = new ArrayList<Rectangle2D.Double>();
+        final Iterator<JSONObject> iterator = redactedShapesJson.iterator();
+        while (iterator.hasNext()) {
+            final JSONObject shape = iterator.next();
+            redactedShapes.add(parseShape(shape));
+        }
+        return redactedShapes;
+    }
+
+    private static Rectangle2D.Double parseShape(final JSONObject shape) {
+        final double x = ((Double)shape.get(SHAPE_X));
+        final double y = ((Double)shape.get(SHAPE_Y)).doubleValue();
+        final double width = ((Double)shape.get(SHAPE_WIDTH)).doubleValue();
+        final double height = ((Double)shape.get(SHAPE_HEIGHT)).doubleValue();
+        return new Rectangle2D.Double(x, y, width, height);
+    }
+
+    private static List<PixelDataAnonymiseFilterRequiredTag> parseTagArray(final JSONArray requiredTagsJson) throws IOException {
+        final List<PixelDataAnonymiseFilterRequiredTag> requiredTags = new ArrayList<PixelDataAnonymiseFilterRequiredTag>();
+        final Iterator<JSONObject> iterator = requiredTagsJson.iterator();
+        while (iterator.hasNext()) {
+            final JSONObject tagEntry = iterator.next();
+            requiredTags.add(parseFilterTag(tagEntry));
+        }
+        return requiredTags;
+    }
+
+    private static PixelDataAnonymiseFilterRequiredTag parseFilterTag(final JSONObject tagEntry) throws IOException {
+        final String valueType = (String)tagEntry.get(TAG_VALUETYPE);
+        final int dicomGroup = ((Long)tagEntry.get(TAG_DICOMGROUP)).intValue();
+        final int dicomElement = ((Long)tagEntry.get(TAG_DICOMELEMENT)).intValue();
+        if (valueType.equals("Integer")) {
+            final int value = ((Long)tagEntry.get(TAG_VALUE)).intValue();
+            return new IntFilterTag(dicomGroup, dicomElement, value);
+        } else if (valueType.equals("String")) {
+            final String value = (String)tagEntry.get(TAG_VALUE);
+            return new StringFilterTag(dicomGroup, dicomElement, value);
+        } else {
+            throw new IOException("Unexpected value type");
+        }
+    }
 
     public static void writeJsonfile(final File filterFileName, final PixelDataAnonymiseFilter filter, final GiftCloudReporter reporter) throws IOException {
         final JSONObject mainObj = new JSONObject();

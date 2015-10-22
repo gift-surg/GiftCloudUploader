@@ -21,14 +21,20 @@ public class JsonFilterWriterTest {
         final String filterName = "MyFilter";
         final List<PixelDataAnonymiseFilterRequiredTag> requiredTags = new ArrayList<PixelDataAnonymiseFilterRequiredTag>();
         requiredTags.add(new IntFilterTag(1, 2, 123));
+        requiredTags.add(new StringFilterTag(5, 2, "MyString"));
         requiredTags.add(new IntFilterTag(1001, 2002, 12345));
         final List<Rectangle2D.Double> redactedShapes = new ArrayList<Rectangle2D.Double>();
         redactedShapes.add(new Rectangle2D.Double(1,2,3,4));
-        redactedShapes.add(new Rectangle2D.Double(10,20,30,40));
+        redactedShapes.add(new Rectangle2D.Double(10.1,20.4,30.3,40.5));
         final PixelDataAnonymiseFilter filter = new PixelDataAnonymiseFilter(filterName, requiredTags, redactedShapes);
 
         final File jsonFile = new File(tempDir, "TestFile.json");
         PixelDataAnonymiserFilterJsonWriter.writeJsonfile(jsonFile, filter, reporter);
+
+        final PixelDataAnonymiseFilter filterRead = PixelDataAnonymiserFilterJsonWriter.readJsonFile(jsonFile);
+        junit.framework.Assert.assertEquals(filter.getFilterName(), filterRead.getFilterName());
+        junit.framework.Assert.assertEquals(filter.getRedactedShapes(), filterRead.getRedactedShapes());
+        junit.framework.Assert.assertEquals(filter.getRequiredTags(), filterRead.getRequiredTags());
         jsonFile.delete();
     }
 }
