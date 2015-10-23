@@ -5,6 +5,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+import com.pixelmed.dicom.DicomException;
 import org.apache.commons.lang.StringUtils;
 import org.dcm4che2.data.*;
 import org.dcm4che2.io.*;
@@ -76,6 +77,9 @@ public class SeriesZipper {
                 for (final File file : seriesFileCollection.getFiles()) {
                     processNextFile(file, zos, getStopTagInputHandler());
                 }
+            } catch (DicomException e) {
+                logger.trace("DicomException exception building zipfile", e);
+                throw ioexception = new IOException(e);
             } catch (IOException e) {
                 logger.trace("I/O exception building zipfile", e);
                 throw ioexception = e;
@@ -130,7 +134,7 @@ public class SeriesZipper {
         }
     }
 
-    public void processNextFile(final File nextFile, final ZipOutputStream zos, final DicomInputHandler handler) throws AttributeException, IOException, ScriptEvaluationException {
+    public void processNextFile(final File nextFile, final ZipOutputStream zos, final DicomInputHandler handler) throws AttributeException, IOException, ScriptEvaluationException, DicomException {
         final RedactedFileWrapper redactedFileWrapper = pixelDataAnonymiser.createRedactedFile(nextFile);
         try {
             addFileToZip(redactedFileWrapper.getFileToProcess(), zos, handler);

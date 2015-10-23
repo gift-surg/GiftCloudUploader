@@ -46,7 +46,7 @@ public class PixelDataAnonymiser {
         useZeroBlackoutValue = giftCloudProperties.getUseZeroBlackoutValue();
         usePixelPaddingBlackoutValue = giftCloudProperties.getUsePixelPaddingBlackoutValue();
         aeTitle = giftCloudProperties.getListenerAETitle();
-        filters = readFilters();
+        filters = readFilters(giftCloudProperties);
     }
 
 
@@ -57,11 +57,12 @@ public class PixelDataAnonymiser {
      * @return a RedactedFileWrapper object which is used to return either a file suitable for uploading
      * @throws IOException if there was an error parsing or anonymising the file
      */
-    public RedactedFileWrapper createRedactedFile(final File file) throws IOException {
+    public RedactedFileWrapper createRedactedFile(final File file) throws IOException, DicomException {
         RedactedFileWrapper.FileRedactionStatus redactionStatus;
         Optional<File> redactedFile;
 
-        if (anonymisationIsRequired()) {
+        // ToDo: choose filter
+        if (anonymisationIsRequired(file)) {
             redactionStatus = RedactedFileWrapper.FileRedactionStatus.REDACTED;
             redactedFile = Optional.of(anonymisePixelData(file, getFilter()));
 
@@ -85,12 +86,42 @@ public class PixelDataAnonymiser {
         return outputFile;
     }
 
-    private List<PixelDataAnonymiseFilter> readFilters() {
-        return new ArrayList<PixelDataAnonymiseFilter>(); // ToDo
+    private List<PixelDataAnonymiseFilter> readFilters(final GiftCloudProperties giftCloudProperties) {
+        final String filterPath = giftCloudProperties.getFilterDirectory().getAbsolutePath();
+        final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
+        final File[] files = new File(filterPath).listFiles();
+        for (final File f : files) {
+            try {
+                filters.add(PixelDataAnonymiserFilterJsonWriter.readJsonFile(f));
+            } catch (final Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return filters;
     }
 
-    private boolean anonymisationIsRequired() {
-        return true; // ToDo
+    private boolean anonymisationIsRequired(final File inputFile) throws IOException, DicomException {
+        final AttributeList attributeList = readAttributeList(inputFile, false);
+        final String burntInAnnotations = Attribute.getSingleStringValueOrEmptyString(attributeList, TagFromName.BurnedInAnnotation);
+
+        // If the BurntInAnnotation tag is set, this tells us whether or not PID is contained in the pixel data
+        if (burntInAnnotations.equals("NO")) {
+            return false;
+        } else if (burntInAnnotations.equals("YES")) {
+            return true;
+        }
+
+        // Otherwise we will check for standard ultrasound images which contain JPEG or similar formats
+        final String sopClassUID = Attribute.getSingleStringValueOrEmptyString(attributeList, TagFromName.SOPClassUID);
+
+        if (sopClassUID.equals(SOPClass.UltrasoundImageStorage) || sopClassUID.equals(SOPClass.UltrasoundImageStorageRetired) || (sopClassUID.equals(SOPClass.UltrasoundMultiframeImageStorage) || sopClassUID.equals(SOPClass.UltrasoundMultiframeImageStorageRetired))) {
+            final String transferSyntaxUid = Attribute.getSingleStringValueOrEmptyString(attributeList, TagFromName.TransferSyntaxUID);
+            if (transferSyntaxUid.equals(TransferSyntax.JPEGBaseline) || transferSyntaxUid.equals(TransferSyntax.JPEGExtended) || transferSyntaxUid.equals(TransferSyntax.JPEGLossless) || transferSyntaxUid.equals(TransferSyntax.JPEGLosslessSV1) || transferSyntaxUid.equals(TransferSyntax.JPEG2000) || transferSyntaxUid.equals(TransferSyntax.JPEG2000Lossless) || transferSyntaxUid.equals(TransferSyntax.JPEGLS) || transferSyntaxUid.equals(TransferSyntax.JPEGNLS)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private PixelDataAnonymiseFilter getFilter() {

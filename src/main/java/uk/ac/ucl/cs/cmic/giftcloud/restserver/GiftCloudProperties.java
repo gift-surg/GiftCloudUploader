@@ -100,4 +100,6 @@ public interface GiftCloudProperties {
     boolean getUseZeroBlackoutValue();
 
     boolean getUsePixelPaddingBlackoutValue();
+
+    File getFilterDirectory();
 }

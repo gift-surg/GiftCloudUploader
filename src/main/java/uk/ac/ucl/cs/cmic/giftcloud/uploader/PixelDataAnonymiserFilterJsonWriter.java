@@ -58,6 +58,7 @@ public class PixelDataAnonymiserFilterJsonWriter {
         }
         final String versionName = (String) jsonObject.get(VERSION_LABEL);
         final String minimumVersionName = (String) jsonObject.get(MINIMUM_VERSION_LABEL);
+
         // ToDo: check version numbers
 
         final String filterName = (String) jsonObject.get(FILTER_NAME_LABEL);
