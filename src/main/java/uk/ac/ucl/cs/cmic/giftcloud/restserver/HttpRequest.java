@@ -17,7 +17,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -193,19 +193,19 @@ abstract class HttpRequest<T> {
                 throw new AuthorisationFailureException(responseCode, url);
 
             case HTTP_BAD_REQUEST:
-                throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), MultiUploaderUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
+                throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), GiftCloudUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
 
             case HTTP_CONFLICT:
-                throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), MultiUploaderUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
+                throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), GiftCloudUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
 
             case HTTP_INTERNAL_ERROR:
-                throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), MultiUploaderUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
+                throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), GiftCloudUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
 
             case HTTP_NOT_FOUND:
-                throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), MultiUploaderUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
+                throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), GiftCloudUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
 
             default:
-                throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), MultiUploaderUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
+                throw new GiftCloudHttpException(responseCode, errorDetails.getTitle(), GiftCloudUtils.getErrorEntity(connection.getErrorStream()), errorDetails.getHtmlText());
         }
     }
 

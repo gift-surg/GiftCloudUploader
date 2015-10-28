@@ -42,12 +42,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class MultiUploaderUtils {
+public class GiftCloudUtils {
 
     final static String GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME = "GiftCloudUploader";
     final static String GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME = "WaitingForUpload";
     final static String GIFT_CLOUD_REDACTION_TEMPLATES_FOLDER_NAME = "RedactionTemplates";
 
+    private GiftCloudUtils() {}
 
     public static JSONObject extractJSONEntity(final InputStream in)
             throws IOException, JSONException {
@@ -288,5 +289,32 @@ public class MultiUploaderUtils {
         } catch (Throwable t) {
             return false;
         }
+    }
+
+
+    /**
+     * Compares two version strings, e.g. "1.3.1" "1.3.2" etc. Non-numeric sub-versions are permitted provided they are equal in both strings
+     * @param versionString1
+     * @param versionString2
+     * @return 1 if version1 is greater than version2, -1 if version1 is less than version 2, or 0 if they are equal
+     */
+    public static int compareVersionStrings(final String versionString1, final String versionString2)
+    {
+        final String[] versionNumbers1 = StringUtils.isBlank(versionString1) ? new String[]{} : versionString1.split("\\.", -1);
+        final String[] versionNumbers2 = StringUtils.isBlank(versionString2) ? new String[]{} : versionString2.split("\\.", -1);
+
+        int compareIndex = 0;
+        while (compareIndex < versionNumbers1.length && compareIndex < versionNumbers2.length) {
+            final String subString1 = versionNumbers1[compareIndex];
+            final String subString2 = versionNumbers2[compareIndex];
+            if (subString1.equals(subString2)) {
+                compareIndex++;
+            } else {
+                return Integer.signum(Integer.valueOf(subString1).compareTo(Integer.valueOf(subString2)));
+            }
+        }
+
+        // If we get here it means the strings are equal or they have different numbers of substrings
+        return Integer.signum(versionNumbers1.length - versionNumbers2.length);
     }
 }

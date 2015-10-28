@@ -2,7 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -493,10 +493,10 @@ public class GiftCloudConfigurationDialog {
             final String patientListExportFolder = patientListExportFolderField.getText();
             if (!StringUtils.isBlank(patientListExportFolder)) {
                 try {
-                    if (!MultiUploaderUtils.createDirectoryIfNotExisting(new File(patientListExportFolder))) {
+                    if (!GiftCloudUtils.createDirectoryIfNotExisting(new File(patientListExportFolder))) {
                         problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderCreationError"));
                     } else {
-                        if (!MultiUploaderUtils.isDirectoryWritable(patientListExportFolder)) {
+                        if (!GiftCloudUtils.isDirectoryWritable(patientListExportFolder)) {
                             problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderError"));
                         }
                     }

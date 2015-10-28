@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,7 +28,7 @@ public abstract class PatientListWriter {
     public PatientListWriter(final File patientListFolder, final GiftCloudReporter reporter) {
         this.patientListFolder = patientListFolder;
         this.reporter = reporter;
-        if (!MultiUploaderUtils.createDirectoryIfNotExisting(patientListFolder)) {
+        if (!GiftCloudUtils.createDirectoryIfNotExisting(patientListFolder)) {
             reporter.silentWarning("Could not create the patient list folder");
         }
     }
@@ -40,7 +40,7 @@ public abstract class PatientListWriter {
 
         try {
             // Ensure the directory exists. We perform this here in case the folder was not accessible when the uploader started
-            if (!MultiUploaderUtils.createDirectoryIfNotExisting(patientListFolder)) {
+            if (!GiftCloudUtils.createDirectoryIfNotExisting(patientListFolder)) {
                 reporter.silentWarning("Could not create the patient list folder");
                 return;
             }
@@ -59,7 +59,7 @@ public abstract class PatientListWriter {
 
             if (createBackup) {
                 // Create an additional backup (at most one per hour)
-                MultiUploaderUtils.createTimeStampedBackup(file, patientListFolder, getBackupPatientListFilenamePrefix(), getBackupPatientListFilenameSuffix());
+                GiftCloudUtils.createTimeStampedBackup(file, patientListFolder, getBackupPatientListFilenamePrefix(), getBackupPatientListFilenameSuffix());
             }
 
         } catch (FileNotFoundException e) {

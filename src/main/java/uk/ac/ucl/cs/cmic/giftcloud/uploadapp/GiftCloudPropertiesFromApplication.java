@@ -5,7 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         if (StringUtils.isNotBlank(uploadFolderString)) {
             return new File(uploadFolderString);
         } else {
-            return MultiUploaderUtils.createOrGetLocalUploadCacheDirectory(reporter);
+            return GiftCloudUtils.createOrGetLocalUploadCacheDirectory(reporter);
         }
     }
 
@@ -383,7 +383,7 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         if (StringUtils.isNotBlank(tempalteFolderString)) {
             return new File(tempalteFolderString);
         } else {
-            return MultiUploaderUtils.createOrGetTemplateDirectory(reporter);
+            return GiftCloudUtils.createOrGetTemplateDirectory(reporter);
         }
     }
 }
