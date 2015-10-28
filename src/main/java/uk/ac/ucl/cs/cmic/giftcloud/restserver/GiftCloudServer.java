@@ -38,7 +38,7 @@ public class GiftCloudServer {
 
         restServer = restServerFactory.create(giftCloudServerUrlString, giftCloudProperties, reporter);
         projectCache = new ProjectCache(restServer);
-        pixelDataAnonymiser = new PixelDataAnonymiser(giftCloudProperties);
+        pixelDataAnonymiser = new PixelDataAnonymiser(giftCloudProperties, reporter);
     }
 
     public void tryAuthentication() throws IOException {

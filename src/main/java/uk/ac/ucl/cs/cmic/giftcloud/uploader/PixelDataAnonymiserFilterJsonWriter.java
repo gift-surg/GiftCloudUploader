@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.awt.geom.Rectangle2D;
 import java.io.File;
@@ -54,12 +55,14 @@ public class PixelDataAnonymiserFilterJsonWriter {
         final JSONObject jsonObject = (JSONObject) obj;
         final String applicationName = (String) jsonObject.get(APPLICATION_LABEL);
         if (!applicationName.equals(APPLICATION_VALUE)) {
-            throw new IOException("Not a GIFT-Cloud anonymisation filter");
+            throw new GiftCloudException(GiftCloudUploaderError.NOT_A_REDACTION_FILTER);
         }
-        final String versionName = (String) jsonObject.get(VERSION_LABEL);
-        final String minimumVersionName = (String) jsonObject.get(MINIMUM_VERSION_LABEL);
+        final String versionString = (String) jsonObject.get(VERSION_LABEL);
+        final String minimumVersionString = (String) jsonObject.get(MINIMUM_VERSION_LABEL);
 
-        // ToDo: check version numbers
+        if (GiftCloudUtils.compareVersionStrings(VERSION_VALUE, minimumVersionString) < 0) {
+            throw new GiftCloudException(GiftCloudUploaderError.REDACTION_FILTER_INCOMPATIBLE_FILTER);
+        }
 
         final String filterName = (String) jsonObject.get(FILTER_NAME_LABEL);
         final JSONArray requiredTagsJson = (JSONArray) jsonObject.get(REQUIRED_TAGS_LABEL);

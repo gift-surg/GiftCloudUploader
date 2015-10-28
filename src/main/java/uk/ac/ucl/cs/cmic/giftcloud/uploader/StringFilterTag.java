@@ -14,4 +14,10 @@ public class StringFilterTag extends PixelDataAnonymiseFilterRequiredTag<String>
     public StringFilterTag(final Attribute attribute) throws DicomException {
         this(attribute.getGroup(), attribute.getElement(), attribute.getStringValues()[0]);
     }
+
+    @Override
+    public boolean matches(final Attribute attribute) throws DicomException {
+        final String[] stringValues = attribute.getStringValues();
+        return stringValues.length == 1 && stringValues[0] == getValue();
+    }
 }

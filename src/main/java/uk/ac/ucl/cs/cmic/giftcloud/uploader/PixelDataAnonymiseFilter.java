@@ -1,5 +1,10 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import com.pixelmed.dicom.Attribute;
+import com.pixelmed.dicom.AttributeList;
+import com.pixelmed.dicom.AttributeTag;
+import com.pixelmed.dicom.DicomException;
+
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
@@ -34,5 +39,19 @@ public class PixelDataAnonymiseFilter {
 
     public List<Rectangle2D.Double> getRedactedShapes() {
         return redactedShapes;
+    }
+
+    public boolean matches(final AttributeList attributeList) throws DicomException {
+        for (final PixelDataAnonymiseFilterRequiredTag requiredTag : requiredTags) {
+            final AttributeTag attributeTag = new AttributeTag(requiredTag.getDicomGroup(), requiredTag.getDicomElement());
+            if (!attributeList.containsKey(attributeTag)) {
+                return false;
+            }
+            final Attribute attribute = attributeList.get(attributeTag);
+            if (!requiredTag.matches(attribute)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -1,12 +1,14 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.google.common.base.Objects;
+import com.pixelmed.dicom.Attribute;
+import com.pixelmed.dicom.DicomException;
 
 /**
  * Stores a DICOM tag and value for a filter. An image may use the filter if the tag is present and equal to the specified value
  * @param <T> the Java data type of the tag
  */
-public class PixelDataAnonymiseFilterRequiredTag<T> {
+public abstract class PixelDataAnonymiseFilterRequiredTag<T> {
     private final int dicomGroup;
     private final int dicomElement;
     private final T value;
@@ -60,5 +62,7 @@ public class PixelDataAnonymiseFilterRequiredTag<T> {
     public int hashCode() {
         return Objects.hashCode(dicomGroup, dicomElement, value, valueType);
     }
+
+    public abstract boolean matches(final Attribute attribute) throws DicomException;
 }
 

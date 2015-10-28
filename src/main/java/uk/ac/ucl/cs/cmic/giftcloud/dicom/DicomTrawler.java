@@ -82,11 +82,7 @@ public final class DicomTrawler implements Trawler {
 				assert null != o.getString(Tag.SOPClassUID);
                 final String modality = o.getString(Tag.Modality);
                 if (!modalityIsSupported(modality)) {
-                    if (modality.equals("US")) {
-                        errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED_US);
-                    } else {
-                        errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED);
-                    }
+                    errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED);
                     remaining.add(f);
                     logger.debug("Modality " + modality + "is not supported", "");
 
@@ -132,7 +128,7 @@ public final class DicomTrawler implements Trawler {
             return true;
         } else if (modality.equals("US")) {
             // Currently we do not support US upload until we can anonymise the patient data burnt into the images
-            return false;
+            return true;
         } else {
             return false;
         }

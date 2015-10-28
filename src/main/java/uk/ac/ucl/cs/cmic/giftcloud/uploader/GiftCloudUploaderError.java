@@ -20,6 +20,8 @@ public enum GiftCloudUploaderError {
     SERVER_CERTIFICATE_FAILURE(61, "Cannot connect to the GIFT-Cloud server because the server certificate has not been added to your local keystore", "GIFT-Cloud Server certificate needs to be added to local keystore", false),
     ANONYMISATION_UNACCEPTABLE(71, "Uploading is not permitted because the anonymisation scripts for this project have not been configured to remove identifiable patient information. Please configure the project anonymisation scripts on the GIFT-Cloud server and re-start the GIFT-Cloud Uploader.", "Uploading disabled because anonymisation is not configured correctly", false),
     NO_REDACTION_FILTER(72, "Uploading is not permitted because this file requires pixel data redaction and no filter appropriate for this data is available", "No redaction filter round", false),
+    REDACTION_FILTER_INCOMPATIBLE_FILTER(73, "This filter cannot be used because it was created with a newer version of GIFT-Cloud Uploader. Please update your version of GIFT-Cloud Uploader.", "Redaction filter not compatible", false),
+    NOT_A_REDACTION_FILTER(74, "This file does not appear to be a GIFT-Cloud redaction filter, or is corrupted.", "Not a redaction filter", false),
     MODALITY_UNSUPPORTED(80, "File could not be uploaded because the modality is not currently supported by GIFT-Cloud", "Modality is not supported", false),
     MODALITY_UNSUPPORTED_US(81, "File could not be uploaded because ultrasound is not currently supported by GIFT-Cloud", "Ultrasound images are not currently supported", false),
     NO_UPLOAD_PERMISSIONS(90, "Uploading is not permitted for this user. Please ask your system administrator to enable write permissions for your project.", "User not permitted to upload", false);

@@ -15,8 +15,8 @@ import com.pixelmed.display.SourceImage;
 import com.pixelmed.utils.CapabilitiesAvailable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.RedactedFileWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,18 +35,21 @@ public class PixelDataAnonymiser {
     private boolean useZeroBlackoutValue = false;
     private boolean usePixelPaddingBlackoutValue = true;
     private final String aeTitle;
+    private GiftCloudReporter reporter;
 
     /**
      * Creates the PixelDataAnonymiser object. Parameters will be set at construction time
      *
      * @param giftCloudProperties Shared properties use to define anonymsation options
+     * @param reporter
      */
-    public PixelDataAnonymiser(final GiftCloudProperties giftCloudProperties) {
+    public PixelDataAnonymiser(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+        this.reporter = reporter;
         burnInOverlays = giftCloudProperties.getBurnInOverlays();
         useZeroBlackoutValue = giftCloudProperties.getUseZeroBlackoutValue();
         usePixelPaddingBlackoutValue = giftCloudProperties.getUsePixelPaddingBlackoutValue();
         aeTitle = giftCloudProperties.getListenerAETitle();
-        filters = readFilters(giftCloudProperties);
+        filters = readFilters(giftCloudProperties, reporter);
     }
 
 
@@ -60,11 +63,20 @@ public class PixelDataAnonymiser {
     public RedactedFileWrapper createRedactedFile(final File file) throws IOException, DicomException {
         RedactedFileWrapper.FileRedactionStatus redactionStatus;
         Optional<File> redactedFile;
+        AttributeList attributeList = readAttributeList(file, true);
+        if (attributeList == null) {
+            throw new IOException("Could not read image");
+        }
 
-        // ToDo: choose filter
-        if (anonymisationIsRequired(file)) {
-            redactionStatus = RedactedFileWrapper.FileRedactionStatus.REDACTED;
-            redactedFile = Optional.of(anonymisePixelData(file, getFilter()));
+        if (anonymisationIsRequired(attributeList)) {
+            final Optional<PixelDataAnonymiseFilter> filter = getFilter(attributeList);
+            if (filter.isPresent()) {
+                redactionStatus = RedactedFileWrapper.FileRedactionStatus.REDACTED;
+                redactedFile = Optional.of(anonymisePixelData(file, filter.get()));
+            } else {
+                redactionStatus = RedactedFileWrapper.FileRedactionStatus.NO_APPROPRIATE_FILTER_FOUND;
+                redactedFile= Optional.empty();
+            }
 
         } else {
             redactionStatus = RedactedFileWrapper.FileRedactionStatus.REDACTION_NOT_REQUIRED;
@@ -86,7 +98,7 @@ public class PixelDataAnonymiser {
         return outputFile;
     }
 
-    private List<PixelDataAnonymiseFilter> readFilters(final GiftCloudProperties giftCloudProperties) {
+    private List<PixelDataAnonymiseFilter> readFilters(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         final String filterPath = giftCloudProperties.getFilterDirectory().getAbsolutePath();
         final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
         final File[] files = new File(filterPath).listFiles();
@@ -94,14 +106,13 @@ public class PixelDataAnonymiser {
             try {
                 filters.add(PixelDataAnonymiserFilterJsonWriter.readJsonFile(f));
             } catch (final Exception e) {
-                e.printStackTrace();
+                reporter.silentLogException(e, "Could not read filter file: " + f.getAbsolutePath());
             }
         }
         return filters;
     }
 
-    private boolean anonymisationIsRequired(final File inputFile) throws IOException, DicomException {
-        final AttributeList attributeList = readAttributeList(inputFile, false);
+    private boolean anonymisationIsRequired(AttributeList attributeList) {
         final String burntInAnnotations = Attribute.getSingleStringValueOrEmptyString(attributeList, TagFromName.BurnedInAnnotation);
 
         // If the BurntInAnnotation tag is set, this tells us whether or not PID is contained in the pixel data
@@ -124,10 +135,17 @@ public class PixelDataAnonymiser {
         return false;
     }
 
-    private PixelDataAnonymiseFilter getFilter() {
-        List<PixelDataAnonymiseFilterRequiredTag> requiredTags = new ArrayList<PixelDataAnonymiseFilterRequiredTag>();
-        final List<Rectangle2D.Double> redactedShapes = new ArrayList<Rectangle2D.Double>();
-        return new PixelDataAnonymiseFilter("DefaultFilter", requiredTags, redactedShapes); // ToDo
+    private Optional<PixelDataAnonymiseFilter> getFilter(AttributeList attributeList) {
+        for (final PixelDataAnonymiseFilter filter : filters) {
+            try {
+                if (filter.matches(attributeList)) {
+                    return Optional.of(filter);
+                }
+            } catch (DicomException e) {
+                reporter.silentLogException(e, "Problem when comparing filter tag values");
+            }
+        }
+        return Optional.empty();
     }
 
     private static void anonymisePixelDataUsingFilter(File inputFile, File outputFile, Vector shapes, boolean burnInOverlays, boolean usePixelPaddingBlackoutValue, boolean useZeroBlackoutValue, String ourAETitle) throws IOException, DicomException {
