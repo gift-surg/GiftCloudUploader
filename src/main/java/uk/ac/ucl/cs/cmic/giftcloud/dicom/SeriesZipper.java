@@ -151,6 +151,9 @@ public class SeriesZipper {
         final BufferedInputStream bis = new BufferedInputStream(f.getName().endsWith(".gz") ? new GZIPInputStream(fin) : fin);
         try {
             final DicomInputStream dis = new DicomInputStream(bis);
+            if (dis.getAllocateLimit() < f.length()) {
+                dis.setAllocateLimit((int)f.length());
+            }
             try {
                 if (null != handler) {
                     dis.setHandler(handler);
