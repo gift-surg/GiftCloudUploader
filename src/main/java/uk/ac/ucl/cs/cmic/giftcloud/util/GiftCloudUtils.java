@@ -30,23 +30,25 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.nrg.IOUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpUploadException;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.*;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.text.ChoiceFormat;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class GiftCloudUtils {
 
     final static String GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME = "GiftCloudUploader";
     final static String GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME = "WaitingForUpload";
     final static String GIFT_CLOUD_REDACTION_TEMPLATES_FOLDER_NAME = "RedactionTemplates";
+    final static String PREDEFINED_GIFT_CLOUD_REDACTION_TEMPLATES_FOLDER_NAME = "RedactionTemplates";
 
     private GiftCloudUtils() {}
 
@@ -174,6 +176,24 @@ public class GiftCloudUtils {
         } else {
             throw new RuntimeException("Unable to create a template folder at " + templateFolder.getAbsolutePath());
         }
+    }
+
+    /**
+     * Returns a list of resources matching the specified pattern
+     * 
+     * @param pattern
+     * @return
+     */
+    public static List<File> getMatchingResourceFiles(final String pattern) {
+        final List<File> files = new ArrayList<File>();
+        try {
+            final Resource[] resources = new PathMatchingResourcePatternResolver().getResources(pattern);
+            for (final Resource resource : resources) {
+                files.add(resource.getFile());
+            }
+        } catch (IOException e) {
+        }
+        return files;
     }
 
     /**
