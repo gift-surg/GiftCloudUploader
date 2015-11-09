@@ -230,6 +230,7 @@ public class PixelDataTemplateDialog extends JFrame {
     private static List<PixelDataAnonymiseFilterRequiredTag> getRequiredTagsFromAttributes(final AttributeList dicomAttributes) throws DicomException {
         final java.util.List<PixelDataAnonymiseFilterRequiredTag> requiredTags = new ArrayList<PixelDataAnonymiseFilterRequiredTag>();
 
+        addStringIfPresent(requiredTags, dicomAttributes, TagFromName.PhotometricInterpretation);
         addStringIfPresent(requiredTags, dicomAttributes, TagFromName.TransferSyntaxUID);
         addStringIfPresent(requiredTags, dicomAttributes, TagFromName.SOPClassUID);
         addStringIfPresent(requiredTags, dicomAttributes, TagFromName.Modality);
