@@ -129,10 +129,7 @@ public class PixelDataAnonymiser {
         final String sopClassUID = Attribute.getSingleStringValueOrEmptyString(attributeList, TagFromName.SOPClassUID);
 
         if (sopClassUID.equals(SOPClass.UltrasoundImageStorage) || sopClassUID.equals(SOPClass.UltrasoundImageStorageRetired) || (sopClassUID.equals(SOPClass.UltrasoundMultiframeImageStorage) || sopClassUID.equals(SOPClass.UltrasoundMultiframeImageStorageRetired))) {
-            final String transferSyntaxUid = Attribute.getSingleStringValueOrEmptyString(attributeList, TagFromName.TransferSyntaxUID);
-            if (transferSyntaxUid.equals(TransferSyntax.JPEGBaseline) || transferSyntaxUid.equals(TransferSyntax.JPEGExtended) || transferSyntaxUid.equals(TransferSyntax.JPEGLossless) || transferSyntaxUid.equals(TransferSyntax.JPEGLosslessSV1) || transferSyntaxUid.equals(TransferSyntax.JPEG2000) || transferSyntaxUid.equals(TransferSyntax.JPEG2000Lossless) || transferSyntaxUid.equals(TransferSyntax.JPEGLS) || transferSyntaxUid.equals(TransferSyntax.JPEGNLS)) {
-                return true;
-            }
+            return true;
         }
 
         return false;
