@@ -379,11 +379,12 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
 
     @Override
     public File getFilterDirectory() {
-        final String tempalteFolderString = properties.getProperty(propertyName_GiftCloudLocalUploadFolder);
-        if (StringUtils.isNotBlank(tempalteFolderString)) {
-            return new File(tempalteFolderString);
+        final String templateFolderString = properties.getProperty(propertyName_GiftCloudLocalUploadFolder);
+        if (StringUtils.isNotBlank(templateFolderString)) {
+            return new File(templateFolderString);
         } else {
             return GiftCloudUtils.createOrGetTemplateDirectory(reporter);
         }
     }
+
 }
