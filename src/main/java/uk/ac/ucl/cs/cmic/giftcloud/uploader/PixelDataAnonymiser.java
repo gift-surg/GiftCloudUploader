@@ -16,13 +16,11 @@ import com.pixelmed.utils.CapabilitiesAvailable;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.RedactedFileWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Vector;
+import java.util.*;
 
 
 /**
@@ -99,9 +97,14 @@ public class PixelDataAnonymiser {
     }
 
     private List<PixelDataAnonymiseFilter> readFilters(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
-        final String filterPath = giftCloudProperties.getFilterDirectory().getAbsolutePath();
         final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
-        final File[] files = new File(filterPath).listFiles();
+        filters.addAll(readFilters(Arrays.asList(new File(giftCloudProperties.getFilterDirectory().getAbsolutePath()).listFiles()), reporter));
+        filters.addAll(readFilters(GiftCloudUtils.getMatchingResourceFiles("uk/ac/ucl/cs/cmic/giftcloud/redactiontemplates/*.gcfilter"), reporter));
+        return filters;
+    }
+
+    private List<PixelDataAnonymiseFilter> readFilters(final List<File> files, GiftCloudReporter reporter) {
+        final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
         for (final File f : files) {
             try {
                 filters.add(PixelDataAnonymiserFilterJsonWriter.readJsonFile(f));
