@@ -127,7 +127,6 @@ public final class DicomTrawler implements Trawler {
         } else if (modality.equals("CT")) {
             return true;
         } else if (modality.equals("US")) {
-            // Currently we do not support US upload until we can anonymise the patient data burnt into the images
             return true;
         } else {
             return false;
