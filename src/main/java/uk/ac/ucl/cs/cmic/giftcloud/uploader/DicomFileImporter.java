@@ -4,6 +4,7 @@ import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -16,7 +17,7 @@ public class DicomFileImporter {
         mediaImporter = new UploaderMediaImporter(reporter, acceptAnyTransferSyntax, giftCloudUploader, importAsReference);
     }
 
-    public boolean importFiles(String pathName, final Progress progress) throws IOException, DicomException {
-        return mediaImporter.importDicomFiles(pathName, progress);
+    public boolean importFiles(final File mediaFile, final Progress progress) throws IOException, DicomException {
+        return mediaImporter.importDicomFileOrPath(mediaFile, progress);
     }
 }

@@ -328,8 +328,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void runImport(String filePath, final boolean importAsReference, final Progress progress) {
-        new Thread(new ImportWorker(filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, uploaderStatusModel, reporter)).start();
+    public void runImport(List<File> fileList, final boolean importAsReference, final Progress progress) {
+        new Thread(new ImportWorker(fileList, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, uploaderStatusModel, reporter)).start();
     }
 
     @Override
@@ -346,8 +346,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     if (selectFileOrDirectory.isPresent()) {
                         giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getParentPath());
                         giftCloudProperties.save();
-                        String filePath = selectFileOrDirectory.get().getSelectedPath();
-                        runImport(filePath, true, reporter);
+                        String filePath = selectFileOrDirectory.get().getSelectedFile();
+                        runImport(Arrays.asList(new File(filePath)), true, reporter);
                     }
                 } catch (Exception e) {
                     reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
@@ -409,7 +409,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
-        runImport(pendingUploadFolder.getAbsolutePath(), false, reporter);
+        runImport(Arrays.asList(pendingUploadFolder), false, reporter);
     }
 
     public static boolean isOSX() {

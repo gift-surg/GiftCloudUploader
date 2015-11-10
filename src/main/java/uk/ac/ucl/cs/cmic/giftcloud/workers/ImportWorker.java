@@ -2,23 +2,26 @@ package uk.ac.ucl.cs.cmic.giftcloud.workers;
 
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.MasterFileImporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.MasterFileImporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
+
+import java.io.File;
+import java.util.List;
 
 public class ImportWorker implements Runnable {
     private final UploaderStatusModel uploaderStatusModel;
     private final GiftCloudReporterFromApplication reporter;
-    private final String pathName;
+    private final List<File> fileList;
     private final Progress progress;
     private final MasterFileImporter masterFileImporter;
 
-    public ImportWorker(String pathName, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
+    public ImportWorker(final List<File> fileList, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
         this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
         this.progress = progress;
         masterFileImporter = new MasterFileImporter(acceptAnyTransferSyntax, giftCloudUploader, importAsReference, reporter);
-        this.pathName=pathName;
+        this.fileList = fileList;
     }
 
     public void run() {
@@ -27,7 +30,7 @@ public class ImportWorker implements Runnable {
         boolean anyFiles = false;
 
         try {
-            anyFiles = masterFileImporter.importFiles(pathName, progress);
+            anyFiles = masterFileImporter.importFiles(fileList, progress);
         } catch (Exception e) {
             uploaderStatusModel.setImportingStatusMessage("Failure when importing files" , e);
             reporter.silentLogException(e, "Failure when importing files");
