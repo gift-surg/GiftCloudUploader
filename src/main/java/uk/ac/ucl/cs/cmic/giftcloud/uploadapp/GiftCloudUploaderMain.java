@@ -125,7 +125,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         addExistingFilesToUploadQueue(pendingUploadFolder);
     }
 
-    public void start(final boolean showImportDialog) {
+    public void start(final boolean showImportDialog, final List<File> filesToImport) {
         Optional<Throwable> dicomNodeFailureException = Optional.empty();
         try {
             dicomNode.activateStorageSCP();
@@ -143,10 +143,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             }
         }).start();
 
-        propertiesCheckAndImportLoop(dicomNodeFailureException, showImportDialog);
+        propertiesCheckAndImportLoop(dicomNodeFailureException, showImportDialog, filesToImport);
     }
 
-    private void propertiesCheckAndImportLoop(final Optional<Throwable> dicomNodeFailureException, final boolean startImport) {
+    private void propertiesCheckAndImportLoop(final Optional<Throwable> dicomNodeFailureException, final boolean startImport, final List<File> filesToImport) {
 
         new Thread(new Runnable() {
             @Override
@@ -163,6 +163,9 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                         reporter.reportErrorToUser("The DICOM listening node failed to start. Please check the listener settings and restart the listener.", dicomNodeFailureException.get());
                         showConfigureDialog(startImport);
                     }
+                }
+                if (!filesToImport.isEmpty()) {
+                    runImport(filesToImport, true, reporter);
                 }
                 if (startImport) {
                     selectAndImport();
