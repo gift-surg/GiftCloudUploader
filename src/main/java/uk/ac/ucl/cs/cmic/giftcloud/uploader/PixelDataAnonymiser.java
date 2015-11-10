@@ -9,14 +9,17 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import com.google.common.io.Files;
 import com.pixelmed.dicom.*;
 import com.pixelmed.display.ImageEditUtilities;
 import com.pixelmed.display.SourceImage;
 import com.pixelmed.utils.CapabilitiesAvailable;
+import org.apache.commons.lang3.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.RedactedFileWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +73,7 @@ public class PixelDataAnonymiser {
             final Optional<PixelDataAnonymiseFilter> filter = getFilter(attributeList);
             if (filter.isPresent()) {
                 redactionStatus = RedactedFileWrapper.FileRedactionStatus.REDACTED;
-                redactedFile = Optional.of(anonymisePixelData(file, filter.get()));
+                redactedFile = Optional.of(anonymisePixelData(file, filter.get(), attributeList.get(TagFromName.SOPInstanceUID).getStringValues()[0]));
             } else {
                 redactionStatus = RedactedFileWrapper.FileRedactionStatus.NO_APPROPRIATE_FILTER_FOUND;
                 redactedFile= Optional.empty();
@@ -85,9 +88,10 @@ public class PixelDataAnonymiser {
         return new RedactedFileWrapper(file, redactedFile, redactionStatus);
     }
 
-    private File anonymisePixelData(final File inputFile, final PixelDataAnonymiseFilter filter) throws IOException {
+    private File anonymisePixelData(final File inputFile, final PixelDataAnonymiseFilter filter, final String filePrefix) throws IOException {
 
-        final File outputFile = File.createTempFile("pixel_data_anonymised", ".dcm");
+        final String safePrefix = StringUtils.isNotBlank(filePrefix) ? filePrefix : OneWayHash.hashUid(inputFile.getName());
+        final File outputFile = new File(Files.createTempDir(), safePrefix +".dcm");
         try {
             PixelDataAnonymiser.anonymisePixelDataUsingFilter(inputFile, outputFile, filter.getRedactedShapesAsShapeVector(), burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, aeTitle);
         } catch (DicomException exception) {
