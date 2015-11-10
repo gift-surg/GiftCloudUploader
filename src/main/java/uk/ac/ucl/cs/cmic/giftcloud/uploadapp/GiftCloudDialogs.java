@@ -166,7 +166,7 @@ public class GiftCloudDialogs {
         }
 
         /**
-         * @return tha path containing the file that has been selected, or the selected directory.
+         * @return the path containing the file that has been selected, or the selected directory.
          */
         public String getSelectedPath() {
             return selectedPath;
