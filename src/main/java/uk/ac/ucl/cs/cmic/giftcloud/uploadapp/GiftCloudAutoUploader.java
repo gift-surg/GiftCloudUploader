@@ -93,9 +93,20 @@ public class GiftCloudAutoUploader {
 
         // If any files failed to upload, we log all of them and throw an exception for the first one
         if (errors.size() > 0) {
+            final Set<String> uniqueErrors = new HashSet<String>();
             for (final GiftCloudUploaderError error : errors) {
-                reporter.showMessageToUser("Failed to upload file: " + error.getUserVisibleMessage());
+                uniqueErrors.add(error.getUserVisibleMessage());
             }
+            final String prefixMessage = errors.size() == 1 ? "1 error" : String.valueOf(errors.size()) + " errors";
+            final StringBuilder builder = new StringBuilder();
+            builder.append("<html>" + prefixMessage + " occurred during upload:");
+            for (final String errorText : uniqueErrors) {
+                builder.append("<br>" + errorText);
+            }
+            builder.append("</html");
+
+            // We would ideally like to display a message to the user if uploading has been initiated via importing, but not in a background context. Not possible with current architecture so suppress the dialog and let the status bar show the error
+//            reporter.showMessageToUser(builder.toString());
             throw new GiftCloudException(errors.get(0));
         }
 
