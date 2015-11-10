@@ -49,7 +49,7 @@ public class DeleteFromDatabase {
 				if (results != null && results.size() > 0) {
 					for (Map<String,String> result : results) {
 						String localPrimaryKeyValue = result.get(localPrimaryKeyColumnName);
-System.err.println("Deleting "+ie+" "+localPrimaryKeyValue+" "+keyValue);
+//System.err.println("Deleting "+ie+" "+localPrimaryKeyValue+" "+keyValue);
 						deleteRecordChildrenAndFilesByLocalPrimaryKey(d,ie,localPrimaryKeyValue);
 						
 					}
