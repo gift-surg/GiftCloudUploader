@@ -24,6 +24,8 @@ public enum GiftCloudUploaderError {
     NOT_A_REDACTION_FILTER(74, "This file does not appear to be a GIFT-Cloud redaction filter, or is corrupted.", "Not a redaction filter", false),
     MODALITY_UNSUPPORTED(80, "File could not be uploaded because the modality is not currently supported by GIFT-Cloud", "Modality is not supported", false),
     MODALITY_UNSUPPORTED_US(81, "File could not be uploaded because ultrasound is not currently supported by GIFT-Cloud", "Ultrasound images are not currently supported", false),
+    SOP_CLASS_UID_NOT_FOUND(110, "DICOM file could not be uploaded as the SOP Class UID tag was missing", "Invalid DICOM file", false),
+    PATIENT_ID_NOT_FOUND(110, "DICOM file could not be uploaded as the Patient ID tag was missing", "Patient ID missing", false),
     NO_UPLOAD_PERMISSIONS(90, "Uploading is not permitted for this user. Please ask your system administrator to enable write permissions for your project.", "User not permitted to upload", false);
 
     private final int errorCode;

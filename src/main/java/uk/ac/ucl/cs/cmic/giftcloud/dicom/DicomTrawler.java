@@ -79,12 +79,23 @@ public final class DicomTrawler implements Trawler {
 					remaining.add(f);
 					continue;
 				}
+                if (StringUtils.isBlank(o.getString(Tag.SOPClassUID))) {
+                    errors.add(GiftCloudUploaderError.SOP_CLASS_UID_NOT_FOUND);
+                    logger.debug("Invalid DICOM file: SOPClassUID is not specified in file " + f.getAbsolutePath(), "");
+                    continue;
+                }
+                if (StringUtils.isBlank(o.getString(Tag.PatientID))) {
+                    errors.add(GiftCloudUploaderError.PATIENT_ID_NOT_FOUND);
+                    logger.debug("The Patient ID is not specified in file " + f.getAbsolutePath(), "");
+                    remaining.add(f);
+                    continue;
+                }
 				assert null != o.getString(Tag.SOPClassUID);
                 final String modality = o.getString(Tag.Modality);
                 if (!modalityIsSupported(modality)) {
                     errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED);
                     remaining.add(f);
-                    logger.debug("Modality " + modality + "is not supported", "");
+                    logger.debug("Modality " + modality + "is not supported for file " + f.getAbsolutePath(), "");
 
                 } else {
 
