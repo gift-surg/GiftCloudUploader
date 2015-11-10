@@ -149,19 +149,22 @@ public class PixelDataAnonymiser {
     }
 
     private static void anonymisePixelDataUsingFilter(File inputFile, File outputFile, Vector shapes, boolean burnInOverlays, boolean usePixelPaddingBlackoutValue, boolean useZeroBlackoutValue, String ourAETitle) throws IOException, DicomException {
-        AttributeList attributeList = readAttributeList(inputFile, true);
-        if (attributeList == null) {
+        final AttributeList headers = readHeaders(inputFile);
+        if (headers == null) {
             throw new IOException("Could not read image");
         }
 
-        String useSOPClassUID = Attribute.getSingleStringValueOrEmptyString(attributeList, TagFromName.SOPClassUID);
+        String useSOPClassUID = Attribute.getSingleStringValueOrEmptyString(headers, TagFromName.SOPClassUID);
         if (!SOPClass.isImageStorage(useSOPClassUID)) {
             throw new IOException("unsupported SOP Class " + useSOPClassUID);
         }
 
         String outputTransferSyntaxUID = TransferSyntax.ExplicitVRLittleEndian;
+
+        AttributeList finalAttributeList = null;
+
         if ((shapes != null && shapes.size() > 0) || burnInOverlays) {
-            String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(attributeList, TagFromName.TransferSyntaxUID);
+            String transferSyntaxUID = Attribute.getSingleStringValueOrEmptyString(headers, TagFromName.TransferSyntaxUID);
 
             if (transferSyntaxUID.equals(TransferSyntax.JPEGBaseline) && !burnInOverlays && CapabilitiesAvailable.haveJPEGBaselineSelectiveBlockRedaction()) {
                 // For a JPEG file we black out the image blocks
@@ -177,45 +180,46 @@ public class PixelDataAnonymiser {
                 }
 
                 // Now read in the new attributes in from the temporary file
-                attributeList = readAttributeList(redactedJPEGFile, true);
+                finalAttributeList = readAttributeList(redactedJPEGFile, false);
 
             } else {
                 // For other files we black out the image data
 
                 outputTransferSyntaxUID = TransferSyntax.ExplicitVRLittleEndian;
 
-                SourceImage sImg = new SourceImage(attributeList);
+                finalAttributeList = readAttributeList(inputFile, true);
+                SourceImage sImg = new SourceImage(finalAttributeList);
                 if (sImg == null) {
                     throw new DicomException("Could not read image");
                 }
 
-                ImageEditUtilities.blackout(sImg, attributeList, shapes, burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, 0);
+                ImageEditUtilities.blackout(sImg, finalAttributeList, shapes, burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, 0);
                 try {
                     sImg.close();
                 } catch (Throwable throwable) {
                 }
 
-                attributeList.correctDecompressedImagePixelModule();
-                attributeList.insertLossyImageCompressionHistoryIfDecompressed();
+                finalAttributeList.correctDecompressedImagePixelModule();
+                finalAttributeList.insertLossyImageCompressionHistoryIfDecompressed();
             }
         }
 
-        addDeidentificationMethod(burnInOverlays, attributeList);
+        addDeidentificationMethod(burnInOverlays, finalAttributeList);
 
         // Set BurnedInAnnotation attribute to NO
-        attributeList.remove(TagFromName.BurnedInAnnotation);
+        finalAttributeList.remove(TagFromName.BurnedInAnnotation);
         Attribute a = new CodeStringAttribute(TagFromName.BurnedInAnnotation);
         a.addValue("NO");
-        attributeList.put(a);
+        finalAttributeList.put(a);
 
         // Update header attributes
-        attributeList.removeGroupLengthAttributes();
-        attributeList.removeMetaInformationHeaderAttributes();
-        attributeList.remove(TagFromName.DataSetTrailingPadding);
-        FileMetaInformation.addFileMetaInformation(attributeList, outputTransferSyntaxUID, ourAETitle);
+        finalAttributeList.removeGroupLengthAttributes();
+        finalAttributeList.removeMetaInformationHeaderAttributes();
+        finalAttributeList.remove(TagFromName.DataSetTrailingPadding);
+        FileMetaInformation.addFileMetaInformation(finalAttributeList, outputTransferSyntaxUID, ourAETitle);
 
         // Write out the new file
-        attributeList.write(outputFile, outputTransferSyntaxUID, true/*useMeta*/, true/*useBufferedStream*/);
+        finalAttributeList.write(outputFile, outputTransferSyntaxUID, true/*useMeta*/, true/*useBufferedStream*/);
     }
 
     private static AttributeList readAttributeList(File currentFile, boolean decompressPixelData) throws IOException, DicomException {
@@ -225,6 +229,14 @@ public class PixelDataAnonymiser {
             attributeList.setDecompressPixelData(decompressPixelData);
         }
         attributeList.read(i);
+        i.close();
+        return attributeList;
+    }
+
+    private static AttributeList readHeaders(final File currentFile) throws IOException, DicomException {
+        DicomInputStream i = new DicomInputStream(currentFile);
+        AttributeList attributeList = new AttributeList();
+        attributeList.read(i, TagFromName.PixelData);
         i.close();
         return attributeList;
     }
