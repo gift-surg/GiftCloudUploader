@@ -16,7 +16,10 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 
-public class PasswordStore {
+/**
+ * Class for storing passwords using a local keystore
+ */
+public final class PasswordStore {
 
     private final KeyStore keyStore;
     private final SecretKeyFactory secretKeyFactory;
@@ -48,6 +51,10 @@ public class PasswordStore {
         SecretKeyEntry entry = (SecretKeyEntry) keyStore.getEntry(key, new PasswordProtection(keystorePassword.toCharArray()));
         PBEKeySpec keySpec = (PBEKeySpec) secretKeyFactory.getKeySpec(entry.getSecretKey(), PBEKeySpec.class);
         return keySpec.getPassword();
+    }
+
+    public boolean containsKey(final String key) throws KeyStoreException {
+        return keyStore.containsAlias(key);
     }
 }
 
