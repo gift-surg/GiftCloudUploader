@@ -14,6 +14,7 @@ import com.pixelmed.dicom.*;
 import com.pixelmed.display.ImageEditUtilities;
 import com.pixelmed.display.SourceImage;
 import com.pixelmed.utils.CapabilitiesAvailable;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.RedactedFileWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
@@ -22,6 +23,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.*;
 
@@ -102,7 +104,8 @@ public class PixelDataAnonymiser {
 
     private List<PixelDataAnonymiseFilter> readFilters(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
-        filters.addAll(readFilters(Arrays.asList(new File(giftCloudProperties.getFilterDirectory().getAbsolutePath()).listFiles()), reporter));
+        FileFilter fileFilter = new WildcardFileFilter("*.gcfilter");
+        filters.addAll(readFilters(Arrays.asList(new File(giftCloudProperties.getFilterDirectory().getAbsolutePath()).listFiles(fileFilter)), reporter));
         filters.addAll(readFilters(GiftCloudUtils.getMatchingResourceFiles("uk/ac/ucl/cs/cmic/giftcloud/redactiontemplates/*.gcfilter"), reporter));
         return filters;
     }
