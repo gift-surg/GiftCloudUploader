@@ -39,8 +39,6 @@
 		<level name="Maven: org.nrg:framework:1.6.4" value="project"/>
 		<level name="Maven: org.springframework:spring-orm:3.0.7.RELEASE" value="project"/>
 		<level name="Maven: org.springframework:spring-beans:3.0.7.RELEASE" value="project"/>
-		<level name="Maven: org.springframework:spring-core:3.0.7.RELEASE" value="project"/>
-		<level name="Maven: org.springframework:spring-asm:3.0.7.RELEASE" value="project"/>
 		<level name="Maven: org.springframework:spring-jdbc:3.0.7.RELEASE" value="project"/>
 		<level name="Maven: org.springframework:spring-tx:3.0.7.RELEASE" value="project"/>
 		<level name="Maven: org.springframework:spring-aop:3.0.7.RELEASE" value="project"/>
@@ -100,5 +98,7 @@
 		<level name="Maven: org.apache.xmlbeans:xmlbeans:2.5.0" value="project"/>
 		<level name="Maven: stax:stax-api:1.0.1" value="project"/>
 		<level name="Maven: commons-cli:commons-cli:1.3.1" value="project"/>
+		<level name="Maven: org.springframework:spring-core:4.2.2.RELEASE" value="project"/>
+		<level name="Maven: org.springframework:spring-asm:3.1.4.RELEASE" value="project"/>
 	</levels>
 </component>
