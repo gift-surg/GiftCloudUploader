@@ -30,7 +30,6 @@
       <desktop/>
       <menu submenu="GIFT-Surg"/>
     </shortcut>
-      <icon href="DesktopIcon.ico" kind="shortcut" />
     </information>
   <information os="Mac">
     <title>$project.name</title>
