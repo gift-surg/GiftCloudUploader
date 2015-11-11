@@ -16,6 +16,7 @@ import com.pixelmed.display.SourceImage;
 import com.pixelmed.utils.CapabilitiesAvailable;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.Resource;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.RedactedFileWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
@@ -104,19 +105,42 @@ public class PixelDataAnonymiser {
 
     private List<PixelDataAnonymiseFilter> readFilters(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
+
+        // Read in local filters
         FileFilter fileFilter = new WildcardFileFilter("*.gcfilter");
-        filters.addAll(readFilters(Arrays.asList(new File(giftCloudProperties.getFilterDirectory().getAbsolutePath()).listFiles(fileFilter)), reporter));
-        filters.addAll(readFilters(GiftCloudUtils.getMatchingResourceFiles("uk/ac/ucl/cs/cmic/giftcloud/redactiontemplates/*.gcfilter"), reporter));
+        filters.addAll(readFilterFiles(Arrays.asList(new File(giftCloudProperties.getFilterDirectory().getAbsolutePath()).listFiles(fileFilter)), reporter));
+
+        // Read in predefined filters from resource streams
+        final String resourceFilter = "classpath*:uk/**/*.gcfilter";
+        filters.addAll(readFilterResources(GiftCloudUtils.getMatchingResources(resourceFilter, reporter), reporter));
+
+        System.out.println("Filters:");
+        for (Resource f : GiftCloudUtils.getMatchingResources(resourceFilter, reporter)) {
+            System.out.println("Filter found:" + f.getFilename());
+        }
+        System.out.println("End of filters");
         return filters;
     }
 
-    private List<PixelDataAnonymiseFilter> readFilters(final List<File> files, GiftCloudReporter reporter) {
+    private List<PixelDataAnonymiseFilter> readFilterFiles(final List<File> files, GiftCloudReporter reporter) {
         final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
         for (final File f : files) {
             try {
                 filters.add(PixelDataAnonymiserFilterJsonWriter.readJsonFile(f));
             } catch (final Exception e) {
                 reporter.silentLogException(e, "Could not read filter file: " + f.getAbsolutePath());
+            }
+        }
+        return filters;
+    }
+
+    private List<PixelDataAnonymiseFilter> readFilterResources(final List<Resource> resources, GiftCloudReporter reporter) {
+        final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
+        for (final Resource resource : resources) {
+            try {
+                filters.add(PixelDataAnonymiserFilterJsonWriter.readJsonResource(resource));
+            } catch (final Exception e) {
+                reporter.silentLogException(e, "Could not read filter file: " + resource.getFilename());
             }
         }
         return filters;

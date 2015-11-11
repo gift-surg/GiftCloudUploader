@@ -48,7 +48,6 @@ public class GiftCloudUtils {
     final static String GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME = "GiftCloudUploader";
     final static String GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME = "WaitingForUpload";
     final static String GIFT_CLOUD_REDACTION_TEMPLATES_FOLDER_NAME = "RedactionTemplates";
-    final static String PREDEFINED_GIFT_CLOUD_REDACTION_TEMPLATES_FOLDER_NAME = "RedactionTemplates";
 
     private GiftCloudUtils() {}
 
@@ -184,16 +183,13 @@ public class GiftCloudUtils {
      * @param pattern
      * @return
      */
-    public static List<File> getMatchingResourceFiles(final String pattern) {
-        final List<File> files = new ArrayList<File>();
+    public static List<Resource> getMatchingResources(final String pattern, final GiftCloudReporter reporter) {
         try {
-            final Resource[] resources = new PathMatchingResourcePatternResolver().getResources(pattern);
-            for (final Resource resource : resources) {
-                files.add(resource.getFile());
-            }
-        } catch (IOException e) {
+            return Arrays.asList(new PathMatchingResourcePatternResolver().getResources(pattern));
+        } catch (Throwable throwable) {
+            reporter.silentLogException(throwable, "Error when fetching resources: " + throwable.getLocalizedMessage());
+            return new ArrayList<Resource>();
         }
-        return files;
     }
 
     /**

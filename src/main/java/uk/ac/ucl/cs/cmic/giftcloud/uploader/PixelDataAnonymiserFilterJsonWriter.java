@@ -4,14 +4,12 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.core.io.Resource;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.awt.geom.Rectangle2D;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -49,8 +47,16 @@ public class PixelDataAnonymiserFilterJsonWriter {
 
 
     public static PixelDataAnonymiseFilter readJsonFile(final File filterFile) throws IOException, ParseException {
+        return readJsonInputStream(new FileReader(filterFile));
+    }
+
+    public static PixelDataAnonymiseFilter readJsonResource(final Resource filterResource) throws IOException, ParseException {
+        return readJsonInputStream(new InputStreamReader(filterResource.getInputStream()));
+    }
+
+    public static PixelDataAnonymiseFilter readJsonInputStream(final InputStreamReader inputStreamReader) throws IOException, ParseException {
         JSONParser parser = new JSONParser();
-        final Object obj = parser.parse(new FileReader(filterFile));
+        final Object obj = parser.parse(inputStreamReader);
 
         final JSONObject jsonObject = (JSONObject) obj;
         final String applicationName = (String) jsonObject.get(APPLICATION_LABEL);
