@@ -3,14 +3,48 @@
 <jnlp
   codebase="$project.Url/uploader/"
   href="$outputFile">
-  <information>
+  <information os="Linux">
     <title>$project.name</title>
     <vendor>$project.Organization.Name</vendor>
     <homepage href="doc/manual.pdf"/>
     <description>$project.Description</description>
     <description kind="short">A simple application to query, retrieve, import, de-identify DICOM instances and upload them securely on to GIFT-Cloud.</description>
     <icon href="res/icon.ico"/>
+    <icon kind="splash" href="res/splash.png"/>
     <offline-allowed/>
+    <shortcut online="false" install="true">
+      <desktop/>
+      <menu submenu="GIFT-Surg"/>
+    </shortcut>
+  </information>
+  <information os="Windows">
+    <title>$project.name</title>
+    <vendor>$project.Organization.Name</vendor>
+    <homepage href="doc/manual.pdf"/>
+    <description>$project.Description</description>
+    <description kind="short">A simple application to query, retrieve, import, de-identify DICOM instances and upload them securely on to GIFT-Cloud.</description>
+    <icon href="res/icon.ico"/>
+    <icon kind="splash" href="res/splash.png"/>
+    <offline-allowed/>
+    <shortcut online="false" install="true">
+      <desktop/>
+      <menu submenu="GIFT-Surg"/>
+    </shortcut>
+      <icon href="DesktopIcon.ico" kind="shortcut" />
+    </information>
+  <information os="Mac">
+    <title>$project.name</title>
+    <vendor>$project.Organization.Name</vendor>
+    <homepage href="doc/manual.pdf"/>
+    <description>$project.Description</description>
+    <description kind="short">A simple application to query, retrieve, import, de-identify DICOM instances and upload them securely on to GIFT-Cloud.</description>
+    <icon href="res/icon.icns"/>
+    <icon kind="splash" href="res/splash.png"/>
+    <offline-allowed/>
+    <shortcut online="false" install="true">
+      <desktop/>
+      <menu submenu="GIFT-Surg"/>
+    </shortcut>
   </information>
   <security>
       <all-permissions/>
