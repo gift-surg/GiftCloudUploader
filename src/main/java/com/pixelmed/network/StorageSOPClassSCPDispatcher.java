@@ -451,11 +451,6 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 					catch (Exception e) {
 						e.printStackTrace(System.err);
 					}
-					try {
-						socket.close();
-					} catch (Exception e) {
-						e.printStackTrace(System.err);
-					}
 				}
 				catch (SocketTimeoutException e) {
 				}
