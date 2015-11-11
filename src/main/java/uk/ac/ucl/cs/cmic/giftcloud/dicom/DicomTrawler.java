@@ -79,16 +79,23 @@ public final class DicomTrawler implements Trawler {
 					remaining.add(f);
 					continue;
 				}
+                if (StringUtils.isBlank(o.getString(Tag.SOPClassUID))) {
+                    errors.add(GiftCloudUploaderError.SOP_CLASS_UID_NOT_FOUND);
+                    logger.debug("Invalid DICOM file: SOPClassUID is not specified in file " + f.getAbsolutePath(), "");
+                    continue;
+                }
+                if (StringUtils.isBlank(o.getString(Tag.PatientID))) {
+                    errors.add(GiftCloudUploaderError.PATIENT_ID_NOT_FOUND);
+                    logger.debug("The Patient ID is not specified in file " + f.getAbsolutePath(), "");
+                    remaining.add(f);
+                    continue;
+                }
 				assert null != o.getString(Tag.SOPClassUID);
                 final String modality = o.getString(Tag.Modality);
                 if (!modalityIsSupported(modality)) {
-                    if (modality.equals("US")) {
-                        errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED_US);
-                    } else {
-                        errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED);
-                    }
+                    errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED);
                     remaining.add(f);
-                    logger.debug("Modality " + modality + "is not supported", "");
+                    logger.debug("Modality " + modality + "is not supported for file " + f.getAbsolutePath(), "");
 
                 } else {
 
@@ -131,8 +138,7 @@ public final class DicomTrawler implements Trawler {
         } else if (modality.equals("CT")) {
             return true;
         } else if (modality.equals("US")) {
-            // Currently we do not support US upload until we can anonymise the patient data burnt into the images
-            return false;
+            return true;
         } else {
             return false;
         }

@@ -5,15 +5,15 @@ import com.pixelmed.dicom.MediaImporter;
 import com.pixelmed.dicom.SOPClass;
 import com.pixelmed.dicom.TransferSyntax;
 import com.pixelmed.utils.CapabilitiesAvailable;
-import com.pixelmed.utils.MessageLogger;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 
 class UploaderMediaImporter extends MediaImporter {
     boolean acceptAnyTransferSyntax;
     private GiftCloudUploader giftCloudUploader;
     private boolean importAsReference;
 
-    public UploaderMediaImporter(final MessageLogger logger, boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference) {
-        super(logger);
+    public UploaderMediaImporter(final GiftCloudReporterFromApplication reporter, boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference) {
+        super(reporter);
         this.acceptAnyTransferSyntax = acceptAnyTransferSyntax;
         this.giftCloudUploader = giftCloudUploader;
         this.importAsReference = importAsReference;
@@ -21,7 +21,7 @@ class UploaderMediaImporter extends MediaImporter {
 
     protected void doSomethingWithDicomFileOnMedia(String mediaFileName) {
         try {
-            logger.sendLn("Importing DICOM file: " + mediaFileName);
+            reporter.sendLn("Importing DICOM file: " + mediaFileName);
 
             if (importAsReference) {
                 giftCloudUploader.importFile(mediaFileName, DatabaseInformationModel.FILE_REFERENCED);

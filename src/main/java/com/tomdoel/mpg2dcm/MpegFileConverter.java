@@ -12,6 +12,7 @@ import org.dcm4che3.data.Attributes;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
 
 import java.io.*;
+import java.util.Optional;
 
 
 /**
@@ -61,7 +62,7 @@ public class MpegFileConverter{
                 resource.reset();
 
                 // Write the
-                dicomFileBuilder.writeDicomFile(dicomOutputFile, dataInputStream);
+                dicomFileBuilder.writeDicomFile(dicomOutputFile, dataInputStream, Optional.of((int)mpegFile.length()));
 
                 return null;
             }

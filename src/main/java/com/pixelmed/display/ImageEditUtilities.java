@@ -2,46 +2,17 @@
 
 package com.pixelmed.display;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import com.pixelmed.dicom.*;
 
-import java.awt.geom.Rectangle2D;
+import java.awt.*;
 import java.awt.geom.RectangularShape;
-
-import java.awt.image.BufferedImage;
-import java.awt.image.ComponentSampleModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferShort;
-import java.awt.image.DataBufferUShort;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
-
+import java.awt.image.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-
 import java.util.Iterator;
 import java.util.Vector;
-
-import com.pixelmed.dicom.Attribute;
-import com.pixelmed.dicom.AttributeList;
-import com.pixelmed.dicom.CodeStringAttribute;
-import com.pixelmed.dicom.DicomException;
-import com.pixelmed.dicom.DicomInputStream;
-import com.pixelmed.dicom.DicomOutputStream;
-import com.pixelmed.dicom.FileMetaInformation;
-import com.pixelmed.dicom.IntegerStringAttribute;
-import com.pixelmed.dicom.OtherByteAttribute;
-import com.pixelmed.dicom.OtherByteAttributeMultipleCompressedFrames;
-import com.pixelmed.dicom.OtherWordAttribute;
-import com.pixelmed.dicom.Overlay;
-import com.pixelmed.dicom.TagFromName;
-import com.pixelmed.dicom.TransferSyntax;
-import com.pixelmed.dicom.UnsignedShortAttribute;
 
 /**
  * <p>A class of utility methods for editing image pixel data.</p>
@@ -101,7 +72,6 @@ public class ImageEditUtilities {
 			if (shapes != null && shapes.size() > 0) {
 				if (aPixelData instanceof OtherByteAttributeMultipleCompressedFrames) {
 					// Pixel Data was not decompressed so can redact it without loss outside the redacted regions
-System.err.println("ImageEditUtilties.blackoutJPEGBlocks(): lossless redaction of JPEG pixels");
 					byte[][] frames = ((OtherByteAttributeMultipleCompressedFrames)aPixelData).getFrames();
 					for (int f=0; f<frames.length; ++f) {
 						ByteArrayInputStream fbis = new ByteArrayInputStream(frames[f]);

@@ -62,11 +62,15 @@ public class PropertyStoreFromApplication implements PropertyStore {
     public Optional<char[]> getPassword(final String passwordKey) {
         if (passwordStore.isPresent()) {
             try {
-                // Get the password from the keystore
-                final char[] password = passwordStore.get().retrieve(passwordKey);
+                // First check if the required key is in the keystore
+                if (passwordStore.get().containsKey(passwordKey)) {
 
-                // Store the password in memory cache
-                passwords.put(passwordKey, password.length > 0 ? Optional.of(password) : Optional.<char[]>empty());
+                    // Get the password from the keystore
+                    final char[] password = passwordStore.get().retrieve(passwordKey);
+
+                    // Store the password in memory cache
+                    passwords.put(passwordKey, password.length > 0 ? Optional.of(password) : Optional.<char[]>empty());
+                }
 
             } catch (InvalidKeySpecException e) {
                 reporter.silentLogException(e, "Failure when accessing local keystore");

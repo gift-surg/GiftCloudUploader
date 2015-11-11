@@ -39,6 +39,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
     private GiftCloudConfigurationDialog configurationDialog = null;
+    private PixelDataTemplateDialog pixelDataDialog = null;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
     private final SystemTrayController systemTrayController;
@@ -98,7 +99,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
 
         uploadDatabase = new LocalWaitingForUploadDatabase(resourceBundle.getString("DatabaseRootTitleForOriginal"), uploaderStatusModel, reporter);
-        giftCloudUploader = new GiftCloudUploader(restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, reporter);
+        giftCloudUploader = new GiftCloudUploader(restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
         uploadDatabase.addObserver(new DatabaseListener());
         dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploadDatabase, uploaderStatusModel, reporter);
 
@@ -124,7 +125,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         addExistingFilesToUploadQueue(pendingUploadFolder);
     }
 
-    public void start(final boolean showImportDialog) {
+    public void start(final boolean showImportDialog, final List<File> filesToImport) {
         Optional<Throwable> dicomNodeFailureException = Optional.empty();
         try {
             dicomNode.activateStorageSCP();
@@ -142,10 +143,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             }
         }).start();
 
-        propertiesCheckAndImportLoop(dicomNodeFailureException, showImportDialog);
+        propertiesCheckAndImportLoop(dicomNodeFailureException, showImportDialog, filesToImport);
     }
 
-    private void propertiesCheckAndImportLoop(final Optional<Throwable> dicomNodeFailureException, final boolean startImport) {
+    private void propertiesCheckAndImportLoop(final Optional<Throwable> dicomNodeFailureException, final boolean startImport, final List<File> filesToImport) {
 
         new Thread(new Runnable() {
             @Override
@@ -162,6 +163,9 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                         reporter.reportErrorToUser("The DICOM listening node failed to start. Please check the listener settings and restart the listener.", dicomNodeFailureException.get());
                         showConfigureDialog(startImport);
                     }
+                }
+                if (!filesToImport.isEmpty()) {
+                    runImport(filesToImport, true, reporter);
                 }
                 if (startImport) {
                     selectAndImport();
@@ -327,8 +331,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void runImport(String filePath, final boolean importAsReference, final Progress progress) {
-        new Thread(new ImportWorker(filePath, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, uploaderStatusModel, reporter)).start();
+    public void runImport(List<File> fileList, final boolean importAsReference, final Progress progress) {
+        new Thread(new ImportWorker(fileList, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, uploaderStatusModel, reporter)).start();
     }
 
     @Override
@@ -340,13 +344,12 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     reporter.setWaitCursor();
                     reporter.showMesageLogger();
 
-                    Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
+                    Optional<GiftCloudDialogs.SelectedPathAndFiles> selectFileOrDirectory = giftCloudDialogs.selectMultipleFilesOrDirectors(giftCloudProperties.getLastImportDirectory());
 
                     if (selectFileOrDirectory.isPresent()) {
-                        giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getSelectedPath());
+                        giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getParentPath());
                         giftCloudProperties.save();
-                        String filePath = selectFileOrDirectory.get().getSelectedFile();
-                        runImport(filePath, true, reporter);
+                        runImport(selectFileOrDirectory.get().getSelectedFiles(), true, reporter);
                     }
                 } catch (Exception e) {
                     reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
@@ -394,8 +397,21 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudUploader.exportPatientList();
     }
 
+    @Override
+    public void showPixelDataTemplateDialog() {
+        if (pixelDataDialog == null || !pixelDataDialog.isVisible()) {
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), giftCloudProperties, giftCloudDialogs, reporter);
+
+                }
+            });
+        }
+    }
+
     private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
-        runImport(pendingUploadFolder.getAbsolutePath(), false, reporter);
+        runImport(Arrays.asList(pendingUploadFolder), false, reporter);
     }
 
     public static boolean isOSX() {

@@ -15,7 +15,6 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
 
@@ -32,9 +31,13 @@ public class ZipSeriesUploader extends CallableUploader {
 
     @Override
     public Set<String> call() throws Exception {
-        final SeriesZipper seriesZipper = new SeriesZipper(uploadParameters.getProjectApplicators());
+        final SeriesZipper seriesZipper = new SeriesZipper(uploadParameters.getProjectApplicators(), server.getPixelDataAnonymiser());
         final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
-        return server.uploadZipFile(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), temporaryZipFile);
+        try {
+            return server.uploadZipFile(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), temporaryZipFile);
+        } finally {
+            temporaryZipFile.delete();
+        }
     }
 
     public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {

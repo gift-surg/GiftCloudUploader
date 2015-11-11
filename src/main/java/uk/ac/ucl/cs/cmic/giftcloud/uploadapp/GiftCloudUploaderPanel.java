@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Vector;
@@ -43,6 +44,14 @@ public class GiftCloudUploaderPanel extends JPanel {
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
 
+
+        new FileDrop(dialog, new FileDrop.Listener()
+        {
+            public void filesDropped(final java.io.File[] files) {
+                controller.runImport(Arrays.asList(files), true, reporter);
+            }
+        });
+
         remoteQueryRetrieveDialog = new QueryRetrieveDialog(dialog, controller, resourceBundle);
 
         srcDatabasePanel = new JPanel();
@@ -70,10 +79,15 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(importPacsButton);
         importPacsButton.addActionListener(new ImportPacsActionListener());
 
-        JButton exportButton = new JButton(resourceBundle.getString("exportButtonLabelText"));
-        exportButton.setToolTipText(resourceBundle.getString("exportButtonToolTipText"));
-        buttonPanel.add(exportButton);
-        exportButton.addActionListener(new ExportActionListener());
+//        JButton exportButton = new JButton(resourceBundle.getString("exportButtonLabelText"));
+//        exportButton.setToolTipText(resourceBundle.getString("exportButtonToolTipText"));
+//        buttonPanel.add(exportButton);
+//        exportButton.addActionListener(new ExportActionListener());
+
+        JButton pixelDataButton = new JButton(resourceBundle.getString("pixelDataButtonLabelText"));
+        pixelDataButton.setToolTipText(resourceBundle.getString("pixelDataButtonToolTipText"));
+        buttonPanel.add(pixelDataButton);
+        pixelDataButton.addActionListener(new ConfigurePixelDataAnonymisationActionListener());
 
         // Restart listener button
 //        JButton restartListenerButton = new JButton(resourceBundle.getString("restartListenerButtonLabelText"));
@@ -179,6 +193,16 @@ public class GiftCloudUploaderPanel extends JPanel {
     private class RestartListenerActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             controller.restartDicomService();
+        }
+    }
+
+    private class ConfigurePixelDataAnonymisationActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            try {
+                controller.showPixelDataTemplateDialog();
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
+            }
         }
     }
 

@@ -5,7 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         if (StringUtils.isNotBlank(uploadFolderString)) {
             return new File(uploadFolderString);
         } else {
-            return MultiUploaderUtils.createOrGetLocalUploadCacheDirectory(reporter);
+            return GiftCloudUtils.createOrGetLocalUploadCacheDirectory(reporter);
         }
     }
 
@@ -202,6 +202,7 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         return getIntegerWithDefault(propertyName_QueryDebugLevel, 0);
     }
 
+    @Override
     public String getListenerAETitle() {
         return getStringWithDefault(propertyName_ListenerAeTitle, "GiftUploader");
     }
@@ -222,6 +223,37 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
             reporter.silentLogException(e, "The following error occurred while saving the properties file:" + e.getLocalizedMessage());
         }
     }
+
+    @Override
+    public boolean getBurnInOverlays() {
+        return false;
+    }
+
+    @Override
+    public boolean getUseZeroBlackoutValue() {
+        return false;
+    }
+
+    @Override
+    public boolean getUsePixelPaddingBlackoutValue() {
+        return true;
+    }
+
+    public Optional<String> getLastTemplateImageSourceDirectory() {
+        final String lastImportDirectory = properties.getProperty(propertyName_LastTemplateImageImportDirectory);
+        if (StringUtils.isNotBlank(lastImportDirectory)) {
+            return Optional.of(lastImportDirectory);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public void setLastTemplateImageSourceDirectory(final String lastTemplateImageSourceDirectory) {
+        if (!lastTemplateImageSourceDirectory.equals(getLastTemplateImageSourceDirectory())) {
+            properties.setProperty(propertyName_LastTemplateImageImportDirectory, lastTemplateImageSourceDirectory);
+        }
+    }
+
 
     public void setListeningPort(final int listeningPort) {
         setPropertyInteger(propertyName_ListenerPort, listeningPort);
@@ -343,6 +375,16 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
 
     private String getPropertyValue(final String propertyName) {
         return properties.getProperty(propertyName);
+    }
+
+    @Override
+    public File getFilterDirectory() {
+        final String templateFolderString = properties.getProperty(propertyName_GiftCloudLocalUploadFolder);
+        if (StringUtils.isNotBlank(templateFolderString)) {
+            return new File(templateFolderString);
+        } else {
+            return GiftCloudUtils.createOrGetTemplateDirectory(reporter);
+        }
     }
 
 }

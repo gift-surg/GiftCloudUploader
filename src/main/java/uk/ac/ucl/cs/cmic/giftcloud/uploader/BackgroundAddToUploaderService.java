@@ -4,6 +4,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
 
         final Vector<String> paths = pendingUploadTask.getPaths();
         if (paths.size() > 0) {
-            uploaderStatusModel.setImportingStatusMessage("Adding file to upload queue:" + paths.get(0));
+            uploaderStatusModel.setImportingStatusMessage("Adding file to upload queue:" + new File(paths.get(0)).getName());
         }
 
         final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
@@ -70,9 +71,9 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
         String message;
         final int numUploads = fileCollection.size();
         if (numUploads == 1) {
-            message = "Failed to upload file " + fileCollection.get(0);
+            message = "Failed to upload file " + new File(fileCollection.get(0)).getName();
         } else if (numUploads > 1) {
-            message = "Failed to upload files " + fileCollection.get(0);
+            message = "Failed to upload files " + new File(fileCollection.get(0)).getName();
         } else {
             message = "Failed to upload files";
         }

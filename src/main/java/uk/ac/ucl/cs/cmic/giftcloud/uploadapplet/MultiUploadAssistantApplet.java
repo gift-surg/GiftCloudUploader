@@ -29,6 +29,8 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class MultiUploadAssistantApplet extends JApplet {
@@ -75,7 +77,7 @@ public class MultiUploadAssistantApplet extends JApplet {
     @Override
     public void start() {
         try {
-            giftCloudUploaderMain.get().start(true);
+            giftCloudUploaderMain.get().start(true, new ArrayList<File>());
 
         } catch (Throwable t) {
             reporter.get().reportErrorToUser("Applet startup failed", t);

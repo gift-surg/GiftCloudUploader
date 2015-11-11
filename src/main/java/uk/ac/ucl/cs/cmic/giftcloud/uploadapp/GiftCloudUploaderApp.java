@@ -3,6 +3,8 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudUploaderRestServerFactory;
 
 import javax.swing.*;
+import java.io.File;
+import java.util.ArrayList;
 
 public class GiftCloudUploaderApp {
 
@@ -17,7 +19,7 @@ public class GiftCloudUploaderApp {
 			final GiftCloudDialogs dialogs = new GiftCloudDialogs(mainFrame);
 			final GiftCloudReporterFromApplication reporter = new GiftCloudReporterFromApplication(mainFrame.getContainer(), dialogs);
 			GiftCloudUploaderMain uploaderMain = new GiftCloudUploaderMain(mainFrame, new GiftCloudUploaderRestServerFactory(), new PropertyStoreFromApplication(GiftCloudMainFrame.propertiesFileName, reporter), dialogs, reporter);
-			uploaderMain.start(false);
+			uploaderMain.start(false, new ArrayList<File>());
 		}
 		catch (Exception e) {
 			e.printStackTrace(System.err);

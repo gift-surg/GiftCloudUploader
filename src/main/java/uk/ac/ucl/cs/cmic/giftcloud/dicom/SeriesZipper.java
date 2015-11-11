@@ -5,6 +5,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+import com.pixelmed.dicom.DicomException;
 import org.apache.commons.lang.StringUtils;
 import org.dcm4che2.data.*;
 import org.dcm4che2.io.*;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiser;
 
 import java.io.*;
 import java.util.zip.GZIPInputStream;
@@ -30,9 +32,11 @@ public class SeriesZipper {
     
     private final Iterable<ScriptApplicator> applicators;
     private final StopTagInputHandler stopTagInputHandler;
-    
-    public SeriesZipper(final Iterable<ScriptApplicator> scriptApplicators) {
+    private final PixelDataAnonymiser pixelDataAnonymiser;
+
+    public SeriesZipper(final Iterable<ScriptApplicator> scriptApplicators, final PixelDataAnonymiser pixelDataAnonymiser) {
         this.applicators = ImmutableList.copyOf(scriptApplicators);
+        this.pixelDataAnonymiser = pixelDataAnonymiser;
         this.stopTagInputHandler = makeStopTagInputHandler(this.applicators);
     }
 
@@ -61,7 +65,7 @@ public class SeriesZipper {
         return stopTagInputHandler;
     }
     
-    public void buildSeriesZipFile(final File f, final FileCollection series)
+    public void buildSeriesZipFile(final File f, final FileCollection seriesFileCollection)
             throws IOException, AttributeException, ScriptEvaluationException {
         logger.debug("creating zip file {}", f);
         IOException ioexception = null;
@@ -69,10 +73,13 @@ public class SeriesZipper {
         try {
             final ZipOutputStream zos = new ZipOutputStream(fos);
             try {
-                logger.trace("adding {} files for series {}", series.getFileCount(), series);
-                for (final File file : series.getFiles()) {
-                    addFileToZip(file, zos, getStopTagInputHandler());
+                logger.trace("adding {} files for series {}", seriesFileCollection.getFileCount(), seriesFileCollection);
+                for (final File file : seriesFileCollection.getFiles()) {
+                    processNextFile(file, zos, getStopTagInputHandler());
                 }
+            } catch (DicomException e) {
+                logger.trace("DicomException exception building zipfile", e);
+                throw ioexception = new IOException(e);
             } catch (IOException e) {
                 logger.trace("I/O exception building zipfile", e);
                 throw ioexception = e;
@@ -103,27 +110,36 @@ public class SeriesZipper {
         logger.debug("zip file built");
     }
     
-    public File buildSeriesZipFile(final FileCollection series)
+    public File buildSeriesZipFile(final FileCollection seriesFileCollection)
             throws IOException, AttributeException, ScriptEvaluationException {
-        final File zipf = File.createTempFile("series", ".zip");
+        final File seriesZipFile = File.createTempFile("series", ".zip");
         try {
-            buildSeriesZipFile(zipf, series);
-            return zipf;
+            buildSeriesZipFile(seriesZipFile, seriesFileCollection);
+            return seriesZipFile;
         } catch (IOException e) {
-            zipf.delete();
+            seriesZipFile.delete();
             throw e;
         } catch (AttributeException e) {
-            zipf.delete();
+            seriesZipFile.delete();
             throw e;
         } catch (ScriptEvaluationException e) {
-            zipf.delete();
+            seriesZipFile.delete();
             throw e;
         } catch (RuntimeException e) {
-            zipf.delete();
+            seriesZipFile.delete();
             throw e;
         } catch (Error e) {
-            zipf.delete();
+            seriesZipFile.delete();
             throw e;
+        }
+    }
+
+    public void processNextFile(final File nextFile, final ZipOutputStream zos, final DicomInputHandler handler) throws AttributeException, IOException, ScriptEvaluationException, DicomException {
+        final RedactedFileWrapper redactedFileWrapper = pixelDataAnonymiser.createRedactedFile(nextFile);
+        try {
+            addFileToZip(redactedFileWrapper.getFileToProcess(), zos, handler);
+        } finally {
+            redactedFileWrapper.cleanup();
         }
     }
 
@@ -135,6 +151,9 @@ public class SeriesZipper {
         final BufferedInputStream bis = new BufferedInputStream(f.getName().endsWith(".gz") ? new GZIPInputStream(fin) : fin);
         try {
             final DicomInputStream dis = new DicomInputStream(bis);
+            if (dis.getAllocateLimit() < f.length()) {
+                dis.setAllocateLimit((int)f.length());
+            }
             try {
                 if (null != handler) {
                     dis.setHandler(handler);

@@ -59,13 +59,6 @@ class UploadFileRequest extends HttpRequestWithOutput<Set<String>> {
         }.tryWithResource();
     }
 
-    @Override
-    protected void cleanup() {
-        if (temporaryFile != null) {
-            temporaryFile.delete();
-        }
-    }
-
     private void writeChunk(FileInputStream fis, OutputStream os) throws IOException {
         final byte[] buf = new byte[BUF_SIZE];
         int chunk;

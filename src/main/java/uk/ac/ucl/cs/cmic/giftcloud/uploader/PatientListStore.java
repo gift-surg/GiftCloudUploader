@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.io.File;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class PatientListStore {
 
         // The local cache folder is used to store the patient list that will be reloaded on startup
         final Optional<String> localCacheFolderOptional = giftCloudProperties.getPatientListLocalCacheFolder();
-        localCacheFolder = localCacheFolderOptional.isPresent() ? new File(localCacheFolderOptional.get()) : MultiUploaderUtils.createOrGetGiftCloudFolder(reporter);
+        localCacheFolder = localCacheFolderOptional.isPresent() ? new File(localCacheFolderOptional.get()) : GiftCloudUtils.createOrGetGiftCloudFolder(reporter);
     }
 
     /**

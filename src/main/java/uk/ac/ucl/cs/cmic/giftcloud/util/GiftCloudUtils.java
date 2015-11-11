@@ -30,23 +30,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.nrg.IOUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpUploadException;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.*;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.text.ChoiceFormat;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-public class MultiUploaderUtils {
+public class GiftCloudUtils {
 
     final static String GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME = "GiftCloudUploader";
     final static String GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME = "WaitingForUpload";
+    final static String GIFT_CLOUD_REDACTION_TEMPLATES_FOLDER_NAME = "RedactionTemplates";
 
+    private GiftCloudUtils() {}
 
     public static JSONObject extractJSONEntity(final InputStream in)
             throws IOException, JSONException {
@@ -151,6 +154,41 @@ public class MultiUploaderUtils {
             return uploadCacheFolder;
         } else {
             throw new RuntimeException("Unable to create an upload folder at " + uploadCacheFolder.getAbsolutePath());
+        }
+    }
+
+    /**
+     * Returns the folder for storing GiftCloud pixel data anonymisastion templates, creating the folder if it does not already exist.
+     * Will attempt to create a folder in the user directory, but if this is not permitted, will create a folder in the system temporary directory
+     *
+     * @param reporter for logging warnings
+     * @return File object referencing the existing or newly created folder
+     */
+    public static File createOrGetTemplateDirectory(final GiftCloudReporter reporter) {
+
+        final File appFolder = createOrGetGiftCloudFolder(reporter);
+
+        final File templateFolder = new File(appFolder, GIFT_CLOUD_REDACTION_TEMPLATES_FOLDER_NAME);
+
+        if (createDirectoryIfNotExisting(templateFolder)) {
+            return templateFolder;
+        } else {
+            throw new RuntimeException("Unable to create a template folder at " + templateFolder.getAbsolutePath());
+        }
+    }
+
+    /**
+     * Returns a list of resources matching the specified pattern
+     * 
+     * @param pattern
+     * @return
+     */
+    public static List<Resource> getMatchingResources(final String pattern, final GiftCloudReporter reporter) {
+        try {
+            return Arrays.asList(new PathMatchingResourcePatternResolver().getResources(pattern));
+        } catch (Throwable throwable) {
+            reporter.silentLogException(throwable, "Error when fetching resources: " + throwable.getLocalizedMessage());
+            return new ArrayList<Resource>();
         }
     }
 
@@ -267,5 +305,32 @@ public class MultiUploaderUtils {
         } catch (Throwable t) {
             return false;
         }
+    }
+
+
+    /**
+     * Compares two version strings, e.g. "1.3.1" "1.3.2" etc. Non-numeric sub-versions are permitted provided they are equal in both strings
+     * @param versionString1
+     * @param versionString2
+     * @return 1 if version1 is greater than version2, -1 if version1 is less than version 2, or 0 if they are equal
+     */
+    public static int compareVersionStrings(final String versionString1, final String versionString2)
+    {
+        final String[] versionNumbers1 = StringUtils.isBlank(versionString1) ? new String[]{} : versionString1.split("\\.", -1);
+        final String[] versionNumbers2 = StringUtils.isBlank(versionString2) ? new String[]{} : versionString2.split("\\.", -1);
+
+        int compareIndex = 0;
+        while (compareIndex < versionNumbers1.length && compareIndex < versionNumbers2.length) {
+            final String subString1 = versionNumbers1[compareIndex];
+            final String subString2 = versionNumbers2[compareIndex];
+            if (subString1.equals(subString2)) {
+                compareIndex++;
+            } else {
+                return Integer.signum(Integer.valueOf(subString1).compareTo(Integer.valueOf(subString2)));
+            }
+        }
+
+        // If we get here it means the strings are equal or they have different numbers of substrings
+        return Integer.signum(versionNumbers1.length - versionNumbers2.length);
     }
 }
