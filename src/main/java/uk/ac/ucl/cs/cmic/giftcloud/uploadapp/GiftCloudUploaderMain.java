@@ -344,13 +344,12 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     reporter.setWaitCursor();
                     reporter.showMesageLogger();
 
-                    Optional<GiftCloudDialogs.SelectedPathAndFile> selectFileOrDirectory = giftCloudDialogs.selectFileOrDirectory(giftCloudProperties.getLastImportDirectory());
+                    Optional<GiftCloudDialogs.SelectedPathAndFiles> selectFileOrDirectory = giftCloudDialogs.selectMultipleFilesOrDirectors(giftCloudProperties.getLastImportDirectory());
 
                     if (selectFileOrDirectory.isPresent()) {
                         giftCloudProperties.setLastImportDirectory(selectFileOrDirectory.get().getParentPath());
                         giftCloudProperties.save();
-                        String filePath = selectFileOrDirectory.get().getSelectedFile();
-                        runImport(Arrays.asList(new File(filePath)), true, reporter);
+                        runImport(selectFileOrDirectory.get().getSelectedFiles(), true, reporter);
                     }
                 } catch (Exception e) {
                     reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);

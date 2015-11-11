@@ -4,12 +4,9 @@ package com.pixelmed.display;
 
 import com.pixelmed.utils.ThreadUtilities;
 
-import java.awt.Component;
-import java.awt.HeadlessException;
-
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
-
-import javax.swing.JFileChooser;
 
 public class SafeFileChooser {
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/display/SafeFileChooser.java,v 1.4 2013/02/21 00:06:44 dclunie Exp $";
@@ -45,7 +42,12 @@ public class SafeFileChooser {
 		ThreadUtilities.checkIsEventDispatchThreadElseException();
 		return chooser.getSelectedFile();
 	}
-	
+
+	public File[] getSelectedFiles() {
+		ThreadUtilities.checkIsEventDispatchThreadElseException();
+		return chooser.getSelectedFiles();
+	}
+
 	public int showSaveDialog(Component parent) throws HeadlessException {
 		ThreadUtilities.checkIsEventDispatchThreadElseException();
 		return chooser.showSaveDialog(parent);
@@ -55,7 +57,12 @@ public class SafeFileChooser {
 		ThreadUtilities.checkIsEventDispatchThreadElseException();
 		chooser.setDialogTitle(dialogTitle);
 	}
-	
+
+	public void setMultiSelectionEnabled(boolean enabled) {
+		ThreadUtilities.checkIsEventDispatchThreadElseException();
+		chooser.setMultiSelectionEnabled(enabled);
+	}
+
 	public static class SafeFileChooserThread implements Runnable {
 		private int fileSelectionMode;
 		private String initialDirectoryPath;
