@@ -114,11 +114,6 @@ public class PixelDataAnonymiser {
         final String resourceFilter = "classpath*:uk/**/*.gcfilter";
         filters.addAll(readFilterResources(GiftCloudUtils.getMatchingResources(resourceFilter, reporter), reporter));
 
-        System.out.println("Filters:");
-        for (Resource f : GiftCloudUtils.getMatchingResources(resourceFilter, reporter)) {
-            System.out.println("Filter found:" + f.getFilename());
-        }
-        System.out.println("End of filters");
         return filters;
     }
 
