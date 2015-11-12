@@ -7,7 +7,7 @@
     <groupId>uk.ac.ucl.cs.cmic.giftcloud</groupId>
     <artifactId>GiftCloudUploader</artifactId>
     <name>GIFT-Cloud Uploader</name>
-    <description>A simple application to query, retrieve, import, de-identify DICOM instances and upload them securely on to GIFT-Cloud.</description>
+    <description>An application for anonymising and uploading data securely on to a GIFT-Cloud server</description>
     <url>${gc.url}</url>
     <version>1.1.4</version>
     <organization>
