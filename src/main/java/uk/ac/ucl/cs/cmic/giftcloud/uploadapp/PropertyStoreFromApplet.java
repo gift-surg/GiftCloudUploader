@@ -4,7 +4,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.MultiUploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 
 import java.io.IOException;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class PropertyStoreFromApplet implements PropertyStore {
 

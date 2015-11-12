@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.util;
 import org.nrg.util.EditProgressMonitor;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class EditProgressMonitorWrapper implements EditProgressMonitor {
     private final Progress progress;

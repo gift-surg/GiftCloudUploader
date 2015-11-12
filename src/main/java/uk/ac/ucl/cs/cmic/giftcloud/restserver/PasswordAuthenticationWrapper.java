@@ -20,7 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

@@ -31,7 +31,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class MultiUploadAssistantApplet extends JApplet {
     private Optional<GiftCloudReporterFromApplet> reporter = Optional.empty();

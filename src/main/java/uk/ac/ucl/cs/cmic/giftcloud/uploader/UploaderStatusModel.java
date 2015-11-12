@@ -1,7 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import java.util.ArrayList;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * Model class for status messages that are reported to the user. Threadsafe implementation to allow updates from multiple uploading threads

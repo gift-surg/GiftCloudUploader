@@ -21,7 +21,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * Create a DICOM file from an MPEG stream, with DICOM tags provided via an Attributes list, or specified from MPEG metadata, or both
