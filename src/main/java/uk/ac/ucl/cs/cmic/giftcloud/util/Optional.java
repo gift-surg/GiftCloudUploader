@@ -1,7 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 /** A simple Optional() type that is syntax-compatible with (a subset of) Java 8's Optional class, but works with Java 6
  *
@@ -68,12 +67,12 @@ public final class Optional<T> {
         }
 
         Optional<?> other = (Optional<?>) obj;
-        return Objects.equals(value, other.value);
+        return value.equals(other.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(value);
+        return value != null ? value.hashCode() : 0;
     }
 
     @Override
@@ -92,6 +91,9 @@ public final class Optional<T> {
      * Constructs an {@code Optional} containing the given value
      */
     private Optional(T value) {
-        this.value = Objects.requireNonNull(value);
+        if (value == null) {
+            throw new NullPointerException();
+        }
+        this.value = value;
     }
 }
