@@ -16,7 +16,10 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 
-public class PasswordStore {
+/**
+ * Class for storing passwords using a local keystore
+ */
+public final class PasswordStore {
 
     private final KeyStore keyStore;
     private final SecretKeyFactory secretKeyFactory;
@@ -37,8 +40,8 @@ public class PasswordStore {
     }
 
     public void store(final String key, final char[] password) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, InvalidKeySpecException {
-
-        SecretKey generatedSecret = secretKeyFactory.generateSecret(new PBEKeySpec(password));
+        final char[] nonEmptyPassword = password.length > 0 ? password : new char[]{' '};
+        SecretKey generatedSecret = secretKeyFactory.generateSecret(new PBEKeySpec(nonEmptyPassword));
         keyStore.setEntry(key, new SecretKeyEntry(generatedSecret), new PasswordProtection(keystorePassword.toCharArray()));
         keyStore.store(new FileOutputStream(keystorePath), keystorePassword.toCharArray());
     }
@@ -47,7 +50,12 @@ public class PasswordStore {
 
         SecretKeyEntry entry = (SecretKeyEntry) keyStore.getEntry(key, new PasswordProtection(keystorePassword.toCharArray()));
         PBEKeySpec keySpec = (PBEKeySpec) secretKeyFactory.getKeySpec(entry.getSecretKey(), PBEKeySpec.class);
-        return keySpec.getPassword();
+        final char[] password = keySpec.getPassword();
+        return password.length == 1 && password[0] == ' ' ? new char[]{} : password;
+    }
+
+    public boolean containsKey(final String key) throws KeyStoreException {
+        return keyStore.containsAlias(key);
     }
 }
 

@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class MultiUploadAppletParameters extends MultiUploadParameters {
+public class MultiUploadAppletParameters {
 
     private final Applet applet;
     private GiftCloudReporter reporter;
@@ -48,16 +48,6 @@ public class MultiUploadAppletParameters extends MultiUploadParameters {
         return applet.getParameter(key);
     }
 
-
-    @Override
-    public boolean getDateFromSession() {
-        if (UIUtils.getConfirmSessionDatePage()) {
-            return true;
-        }
-
-        return "no_session_date".equals(getParameter(MultiUploadParameters.XNAT_SCAN_DATE));
-    }
-
     /**
      * Loads applet properties from the <b>applet.properties</b>properties file. This
      * can be overridden by placing a custom version of the properties file ahead of
@@ -74,7 +64,7 @@ public class MultiUploadAppletParameters extends MultiUploadParameters {
                 properties.load(appletProperties);
             }
         } catch (IOException exception) {
-            reporter.info("Unable to find the applet.properties resource for initialization", exception);
+            reporter.silentLogException(exception, "Unable to find the applet.properties resource for initialization");
         } finally {
             if (appletProperties != null) {
                 try {
@@ -100,7 +90,7 @@ public class MultiUploadAppletParameters extends MultiUploadParameters {
                 customProperties = applet.getClass().getResourceAsStream(customProps);
                 properties.load(customProperties);
             } catch (IOException exception) {
-                reporter.info("Unable to find the custom properties resource " + customProps + " for initialization", exception);
+                reporter.silentLogException(exception, "Unable to find the custom properties resource " + customProps + " for initialization");
             } finally {
                 if (customProperties != null) {
                     try {
@@ -112,6 +102,4 @@ public class MultiUploadAppletParameters extends MultiUploadParameters {
             }
         }
     }
-
-
 }

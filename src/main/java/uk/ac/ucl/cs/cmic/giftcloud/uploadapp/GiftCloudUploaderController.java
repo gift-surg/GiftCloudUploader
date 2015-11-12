@@ -2,13 +2,13 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.List;
 import java.util.Vector;
 
 public interface GiftCloudUploaderController {
 
-    void showConfigureDialog() throws IOException, DicomNode.DicomNodeStartException;
+    void showConfigureDialog(final boolean wait);
     void showAboutDialog();
 
     void hide();
@@ -28,7 +28,7 @@ public interface GiftCloudUploaderController {
 
     void selectAndExport(Vector<String> filesToExport);
 
-    void runImport(String filePath, final boolean importAsReference, final Progress progress);
+    void runImport(List<File> fileList, final boolean importAsReference, final Progress progress);
 
     void selectAndImport();
 
@@ -41,4 +41,6 @@ public interface GiftCloudUploaderController {
     void refreshFileList();
 
     void exportPatientList();
+
+    void showPixelDataTemplateDialog();
 }

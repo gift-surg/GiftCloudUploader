@@ -15,7 +15,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.json.JSONArray;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +28,7 @@ class HttpJsonResponseProcessor<T> extends HttpResponseProcessor<T> {
     }
 
     protected final T streamFromConnection(final InputStream inputStream) throws IOException {
-        final JSONArray entries = MultiUploaderUtils.extractResultFromEntity(MultiUploaderUtils.extractJSONEntity(inputStream));
+        final JSONArray entries = GiftCloudUtils.extractResultFromEntity(GiftCloudUtils.extractJSONEntity(inputStream));
         for (int i = 0; i < entries.length(); i++) {
             decoder.decode(entries.getJSONObject(i));
         }

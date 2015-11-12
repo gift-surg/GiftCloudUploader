@@ -28,7 +28,7 @@ public class HttpConnectionBuilder {
 
     private Optional<Boolean> doInput = Optional.empty();
     private Optional<Boolean> doOutput = Optional.empty();
-    private Optional<Integer> fixedLengthStreamingMode = Optional.empty();
+    private Optional<Long> fixedLengthStreamingMode = Optional.empty();
     private Optional<String> contentType = Optional.empty();
     private Optional<Integer> chunkedStreamingMode = Optional.empty();
     private Optional<HttpConnectionWrapper.ConnectionType> connectionType = Optional.empty();
@@ -108,7 +108,7 @@ public class HttpConnectionBuilder {
         this.connectionType = Optional.of(connectionType);
     }
 
-    public void setFixedLengthStreamingMode(int contentLength) {
+    public void setFixedLengthStreamingMode(long contentLength) {
         fixedLengthStreamingMode = Optional.of(contentLength);
     }
 

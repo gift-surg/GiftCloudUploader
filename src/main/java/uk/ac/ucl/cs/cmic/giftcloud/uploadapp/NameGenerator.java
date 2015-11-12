@@ -13,7 +13,7 @@ import java.util.Set;
 class NameGenerator<T extends GiftCloudLabel> {
     private long nameNumber;
     private final GiftCloudLabel.LabelFactory<T> labelFactory;
-    private final String prefix;
+    private String prefix;
 
     /** Creates a new NameGenerator which will create names starting with the given prefix, and incrementing a suffix number starting at startNumber
      * @param prefix the string prefix for each generated name
@@ -23,6 +23,17 @@ class NameGenerator<T extends GiftCloudLabel> {
         this.prefix = prefix;
         this.nameNumber = startNumber;
         this.labelFactory = labelFactory;
+    }
+
+    /** Change the name prefix. Also resets the number if the prefix has has changed
+     * @param prefix the string prefix for each generated name
+     * @param startNumber the number used for the suffix of the first name, which will be incremented after each name generation
+     */
+    void updateNamePrefix(final String prefix, final long startNumber) {
+        if (!prefix.equals(this.prefix)) {
+            this.prefix = prefix;
+            this.nameNumber = startNumber;
+        }
     }
 
     /** Returns a unique name that is not part of the given list of known names
@@ -65,6 +76,11 @@ class NameGenerator<T extends GiftCloudLabel> {
         SubjectNameGenerator(final Optional<String> prefix) {
             super(prefix.orElse(defaultAutoSubjectNamePrefix), autoSubjectNameStartNumber, GiftCloudLabel.SubjectLabel.getFactory());
         }
+
+        void updateSubjectNamePrefix(final Optional<String> prefix) {
+            updateNamePrefix(prefix.orElse(defaultAutoSubjectNamePrefix), autoSubjectNameStartNumber);
+        }
+
 
         /**
          * returns the experiment name generator for a particular subject

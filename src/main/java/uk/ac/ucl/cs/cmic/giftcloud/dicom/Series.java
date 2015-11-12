@@ -16,7 +16,6 @@ import com.google.common.collect.Sets;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.nrg.dcm.DicomUtils;
-import org.nrg.dcm.SOPModel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 
 import java.io.File;
@@ -34,7 +33,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
     }});
 
     private final Study study;
-    private final String sopClassUid;
     private final Multimap<String,String> sopToTS = LinkedHashMultimap.create();
     private final Set<String> modalities = Sets.newTreeSet();
     private final Set<File> files = Sets.newLinkedHashSet();
@@ -45,7 +43,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
     Series(final Study study,
             final String uid, final int number, final String modality, final String description, final String sopClassUid) {
         this.study = study;
-        this.sopClassUid = sopClassUid;
         put(Tag.SeriesInstanceUID, uid);
         put(Tag.SeriesNumber, number);
         put(Tag.SeriesDescription, description);
@@ -115,10 +112,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         return Collections.unmodifiableCollection(files);
     }
 
-    public Set<String> getModalities() {
-        return Collections.unmodifiableSet(modalities);
-    }
-
     public String getDescription() {
         final Object n = get(Tag.SeriesDescription);
         return null == n ? null : (String) n;
@@ -134,14 +127,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
     }
 
     public DicomObject getSampleObject() { return sampleObject; }
-
-    /**
-     * Returns the lead XNAT scan XSD type (without namespace prefix) for this series.
-     * @return scan type
-     */
-    public String getScanType() {
-        return SOPModel.getScanType(sopToTS.keySet());
-    }
 
     /*
      * (non-Javadoc)
@@ -160,24 +145,11 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         return size;
     }
 
-    public Set<String> getSOPClassUIDs() {
-        return Collections.unmodifiableSet(sopToTS.keySet());
-    }
-
     /*
      * (non-Javadoc)
      * @see uk.ac.ucl.cs.cmic.giftcloud.dicom.Entity#getStudies()
      */
     public Collection<Study> getStudies() { return Collections.singleton(study); }
-
-    public Set<String> getTransferSyntaxUIDs() {
-        return new LinkedHashSet<String>(sopToTS.values());
-    }
-
-    public Multimap<String,String> addTransferCapabilityComponents(final Multimap<String,String> m) {
-        m.putAll(sopToTS);
-        return m;
-    }
 
     public Iterator<File> iterator() {
         return Collections.unmodifiableSet(files).iterator();
@@ -205,10 +177,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         final StringBuilder sb = new StringBuilder("Series ");
         sb.append(getNumber());
         return sb.toString();
-    }
-
-    public void setUploadAllowed(final boolean uploadAllowed) {
-        this.uploadAllowed = uploadAllowed;
     }
 
     public boolean isUploadAllowed() {

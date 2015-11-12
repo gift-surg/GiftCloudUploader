@@ -2,22 +2,10 @@
 
 package com.pixelmed.utils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.Reader;
-
+import java.io.*;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,9 +49,8 @@ public class FileUtilities {
 	 *				The ArrayList will be empty if the path is empty or does not exist
 	 *				or if an error occurs.
 	 */
-	static public final ArrayList listFilesRecursively(File initialPath) {
-//System.err.println("FileUtilities.listFilesRecursively(): "+initialPath);
-		ArrayList filesFound = new ArrayList();
+	static public final ArrayList<File> listFilesRecursively(File initialPath) {
+		ArrayList<File> filesFound = new ArrayList<File>();
 		if (initialPath != null && initialPath.exists()) {
 			if (initialPath.isFile()) {
 				filesFound.add(initialPath);
@@ -74,13 +61,12 @@ public class FileUtilities {
 					if (filesAndDirectories != null && filesAndDirectories.length > 0) {
 						for (int i=0; i<filesAndDirectories.length; ++i) {
 							if (filesAndDirectories[i].isDirectory()) {
-								ArrayList moreFiles = listFilesRecursively(filesAndDirectories[i]);
+								ArrayList<File> moreFiles = listFilesRecursively(filesAndDirectories[i]);
 								if (moreFiles != null && !moreFiles.isEmpty()) {
 									filesFound.addAll(moreFiles);
 								}
 							}
 							else if (filesAndDirectories[i].isFile()) {			// what else could it be ... just being paranoid
-//System.err.println("FileUtilities.listFilesRecursively(): found "+filesAndDirectories[i]);
 								filesFound.add(filesAndDirectories[i]);
 							}
 						}

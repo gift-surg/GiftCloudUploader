@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapplet.SessionReviewPanel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
@@ -41,10 +40,18 @@ public final class DicomTrawler implements Trawler {
     public static final int APP_MAX_TAG = Collections.max(new ArrayList<Integer>() {{
         add(MAX_TAG);
         add(Series.MAX_TAG);
-        add(SessionReviewPanel.MAX_TAG);
+        add(DicomTrawler.getSeriesMaxTags());
         add(Study.MAX_TAG);
         add(CallableUploader.MAX_TAG);
     }});
+
+    private static int getSeriesMaxTags() {
+        return Collections.max(new ArrayList<Integer>() {
+            {
+                add(Tag.SeriesDescription);
+                add(Tag.SeriesNumber);
+            }});
+    }
 
     private SeriesImportFilterApplicatorRetriever _filters;
     private final Logger logger = LoggerFactory.getLogger(DicomTrawler.class);
@@ -72,16 +79,23 @@ public final class DicomTrawler implements Trawler {
 					remaining.add(f);
 					continue;
 				}
+                if (StringUtils.isBlank(o.getString(Tag.SOPClassUID))) {
+                    errors.add(GiftCloudUploaderError.SOP_CLASS_UID_NOT_FOUND);
+                    logger.debug("Invalid DICOM file: SOPClassUID is not specified in file " + f.getAbsolutePath(), "");
+                    continue;
+                }
+                if (StringUtils.isBlank(o.getString(Tag.PatientID))) {
+                    errors.add(GiftCloudUploaderError.PATIENT_ID_NOT_FOUND);
+                    logger.debug("The Patient ID is not specified in file " + f.getAbsolutePath(), "");
+                    remaining.add(f);
+                    continue;
+                }
 				assert null != o.getString(Tag.SOPClassUID);
                 final String modality = o.getString(Tag.Modality);
                 if (!modalityIsSupported(modality)) {
-                    if (modality.equals("US")) {
-                        errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED_US);
-                    } else {
-                        errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED);
-                    }
+                    errors.add(GiftCloudUploaderError.MODALITY_UNSUPPORTED);
                     remaining.add(f);
-                    logger.debug("Modality " + modality + "is not supported", "");
+                    logger.debug("Modality " + modality + "is not supported for file " + f.getAbsolutePath(), "");
 
                 } else {
 
@@ -92,14 +106,14 @@ public final class DicomTrawler implements Trawler {
                         if (_filters.checkSeries(description)) {
                             logger.debug("Series description {} matched series import filter restrictions, including in session", description);
                             final Study study = studies.get(new Study(o));
-                            study.getSeries(o, f);
+                            study.addFileAndGetSeries(o, f);
                         } else {
                             logger.debug("Series description {} did not match series import filter restrictions, excluding from session", description);
                         }
                     } else {
                         logger.debug("Series import filters not found, including series in session");
                         final Study study = studies.get(new Study(o));
-                        study.getSeries(o, f);
+                        study.addFileAndGetSeries(o, f);
                     }
                 }
 
@@ -110,7 +124,6 @@ public final class DicomTrawler implements Trawler {
 		return new ArrayList<Session>(studies.getAll());
 	}
 
-    @Override
     public final List<GiftCloudUploaderError> getErrorMessages() {
         return errors;
     }
@@ -120,11 +133,12 @@ public final class DicomTrawler implements Trawler {
             return false;
         } else if (modality.equals("MR")) {
             return true;
+        } else if (modality.equals("ES")) {
+            return true;
         } else if (modality.equals("CT")) {
             return true;
         } else if (modality.equals("US")) {
-            // Currently we do not support US upload until we can anonymise the patient data burnt into the images
-            return false;
+            return true;
         } else {
             return false;
         }

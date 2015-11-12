@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- JNLP File for GIFT-Cloud Uploader, mostly adapted from http://www.dclunie.com/pixelmed/software/webstart/DicomCleaner.jnlp -->
+<!-- JNLP File for GIFT-Cloud Uploader -->
 <jnlp
   codebase="$project.Url/uploader/"
   href="$outputFile">
@@ -8,10 +8,17 @@
     <vendor>$project.Organization.Name</vendor>
     <homepage href="doc/manual.pdf"/>
     <description>$project.Description</description>
-    <description kind="short">A simple application to query, retrieve, import, de-identify DICOM instances and upload them securely on to GIFT-Cloud.</description>
-    <icon href="res/icon.ico"/>
+    <description kind="short">Uploads data to a GIFT-Cloud server</description>
+    <icon href="res/icon256.png"/>
+    <icon kind="shortcut" href="res/icon256.png"/>
+    <icon kind="splash" href="res/splash.png"/>
     <offline-allowed/>
+    <shortcut online="true" install="true">
+      <desktop/>
+      <menu submenu="GIFT-Surg"/>
+    </shortcut>
   </information>
+  <update check="always" policy="prompt-update" />
   <security>
       <all-permissions/>
   </security>

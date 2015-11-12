@@ -22,18 +22,14 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import org.nrg.dcm.edit.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Project;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
-import uk.ac.ucl.cs.cmic.giftcloud.data.UploadFailureHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -115,71 +111,6 @@ public class Study extends MapEntity implements Entity, Session {
 
     /*
      * (non-Javadoc)
-     * @see Session#getAccession()
-     */
-    public String getAccession() {
-        return (String) get(Tag.AccessionNumber);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see Session#getDateTime()
-     */
-    public Date getDateTime() {
-        return dateTime;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see Session#getTimeZone()
-     */
-    public TimeZone getTimeZone() {
-        // DICOM does not store timezone information so return null
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see Session#getDescription()
-     */
-    public String getDescription() {
-        return (String) get(Tag.StudyDescription);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see Session#getFileCount()
-     */
-    public int getFileCount() {
-        return getFileCount(series);
-    }
-
-    private static int getFileCount(final Registry<Series> series) {
-        int count = 0;
-        for (final Series s : series) {
-            count += s.getFileCount();
-        }
-        return count;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see Session#getFormat()
-     */
-    public String getFormat() {
-        return "DICOM";
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see Session#getID()
-     */
-    public String getID() {
-        return (String) get(Tag.StudyID);
-    }
-
-    /*
-     * (non-Javadoc)
      * @see org.nrg.dcm.MapEntity#hashCode()
      */
     @Override
@@ -187,27 +118,7 @@ public class Study extends MapEntity implements Entity, Session {
         return Objects.hashCode(get(Tag.StudyInstanceUID));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see Session#getModalities()
-     */
-    public Set<String> getModalities() {
-        final Set<String> modalities = Sets.newLinkedHashSet();
-        for (final Series s : series) {
-            modalities.addAll(s.getModalities());
-        }
-        return modalities;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see Session#getScanCount()
-     */
-    public int getScanCount() {
-        return series.size();
-    }
-
-    public Series getSeries(final DicomObject o, final File f) {
+    public Series addFileAndGetSeries(final DicomObject o, final File f) {
         final Series s = series.get(new Series(this, o));
         s.addFile(f, o);
         return s;
@@ -219,18 +130,6 @@ public class Study extends MapEntity implements Entity, Session {
      */
     public Collection<Series> getSeries() {
         return series.getAll();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see Session#getSize()
-     */
-    public long getSize() {
-        long size = 0;
-        for (final Series s : series) {
-            size += s.getSize();
-        }
-        return size;
     }
 
     /*
@@ -263,24 +162,6 @@ public class Study extends MapEntity implements Entity, Session {
             builder.append(" [").append(get(Tag.StudyInstanceUID)).append("]");
         }
         return builder.toString();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see Session#uploadTo(java.util.Map, UploadFailureHandler, org.netbeans.spi.wizard.ResultProgressHandle)
-     */
-    public UploadResult uploadTo(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudServer server, final SessionParameters sessionParameters, Project project, final UploadFailureHandler failureHandler, final GiftCloudReporter reporter) throws IOException {
-        final List<FileCollection> fileCollections = getFiles();
-
-        if (fileCollections.isEmpty()) {
-            return new UploadResultsFailure("No files were selected for upload");
-        }
-
-        final XnatModalityParams xnatModalityParams = getXnatModalityParams();
-
-        final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-
-        return server.uploadToStudy(fileCollections, xnatModalityParams, applicators, projectLabel, subjectLabel, sessionParameters, reporter);
     }
 
     public List<FileCollection> getFiles() {

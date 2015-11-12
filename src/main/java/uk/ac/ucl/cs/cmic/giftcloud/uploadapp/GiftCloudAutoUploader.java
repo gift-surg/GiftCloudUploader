@@ -14,7 +14,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -26,6 +25,7 @@ public class GiftCloudAutoUploader {
     private final GiftCloudReporter reporter;
     private final NameGenerator.SubjectNameGenerator subjectNameGenerator;
     private final SubjectAliasStore subjectAliasStore;
+    private final GiftCloudProperties properties;
 
     /**
      * This class is used to automatically and asynchronously group and upload multiple files to a GIFT-Cloud server
@@ -34,6 +34,7 @@ public class GiftCloudAutoUploader {
      * @param reporter
      */
     public GiftCloudAutoUploader(final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
+        this.properties = properties;
         this.subjectNameGenerator = new NameGenerator.SubjectNameGenerator(properties.getSubjectPrefix());
         this.backgroundUploader = backgroundUploader;
         this.reporter = reporter;
@@ -92,9 +93,20 @@ public class GiftCloudAutoUploader {
 
         // If any files failed to upload, we log all of them and throw an exception for the first one
         if (errors.size() > 0) {
+            final Set<String> uniqueErrors = new HashSet<String>();
             for (final GiftCloudUploaderError error : errors) {
-                reporter.warn("Failed to upload file: " + error.getUserVisibleMessage());
+                uniqueErrors.add(error.getUserVisibleMessage());
             }
+            final String prefixMessage = errors.size() == 1 ? "1 error" : String.valueOf(errors.size()) + " errors";
+            final StringBuilder builder = new StringBuilder();
+            builder.append("<html>" + prefixMessage + " occurred during upload:");
+            for (final String errorText : uniqueErrors) {
+                builder.append("<br>" + errorText);
+            }
+            builder.append("</html");
+
+            // We would ideally like to display a message to the user if uploading has been initiated via importing, but not in a background context. Not possible with current architecture so suppress the dialog and let the status bar show the error
+//            reporter.showMessageToUser(builder.toString());
             throw new GiftCloudException(errors.get(0));
         }
 
@@ -113,16 +125,35 @@ public class GiftCloudAutoUploader {
         final GiftCloudLabel.ExperimentLabel experimentLabel = getSessionName(server, projectName, subjectLabel, studyInstanceUid, xnatModalityParams);
         final GiftCloudLabel.ScanLabel scanName = getScanName(server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
 
-        final GiftCloudSessionParameters sessionParameters = new GiftCloudSessionParameters();
-        sessionParameters.setAdminEmail("null@null.com");
-        sessionParameters.setExperimentLabel(experimentLabel);
-        sessionParameters.setProtocol("");
-        sessionParameters.setVisit("");
-        sessionParameters.setScanLabel(scanName);
-        sessionParameters.setBaseUrl(new URL(server.getGiftCloudServerUrl()));
-        sessionParameters.setNumberOfThreads(1);
-        sessionParameters.setUsedFixedSize(true);
 
+        final LinkedList<SessionVariable> sessionVariables = getSessionVariables(project, projectName, session, subjectLabel, experimentLabel);
+
+        final List<FileCollection> fileCollections = session.getFiles();
+
+        if (fileCollections.isEmpty()) {
+            throw new IOException("No files were selected for upload");
+        }
+
+        final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
+
+        // Iterate through each set of files
+        for (final FileCollection fileCollection : fileCollections) {
+            final UploadParameters uploadParameters = new UploadParameters();
+            uploadParameters.setProjectName(projectName);
+            uploadParameters.setSubjectLabel(subjectLabel);
+            uploadParameters.setExperimentLabel(experimentLabel);
+            uploadParameters.setScanLabel(scanName);
+            uploadParameters.setSessionVariables(sessionVariables);
+            uploadParameters.setFileCollection(fileCollection);
+            uploadParameters.setXnatModalityParams(xnatModalityParams);
+            uploadParameters.setProjectApplicators(projectApplicators);
+
+            final CallableUploader uploader = callableUploaderFactory.create(uploadParameters, server);
+            backgroundUploader.addUploader(uploader);
+        }
+    }
+
+    private LinkedList<SessionVariable> getSessionVariables(Project project, String projectName, Session session, GiftCloudLabel.SubjectLabel subjectLabel, GiftCloudLabel.ExperimentLabel experimentLabel) {
         // Set the predefined variables for project, subject and session, so that these can be used in the DICOM anonymisation scripts
         final Map<String, SessionVariable> predefs = Maps.newLinkedHashMap();
         predefs.put(SessionVariableNames.PROJECT, new AssignedSessionVariable(SessionVariableNames.PROJECT, projectName));
@@ -140,19 +171,7 @@ public class GiftCloudAutoUploader {
             }
         }
 
-        final LinkedList<SessionVariable> sessionVariables = Lists.newLinkedList(session.getVariables(project, session));
-        sessionParameters.setSessionVariables(sessionVariables);
-
-        final List<FileCollection> fileCollections = session.getFiles();
-
-        if (fileCollections.isEmpty()) {
-            throw new IOException("No files were selected for upload");
-        }
-
-
-        final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
-
-        backgroundUploader.addFiles(server, fileCollections, xnatModalityParams, projectApplicators, projectName, subjectLabel, sessionParameters, callableUploaderFactory);
+        return Lists.newLinkedList(session.getVariables(project, session));
     }
 
     private synchronized GiftCloudLabel.SubjectLabel getSubjectName(final GiftCloudServer server, final String projectName, final String patientId, final String patientName) throws IOException {
@@ -164,6 +183,7 @@ public class GiftCloudAutoUploader {
             Map<String, String> subjectMapFromServer = server.getListOfSubjects(projectName);
 
             // Generate a new subject label
+            subjectNameGenerator.updateSubjectNamePrefix(properties.getSubjectPrefix());
             final GiftCloudLabel.SubjectLabel newSubjectLabel = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
 
             // Add the label and its uid alias

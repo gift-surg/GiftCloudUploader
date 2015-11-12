@@ -7,6 +7,7 @@ import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.QueryTreeBrowser;
 import com.pixelmed.query.QueryTreeModel;
 import com.pixelmed.query.QueryTreeRecord;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUncheckedException;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -29,9 +30,13 @@ public class QueryRetrieveRemoteView extends JPanel {
         setLayout(new GridLayout(1, 1));
     }
 
-    public void updateQueryPanel(final QueryInformationModel queryInformationModel, final AttributeList filter, final QueryInformationModel currentRemoteQueryInformationModel) throws DicomNetworkException, DicomException, IOException {
-        QueryTreeModel treeModel = queryInformationModel.performHierarchicalQuery(filter);
-        new OurQueryTreeBrowser(queryInformationModel, treeModel, this, currentRemoteQueryInformationModel);
+    public void updateQueryPanel(final QueryInformationModel queryInformationModel, final AttributeList filter, final QueryInformationModel currentRemoteQueryInformationModel) throws IOException, DicomException, DicomNetworkException {
+        try {
+            QueryTreeModel treeModel = queryInformationModel.performHierarchicalQuery(filter);
+            new OurQueryTreeBrowser(queryInformationModel, treeModel, this, currentRemoteQueryInformationModel);
+        } catch (GiftCloudUncheckedException e) {
+            throw e.getWrappedException();
+        }
 
         // TD: unsure if this is required or not... for re-laying out the panel after a query operation has succeeded
         validate();

@@ -37,9 +37,9 @@ public class SystemTrayController {
         }
     }
 
-    public class MainWindowVisibilityListener implements StatusObservable.StatusListener<GiftCloudMainFrame.MainWindowVisibility> {
+    public class MainWindowVisibilityListener implements StatusObservable.StatusListener<MainFrame.MainWindowVisibility> {
         @Override
-        public void statusChanged(final GiftCloudMainFrame.MainWindowVisibility visibility) {
+        public void statusChanged(final MainFrame.MainWindowVisibility visibility) {
             windowVisibilityStatusChanged(visibility);
         }
     }

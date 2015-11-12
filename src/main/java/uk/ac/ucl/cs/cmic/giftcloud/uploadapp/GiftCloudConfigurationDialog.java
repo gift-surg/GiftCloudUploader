@@ -1,9 +1,8 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.pixelmed.network.ApplicationEntityConfigurationDialog;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.MultiUploaderUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -12,7 +11,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -55,7 +53,7 @@ public class GiftCloudConfigurationDialog {
 
     private boolean isDisposed = false;
 
-    GiftCloudConfigurationDialog(final JFrame owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
+    GiftCloudConfigurationDialog(final Component owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.projectListModel = projectListModel;
@@ -446,7 +444,9 @@ public class GiftCloudConfigurationDialog {
         {
             final String listeningAETitle = listeningAETitleField.getText();
 
-            if (!StringUtils.isBlank(listeningAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(listeningAETitle)) {
+            if (StringUtils.isBlank(listeningAETitle)) {
+                problems.add(resourceBundle.getString("configPanelListenerAeNotSet"));
+            } else if (!GiftCloudConfigurationDialog.isValidAETitle(listeningAETitle)) {
                 problems.add(resourceBundle.getString("configPanelListenerAeError"));
             }
         }
@@ -473,7 +473,7 @@ public class GiftCloudConfigurationDialog {
 
         {
             final String remoteAETitle = remoteAETitleField.getText();
-            if (!StringUtils.isBlank(remoteAETitle) && !ApplicationEntityConfigurationDialog.isValidAETitle(remoteAETitle)) {
+            if (!StringUtils.isBlank(remoteAETitle) && !GiftCloudConfigurationDialog.isValidAETitle(remoteAETitle)) {
                 problems.add(resourceBundle.getString("configPanelPacsAeError"));
             }
         }
@@ -493,10 +493,10 @@ public class GiftCloudConfigurationDialog {
             final String patientListExportFolder = patientListExportFolderField.getText();
             if (!StringUtils.isBlank(patientListExportFolder)) {
                 try {
-                    if (!MultiUploaderUtils.createDirectoryIfNotExisting(new File(patientListExportFolder))) {
+                    if (!GiftCloudUtils.createDirectoryIfNotExisting(new File(patientListExportFolder))) {
                         problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderCreationError"));
                     } else {
-                        if (!MultiUploaderUtils.isDirectoryWritable(patientListExportFolder)) {
+                        if (!GiftCloudUtils.isDirectoryWritable(patientListExportFolder)) {
                             problems.add(resourceBundle.getString("configPanelListenerPatientListExportFolderError"));
                         }
                     }
@@ -566,12 +566,7 @@ public class GiftCloudConfigurationDialog {
             }
         }
 
-        try {
-            giftCloudProperties.storeProperties("Saved from GiftCloudConfigurationDialog");
-        } catch (IOException e) {
-            reporter.silentLogException(e, "The following error occurred while saving the properties file:" + e.getLocalizedMessage());
-        }
-
+        giftCloudProperties.save();
 
         if (restartDicomNode || restartUploader || forcePatientListExport) {
             Cursor was = dialog.getCursor();
@@ -597,6 +592,45 @@ public class GiftCloudConfigurationDialog {
         projectListEnabledListener = null;
         isDisposed = true;
         dialog.dispose();
+    }
+
+    public static boolean isValidAETitle(String aet) {
+        // Per PS 3.5: Default Character Repertoire excluding character code 5CH (the BACKSLASH “\” in ISO-IR 6), and control characters LF, FF, CR and ESC. 16 bytes maximum
+        boolean good = true;
+        if (aet == null) {
+            good = false;
+        }
+        else if (aet.length() == 0) {
+            good = false;
+        }
+        else if (aet.length() > 16) {
+            good = false;
+        }
+        else if (aet.trim().length() == 0) {		// all whitespace is illegal
+            good = false;
+        }
+        else if (aet.contains("\\")) {
+            good = false;
+        }
+        else {
+            int l = aet.length();
+            for (int i=0; i<l; ++i) {
+                int codePoint = aet.codePointAt(i);
+                try {
+                    Character.UnicodeBlock codeBlock = Character.UnicodeBlock.of(codePoint);
+                    if (codeBlock != Character.UnicodeBlock.BASIC_LATIN) {
+                        good = false;
+                    }
+                    else if (Character.isISOControl(codePoint)) {
+                        good = false;
+                    }
+                }
+                catch (IllegalArgumentException e) {	// if not a valid code point
+                    good = false;
+                }
+            }
+        }
+        return good;
     }
 
     class AutoFocusTextField extends JTextField {

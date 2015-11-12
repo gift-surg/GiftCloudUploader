@@ -19,11 +19,6 @@ public class DeleteFromDatabase {
 
 	/***/
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/database/DeleteFromDatabase.java,v 1.3 2014/09/09 20:34:09 dclunie Exp $";
-	
-	public static void deleteRecordChildrenAndFilesByUniqueKey(DatabaseInformationModel d,String ieName,String keyValue) throws DicomException {
-		InformationEntity ie = InformationEntity.fromString(ieName);	// already handles upper or lower case
-		deleteRecordChildrenAndFilesByUniqueKey(d,ie,keyValue);
-	}
 
 	public static void deleteRecordChildrenAndFilesByFilename(final DatabaseInformationModel databaseInformationModel, final String fileName) throws DicomException {
 		String sopInstanceUid = findPrimaryKeyForFilename(databaseInformationModel, fileName);
@@ -54,7 +49,7 @@ public class DeleteFromDatabase {
 				if (results != null && results.size() > 0) {
 					for (Map<String,String> result : results) {
 						String localPrimaryKeyValue = result.get(localPrimaryKeyColumnName);
-System.err.println("Deleting "+ie+" "+localPrimaryKeyValue+" "+keyValue);
+//System.err.println("Deleting "+ie+" "+localPrimaryKeyValue+" "+keyValue);
 						deleteRecordChildrenAndFilesByLocalPrimaryKey(d,ie,localPrimaryKeyValue);
 						
 					}
@@ -170,51 +165,5 @@ System.err.println("Deleting "+ie+" "+localPrimaryKeyValue+" "+keyValue);
 	}
 
 
-
-	/**
-	 * <p>Remove the database entry, all its children and any copied files.</p>
-	 *
-	 * <p>For the PATIENT level, the unique key is the PatientID, otherwise it is the InstanceUID of the entity.</p>
-	 *
-	 * @param	arg	four arguments, the class name of the model, the (full) path of the database file prefix, the level of the entity to remove and the unique key of the entity
-	 */
-	public static void main(String arg[]) {
-		if (arg.length == 4) {
-			String databaseModelClassName = arg[0];
-			String databaseFileName = arg[1];
-		
-			if (databaseModelClassName.indexOf('.') == -1) {					// not already fully qualified
-				databaseModelClassName="com.pixelmed.database."+databaseModelClassName;
-			}
-//System.err.println("Class name = "+databaseModelClassName);
-
-			try {
-				DatabaseInformationModel databaseInformationModel = new com.pixelmed.database.PatientStudySeriesConcatenationInstanceModel(databaseFileName);
-				//DatabaseInformationModel databaseInformationModel = null;
-				//Class classToUse = Thread.currentThread().getContextClassLoader().loadClass(databaseModelClassName);
-				//Class[] parameterTypes = { databaseFileName.getClass() };
-				//Constructor constructorToUse = classToUse.getConstructor(parameterTypes);
-				//Object[] args = { databaseFileName };
-				//databaseInformationModel = (DatabaseInformationModel)(constructorToUse.newInstance(args));
-
-				if (databaseInformationModel != null) {
-					//{
-					//	List everything = databaseInformationModel.findAllAttributeValuesForAllRecordsForThisInformationEntity(InformationEntity.PATIENT);
-					//	System.err.println("everything.size() = "+everything.size());
-					//}
-					deleteRecordChildrenAndFilesByUniqueKey(databaseInformationModel,arg[2],arg[3]);
-					databaseInformationModel.close();	// this is really important ... will not persist everything unless we do this
-				}
-			}
-			catch (Exception e) {
-				e.printStackTrace(System.err);
-				System.exit(0);
-			}
-			
-		}
-		else {
-			System.err.println("Usage: java com.pixelmed.database.DeleteFromDatabase databaseModelClassName databaseFilePathPrefix databaseFileName path(s)");
-		}
-	}
 }
 

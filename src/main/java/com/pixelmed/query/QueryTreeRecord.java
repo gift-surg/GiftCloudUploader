@@ -2,24 +2,17 @@
 
 package com.pixelmed.query;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Vector;
-import javax.swing.tree.TreeNode;
-import java.io.IOException;
-
-import com.pixelmed.dicom.Attribute;
-import com.pixelmed.dicom.AttributeList;
-import com.pixelmed.dicom.AttributeTag;
-import com.pixelmed.dicom.InformationEntity;
-import com.pixelmed.dicom.DicomException;
-
+import com.pixelmed.dicom.*;
 import com.pixelmed.network.DicomNetworkException;
 import com.pixelmed.network.IdentifierHandler;
-
 import com.pixelmed.utils.StringUtilities;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUncheckedException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+
+import javax.swing.tree.TreeNode;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * <p>Instances of the {@link com.pixelmed.query.QueryTreeRecord QueryTreeRecord} class represent
@@ -268,13 +261,13 @@ if (debugLevel > 0) System.err.println("QueryTreeRecord.populateChildren(): uniq
 				q.performQuery(filter,uniqueKeys,queryLevel,ourResponseIdentifierHandler);
 			}
 			catch (IOException e) {
-				e.printStackTrace(System.err);
+				throw new GiftCloudUncheckedException(new GiftCloudException(GiftCloudUploaderError.QUERY_FAILURE, e));
 			}
 			catch (DicomException e) {
-				e.printStackTrace(System.err);
+				throw new GiftCloudUncheckedException(new GiftCloudException(GiftCloudUploaderError.QUERY_FAILURE, e));
 			}
 			catch (DicomNetworkException e) {
-				e.printStackTrace(System.err);
+				throw new GiftCloudUncheckedException(new GiftCloudException(GiftCloudUploaderError.QUERY_FAILURE, e));
 			}
 		}
 	}

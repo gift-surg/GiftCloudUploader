@@ -21,12 +21,10 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.json.JSONException;
-import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Map;
@@ -74,24 +72,12 @@ public class RestServerSessionHelper {
         return giftCloudSession.request(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.GET, path, new HttpStringResponseProcessor(), giftCloudProperties, reporter));
     }
 
-    public Set<String> getStringList(final String path) throws IOException {
-        return giftCloudSession.request(new HttpRequestWithoutOutput<Set<String>>(HttpConnection.ConnectionType.GET, path, new HttpStringListResponseProcessor(), giftCloudProperties, reporter));
+    public void appendFileUsingZipUpload(final String relativeUrl, final File temporaryFile) throws IOException {
+        giftCloudSession.request(new UploadFileRequest(HttpConnection.ConnectionType.PUT, relativeUrl, temporaryFile, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter));
     }
 
-    public String getStringFromStream(final String path, final InputStream xmlStream) throws IOException {
-        return giftCloudSession.request(new XmlStreamPostRequestWithStringResponse(path, xmlStream, giftCloudProperties, reporter));
-    }
-
-    public String sendSessionVariables(final String path, final SessionParameters sessionParameters) throws IOException {
-        return giftCloudSession.request(new JSONRequestConnectionProcessor(sessionParameters, path, giftCloudProperties, reporter));
-    }
-
-    public void appendFileUsingZipUpload(final String relativeUrl, final ZipSeriesRequestFactory.ZipStreaming zipStreaming, final FileCollection fileCollection, Iterable<ScriptApplicator> applicators) throws IOException {
-        giftCloudSession.request(ZipSeriesRequestFactory.build(HttpConnection.ConnectionType.PUT, zipStreaming, relativeUrl, fileCollection, applicators, new HttpEmptyResponseProcessor(), giftCloudProperties, reporter));
-    }
-
-    public Set<String> uploadSeriesUsingZipUpload(final String relativeUrl, final ZipSeriesRequestFactory.ZipStreaming zipStreaming, final FileCollection fileCollection, final Iterable<ScriptApplicator> applicators) throws IOException {
-        return giftCloudSession.request(ZipSeriesRequestFactory.build(HttpConnection.ConnectionType.POST, zipStreaming, relativeUrl, fileCollection, applicators, new HttpSetResponseProcessor(), giftCloudProperties, reporter));
+    public Set<String> uploadSeriesUsingZipUpload(final String relativeUrl, final File temporaryFile) throws IOException {
+        return giftCloudSession.request(new UploadFileRequest(HttpConnection.ConnectionType.POST, relativeUrl, temporaryFile, new HttpSetResponseProcessor(), giftCloudProperties, reporter));
     }
 
     public void resetCancellation() {

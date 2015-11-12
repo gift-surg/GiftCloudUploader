@@ -7,17 +7,20 @@ import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.QueryTreeRecord;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.QuerySelection;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 import java.util.Enumeration;
 import java.util.List;
 
 public class RetrieveWorker implements Runnable {
     private QueryInformationModel currentRemoteQueryInformationModel;
+    private UploaderStatusModel uploaderStatusModel;
     private GiftCloudReporterFromApplication reporter;
     private List<QuerySelection> currentRemoteQuerySelectionList;
 
-    public RetrieveWorker(final List<QuerySelection> currentRemoteQuerySelectionList, final QueryInformationModel currentRemoteQueryInformationModel, final GiftCloudReporterFromApplication reporter) {
+    public RetrieveWorker(final List<QuerySelection> currentRemoteQuerySelectionList, final QueryInformationModel currentRemoteQueryInformationModel, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
         this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
+        this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
         this.currentRemoteQuerySelectionList = currentRemoteQuerySelectionList;
     }
@@ -79,7 +82,8 @@ public class RetrieveWorker implements Runnable {
             }
             // else do nothing, since no unique key to specify what to retrieve
         } catch (Exception e) {
-            e.printStackTrace(System.err);
+            uploaderStatusModel.setImportingStatusMessage("The files could not be retrieved. Please ensure the PACS settings are correct");
+            reporter.silentLogException(e, "Retrieve operation failed");
         }
     }
 }

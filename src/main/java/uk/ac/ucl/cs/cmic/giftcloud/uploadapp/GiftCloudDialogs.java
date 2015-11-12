@@ -5,7 +5,10 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Vector;
 import java.util.concurrent.CancellationException;
@@ -19,7 +22,7 @@ public class GiftCloudDialogs {
         this.mainFrame = mainFrame;
 
         // Set the default background colour to white
-        UIManager UI =new UIManager();
+        UIManager UI = new UIManager();
         UI.put("OptionPane.background", Color.white);
         UI.put("Panel.background", Color.white);
 
@@ -89,13 +92,35 @@ public class GiftCloudDialogs {
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
         if (chooser.showOpenDialog(mainFrame.getContainer()) == JFileChooser.APPROVE_OPTION) {
-            return Optional.of(new SelectedPathAndFile(chooser.getCurrentDirectory().getAbsolutePath(), chooser.getSelectedFile().getAbsolutePath()));
+            return Optional.of(new SelectedPathAndFile(chooser));
         } else {
             return Optional.empty();
         }
     }
 
-    public static String showInputDialogToSelectProject(final Vector<String> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
+    Optional<SelectedPathAndFiles> selectMultipleFilesOrDirectors(final Optional<String> initialPathInput) {
+
+        String initialPath;
+        if (initialPathInput.isPresent() && StringUtils.isNotBlank(initialPathInput.get())) {
+            initialPath = initialPathInput.get();
+        } else {
+            initialPath = "/";
+        }
+
+        // need to do the file choosing on the main event thread, since Swing is not thread safe, so do it here, instead of delegating to MediaImporter in ImportWorker
+        SafeFileChooser chooser = new SafeFileChooser(initialPath);
+        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        chooser.setMultiSelectionEnabled(true);
+
+        if (chooser.showOpenDialog(mainFrame.getContainer()) == JFileChooser.APPROVE_OPTION) {
+            return Optional.of(new SelectedPathAndFiles(chooser));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+
+    public String showInputDialogToSelectProject(final Vector<String> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
         final String lastProjectName = lastProject.isPresent() ? lastProject.get() : "";
 
         if (projectMap.size() < 1) {
@@ -118,21 +143,110 @@ public class GiftCloudDialogs {
         return (String)returnValue;
     }
 
-    class SelectedPathAndFile {
-        private String selectedPath;
-        private String selectedFile;
+    public String showTextInputDialog(final Component component, final String message, final Optional<String> defaultName) throws IOException {
+        final String initialName = defaultName.isPresent() ? defaultName.get() : "";
 
-        SelectedPathAndFile(final String selectedPath, final String selectedFile) {
-            this.selectedPath = selectedPath;
-            this.selectedFile = selectedFile;
+        String returnString = "";
+
+        while (returnString.length() < 1) {
+            final Object returnValue = JOptionPane.showInputDialog(component, message, "GIFT-Cloud", JOptionPane.PLAIN_MESSAGE, icon, null, initialName);
+            if (returnValue == null) {
+                throw new CancellationException("User cancelled template saving");
+            }
+            if (!(returnValue instanceof String)) {
+                throw new RuntimeException("Bad return type");
+            }
+            returnString = (String)returnValue;
+        }
+        return returnString;
+    }
+
+    /**
+     * A helper class used to represent a file or directory selection
+     */
+    class SelectedPathAndFile {
+        private final String parentPath;
+        private final String selectedPath;
+        private final String selectedFile;
+
+        SelectedPathAndFile(final SafeFileChooser chooser) {
+            this.parentPath = chooser.getCurrentDirectory().getAbsolutePath();
+            this.selectedFile = chooser.getSelectedFile().getAbsolutePath();
+
+            final File selectedFile = chooser.getSelectedFile();
+            if (selectedFile.isDirectory()) {
+                this.selectedPath = chooser.getSelectedFile().getAbsolutePath();
+
+            } else {
+                this.selectedPath = chooser.getCurrentDirectory().getAbsolutePath();
+            }
         }
 
+        /**
+         * @return the currently visible path from the file dialog. If the selected file is actually a directory, getParentPath() will return the parent directory, whereas getSelectedPath() will return the selected directory. If the selected file is not a path, these will be the same
+         */
+        public String getParentPath() {
+            return parentPath;
+        }
+
+        /**
+         * @return the path containing the file that has been selected, or the selected directory.
+         */
         public String getSelectedPath() {
             return selectedPath;
         }
 
+        /**
+         * @return the file or directory that has been selected
+         */
         public String getSelectedFile() {
             return selectedFile;
+        }
+    }
+    /**
+     * A helper class used to represent a file or directory selection
+     */
+    class SelectedPathAndFiles {
+        private final String parentPath;
+        private final String selectedPath;
+        private final java.util.List<File> selectedFiles;
+        private final java.util.List<String> selectedFileStrings;
+
+        SelectedPathAndFiles(final SafeFileChooser chooser) {
+            parentPath = chooser.getCurrentDirectory().getAbsolutePath();
+            selectedFileStrings = new ArrayList<String>();
+            selectedFiles = Arrays.asList(chooser.getSelectedFiles());
+            for (final File file : selectedFiles) {
+                selectedFileStrings.add(file.getAbsolutePath());
+            }
+
+            if (selectedFiles.size() == 1 && selectedFiles.get(0).isDirectory()) {
+                this.selectedPath = selectedFiles.get(0).getAbsolutePath();
+
+            } else {
+                this.selectedPath = chooser.getCurrentDirectory().getAbsolutePath();
+            }
+        }
+
+        /**
+         * @return the currently visible path from the file dialog. If the selected file is actually a directory, getParentPath() will return the parent directory, whereas getSelectedPath() will return the selected directory. If the selected file is not a path, these will be the same
+         */
+        public String getParentPath() {
+            return parentPath;
+        }
+
+        /**
+         * @return the path containing the file that has been selected, or the selected directory.
+         */
+        public String getSelectedPath() {
+            return selectedPath;
+        }
+
+        /**
+         * @return the file or directory that has been selected
+         */
+        public java.util.List<File> getSelectedFiles() {
+            return selectedFiles;
         }
     }
 

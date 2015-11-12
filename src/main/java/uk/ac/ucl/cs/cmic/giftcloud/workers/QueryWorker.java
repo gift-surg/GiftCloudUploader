@@ -5,19 +5,23 @@ import com.pixelmed.query.QueryInformationModel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.QueryRetrieveRemoteView;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 public class QueryWorker implements Runnable {
     private QueryRetrieveRemoteView queryRetrieveRemoteView;
     private QueryInformationModel currentRemoteQueryInformationModel;
     AttributeList filter;
     private DicomNode dicomNode;
+    private UploaderStatusModel uploaderStatusModel;
     private GiftCloudReporterFromApplication reporter;
 
-    public QueryWorker(final QueryRetrieveRemoteView queryRetrieveRemoteView, final QueryInformationModel currentRemoteQueryInformationModel, AttributeList filter, final DicomNode dicomNode, final GiftCloudReporterFromApplication reporter) {
+    public QueryWorker(final QueryRetrieveRemoteView queryRetrieveRemoteView, final QueryInformationModel currentRemoteQueryInformationModel, AttributeList filter, final DicomNode dicomNode, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
         this.queryRetrieveRemoteView = queryRetrieveRemoteView;
         this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
         this.filter=filter;
         this.dicomNode = dicomNode;
+        this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
     }
 
@@ -27,12 +31,15 @@ public class QueryWorker implements Runnable {
         reporter.updateStatusText("Performing query on " + calledAET + " (" + calledAET + ")");
         try {
             queryRetrieveRemoteView.updateQueryPanel(currentRemoteQueryInformationModel, filter, currentRemoteQueryInformationModel);
-            reporter.updateStatusText("Done querying " + calledAET);
+            reporter.updateStatusText("Query to " + calledAET + ") complete");
+            uploaderStatusModel.setUploadingStatusMessage("Query to " + calledAET + ") complete");
+        } catch (GiftCloudException e) {
+            uploaderStatusModel.setUploadingStatusMessage(e.getPithyMessage());
+            reporter.reportErrorToUser("The PACS query failed. Please ensure the PACS settings are correct and that the PACS is running.", e);
         } catch (Exception e) {
-            reporter.updateStatusText("Query to " + calledAET + " failed due to" + e);
-            e.printStackTrace(System.err);
+            uploaderStatusModel.setUploadingStatusMessage("Query to " + calledAET + " failed due to" + e);
+            reporter.reportErrorToUser("The PACS query failed. Please ensure the PACS settings are correct and that the PACS is running.", e);
         }
-        reporter.updateStatusText("Query to " + calledAET + ") complete");
         reporter.restoreCursor();
     }
 }

@@ -26,7 +26,6 @@ import com.pixelmed.display.SafeCursorChanger;
 import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.utils.MessageLogger;
-import netscape.javascript.JSObject;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
@@ -37,7 +36,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.util.Optional;
 
 public class GiftCloudReporterFromApplication implements GiftCloudReporter, MessageLogger, Progress {
@@ -74,122 +72,14 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     }
 
     @Override
-    public void loadWebPage(String url) throws MalformedURLException {
-//        container.getAppletContext().showDocument(new URL(url));
-    }
-
-    @Override
-    public void exit() {
-        final JSObject context = getJSContext();
-        if (null == context) {
-
-            warn("Unable to retrieve JavaScript window context, possibly running in non-browser-hosted mode like appletviewer?");
-
-            System.err.println("javascript close failed");
-            // this usually means we're in a non-browser applet viewer
-        } else {
-            context.call("close", (Object[]) null);
-        }
-    }
-
-    @Override
     public Container getContainer() {
         return container;
     }
 
-    /**
-     * Retrieves the Javascript object context if available.
-     *
-     * @return The Javascript object if available. Returns null if not available (e.g. if running in a debugger or
-     * non-Javascript-enabled browser.
-     */
-    public JSObject getJSContext() {
-        return null;
-    }
-
     @Override
-    public void trace(String msg) {
-        logger.trace(msg);
-    }
-
-    @Override
-    public void trace(String format, Object arg) {
-        logger.trace(format, arg);
-    }
-
-    @Override
-    public void error(String msg, Throwable t) {
-        logger.error(msg, t);
-    }
-
-    @Override
-    public void info(String msg) {
-        logger.info(msg);
-    }
-
-    @Override
-    public void info(String msg, Throwable t) {
-        logger.info(msg, t);
-    }
-
-    @Override
-    public void warn(String msg) {
-        logger.warn(msg);
-
-    }
-
-    @Override
-    public void debug(String msg) {
-        logger.debug(msg);
-    }
-
-    @Override
-    public void debug(String format, Object arg1, Object arg2) {
-        logger.debug(format, arg1, arg2);
-    }
-
-    @Override
-    public void trace(String format, Object arg1, Object arg2) {
-        logger.trace(format, arg1, arg2);
-    }
-
-    @Override
-    public void debug(String msg, Throwable t) {
-        logger.debug(msg, t);
-    }
-
-    @Override
-    public void info(String format, Object arg) {
-        logger.info(format, arg);
-    }
-
-    @Override
-    public void error(String format, Object arg) {
-        logger.error(format, arg);
-    }
-
-    @Override
-    public void error(String message) {
-        logger.error(message);
-    }
-
-    @Override
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
-    }
-
-    @Override
-    public boolean askRetry(Component parentComponent, String title, String message) {
-        final Object[] options = {"Retry", "Cancel"};
-        final int n = JOptionPane.showOptionDialog(parentComponent,
-                message,
-                title,
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.ERROR_MESSAGE,
-                null,
-                options,
-                options[0]);
-        return (JOptionPane.NO_OPTION != n);
+    public void showMessageToUser(final String messageText) {
+        giftCloudDialogs.showMessage(messageText);
+        updateStatusText(messageText);
     }
 
     @Override
@@ -213,7 +103,7 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
 
         giftCloudDialogs.showError(errorMessageForUser, additionalText);
         updateStatusText(errorMessageForStatusBar);
-        error(errorMessageForLog);
+        logger.error(errorMessageForLog);
         throwable.printStackTrace(System.err);
     }
 
@@ -225,11 +115,6 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     @Override
     public void silentLogException(final Throwable throwable, final String errorMessage) {
         logger.info(errorMessage + ":" + throwable.getLocalizedMessage());
-    }
-
-    @Override
-    public void silentLogDebugException(Throwable throwable, String errorMessage) {
-        logger.debug(errorMessage + ":" + throwable.getLocalizedMessage());
     }
 
     /**

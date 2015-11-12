@@ -8,6 +8,7 @@ import com.pixelmed.query.StudyRootQueryInformationModel;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.QueryWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.RetrieveWorker;
 
@@ -19,14 +20,16 @@ public class QueryRetrieveController {
     private QueryRetrieveRemoteView queryRetrieveRemoteView;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final DicomNode dicomNode;
+    private UploaderStatusModel uploaderStatusModel;
     private final GiftCloudReporterFromApplication reporter;
     private Optional<QueryInformationModel> currentRemoteQueryInformationModel = Optional.empty();
     private Thread activeThread = null;
 
-    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrieveRemoteView, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final GiftCloudReporterFromApplication reporter) {
+    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrieveRemoteView, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
         this.queryRetrieveRemoteView = queryRetrieveRemoteView;
         this.giftCloudProperties = giftCloudProperties;
         this.dicomNode = dicomNode;
+        this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
 
         // Add a shutdown hook for graceful exit
@@ -52,7 +55,7 @@ public class QueryRetrieveController {
         }
 
         if (currentRemoteQueryInformationModel.isPresent()) {
-            Thread activeThread = new Thread(new RetrieveWorker(currentRemoteQuerySelectionList, currentRemoteQueryInformationModel.get(), reporter));
+            Thread activeThread = new Thread(new RetrieveWorker(currentRemoteQuerySelectionList, currentRemoteQueryInformationModel.get(), uploaderStatusModel, reporter));
             activeThread.start();
         } else {
             throw new GiftCloudException(GiftCloudUploaderError.NO_QUERY_OR_QUERY_FAILED);
@@ -71,7 +74,7 @@ public class QueryRetrieveController {
         queryRetrieveRemoteView.validate();
 
         AttributeList filter = queryParams.build();
-        Thread activeThread = new Thread(new QueryWorker(queryRetrieveRemoteView, currentRemoteQueryInformationModel.get(), filter, dicomNode, reporter));
+        Thread activeThread = new Thread(new QueryWorker(queryRetrieveRemoteView, currentRemoteQueryInformationModel.get(), filter, dicomNode, uploaderStatusModel, reporter));
         activeThread.start();
     }
 
@@ -84,11 +87,11 @@ public class QueryRetrieveController {
         final int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
 
         if (!queryHost.isPresent() || StringUtils.isBlank(queryHost.get())) {
-            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_HOST, "No PACS host has been set");
+            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_HOST, "Please set the PACS host name in the settings before performing a query.");
         }
 
         if (!queryCalledAETitle.isPresent() || StringUtils.isBlank(queryCalledAETitle.get())) {
-            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_CALLED_AE_TITLE, "No PACS called AE title has been set");
+            throw new GiftCloudException(GiftCloudUploaderError.QUERY_NO_CALLED_AE_TITLE, "Please set the PACS AE title in the settings before performing a query.");
         }
 
         if (!queryModel.isPresent() || NetworkApplicationProperties.isStudyRootQueryModel(queryModel.get())) {

@@ -13,7 +13,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import com.google.common.base.Strings;
 import org.dcm4che2.data.DicomObject;
-import org.nrg.dcm.edit.MultipleInitializationException;
 import org.nrg.dcm.edit.ScriptEvaluationException;
 import org.nrg.dcm.edit.Value;
 import org.nrg.dcm.edit.Variable;
@@ -88,14 +87,6 @@ extends AbstractSessionVariable implements SessionVariable,ValueListener {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see SessionVariable#getValueMessage()
-     */
-    public String getValueMessage() {
-        return message;
-    }
-    
     /**
      * Gets the underlying DicomEdit script variable.
      * @return script variable
@@ -116,14 +107,6 @@ extends AbstractSessionVariable implements SessionVariable,ValueListener {
 
     /*
      * (non-Javadoc)
-     * @see SessionVariable#isHidden()
-     */
-    public boolean isHidden() { 
-        return v.isHidden();
-    }
-
-    /*
-     * (non-Javadoc)
      * @see AbstractSessionVariable#setDescription(java.lang.String)
      */
     @Override
@@ -134,10 +117,6 @@ extends AbstractSessionVariable implements SessionVariable,ValueListener {
         } else {
             return v.getDescription();
         }
-    }
-    
-    public void setIsHidden(final boolean isHidden) {
-        v.setIsHidden(isHidden);
     }
 
     /* (non-Javadoc)
@@ -150,22 +129,9 @@ extends AbstractSessionVariable implements SessionVariable,ValueListener {
         return old;
     }
 
-    public void setInitialValue(final Value value) throws MultipleInitializationException {
-        v.setInitialValue(value);
-    }
-
-    public boolean hasInitialValue() {
-        return null != v.getInitialValue();
-    }
-
     public Set<?> getTags() {
         final Value iv = v.getInitialValue();
         return null == iv ? Collections.emptySet() : iv.getTags();
-    }
-
-    public Set<?> getVariables() {
-        final Value iv = v.getInitialValue();
-        return null == iv ? Collections.emptySet() : iv.getVariables();
     }
 
     /*

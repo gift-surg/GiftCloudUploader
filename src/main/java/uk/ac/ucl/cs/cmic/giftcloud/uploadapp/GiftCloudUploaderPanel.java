@@ -4,6 +4,7 @@ import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.database.DatabaseTreeBrowser;
 import com.pixelmed.database.DatabaseTreeRecord;
 import com.pixelmed.dicom.DicomException;
+import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 import javax.swing.*;
@@ -12,6 +13,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
@@ -31,13 +34,23 @@ public class GiftCloudUploaderPanel extends JPanel {
     // Models for data selections by the user
     private Vector<String> currentSourceFilePathSelections;
 
+    private GiftCloudPropertiesFromApplication giftCloudProperties;
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
     public GiftCloudUploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
+        this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
+
+
+        new FileDrop(dialog, new FileDrop.Listener()
+        {
+            public void filesDropped(final java.io.File[] files) {
+                controller.runImport(Arrays.asList(files), true, reporter);
+            }
+        });
 
         remoteQueryRetrieveDialog = new QueryRetrieveDialog(dialog, controller, resourceBundle);
 
@@ -66,11 +79,24 @@ public class GiftCloudUploaderPanel extends JPanel {
         buttonPanel.add(importPacsButton);
         importPacsButton.addActionListener(new ImportPacsActionListener());
 
-        JButton exportButton = new JButton(resourceBundle.getString("exportButtonLabelText"));
-        exportButton.setToolTipText(resourceBundle.getString("exportButtonToolTipText"));
-        buttonPanel.add(exportButton);
-        exportButton.addActionListener(new ExportActionListener());
+//        JButton exportButton = new JButton(resourceBundle.getString("exportButtonLabelText"));
+//        exportButton.setToolTipText(resourceBundle.getString("exportButtonToolTipText"));
+//        buttonPanel.add(exportButton);
+//        exportButton.addActionListener(new ExportActionListener());
 
+        JButton pixelDataButton = new JButton(resourceBundle.getString("pixelDataButtonLabelText"));
+        pixelDataButton.setToolTipText(resourceBundle.getString("pixelDataButtonToolTipText"));
+        buttonPanel.add(pixelDataButton);
+        pixelDataButton.addActionListener(new ConfigurePixelDataAnonymisationActionListener());
+
+        // Restart listener button
+//        JButton restartListenerButton = new JButton(resourceBundle.getString("restartListenerButtonLabelText"));
+//        restartListenerButton.setToolTipText(resourceBundle.getString("restartListenerButtonToolTipText"));
+//        buttonPanel.add(restartListenerButton);
+//        restartListenerButton.addActionListener(new RestartListenerActionListener());
+
+
+        // Refresh button
 //        JButton refreshButton = new JButton(resourceBundle.getString("refreshButtonLabelText"));
 //        refreshButton.setToolTipText(resourceBundle.getString("refreshButtonToolTipText"));
 //        buttonPanel.add(refreshButton);
@@ -120,7 +146,7 @@ public class GiftCloudUploaderPanel extends JPanel {
             new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
 
         } catch (DicomException e) {
-            reporter.error("Refresh of the file database failed: " + e.getLocalizedMessage(), e);
+            reporter.silentLogException(e, "Refresh of the file database failed: " + e.getLocalizedMessage());
         }
         srcDatabasePanel.validate();
     }
@@ -130,6 +156,19 @@ public class GiftCloudUploaderPanel extends JPanel {
     }
 
     public void showQueryRetrieveDialog() {
+        final Optional<String> queryHost = giftCloudProperties.getPacsHostName();
+        if (!queryHost.isPresent() || StringUtils.isBlank(queryHost.get())) {
+            reporter.showMessageToUser("Please set the PACS host name before importing from PACS.");
+            controller.showConfigureDialog(false);
+            return;
+        }
+        final Optional<String> queryCalledAETitle = giftCloudProperties.getPacsAeTitle();
+        if (!queryCalledAETitle.isPresent() || StringUtils.isBlank(queryCalledAETitle.get())) {
+            reporter.showMessageToUser("Please set the PACS AE title before performing importing from PACS.");
+            controller.showConfigureDialog(false);
+            return;
+        }
+
         remoteQueryRetrieveDialog.setVisible(true);
     }
 
@@ -148,6 +187,22 @@ public class GiftCloudUploaderPanel extends JPanel {
     private class ExportActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             controller.selectAndExport(currentSourceFilePathSelections);
+        }
+    }
+
+    private class RestartListenerActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            controller.restartDicomService();
+        }
+    }
+
+    private class ConfigurePixelDataAnonymisationActionListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            try {
+                controller.showPixelDataTemplateDialog();
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
+            }
         }
     }
 
@@ -180,7 +235,7 @@ public class GiftCloudUploaderPanel extends JPanel {
     private class ConfigureActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             try {
-                controller.showConfigureDialog();
+                controller.showConfigureDialog(false);
             } catch (Exception e) {
                 e.printStackTrace(System.err);
             }

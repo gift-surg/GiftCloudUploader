@@ -4,17 +4,23 @@ package com.pixelmed.dicom;
 
 //import com.pixelmed.utils.CapabilitiesAvailable;		// for dumpListOfAllAvailableReaders() during debugging
 
-import java.util.*;
-import java.text.NumberFormat;
-import java.io.*;
-import javax.imageio.*;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.spi.*;
-import javax.imageio.event.IIOReadProgressListener;
+import javax.imageio.IIOException;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
-import java.awt.image.*; 
-
-import java.util.zip.*;
+import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.io.*;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 /**
  * <p>The {@link com.pixelmed.dicom.AttributeList AttributeList} class maintains a list of individual DICOM attributes.</p>
@@ -929,7 +935,7 @@ System.err.println("AttributeList.read(): "+tag+" explicit VR was UN but we know
 								colorSpaceWillBeConvertedToRGBDuringDecompression = true;
 //System.err.println("Unrecognized Transfer Syntax "+tsuid+" for encapsulated PixelData - guessing "+readerWanted);
 							}
-System.err.println("Based on Transfer Syntax, colorSpaceWillBeConvertedToRGBDuringDecompression = "+colorSpaceWillBeConvertedToRGBDuringDecompression);
+//System.err.println("Based on Transfer Syntax, colorSpaceWillBeConvertedToRGBDuringDecompression = "+colorSpaceWillBeConvertedToRGBDuringDecompression);
 							if (readerWanted != null) {
 								ImageReader reader = null;
 								ImageReaderSpi readerSpi = null;
@@ -974,7 +980,7 @@ System.err.println("Based on Transfer Syntax, colorSpaceWillBeConvertedToRGBDuri
 										if (tsuid.equals(TransferSyntax.JPEGExtended) && bytesPerSample > 1 && readerDescription.equals("Standard JPEG Image Reader") && (readerVendorName.equals("Sun Microsystems, Inc.") || readerVendorName.equals("Oracle Corporation"))) {
 											throw new DicomException("Reader "+readerDescription+" "+readerVendorName+" "+readerVersion+" does not support extended lossy JPEG Transfer Syntax "+tsuid+" other than for 8 bit data");
 										}
-System.err.println("Using reader from "+readerDescription+" "+readerVendorName+" "+readerVersion);
+//System.err.println("Using reader from "+readerDescription+" "+readerVendorName+" "+readerVersion);
 										//OurIIOReadProgressListener progressListener = new OurIIOReadProgressListener();
 										//reader.addIIOReadProgressListener(progressListener);
 //System.err.println("Back from reader.addIIOReadProgressListener()");
@@ -1102,7 +1108,7 @@ System.err.println("Using reader from "+readerDescription+" "+readerVendorName+"
 								throw new DicomException("Unrecognized Transfer Syntax "+tsuid+" for encapsulated PixelData");
 							}
 						}
-System.err.println("colorSpaceWasConvertedToRGBDuringDecompression = "+colorSpaceWasConvertedToRGBDuringDecompression);
+//System.err.println("colorSpaceWasConvertedToRGBDuringDecompression = "+colorSpaceWasConvertedToRGBDuringDecompression);
 					}
 					else {
 //System.err.println("AttributeList.read(): Do not decompress Pixel Data");

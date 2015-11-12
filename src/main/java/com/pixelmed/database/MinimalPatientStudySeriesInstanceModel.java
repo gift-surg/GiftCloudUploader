@@ -4,11 +4,6 @@ package com.pixelmed.database;
 
 import com.pixelmed.dicom.*;
 
-import javax.swing.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.sql.Statement;
 
 // the following are only for main test to use DatabaseTreeBrowser ...
@@ -296,85 +291,5 @@ public class MinimalPatientStudySeriesInstanceModel extends DicomDatabaseInforma
 		}
 	}
 
-	/**
-	 * <p>For unit test
-	 * purposes.</p>
-	 *
-	 * <p>Reads the DICOM files listed on the command line, loads them into the model and pops up a browser
-	 * for viewing the tree hierarchy of the model and the values of each instance of an entity.</p>
-	 *
-	 * @param	arg	a list of DICOM file names
-	 */
-	public static void main(String arg[]) {
-		try {
-			final DatabaseInformationModel d = new MinimalPatientStudySeriesInstanceModel("test");
-			java.util.Set sopInstanceUIDs = new java.util.HashSet();
-			java.util.Set localFileNames = new java.util.HashSet();
-			for (int j=0; j<arg.length; ++j) {
-				String fileName = arg[j];
-System.err.println("reading "+fileName);
-				DicomInputStream dfi = new DicomInputStream(new BufferedInputStream(new FileInputStream(fileName)));
-				AttributeList list = new AttributeList();
-				list.read(dfi,TagFromName.PixelData);
-				sopInstanceUIDs.add(Attribute.getSingleStringValueOrEmptyString(list,TagFromName.SOPInstanceUID));
-				dfi.close();
-				//d.extendTablesAsNecessary(list);		// doesn't work with Hypersonic ... ALTER command not supported
-System.err.println("inserting");
-				d.insertObject(list,fileName,DatabaseInformationModel.FILE_REFERENCED);
-			}
-//System.err.print(d);
-			{
-				String localFileNameColumnName = d.getLocalFileNameColumnName(InformationEntity.INSTANCE);
-				java.util.Iterator i = sopInstanceUIDs.iterator();
-				while (i.hasNext()) {
-					String uid = (String)i.next();
-System.err.println("Searching database for uid "+uid);
-					java.util.ArrayList result = d.findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedUID(InformationEntity.INSTANCE,uid);
-					if (result != null) {
-						for (int r=0; r<result.size(); ++r) {
-							java.util.Map map = (java.util.Map)(result.get(r));
-							String localFileNameValue = (String)map.get(localFileNameColumnName);
-System.err.println("Got record # "+r+" "+localFileNameColumnName+" = "+localFileNameValue);
-							localFileNames.add(localFileNameValue);
-						}
-					}
-				}
-			}
-			{
-				String localFileNameColumnName = d.getLocalFileNameColumnName(InformationEntity.INSTANCE);
-				java.util.Iterator i = localFileNames.iterator();
-				while (i.hasNext()) {
-					String localFileNameKeyValue = (String)i.next();
-System.err.println("Searching database for localFileName "+localFileNameKeyValue);
-					java.util.ArrayList result = d.findAllAttributeValuesForAllRecordsForThisInformationEntityWithSpecifiedKeyValue(InformationEntity.INSTANCE,localFileNameColumnName,localFileNameKeyValue);
-					if (result != null) {
-						for (int r=0; r<result.size(); ++r) {
-							java.util.Map map = (java.util.Map)(result.get(r));
-							String localFileNameValue = (String)map.get(localFileNameColumnName);
-System.err.println("Got record # "+r+" "+localFileNameColumnName+" = "+localFileNameValue+" is expected = "+localFileNameValue.equals(localFileNameKeyValue));
-							localFileNames.add(localFileNameValue);
-						}
-					}
-				}
-			}
-			final JFrame frame = new JFrame();
-			frame.setSize(400,800);
-			frame.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent e) {
-					frame.dispose();
-					d.close();
-					System.exit(0);
-				}
-			});
-System.err.println("building tree");
-			DatabaseTreeBrowser tree = new DatabaseTreeBrowser(d,frame);
-System.err.println("display tree");
-			frame.setVisible(true); 
-		} catch (Exception e) {
-			System.err.println(e);
-                        e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }
 
