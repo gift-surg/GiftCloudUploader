@@ -8,10 +8,11 @@
 
 package com.tomdoel.mpg2dcm;
 
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
 
 /**
  * Stores metadata derived from an MPEG file

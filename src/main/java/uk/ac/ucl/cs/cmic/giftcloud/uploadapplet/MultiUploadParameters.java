@@ -23,7 +23,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.UIUtils;
 
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class MultiUploadParameters {
 

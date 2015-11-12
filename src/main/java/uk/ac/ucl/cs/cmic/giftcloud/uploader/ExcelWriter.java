@@ -15,7 +15,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.*;
 import java.security.GeneralSecurityException;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * Class for exporting a patient map to an Excel spreadsheet

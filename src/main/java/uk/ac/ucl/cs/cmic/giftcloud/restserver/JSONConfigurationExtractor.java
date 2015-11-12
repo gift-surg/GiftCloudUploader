@@ -28,7 +28,7 @@ import org.json.JSONTokener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * Turns a JSON object from the XNAT configuration service into a map.

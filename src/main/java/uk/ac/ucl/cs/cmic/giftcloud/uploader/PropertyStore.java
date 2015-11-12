@@ -1,7 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import java.io.IOException;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * An interface for storing and retrieving properties and passwords

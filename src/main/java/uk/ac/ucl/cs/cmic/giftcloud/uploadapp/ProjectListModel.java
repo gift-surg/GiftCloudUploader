@@ -2,7 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class ProjectListModel extends DropDownListModel {
 

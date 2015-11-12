@@ -36,7 +36,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class GiftCloudReporterFromApplication implements GiftCloudReporter, MessageLogger, Progress {
 

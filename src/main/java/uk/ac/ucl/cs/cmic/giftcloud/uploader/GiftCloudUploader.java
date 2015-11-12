@@ -17,7 +17,7 @@ import javax.security.sasl.AuthenticationException;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.CancellationException;

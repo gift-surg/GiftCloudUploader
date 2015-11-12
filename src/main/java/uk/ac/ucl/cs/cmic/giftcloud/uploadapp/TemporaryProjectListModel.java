@@ -2,7 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import javax.swing.*;
 import javax.swing.event.ListDataListener;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * Implements a ComboBoxModel which uses an underlying ComboBoxModel for the elements,

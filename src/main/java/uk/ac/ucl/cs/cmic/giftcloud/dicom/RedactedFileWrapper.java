@@ -2,9 +2,9 @@ package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
-import java.util.Optional;
 
 /**
  * This class stores the result of an attempted pixel data redaction. This abstracts the requirement to create and

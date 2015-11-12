@@ -12,7 +12,7 @@ import org.dcm4che3.data.Attributes;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
 
 import java.io.*;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 
 /**

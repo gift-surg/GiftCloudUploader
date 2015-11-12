@@ -4,7 +4,7 @@ import org.nrg.util.EditProgressMonitor;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
 import java.awt.*;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class SwingProgressMonitorWrapper implements Progress {
 

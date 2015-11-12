@@ -5,7 +5,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.LabelUidMap;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * Stores a mapping of hashed patient IDs and patient labels to patient records
