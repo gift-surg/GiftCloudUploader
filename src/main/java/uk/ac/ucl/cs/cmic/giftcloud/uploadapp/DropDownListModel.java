@@ -18,7 +18,7 @@ import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.util.ArrayList;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.Vector;
 
 abstract class DropDownListModel extends DefaultComboBoxModel<String> implements ListDataListener {

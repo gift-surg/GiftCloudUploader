@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public interface GiftCloudProperties {
 

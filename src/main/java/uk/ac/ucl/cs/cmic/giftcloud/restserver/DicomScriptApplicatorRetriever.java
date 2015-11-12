@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.concurrent.Callable;
 
 public final class DicomScriptApplicatorRetriever

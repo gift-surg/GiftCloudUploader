@@ -6,7 +6,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 
 import java.io.IOException;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 

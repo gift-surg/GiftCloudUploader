@@ -14,7 +14,7 @@ import java.security.UnrecoverableEntryException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.Properties;
 
 public class PropertyStoreFromApplication implements PropertyStore {

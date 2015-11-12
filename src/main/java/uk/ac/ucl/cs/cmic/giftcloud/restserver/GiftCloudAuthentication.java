@@ -1,13 +1,13 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
 /**

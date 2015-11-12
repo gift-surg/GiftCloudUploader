@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.json.JSONException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.IOException;

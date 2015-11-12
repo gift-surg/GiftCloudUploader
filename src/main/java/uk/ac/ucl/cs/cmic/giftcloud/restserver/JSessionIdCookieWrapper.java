@@ -15,7 +15,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 final class JSessionIdCookieWrapper {
     private Optional<String> jSessionId;

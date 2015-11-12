@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundService;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.StatusObservable;
 
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.ResourceBundle;
 
 public class SystemTrayController {

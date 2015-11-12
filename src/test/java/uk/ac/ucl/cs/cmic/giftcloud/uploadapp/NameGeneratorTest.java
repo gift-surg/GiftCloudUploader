@@ -5,7 +5,7 @@ import org.junit.Test;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 
 import java.util.HashSet;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.Set;
 
 public class NameGeneratorTest {

@@ -5,12 +5,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.ByteArrayInputStream;
 import java.net.Authenticator;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
 import static java.net.HttpURLConnection.HTTP_OK;

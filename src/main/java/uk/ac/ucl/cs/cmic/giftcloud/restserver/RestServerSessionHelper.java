@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.Set;
 
 public class RestServerSessionHelper {

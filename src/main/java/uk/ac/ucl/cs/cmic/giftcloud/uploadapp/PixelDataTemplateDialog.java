@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class PixelDataTemplateDialog extends JFrame {
     private BlackoutCurrentImage blackoutCurrentImage;
