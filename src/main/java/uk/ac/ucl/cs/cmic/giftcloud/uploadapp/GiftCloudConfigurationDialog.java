@@ -3,6 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -10,12 +11,13 @@ import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -66,6 +68,15 @@ public class GiftCloudConfigurationDialog {
         dialog = new JDialog();
         dialog.setModal(true);
         dialog.setResizable(false);
+
+        // Call custom dialog close code when the close button is clicked
+        dialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        dialog.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent ev) {
+                closeDialog();
+            }
+        });
+
         dialog.setLocationRelativeTo(componentToCenterDialogOver);	// without this, appears at TLHC rather then center of parent or screen
         dialog.setTitle(resourceBundle.getString("configurationDialogTitle"));
 
