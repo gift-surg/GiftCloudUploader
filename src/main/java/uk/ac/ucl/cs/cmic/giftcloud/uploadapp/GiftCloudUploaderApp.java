@@ -23,11 +23,16 @@ public class GiftCloudUploaderApp {
 			final File appRoot = GiftCloudUtils.createOrGetGiftCloudFolder(Optional.<GiftCloudReporter>empty());
 			System.setProperty("app.root", appRoot.getAbsolutePath());
 
+			final List<File> fileList = new ArrayList<File>();
+			if (arg.length==2) {
+				fileList.add(new File(arg[1]));
+			}
+
 			final GiftCloudMainFrame mainFrame = new GiftCloudMainFrame(new JFrame());
 			final GiftCloudDialogs dialogs = new GiftCloudDialogs(mainFrame);
 			final GiftCloudReporterFromApplication reporter = new GiftCloudReporterFromApplication(mainFrame.getContainer(), dialogs);
 			GiftCloudUploaderMain uploaderMain = new GiftCloudUploaderMain(mainFrame, new GiftCloudUploaderRestServerFactory(), new PropertyStoreFromApplication(GiftCloudMainFrame.propertiesFileName, reporter), dialogs, reporter);
-			uploaderMain.start(false, new ArrayList<File>());
+			uploaderMain.start(false, fileList);
 		}
 		catch (Exception e) {
 			e.printStackTrace(System.err);
