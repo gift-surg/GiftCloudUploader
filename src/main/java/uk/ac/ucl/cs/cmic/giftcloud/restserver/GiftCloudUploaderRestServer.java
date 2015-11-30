@@ -56,7 +56,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
     @Override
     public Vector<String> getListOfProjects() throws IOException {
-        final String uri = "/REST/projects?format=json&owner=true&member=true";
+        final String uri = "/REST/projects?format=json";
         return new Vector<String>(restServerSessionHelper.getValues(uri, "id"));
     }
 
@@ -177,7 +177,11 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
 
     private synchronized void createSubjectIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel) throws IOException {
-        restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel.getStringLabel());
+        Map<String, String> subjects = getListOfSubjects(projectLabel);
+
+        if (!subjects.containsKey(subjectLabel.getStringLabel())) {
+            restServerSessionHelper.createResource("/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel.getStringLabel());
+        }
     }
 
     private synchronized void createExperimentIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String params) throws IOException {

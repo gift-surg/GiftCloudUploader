@@ -1,6 +1,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.MockRestServerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
 import java.io.File;
@@ -19,6 +22,10 @@ public class GiftCloudIntegrationTestApp {
 	 */
 	public static void main(String arg[]) {
 		try {
+			/// Get up root folder for logging
+			final File appRoot = GiftCloudUtils.createOrGetGiftCloudFolder(Optional.<GiftCloudReporter>empty());
+			System.setProperty("app.root", appRoot.getAbsolutePath());
+
 			final List<File> fileList = new ArrayList<File>();
 			if(arg.length==2) {
 				fileList.add(new File(arg[1]));

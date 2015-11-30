@@ -148,7 +148,7 @@ public class GiftCloudUtils {
      */
     public static File createOrGetLocalUploadCacheDirectory(final GiftCloudReporter reporter) {
 
-        final File appFolder = createOrGetGiftCloudFolder(reporter);
+        final File appFolder = createOrGetGiftCloudFolder(Optional.of(reporter));
 
         final File uploadCacheFolder = new File(appFolder, GIFT_CLOUD_UPLOAD_CACHE_FOLDER_NAME);
 
@@ -168,7 +168,7 @@ public class GiftCloudUtils {
      */
     public static File createOrGetTemplateDirectory(final GiftCloudReporter reporter) {
 
-        final File appFolder = createOrGetGiftCloudFolder(reporter);
+        final File appFolder = createOrGetGiftCloudFolder(Optional.of(reporter));
 
         final File templateFolder = new File(appFolder, GIFT_CLOUD_REDACTION_TEMPLATES_FOLDER_NAME);
 
@@ -201,12 +201,16 @@ public class GiftCloudUtils {
      * @param reporter for logging warnings
      * @return File object referencing the existing or newly created folder
      */
-    public static File createOrGetGiftCloudFolder(final GiftCloudReporter reporter) {
+    public static File createOrGetGiftCloudFolder(final Optional<GiftCloudReporter> reporter) {
 
         File appFolder = new File(System.getProperty("user.home"), GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME);
 
         if (!createDirectoryIfNotExisting(appFolder)) {
-            reporter.silentWarning("Could not create an upload folder in the user folder at " + appFolder.getAbsolutePath() + ". Using system temporary folder instead.");
+            if (reporter.isPresent()) {
+                reporter.get().silentWarning("Could not create a folder in the user folder at " + appFolder.getAbsolutePath() + ". Using system temporary folder instead.");
+            } else {
+                System.out.println("Could not create a folder in the user folder at " + appFolder.getAbsolutePath() + ". Using system temporary folder instead.");
+            }
             appFolder = new File(System.getProperty("java.io.tmpdir"), GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME);
 
             if (!createDirectoryIfNotExisting(appFolder)) {
