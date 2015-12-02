@@ -56,7 +56,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
 
     @Override
     public Vector<String> getListOfProjects() throws IOException {
-        final String uri = "/REST/projects?format=json";
+        final String uri = "/REST/projects?format=json&owner=true&member=true";
         return new Vector<String>(restServerSessionHelper.getValues(uri, "id"));
     }
 
