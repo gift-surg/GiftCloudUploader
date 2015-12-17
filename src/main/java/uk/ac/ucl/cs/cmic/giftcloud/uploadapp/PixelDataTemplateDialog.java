@@ -9,6 +9,7 @@ import com.pixelmed.display.*;
 import com.pixelmed.event.EventContext;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,10 +21,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class PixelDataTemplateDialog extends JFrame {
     private BlackoutCurrentImage blackoutCurrentImage;
+    private PixelDataAnonymiserFilterCache filters;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final GiftCloudDialogs giftCloudDialogs;
     private final GiftCloudReporter reporter;
@@ -41,8 +42,9 @@ public class PixelDataTemplateDialog extends JFrame {
     private SingleImagePanel imagePanel;
     private EventContext ourEventContext;
 
-    public PixelDataTemplateDialog(final Component owner, final String title, final GiftCloudPropertiesFromApplication giftCloudProperties, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
+    public PixelDataTemplateDialog(final Component owner, final String title, final PixelDataAnonymiserFilterCache filters, final GiftCloudPropertiesFromApplication giftCloudProperties, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         super(title);
+        this.filters = filters;
         this.giftCloudProperties = giftCloudProperties;
         this.giftCloudDialogs = giftCloudDialogs;
         this.reporter = reporter;
@@ -218,6 +220,7 @@ public class PixelDataTemplateDialog extends JFrame {
         final File filterFile = new File(filterPath, filterName + ".gcfilter");
         try {
             PixelDataAnonymiserFilterJsonWriter.writeJsonfile(filterFile, filter, reporter);
+            filters.reloadFilters();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -12,12 +12,12 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.LocalWaitingForUploadDatabase;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.security.sasl.AuthenticationException;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.CancellationException;
@@ -35,14 +35,14 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
-    public GiftCloudUploader(final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
         this.uploadDatabase = uploadDatabase;
         this.giftCloudProperties = giftCloudProperties;
         this.dialogs = dialogs;
         this.container = reporter.getContainer();
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
-        serverFactory = new GiftCloudServerFactory(restServerFactory, giftCloudProperties, projectListModel, reporter);
+        serverFactory = new GiftCloudServerFactory(filters, restServerFactory, giftCloudProperties, projectListModel, reporter);
         pendingUploadList = new PendingUploadTaskList(giftCloudProperties, pendingUploadFolder, reporter);
 
         final int numThreads = 1;

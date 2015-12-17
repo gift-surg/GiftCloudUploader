@@ -16,12 +16,12 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.util.UIDUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * Create a DICOM file from an MPEG stream, with DICOM tags provided via an Attributes list, or specified from MPEG metadata, or both
@@ -86,7 +86,7 @@ public class DicomFileBuilder {
                     resource.write(buffer, 0, r);
                 }
 
-                // If no length is specified, we have previouslyt set the length to -1 (UNDEFINED LENGTH), so we need to write out a sequence delimitation tag to terminate the pixel data
+                // If no length is specified, we have previously set the length to -1 (UNDEFINED LENGTH), so we need to write out a sequence delimitation tag to terminate the pixel data
                 if (!length.isPresent()) {
                     resource.writeHeader(Tag.SequenceDelimitationItem, null, 0);
                 }
