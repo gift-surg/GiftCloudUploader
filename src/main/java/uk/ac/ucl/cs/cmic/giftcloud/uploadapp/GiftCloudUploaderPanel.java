@@ -5,7 +5,9 @@ import com.pixelmed.database.DatabaseTreeBrowser;
 import com.pixelmed.database.DatabaseTreeRecord;
 import com.pixelmed.dicom.DicomException;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -14,7 +16,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Arrays;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
@@ -38,7 +39,7 @@ public class GiftCloudUploaderPanel extends JPanel {
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
-    public GiftCloudUploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final DatabaseInformationModel srcDatabase, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final DatabaseInformationModel srcDatabase, final PixelDataAnonymiserFilterCache filters, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;

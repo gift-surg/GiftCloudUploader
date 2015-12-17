@@ -14,22 +14,15 @@ import com.pixelmed.dicom.*;
 import com.pixelmed.display.ImageEditUtilities;
 import com.pixelmed.display.SourceImage;
 import com.pixelmed.utils.CapabilitiesAvailable;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.Resource;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.RedactedFileWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Vector;
 
 
@@ -38,12 +31,12 @@ import java.util.Vector;
  */
 public class PixelDataAnonymiser {
 
-    private final List<PixelDataAnonymiseFilter> filters;
     private boolean burnInOverlays = false;
     private boolean useZeroBlackoutValue = false;
     private boolean usePixelPaddingBlackoutValue = true;
     private final String aeTitle;
-    private GiftCloudReporter reporter;
+    private final GiftCloudReporter reporter;
+    private final PixelDataAnonymiserFilterCache filters;
 
     /**
      * Creates the PixelDataAnonymiser object. Parameters will be set at construction time
@@ -51,15 +44,14 @@ public class PixelDataAnonymiser {
      * @param giftCloudProperties Shared properties use to define anonymsation options
      * @param reporter
      */
-    public PixelDataAnonymiser(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    public PixelDataAnonymiser(final PixelDataAnonymiserFilterCache filters, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         this.reporter = reporter;
         burnInOverlays = giftCloudProperties.getBurnInOverlays();
         useZeroBlackoutValue = giftCloudProperties.getUseZeroBlackoutValue();
         usePixelPaddingBlackoutValue = giftCloudProperties.getUsePixelPaddingBlackoutValue();
         aeTitle = giftCloudProperties.getListenerAETitle();
-        filters = readFilters(giftCloudProperties, reporter);
+        this.filters = filters;
     }
-
 
     /**
      * Creates a RedactedFileWrapper object and if necessary construct a new temporary file with pixel data redacted
@@ -107,44 +99,6 @@ public class PixelDataAnonymiser {
         return outputFile;
     }
 
-    private List<PixelDataAnonymiseFilter> readFilters(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
-        final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
-
-        // Read in local filters
-        FileFilter fileFilter = new WildcardFileFilter("*.gcfilter");
-        filters.addAll(readFilterFiles(Arrays.asList(new File(giftCloudProperties.getFilterDirectory().getAbsolutePath()).listFiles(fileFilter)), reporter));
-
-        // Read in predefined filters from resource streams
-        final String resourceFilter = "classpath*:uk/**/*.gcfilter";
-        filters.addAll(readFilterResources(GiftCloudUtils.getMatchingResources(resourceFilter, reporter), reporter));
-
-        return filters;
-    }
-
-    private List<PixelDataAnonymiseFilter> readFilterFiles(final List<File> files, GiftCloudReporter reporter) {
-        final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
-        for (final File f : files) {
-            try {
-                filters.add(PixelDataAnonymiserFilterJsonWriter.readJsonFile(f));
-            } catch (final Exception e) {
-                reporter.silentLogException(e, "Could not read filter file: " + f.getAbsolutePath());
-            }
-        }
-        return filters;
-    }
-
-    private List<PixelDataAnonymiseFilter> readFilterResources(final List<Resource> resources, GiftCloudReporter reporter) {
-        final ArrayList<PixelDataAnonymiseFilter> filters = new ArrayList<PixelDataAnonymiseFilter>();
-        for (final Resource resource : resources) {
-            try {
-                filters.add(PixelDataAnonymiserFilterJsonWriter.readJsonResource(resource));
-            } catch (final Exception e) {
-                reporter.silentLogException(e, "Could not read filter file: " + resource.getFilename());
-            }
-        }
-        return filters;
-    }
-
     private boolean anonymisationIsRequired(AttributeList attributeList) {
         final String burntInAnnotations = Attribute.getSingleStringValueOrEmptyString(attributeList, TagFromName.BurnedInAnnotation);
 
@@ -166,7 +120,7 @@ public class PixelDataAnonymiser {
     }
 
     private Optional<PixelDataAnonymiseFilter> getFilter(AttributeList attributeList) {
-        for (final PixelDataAnonymiseFilter filter : filters) {
+        for (final PixelDataAnonymiseFilter filter : filters.getFilters()) {
             try {
                 if (filter.matches(attributeList)) {
                     return Optional.of(filter);

@@ -5,6 +5,7 @@ import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
@@ -43,6 +44,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private PixelDataTemplateDialog pixelDataDialog = null;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
+    private final PixelDataAnonymiserFilterCache filters;
     private final SystemTrayController systemTrayController;
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
     private Optional<SingleInstanceService> singleInstanceService;
@@ -94,17 +96,17 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         // Initialise application properties
         giftCloudProperties = new GiftCloudPropertiesFromApplication(propertyStore, resourceBundle, reporter);
-
+        filters = new PixelDataAnonymiserFilterCache(giftCloudProperties, reporter);
 
         // Initialise the main GIFT-Cloud class
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
 
         uploadDatabase = new LocalWaitingForUploadDatabase(resourceBundle.getString("DatabaseRootTitleForOriginal"), uploaderStatusModel, reporter);
-        giftCloudUploader = new GiftCloudUploader(restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
+        giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
         uploadDatabase.addObserver(new DatabaseListener());
         dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploadDatabase, uploaderStatusModel, reporter);
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, uploadDatabase.getSrcDatabase(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, uploadDatabase.getSrcDatabase(), filters, giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, uploaderStatusModel, reporter);
 
         mainFrame.addMainPanel(giftCloudUploaderPanel);
@@ -404,7 +406,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             java.awt.EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), giftCloudProperties, giftCloudDialogs, reporter);
+                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), filters, giftCloudProperties, giftCloudDialogs, reporter);
 
                 }
             });

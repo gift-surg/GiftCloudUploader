@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiser;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.ProjectCache;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
@@ -23,7 +24,7 @@ public class GiftCloudServer {
     private final ProjectCache projectCache;
     private final PixelDataAnonymiser pixelDataAnonymiser;
 
-    public GiftCloudServer(final RestServerFactory restServerFactory, final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
+    public GiftCloudServer(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudServerUrlString = giftCloudServerUrlString;
 
         if (StringUtils.isBlank(giftCloudServerUrlString)) {
@@ -38,7 +39,7 @@ public class GiftCloudServer {
 
         restServer = restServerFactory.create(giftCloudServerUrlString, giftCloudProperties, reporter);
         projectCache = new ProjectCache(restServer);
-        pixelDataAnonymiser = new PixelDataAnonymiser(giftCloudProperties, reporter);
+        pixelDataAnonymiser = new PixelDataAnonymiser(filters, giftCloudProperties, reporter);
     }
 
     public void tryAuthentication() throws IOException {
