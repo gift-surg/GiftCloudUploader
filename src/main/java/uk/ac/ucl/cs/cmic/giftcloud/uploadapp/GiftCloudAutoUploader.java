@@ -2,7 +2,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
 import org.nrg.dcm.edit.ScriptApplicator;
 import uk.ac.ucl.cs.cmic.giftcloud.data.AssignedSessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
@@ -62,28 +61,17 @@ public class GiftCloudAutoUploader {
 
     private boolean uploadOrAppend(final GiftCloudServer server, final Vector<String> paths, final String projectName, final boolean append) throws IOException {
 
-        SeriesImportFilterApplicatorRetriever filter;
-        try {
-            if (StringUtils.isEmpty(projectName)) {
-                final Optional<String> emptyProject = Optional.empty();
-                filter = new SeriesImportFilterApplicatorRetriever(server, emptyProject);
-            } else {
-                filter = new SeriesImportFilterApplicatorRetriever(server, Optional.of(projectName));
-            }
-        } catch (Exception exception) {
-            throw new IOException("Error encountered retrieving series import filters", exception);
-        }
-
         final Vector<File> fileList = new Vector<File>();
         for (final String path : paths) {
             fileList.add(new File(path));
         }
 
-        final EditProgressMonitorWrapper progressWrapper = new EditProgressMonitorWrapper(reporter);
-        final MasterTrawler trawler = new MasterTrawler(progressWrapper, fileList, filter);
-        final List<Session> sessions = trawler.call();
-
         final Project project = server.getProject(projectName);
+        final SeriesImportFilterApplicatorRetriever seriesImportFilter = project.getSeriesImportFilter(server);
+
+        final EditProgressMonitorWrapper progressWrapper = new EditProgressMonitorWrapper(reporter);
+        final MasterTrawler trawler = new MasterTrawler(progressWrapper, fileList, seriesImportFilter);
+        final List<Session> sessions = trawler.call();
 
         final Iterable<ScriptApplicator> projectApplicators = project.getDicomScriptApplicators();
 
