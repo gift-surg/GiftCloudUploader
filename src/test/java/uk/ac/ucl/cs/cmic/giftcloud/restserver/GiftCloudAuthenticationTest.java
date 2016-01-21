@@ -8,8 +8,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.ByteArrayInputStream;
-import java.net.Authenticator;
-import java.net.URL;
+import java.net.PasswordAuthentication;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CancellationException;
 
@@ -30,10 +29,7 @@ public class GiftCloudAuthenticationTest {
         // This test ensures that tryAuthentication() will authenticate the XNAT connection once and only once
 
         final String urlString = "http://UrlOne";
-        final URL url = new URL(urlString);
         final String cookieString = "CookieOne";
-        final Optional<String> emptyOptional = Optional.empty();
-        final Optional<char[]> emptyOptionalArray = Optional.empty();
 
         final HttpConnectionWrapper connectionWrapper = mock(HttpConnectionWrapper.class);
         when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
@@ -44,16 +40,18 @@ public class GiftCloudAuthenticationTest {
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
         when(giftCloudProperties.getUserAgentString()).thenReturn("TestUserAgent");
         when(giftCloudProperties.getSessionCookie()).thenReturn(Optional.of(cookieString));
-        when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
-        when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
+        when(giftCloudProperties.getLastUserName()).thenReturn(Optional.of("WrongUserName"));
+        when(giftCloudProperties.getLastPassword()).thenReturn(Optional.of("WrongPassword".toCharArray()));
 
-        final String wrongUserName = "WrongUserName";
-        final String wrongPassword = "WrongPassword";
-        final Authenticator authenticator = new FakeLoginAuthenticator(wrongUserName, wrongPassword.toCharArray(), false);
+        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final String userName = "WrongUserName";
+        final String password = "WrongPassword";
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
 
         {
             // An authorisation failure should throw an exception
@@ -83,7 +81,6 @@ public class GiftCloudAuthenticationTest {
         // This test tries out the different authentication methods
 
         final String urlString = "http://UrlOne.org";
-        final URL url = new URL(urlString);
         final String cookieString = "CookieOne";
         final Optional<String> emptyOptional = Optional.empty();
         final Optional<char[]> emptyOptionalArray = Optional.empty();
@@ -100,16 +97,15 @@ public class GiftCloudAuthenticationTest {
         when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
         when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
 
-        final String userName = "UserName";
-        final String password = "Password";
-
-        final String wrongUserName = "WrongUserName";
-        final String wrongPassword = "WrongPassword";
-        final Authenticator authenticator = new FakeLoginAuthenticator(wrongUserName, wrongPassword.toCharArray(), false);
+        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final String userName = "WrongUserName";
+        final String password = "WrongPassword";
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
 
         {
             // Login with cookie string
@@ -125,10 +121,7 @@ public class GiftCloudAuthenticationTest {
         // This test tries out the different authentication methods
 
         final String urlString = "http://UrlOne.org";
-        final URL url = new URL(urlString);
         final String cookieString = "CookieOne";
-        final Optional<String> emptyOptional = Optional.empty();
-        final Optional<char[]> emptyOptionalArray = Optional.empty();
 
         final HttpConnectionWrapper connectionWrapper = mock(HttpConnectionWrapper.class);
         when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
@@ -138,17 +131,20 @@ public class GiftCloudAuthenticationTest {
 
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
         when(giftCloudProperties.getUserAgentString()).thenReturn("TestUserAgent");
-        when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
-        when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
+        when(giftCloudProperties.getLastUserName()).thenReturn(Optional.of("WrongUserName"));
+        when(giftCloudProperties.getLastPassword()).thenReturn(Optional.of("WrongPassword".toCharArray()));
         when(giftCloudProperties.getSessionCookie()).thenReturn(Optional.of(cookieString));
 
-        final String wrongUserName = "WrongUserName";
-        final String wrongPassword = "WrongPassword";
-        final Authenticator authenticator = new FakeLoginAuthenticator(wrongUserName, wrongPassword.toCharArray(), false);
+        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final String userName = "WrongUserName";
+        final String password = "WrongPassword";
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
+
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
 
         {
             // An authorisation failure should throw an exception
@@ -166,7 +162,6 @@ public class GiftCloudAuthenticationTest {
         // Test that forceAuthentication() works when using a username and password specified in the preferences
 
         final String urlString = "http://UrlOne.org";
-        final URL url = new URL(urlString);
         final String cookieString = "CookieOne";
         final Optional<String> emptyOptional = Optional.empty();
         final String userName = "UserName";
@@ -184,12 +179,15 @@ public class GiftCloudAuthenticationTest {
         when(giftCloudProperties.getLastUserName()).thenReturn(Optional.of(userName));
         when(giftCloudProperties.getLastPassword()).thenReturn(Optional.of(password.toCharArray()));
 
-        // In this test we are testing the username and password set in the properties, not those typed in by the user
-        final Authenticator authenticator = new FakeLoginAuthenticator(null, null, true);
+        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final String userNameEntry = "WrongUserName";
+        final String passwordEntry = "WrongPassword";
+        doReturn(new PasswordAuthentication(userNameEntry, passwordEntry.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userNameEntry, passwordEntry.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
 
         // Login with username and password
         when(connectionWrapper.getResponseCode()).thenReturn(HTTP_OK);
@@ -200,10 +198,7 @@ public class GiftCloudAuthenticationTest {
     public void testResetCancellation() throws Exception {
 
         final String urlString = "http://UrlOne";
-        final URL url = new URL(urlString);
         final String cookieString = "CookieOne";
-        final Optional<String> emptyOptional = Optional.empty();
-        final Optional<char[]> emptyOptionalArray = Optional.empty();
 
         final HttpConnectionWrapper connectionWrapper = mock(HttpConnectionWrapper.class);
         when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
@@ -214,17 +209,19 @@ public class GiftCloudAuthenticationTest {
         final GiftCloudProperties giftCloudProperties = mock(GiftCloudProperties.class);
         when(giftCloudProperties.getUserAgentString()).thenReturn("TestUserAgent");
         when(giftCloudProperties.getSessionCookie()).thenReturn(Optional.of(cookieString));
-        when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
-        when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
-
-        // Set the authentication to cancel
-        final String wrongUserName = "WrongUserName";
-        final String wrongPassword = "WrongPassword";
-        final FakeLoginAuthenticator authenticator = new FakeLoginAuthenticator(wrongUserName, wrongPassword.toCharArray(), true);
+        when(giftCloudProperties.getLastUserName()).thenReturn(Optional.of("WrongUserName"));
+        when(giftCloudProperties.getLastPassword()).thenReturn(Optional.of("WrongUserName".toCharArray()));
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final String userName = "WrongUserName";
+        final String password = "WrongPassword";
+        doReturn(null).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
+
+
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
 
         // The authenticator has been set to cancel, and no cookie is valid, so an authorisation failure exception should be thrown
         when(connectionWrapper.getResponseCode()).thenReturn(HTTP_UNAUTHORIZED);
@@ -233,14 +230,16 @@ public class GiftCloudAuthenticationTest {
             Assert.fail();
         } catch (CancellationException e) {        }
 
-        Assert.assertEquals(authenticator.getAuthenticationCount(), 1);
+        // User is asked for login details, and if they cancel they are not asked again
+        verify(loginDialog, times(1)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
 
         // Try authentication again, without resetting the user cancellation
         try {
             authentication.tryAuthentication();
             Assert.fail();
         } catch (CancellationException e) {        }
-        Assert.assertEquals(authenticator.getAuthenticationCount(), 1);
+        // User is not asked for login details again if they cancelled last time
+        verify(loginDialog, times(1)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
 
         // Reset the cancellation and try login again. This should increase the authentication count
         authentication.resetCancellation();
@@ -248,14 +247,17 @@ public class GiftCloudAuthenticationTest {
             authentication.tryAuthentication();
             Assert.fail();
         } catch (CancellationException e) {        }
-        Assert.assertEquals(authenticator.getAuthenticationCount(), 2);
+        // User asked for login again after cancellation was reset
+        verify(loginDialog, times(2)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
 
         // Try authentication again, without resetting the user cancellation
         try {
             authentication.tryAuthentication();
             Assert.fail();
         } catch (CancellationException e) {        }
-        Assert.assertEquals(authenticator.getAuthenticationCount(), 2);
+
+        // User is not asked for login details again if they cancelled last time
+        verify(loginDialog, times(2)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
     }
 
     @Test
@@ -264,7 +266,6 @@ public class GiftCloudAuthenticationTest {
         // This test is about ensuring that the connection factory we get back has the cookie set correctly
 
         final String urlString = "http://UrlOne";
-        final URL url = new URL(urlString);
         final String cookieString = "CookieOne";
         final String jSessionIDString = "JSESSIONID=" + cookieString;
         final Optional<String> emptyOptional = Optional.empty();
@@ -278,10 +279,14 @@ public class GiftCloudAuthenticationTest {
         when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
         when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
 
-        final Authenticator authenticator = mock(Authenticator.class);
+        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final String userName = "WrongUserName";
+        final String password = "WrongPassword";
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, giftCloudProperties, authenticator, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
         final HttpConnectionBuilder connectionBuilder = mock(HttpConnectionBuilder.class);
 
         final ConnectionFactory authenticatedConnectionFactory = authentication.getAuthenticatedConnectionFactory();

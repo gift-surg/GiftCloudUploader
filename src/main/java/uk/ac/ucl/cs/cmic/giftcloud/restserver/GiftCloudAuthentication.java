@@ -25,6 +25,7 @@ class GiftCloudAuthentication {
     private static final int MAX_NUM_LOGIN_ATTEMPTS = 3;
     private String baseUrlString;
     private final ConnectionFactory connectionFactory;
+    private GiftCloudLoginDialog loginDialog;
     private GiftCloudProperties giftCloudProperties;
     private GiftCloudReporter reporter;
     private final JSessionIdCookieWrapper cookieWrapper;
@@ -40,13 +41,15 @@ class GiftCloudAuthentication {
      * @param giftCloudProperties used to get the session cookie and to get and set the username and password for the last successful login
      * @param reporter used to get the container for the user login dialog
      */
-    GiftCloudAuthentication(final String baseUrlString, final ConnectionFactory connectionFactory, final GiftCloudProperties giftCloudProperties, final Authenticator authenticator, final GiftCloudReporter reporter) throws MalformedURLException {
+    GiftCloudAuthentication(final String baseUrlString, final ConnectionFactory connectionFactory, final GiftCloudLoginDialog loginDialog, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
         this.baseUrlString = baseUrlString;
         this.connectionFactory = connectionFactory;
+        this.loginDialog = loginDialog;
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
         this.cookieWrapper = new JSessionIdCookieWrapper(giftCloudProperties.getSessionCookie());
         this.baseUrl = new URL(baseUrlString);
+        Optional<GiftCloudLoginAuthenticator> defaultAuthenticator= Optional.empty();
 
         Optional<PasswordAuthentication> passwordAuthenticationFromUrl = PasswordAuthenticationWrapper.getPasswordAuthenticationFromURL(baseUrl);
 
@@ -60,11 +63,12 @@ class GiftCloudAuthentication {
             if (passwordAuthenticationFromUserPassword.isPresent()) {
                 // If both a username and password are available, then construct an authenticator using these
                 passwordAuthenticationWrapper.set(passwordAuthenticationFromUserPassword.get());
+                defaultAuthenticator = Optional.of(new GiftCloudLoginAuthenticator(passwordAuthenticationWrapper));
             }
         }
 
-        // We set the authenticator that will be used to request login details from the user
-        Authenticator.setDefault(authenticator);
+        // If a password exists then we use this to supply the default authenticator; otherwise we disable default authentication which will force a failure, allowing other authentication methods to be attempted
+        Authenticator.setDefault(defaultAuthenticator.orElse(null));
     }
 
     /**
@@ -109,7 +113,8 @@ class GiftCloudAuthentication {
                 throw new CancellationException("User cancelled login to GIFT-Cloud");
             }
 
-            Optional<PasswordAuthentication> passwordAuthentication = PasswordAuthenticationWrapper.askPasswordAuthenticationFromUser(baseUrl, number_of_login_attempts > 1);
+            final String prompt = number_of_login_attempts > 1 ? PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE : PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE;
+            Optional<PasswordAuthentication> passwordAuthentication = Optional.ofNullable(loginDialog.getPasswordAuthentication(prompt));
 
             // If the user cancels the login, we suspend all future login dialogs until resetCancellation() is called
             if (!passwordAuthentication.isPresent()) {

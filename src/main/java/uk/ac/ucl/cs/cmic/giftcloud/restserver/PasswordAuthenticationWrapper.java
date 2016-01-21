@@ -16,11 +16,10 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
-import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,9 +27,8 @@ class PasswordAuthenticationWrapper {
     private Optional<PasswordAuthentication> passwordAuthentication = Optional.empty();
     private static final Pattern userInfoPattern = Pattern.compile("([^:@/]*):([^:@]*)");
 
-    private static final String FIRST_LOGIN_MESSAGE = "Please enter your GIFT-Cloud login details.";
-    private static final String ERROR_LOGIN_MESSAGE = "Incorrect username or password. Please try again.";
-
+    static final String FIRST_LOGIN_MESSAGE = "Please enter your GIFT-Cloud login details.";
+    static final String ERROR_LOGIN_MESSAGE = "Incorrect username or password. Please try again.";
 
     void set(final PasswordAuthentication authenticator) {
         passwordAuthentication = Optional.of(authenticator);
@@ -42,12 +40,6 @@ class PasswordAuthenticationWrapper {
 
     boolean isValid() {
         return passwordAuthentication.isPresent();
-    }
-
-    static Optional<PasswordAuthentication> askPasswordAuthenticationFromUser(final URL url, final boolean showErrorMessage) {
-        final String prompt = showErrorMessage ? ERROR_LOGIN_MESSAGE : FIRST_LOGIN_MESSAGE;
-        final PasswordAuthentication auth = Authenticator.requestPasswordAuthentication(url.getHost(), null, url.getPort(), url.getProtocol(), prompt, url.getProtocol());
-        return Optional.ofNullable(auth);
     }
 
     static Optional<PasswordAuthentication> getPasswordAuthenticationFromURL(final URL url) {
