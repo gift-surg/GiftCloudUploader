@@ -61,9 +61,10 @@ class UploadFileRequest extends HttpRequestWithOutput<Set<String>> {
 
     private void writeChunk(FileInputStream fis, OutputStream os) throws IOException {
         final byte[] buf = new byte[BUF_SIZE];
-        int chunk;
-        while ((chunk = fis.read(buf)) != -1) {
-            os.write(buf, 0, chunk);
+        int bytesRead;
+
+        while ((bytesRead = fis.read(buf)) > 0) {
+            os.write(buf, 0, bytesRead);
         }
     }
 }

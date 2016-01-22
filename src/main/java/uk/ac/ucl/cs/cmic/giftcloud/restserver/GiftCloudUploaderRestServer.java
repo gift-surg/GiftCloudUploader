@@ -255,7 +255,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
         }
 
         final String uriParams = "?extract=true";
-        final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + experimentLabel + "/scans/" + scanLabel + "/resources/" +  collectionLabel + "/files/" + temporaryFile.getName() + ".zip" + uriParams;
+        final String uri = "/data/archive/projects/" + projectLabel + "/subjects/" + subjectLabel + "/experiments/" + experimentLabel + "/scans/" + scanLabel + "/resources/" +  collectionLabel + "/files/" + temporaryFile.getName() + uriParams;
 
         restServerSessionHelper.appendFileUsingZipUpload(uri, temporaryFile);
     }

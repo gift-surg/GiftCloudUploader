@@ -12,15 +12,18 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * For retrieving XNAT series import filters for a particular project
+ */
 public final class SeriesImportFilterApplicatorRetriever {
 
     private final SeriesImportFilter _siteWideFilters;
