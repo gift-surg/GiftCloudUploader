@@ -23,16 +23,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
 
-public class UploadFileRequest extends HttpRequestWithOutput<Set<String>> {
+public class HttpUploadFileRequest extends HttpRequestWithOutput<Set<String>> {
     private static final int BUF_SIZE = 4096;
     private final File temporaryFile;
 
-    public UploadFileRequest(final HttpConnectionWrapper.ConnectionType connectionType,
-                      final String url,
-                      final File temporaryFile,
-                      final HttpResponseProcessor responseProcessor,
-                      final HttpProperties httpProperties,
-                      final GiftCloudReporter reporter) {
+    public HttpUploadFileRequest(final HttpConnectionWrapper.ConnectionType connectionType,
+                                 final String url,
+                                 final File temporaryFile,
+                                 final HttpResponseProcessor responseProcessor,
+                                 final HttpProperties httpProperties,
+                                 final GiftCloudReporter reporter) {
         super(connectionType, url, responseProcessor, httpProperties, reporter);
         this.temporaryFile = temporaryFile;
     }

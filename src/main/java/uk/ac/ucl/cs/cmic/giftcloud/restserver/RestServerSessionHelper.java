@@ -74,11 +74,11 @@ public class RestServerSessionHelper {
     }
 
     public void appendFileUsingZipUpload(final String relativeUrl, final File temporaryFile) throws IOException {
-        giftCloudSession.request(new UploadFileRequest(HttpConnection.ConnectionType.PUT, relativeUrl, temporaryFile, new HttpEmptyResponseProcessor(), createHttpProperties(giftCloudProperties), reporter));
+        giftCloudSession.request(new HttpUploadFileRequest(HttpConnection.ConnectionType.PUT, relativeUrl, temporaryFile, new HttpEmptyResponseProcessor(), createHttpProperties(giftCloudProperties), reporter));
     }
 
     public Set<String> uploadSeriesUsingZipUpload(final String relativeUrl, final File temporaryFile) throws IOException {
-        return giftCloudSession.request(new UploadFileRequest(HttpConnection.ConnectionType.POST, relativeUrl, temporaryFile, new HttpSetResponseProcessor(), createHttpProperties(giftCloudProperties), reporter));
+        return giftCloudSession.request(new HttpUploadFileRequest(HttpConnection.ConnectionType.POST, relativeUrl, temporaryFile, new HttpSetResponseProcessor(), createHttpProperties(giftCloudProperties), reporter));
     }
 
     public void resetCancellation() {
