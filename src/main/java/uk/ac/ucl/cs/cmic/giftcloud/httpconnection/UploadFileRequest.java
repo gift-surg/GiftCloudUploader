@@ -12,11 +12,8 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionWrapper;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -26,11 +23,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
 
-class UploadFileRequest extends HttpRequestWithOutput<Set<String>> {
+public class UploadFileRequest extends HttpRequestWithOutput<Set<String>> {
     private static final int BUF_SIZE = 4096;
     private final File temporaryFile;
 
-    UploadFileRequest(final HttpConnectionWrapper.ConnectionType connectionType,
+    public UploadFileRequest(final HttpConnectionWrapper.ConnectionType connectionType,
                       final String url,
                       final File temporaryFile,
                       final HttpResponseProcessor responseProcessor,

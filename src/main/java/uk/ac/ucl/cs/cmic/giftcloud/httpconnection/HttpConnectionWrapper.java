@@ -19,12 +19,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.*;
 
-class HttpConnectionWrapper implements HttpConnection {
+public class HttpConnectionWrapper implements HttpConnection {
     private HttpURLConnection connection;
     private final String urlString;
 
 
-    HttpConnectionWrapper(final String urlString) throws IOException {
+    public HttpConnectionWrapper(final String urlString) throws IOException {
         this.urlString = urlString;
         final URL url = new URL(urlString);
         connection = (HttpURLConnection) url.openConnection();

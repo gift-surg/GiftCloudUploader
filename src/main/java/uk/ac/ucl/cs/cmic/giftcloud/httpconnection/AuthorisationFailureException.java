@@ -12,12 +12,12 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
 import java.io.IOException;
 import java.net.URL;
 
-class AuthorisationFailureException extends IOException {
+public class AuthorisationFailureException extends IOException {
     private static final long serialVersionUID = 1L;
     private final int responseCode;
     private URL url;

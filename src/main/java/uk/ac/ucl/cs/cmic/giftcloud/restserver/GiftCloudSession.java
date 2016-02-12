@@ -14,7 +14,9 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.AuthorisationFailureException;
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.ConnectionFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpRequest;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 

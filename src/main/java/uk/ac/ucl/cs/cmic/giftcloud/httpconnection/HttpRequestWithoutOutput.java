@@ -12,19 +12,15 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionWrapper;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 
-class HttpRequestWithoutOutput<T> extends HttpRequest<T> {
+public class HttpRequestWithoutOutput<T> extends HttpRequest<T> {
 
-    HttpRequestWithoutOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final HttpProperties httpProperties, final GiftCloudReporter reporter) {
+    public HttpRequestWithoutOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final HttpProperties httpProperties, final GiftCloudReporter reporter) {
         super(connectionType, urlString, responseProcessor, httpProperties, reporter);
     }
 

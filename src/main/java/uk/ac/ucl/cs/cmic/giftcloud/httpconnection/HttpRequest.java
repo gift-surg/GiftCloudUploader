@@ -12,9 +12,9 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.*;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ import static java.net.HttpURLConnection.*;
  * @param <T> type of the response that will be returned to the caller if the request succeeds. This is the type
  *           returned by the response processor after processing the server's reply
  */
-abstract class HttpRequest<T> {
+abstract public class HttpRequest<T> {
 
     private final HttpConnectionWrapper.ConnectionType connectionType;
     protected final String relativeUrlString;
@@ -75,7 +75,7 @@ abstract class HttpRequest<T> {
      * @return the result object computed by the response processor based on the response from the server
      * @throws IOException if an error occurs during the server communication
      */
-    final T getResponse(final String baseUrlString, final ConnectionFactory connectionFactory, final boolean rapidTimeout) throws IOException {
+    public final T getResponse(final String baseUrlString, final ConnectionFactory connectionFactory, final boolean rapidTimeout) throws IOException {
         if (!response.isPresent()) {
             doRequest(baseUrlString, connectionFactory, rapidTimeout);
         }

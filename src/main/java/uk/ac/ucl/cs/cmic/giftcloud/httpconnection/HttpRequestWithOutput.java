@@ -12,12 +12,8 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionWrapper;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
