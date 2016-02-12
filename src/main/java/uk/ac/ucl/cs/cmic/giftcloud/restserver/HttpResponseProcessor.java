@@ -14,6 +14,7 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
 
 import java.io.IOException;

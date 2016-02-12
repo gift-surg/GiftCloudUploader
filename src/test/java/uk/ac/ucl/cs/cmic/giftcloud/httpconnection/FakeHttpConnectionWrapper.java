@@ -12,122 +12,126 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 
-class HttpConnectionWrapper implements HttpConnection {
-    private HttpURLConnection connection;
-    private final String urlString;
+class FakeHttpConnectionWrapper implements HttpConnection {
 
+    private String fullUrlString;
+    private final URL fullUrl;
 
-    HttpConnectionWrapper(final String urlString) throws IOException {
-        this.urlString = urlString;
-        final URL url = new URL(urlString);
-        connection = (HttpURLConnection) url.openConnection();
+    public FakeHttpConnectionWrapper(final String fullUrlString) throws MalformedURLException {
+        this.fullUrlString = fullUrlString;
+        this.fullUrl = new URL(fullUrlString);
     }
 
     @Override
     public void disconnect() {
-        connection.disconnect();
+
     }
 
     @Override
     public InputStream getErrorStream() {
-        return connection.getErrorStream();
+
+        return null;
     }
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-        return connection.getOutputStream();
+        return new ByteArrayOutputStream();
     }
 
     @Override
     public void setRequestMethod(String method) throws ProtocolException {
-        connection.setRequestMethod(method);
+
     }
 
     @Override
     public void addRequestProperty(String key, String value) {
-        connection.addRequestProperty(key, value);
+
     }
 
     @Override
     public String getRequestMethod() {
-        return connection.getRequestMethod();
+        return "FAKE_REQUEST";
     }
 
     @Override
     public void setDoInput(boolean doinput) {
-        connection.setDoInput(doinput);
     }
 
     @Override
     public long getDate() {
-        return connection.getDate();
+        return 0;
     }
 
     @Override
     public String getResponseMessage() throws IOException {
-        return connection.getResponseMessage();
+        return "FAKE_RESPONSE";
     }
 
     @Override
     public InputStream getInputStream() throws IOException {
-        return connection.getInputStream();
+
+        // ToDo
+        return null;
     }
 
     @Override
     public int getResponseCode() throws IOException {
-        return connection.getResponseCode();
+
+        return HttpURLConnection.HTTP_OK;
     }
 
     @Override
     public void setRequestProperty(String key, String value) {
-        connection.setRequestProperty(key, value);
+
     }
 
     @Override
     public void setFixedLengthStreamingMode(long contentLength) {
-        connection.setFixedLengthStreamingMode(contentLength);
+
     }
 
     @Override
     public void connect() throws IOException {
-        connection.connect();
+
     }
 
     @Override
     public void setUseCaches(boolean usecaches) {
-        connection.setUseCaches(usecaches);
+
     }
 
     @Override
     public void setDoOutput(boolean dooutput) {
-        connection.setDoOutput(dooutput);
+
     }
 
     @Override
     public void setChunkedStreamingMode(int chunklen) {
-        connection.setChunkedStreamingMode(chunklen);
+
     }
 
     @Override
     public URL getURL() {
-        return connection.getURL();
+        return fullUrl;
     }
 
     @Override
     public String getUrlString() {
-        return urlString;
+        return fullUrlString;
     }
 
     @Override
     public void setConnectTimeout(int timeout) {
-        connection.setConnectTimeout(timeout);
     }
-
 }

@@ -4,6 +4,10 @@ import junit.framework.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.ConnectionFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 

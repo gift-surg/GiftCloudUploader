@@ -14,17 +14,21 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.ConnectionFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import static java.net.HttpURLConnection.*;
 

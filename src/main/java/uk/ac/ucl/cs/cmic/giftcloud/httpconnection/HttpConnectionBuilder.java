@@ -12,9 +12,11 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
 import java.io.IOException;
+
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpConnection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class HttpConnectionBuilder {
@@ -31,7 +33,7 @@ public class HttpConnectionBuilder {
     private Optional<Long> fixedLengthStreamingMode = Optional.empty();
     private Optional<String> contentType = Optional.empty();
     private Optional<Integer> chunkedStreamingMode = Optional.empty();
-    private Optional<HttpConnectionWrapper.ConnectionType> connectionType = Optional.empty();
+    private Optional<HttpConnection.ConnectionType> connectionType = Optional.empty();
     private Optional<String> authorisationHeader = Optional.empty();
     private Optional<String> cookieString = Optional.empty();
     private Optional<String> userAgent = Optional.empty();
@@ -104,7 +106,7 @@ public class HttpConnectionBuilder {
         this.doOutput = Optional.of(doOutput);
     }
 
-    public void setConnectionType(final HttpConnectionWrapper.ConnectionType connectionType) {
+    public void setConnectionType(final HttpConnection.ConnectionType connectionType) {
         this.connectionType = Optional.of(connectionType);
     }
 

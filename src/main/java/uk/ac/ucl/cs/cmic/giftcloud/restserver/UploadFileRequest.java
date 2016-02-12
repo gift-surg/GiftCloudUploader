@@ -14,6 +14,8 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 

@@ -23,6 +23,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.ConnectionFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;

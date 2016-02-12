@@ -15,6 +15,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.nrg.util.Base64;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.ConnectionFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
 
 import java.io.IOException;
 import java.net.PasswordAuthentication;
