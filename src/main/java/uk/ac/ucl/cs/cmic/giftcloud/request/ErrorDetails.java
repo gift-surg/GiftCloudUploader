@@ -1,4 +1,4 @@
-package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
 
 class ErrorDetails {
     private final String title;

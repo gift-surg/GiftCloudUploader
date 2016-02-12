@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public class HttpConnectionBuilder {
 
-    static final String CONTENT_TYPE_ZIP = "application/zip";
+    public static final String CONTENT_TYPE_ZIP = "application/zip";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     static final String AUTHORIZATION_HEADER = "Authorization";
     static final String COOKIE_HEADER = "Cookie";
@@ -41,7 +41,7 @@ public class HttpConnectionBuilder {
 
     private final String urlString;
 
-    HttpConnectionBuilder(final String urlString) {
+    public HttpConnectionBuilder(final String urlString) {
         this.urlString = urlString;
     }
 

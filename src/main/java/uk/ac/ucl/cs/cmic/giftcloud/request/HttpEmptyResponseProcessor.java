@@ -12,7 +12,7 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
 
 import java.io.IOException;
 import java.io.InputStream;

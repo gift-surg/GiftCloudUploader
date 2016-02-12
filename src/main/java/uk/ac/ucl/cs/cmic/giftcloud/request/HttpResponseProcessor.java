@@ -12,8 +12,9 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
 
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
 
 import java.io.IOException;

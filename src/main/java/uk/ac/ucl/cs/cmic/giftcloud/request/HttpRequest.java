@@ -12,8 +12,10 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
 
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 
@@ -37,7 +39,7 @@ import static java.net.HttpURLConnection.*;
  */
 abstract public class HttpRequest<T> {
 
-    private final HttpConnectionWrapper.ConnectionType connectionType;
+    private final HttpConnection.ConnectionType connectionType;
     protected final String relativeUrlString;
 
     // The response value could be null. As you can't store a null value in an Optional, we use an Optional of Optional.
@@ -58,7 +60,7 @@ abstract public class HttpRequest<T> {
      * @param httpProperties contains configurable settings for the Http connection
      * @param reporter an object for reporting errors and warnings back to the user and/or program logs
      */
-    HttpRequest(final HttpConnectionWrapper.ConnectionType connectionType, final String relativeUrlString, final HttpResponseProcessor<T> responseProcessor, HttpProperties httpProperties, final GiftCloudReporter reporter) {
+    HttpRequest(final HttpConnection.ConnectionType connectionType, final String relativeUrlString, final HttpResponseProcessor<T> responseProcessor, HttpProperties httpProperties, final GiftCloudReporter reporter) {
         this.connectionType = connectionType;
         this.relativeUrlString = relativeUrlString;
         this.responseProcessor = responseProcessor;

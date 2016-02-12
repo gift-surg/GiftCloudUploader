@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.*;
+import uk.ac.ucl.cs.cmic.giftcloud.request.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 

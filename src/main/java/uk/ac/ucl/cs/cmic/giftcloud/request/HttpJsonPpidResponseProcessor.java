@@ -12,26 +12,25 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
+
+import org.json.JSONObject;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+public class HttpJsonPpidResponseProcessor extends HttpResponseProcessor<String> {
+    private String key;
 
-public class HttpStringResponseProcessor extends HttpResponseProcessor<String> {
+    public HttpJsonPpidResponseProcessor(final String key) {
+        this.key = key;
+    }
 
     protected final String streamFromConnection(final InputStream inputStream) throws IOException {
-        return getString(inputStream);
-    }
+        final JSONObject entries2 = GiftCloudUtils.extractJSONEntity(inputStream);
 
-    static String getString(final InputStream inputStream) throws IOException {
-        final int BUF_SIZE = 512;
-        final StringBuilder sb = new StringBuilder();
-        final byte[] buf = new byte[BUF_SIZE];
-        for (int n = inputStream.read(buf); n > 0; n = inputStream.read(buf)) {
-            sb.append(new String(buf, 0, n));
-        }
-        return sb.toString();
+        final String output = (entries2.getJSONArray("items").getJSONObject(0).getJSONObject("data_fields")).get(key).toString();
+        return output;
     }
-
 }

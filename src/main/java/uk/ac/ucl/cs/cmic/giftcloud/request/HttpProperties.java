@@ -1,4 +1,4 @@
-package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
 
 /**
  * Stores configurable properties required for creating an Http connection

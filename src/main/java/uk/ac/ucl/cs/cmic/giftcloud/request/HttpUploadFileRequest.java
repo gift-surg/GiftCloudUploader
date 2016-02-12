@@ -12,8 +12,10 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
 
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -27,7 +29,7 @@ public class HttpUploadFileRequest extends HttpRequestWithOutput<Set<String>> {
     private static final int BUF_SIZE = 4096;
     private final File temporaryFile;
 
-    public HttpUploadFileRequest(final HttpConnectionWrapper.ConnectionType connectionType,
+    public HttpUploadFileRequest(final HttpConnection.ConnectionType connectionType,
                                  final String url,
                                  final File temporaryFile,
                                  final HttpResponseProcessor responseProcessor,
