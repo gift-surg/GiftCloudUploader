@@ -17,14 +17,15 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionWrapper;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.IOException;
 
 class HttpRequestWithoutOutput<T> extends HttpRequest<T> {
 
-    HttpRequestWithoutOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
-        super(connectionType, urlString, responseProcessor, giftCloudProperties, reporter);
+    HttpRequestWithoutOutput(final HttpConnectionWrapper.ConnectionType connectionType, final String urlString, final HttpResponseProcessor<T> responseProcessor, final HttpProperties httpProperties, final GiftCloudReporter reporter) {
+        super(connectionType, urlString, responseProcessor, httpProperties, reporter);
     }
 
     protected void prepareConnection(final HttpConnectionBuilder connectionBuilder) throws IOException {

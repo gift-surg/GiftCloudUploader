@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.ConnectionFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -156,7 +157,7 @@ class GiftCloudAuthentication {
 
     private Optional<String> tryAuthenticatedLogin(final ConnectionFactory connectionFactory, final int attemptNumber, final boolean rapidTimeout) throws IOException {
         try {
-            return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor(), giftCloudProperties, reporter).getResponse(baseUrlString, connectionFactory, rapidTimeout));
+            return Optional.of(new HttpRequestWithoutOutput<String>(HttpConnection.ConnectionType.POST, "/data/JSESSION", new HttpStringResponseProcessor(), createHttpProperties(giftCloudProperties), reporter).getResponse(baseUrlString, connectionFactory, rapidTimeout));
         } catch (AuthorisationFailureException e) {
             if (attemptNumber >= MAX_NUM_LOGIN_ATTEMPTS) {
                 throw e;
@@ -164,5 +165,9 @@ class GiftCloudAuthentication {
                 return Optional.empty();
             }
         }
+    }
+
+    private HttpProperties createHttpProperties(GiftCloudProperties giftCloudProperties) {
+        return new HttpProperties(giftCloudProperties.getUserAgentString(), giftCloudProperties.getShortTimeout(), giftCloudProperties.getLongTimeout());
     }
 }

@@ -16,6 +16,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionWrapper;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -33,9 +34,9 @@ class UploadFileRequest extends HttpRequestWithOutput<Set<String>> {
                       final String url,
                       final File temporaryFile,
                       final HttpResponseProcessor responseProcessor,
-                      final GiftCloudProperties giftCloudProperties,
+                      final HttpProperties httpProperties,
                       final GiftCloudReporter reporter) {
-        super(connectionType, url, responseProcessor, giftCloudProperties, reporter);
+        super(connectionType, url, responseProcessor, httpProperties, reporter);
         this.temporaryFile = temporaryFile;
     }
 

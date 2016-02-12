@@ -14,15 +14,8 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.ConnectionFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionWrapper;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.*;
+import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -53,8 +46,8 @@ abstract class HttpRequest<T> {
     private final HttpResponseProcessor<T> responseProcessor;
     private final GiftCloudReporter reporter;
     private final String userAgentString;
-    final int shortTimeout;
-    final int longTimeout;
+    private final int shortTimeout;
+    private final int longTimeout;
 
     /**
      * Create a new request object that will connect to the given URL, and whose server reply will be interpreted by the response processor
@@ -62,17 +55,17 @@ abstract class HttpRequest<T> {
      * @param connectionType whether this request call is GET, POST, PUT
      * @param relativeUrlString the relative URL of the resource being referred to by the request call (i.e. excluding the server URL)
      * @param responseProcessor the object that will process the server's reply and produce an output of the parameterised type T
-     * @param giftCloudProperties
+     * @param httpProperties contains configurable settings for the Http connection
      * @param reporter an object for reporting errors and warnings back to the user and/or program logs
      */
-    HttpRequest(final HttpConnectionWrapper.ConnectionType connectionType, final String relativeUrlString, final HttpResponseProcessor<T> responseProcessor, GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    HttpRequest(final HttpConnectionWrapper.ConnectionType connectionType, final String relativeUrlString, final HttpResponseProcessor<T> responseProcessor, HttpProperties httpProperties, final GiftCloudReporter reporter) {
         this.connectionType = connectionType;
         this.relativeUrlString = relativeUrlString;
         this.responseProcessor = responseProcessor;
         this.reporter = reporter;
-        userAgentString = giftCloudProperties.getUserAgentString();
-        shortTimeout = giftCloudProperties.getShortTimeout();
-        longTimeout = giftCloudProperties.getLongTimeout();
+        userAgentString = httpProperties.getUserAgentString();
+        shortTimeout = httpProperties.getShortTimeout();
+        longTimeout = httpProperties.getLongTimeout();
     }
 
     /**
