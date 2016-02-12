@@ -1,5 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
+
 import java.util.ArrayList;
 import java.util.List;
 

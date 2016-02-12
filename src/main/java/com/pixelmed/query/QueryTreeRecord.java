@@ -6,9 +6,9 @@ import com.pixelmed.dicom.*;
 import com.pixelmed.network.DicomNetworkException;
 import com.pixelmed.network.IdentifierHandler;
 import com.pixelmed.utils.StringUtilities;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUncheckedException;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 
 import javax.swing.tree.TreeNode;
 import java.io.IOException;

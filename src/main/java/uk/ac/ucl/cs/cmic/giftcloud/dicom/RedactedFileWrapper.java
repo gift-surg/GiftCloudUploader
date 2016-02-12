@@ -1,7 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;

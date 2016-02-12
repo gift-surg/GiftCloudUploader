@@ -16,7 +16,7 @@ import org.nrg.io.FileWalkIterator;
 import org.nrg.util.EditProgressMonitor;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.ArrayIterator;
 
 import java.io.File;

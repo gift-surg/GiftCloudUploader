@@ -5,7 +5,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.core.io.Resource;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.awt.geom.Rectangle2D;

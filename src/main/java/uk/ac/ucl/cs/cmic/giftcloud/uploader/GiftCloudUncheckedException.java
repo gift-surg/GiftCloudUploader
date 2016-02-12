@@ -1,5 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
+
 /**
  * An unchecked exception wrapper for GiftCloudExceptions. This is possibly the least bad way to deal with leaky abstractions, where a standard interface does not allow implementations to throw exceptions
  */

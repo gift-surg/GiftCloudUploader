@@ -5,7 +5,7 @@ import com.pixelmed.query.QueryInformationModel;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.QueryRetrieveRemoteView;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 public class QueryWorker implements Runnable {

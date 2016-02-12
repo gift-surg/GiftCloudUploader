@@ -14,8 +14,8 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import org.nrg.dcm.edit.ScriptEvaluationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiser;
 
 import java.io.*;
