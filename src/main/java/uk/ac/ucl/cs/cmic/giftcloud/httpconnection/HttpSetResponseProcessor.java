@@ -15,7 +15,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
 import com.google.common.collect.Sets;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.HttpUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
