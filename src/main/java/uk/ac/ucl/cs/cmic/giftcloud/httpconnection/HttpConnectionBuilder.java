@@ -14,10 +14,9 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
-import java.io.IOException;
-
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpConnection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
+
+import java.io.IOException;
 
 public class HttpConnectionBuilder {
 

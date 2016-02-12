@@ -1,7 +1,9 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploader;
+package uk.ac.ucl.cs.cmic.giftcloud.util;
+
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.IOException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class GiftCloudException extends IOException {
     private final GiftCloudUploaderError error;

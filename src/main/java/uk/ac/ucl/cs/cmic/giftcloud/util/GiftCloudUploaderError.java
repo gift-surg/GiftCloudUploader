@@ -1,4 +1,4 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploader;
+package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 public enum GiftCloudUploaderError {
     OK(0, "Completed successfully.", "OK", true),
