@@ -20,10 +20,6 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.util;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,16 +28,15 @@ import org.json.JSONTokener;
 import org.nrg.IOUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.HttpUploadException;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.ChoiceFormat;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 public class GiftCloudUtils {
 
@@ -86,57 +81,6 @@ public class GiftCloudUtils {
                 }
             }
         }
-    }
-
-    /**
-     * Reads a list of newline-separated strings from the provided InputStream.
-     *
-     * @param in InputStream from which strings will be read
-     * @return A list of strings found in the input stream. Each line becomes a string.
-     * @throws java.io.IOException
-     */
-    public static List<String> readStrings(final InputStream in) throws IOException {
-        final List<String> items = Lists.newArrayList();
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            if (StringUtils.isNotBlank(line)) {
-                items.add(line.trim());
-            }
-        }
-        return items;
-    }
-
-    public static String buildFailureMessage(final Map<FileCollection, Throwable> failures) {
-        final StringBuilder sb = new StringBuilder("<html>");
-        buildHTMLFailureMessage(sb, failures);
-        return sb.append("</html>").toString();
-    }
-
-    private static StringBuilder buildHTMLFailureMessage(final StringBuilder sb, final Map<FileCollection, Throwable> failures) {
-        final Multimap<Throwable, FileCollection> inverse = LinkedHashMultimap.create();
-        Multimaps.invertFrom(Multimaps.forMap(failures), inverse);
-        final Multimap<Object, ?> causes = Utils.consolidateKeys(inverse, 4);
-        final MessageFormat format = new MessageFormat("{0} not uploaded: {1}");
-        format.setFormatByArgumentIndex(0, new ChoiceFormat(new double[]{0, 1, 2},
-                new String[]{"No items", "One item", "{0,number} items"}));
-        for (final Object key : causes.keySet()) {
-            final Collection<?> items = causes.get(key);
-            final Object message;
-            if (key instanceof HttpUploadException) {
-                final HttpUploadException e = (HttpUploadException) key;
-                final StringBuilder m = new StringBuilder("HTTP error ");
-                m.append(e.getStatusCode()).append(" - ");
-                m.append(e.getMessage()).append("<br>");
-                m.append(e.getEntity());
-                message = m;
-            } else {
-                message = key;
-            }
-            sb.append("<p>").append(format.format(new Object[]{items.size(), message}));
-            sb.append("</p><br>");
-        }
-        return sb;
     }
 
     /**
