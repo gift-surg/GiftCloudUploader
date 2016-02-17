@@ -55,6 +55,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         this.giftCloudDialogs = dialogs;
         this.reporter = reporter;
 
+        // Use the Java Web Start single instance mechanism to ensure only one instance of the application is running at a time. This is critical as the properties and patient list caching is not safe across multiple instances
         try {
             singleInstanceService = Optional.of((SingleInstanceService) ServiceManager.lookup("javax.jnlp.SingleInstanceService"));
             GiftCloudUploaderSingleInstanceListener singleInstanceListener = new GiftCloudUploaderSingleInstanceListener();

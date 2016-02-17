@@ -6,8 +6,8 @@ import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.StoredFilePathStrategy;
 import com.pixelmed.query.QueryResponseGeneratorFactory;
 import com.pixelmed.query.RetrieveResponseGeneratorFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.net.ssl.SSLServerSocket;

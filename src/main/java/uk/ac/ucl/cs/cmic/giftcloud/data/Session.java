@@ -17,7 +17,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import java.util.List;
 
 public interface Session {
-	List<SessionVariable> getVariables(final Project project, final Session session);
+	List<SessionVariable> getVariables(final Project project);
     String getPatientId();
 	String getPatientName();
     String getStudyUid();

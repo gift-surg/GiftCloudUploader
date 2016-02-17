@@ -46,15 +46,13 @@ public class Study extends MapEntity implements Entity, Session {
 
     private final Logger logger = LoggerFactory.getLogger(Study.class);
     private final Registry<Series> series = new MapRegistry<Series>(new TreeMap<Series, Series>());
-    private final Date dateTime;
     private final String patientId;
     private final String patientName;
     private final String studyUid;
     private final String seriesUid;
 
-    private Study(final String uid, final Date dateTime, final String id, final String accessionNumber, final String description, final String patientId, final String patientName, final String seriesInstanceUid, final String studyInstanceUid) {
+    public Study(final String uid, final Date dateTime, final String id, final String accessionNumber, final String description, final String patientId, final String patientName, final String seriesInstanceUid, final String studyInstanceUid) {
         put(Tag.StudyInstanceUID, uid);
-        this.dateTime = dateTime;
         if (null != dateTime) {
             put(Tag.StudyDate, new SimpleDateFormat("yyyyMMdd").format(dateTime));
             put(Tag.StudyTime, new SimpleDateFormat("HHmmss").format(dateTime));
@@ -183,7 +181,7 @@ public class Study extends MapEntity implements Entity, Session {
      * (non-Javadoc)
      * @see Session#getVariables()
      */
-    public List<SessionVariable> getVariables(final Project project, final Session session) {
+    public List<SessionVariable> getVariables(final Project project) {
         final LinkedHashSet<Variable> dvs = Sets.newLinkedHashSet();
         try {
             // This replaces variables in later scripts with similarly-name variables from

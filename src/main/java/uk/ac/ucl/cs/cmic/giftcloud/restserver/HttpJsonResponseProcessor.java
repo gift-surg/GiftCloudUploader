@@ -15,6 +15,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.json.JSONArray;
+import uk.ac.ucl.cs.cmic.giftcloud.request.HttpResponseProcessor;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.io.IOException;

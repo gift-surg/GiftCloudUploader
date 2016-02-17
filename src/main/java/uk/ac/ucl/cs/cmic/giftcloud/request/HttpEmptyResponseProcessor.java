@@ -12,19 +12,15 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
-
-import com.google.common.collect.Sets;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
 
 
-class HttpSetResponseProcessor extends HttpResponseProcessor<Set<String>> {
+public class HttpEmptyResponseProcessor  extends HttpResponseProcessor<Void> {
 
-    protected final Set<String> streamFromConnection(final InputStream inputStream) throws IOException {
-        return Sets.newLinkedHashSet(HttpUtils.readEntityLines(inputStream));
+    final protected Void streamFromConnection(final InputStream inputStream) throws IOException {
+        return null;
     }
-
 }

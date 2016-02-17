@@ -12,7 +12,7 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
 
 import org.json.JSONObject;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
@@ -20,10 +20,10 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 import java.io.IOException;
 import java.io.InputStream;
 
-class HttpJsonPpidResponseProcessor extends HttpResponseProcessor<String> {
+public class HttpJsonPpidResponseProcessor extends HttpResponseProcessor<String> {
     private String key;
 
-    HttpJsonPpidResponseProcessor(final String key) {
+    public HttpJsonPpidResponseProcessor(final String key) {
         this.key = key;
     }
 

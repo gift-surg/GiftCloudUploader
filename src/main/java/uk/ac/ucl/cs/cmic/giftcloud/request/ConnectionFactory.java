@@ -12,15 +12,13 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
+
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
 
 import java.io.IOException;
-import java.io.InputStream;
 
-
-class HttpEmptyResponseProcessor  extends HttpResponseProcessor<Void> {
-
-    final protected Void streamFromConnection(final InputStream inputStream) throws IOException {
-        return null;
-    }
+public interface ConnectionFactory {
+    HttpConnection createConnection(final String fullUrl, final HttpConnectionBuilder connectionBuilder) throws IOException;
 }

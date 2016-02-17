@@ -29,7 +29,7 @@ import com.pixelmed.utils.MessageLogger;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import javax.swing.*;

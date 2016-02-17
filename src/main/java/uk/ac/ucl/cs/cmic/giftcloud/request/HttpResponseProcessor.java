@@ -12,14 +12,15 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
 
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
 import uk.ac.ucl.cs.cmic.giftcloud.util.CloseableResource;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-abstract class HttpResponseProcessor<T> {
+abstract public class HttpResponseProcessor<T> {
 
     abstract protected T streamFromConnection(final InputStream inputStream) throws IOException;
 

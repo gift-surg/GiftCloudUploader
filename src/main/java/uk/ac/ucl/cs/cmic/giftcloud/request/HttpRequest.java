@@ -12,19 +12,18 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.request;
 
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
+import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import static java.net.HttpURLConnection.*;
 
@@ -38,9 +37,9 @@ import static java.net.HttpURLConnection.*;
  * @param <T> type of the response that will be returned to the caller if the request succeeds. This is the type
  *           returned by the response processor after processing the server's reply
  */
-abstract class HttpRequest<T> {
+abstract public class HttpRequest<T> {
 
-    private final HttpConnectionWrapper.ConnectionType connectionType;
+    private final HttpConnection.ConnectionType connectionType;
     protected final String relativeUrlString;
 
     // The response value could be null. As you can't store a null value in an Optional, we use an Optional of Optional.
@@ -49,8 +48,8 @@ abstract class HttpRequest<T> {
     private final HttpResponseProcessor<T> responseProcessor;
     private final GiftCloudReporter reporter;
     private final String userAgentString;
-    final int shortTimeout;
-    final int longTimeout;
+    private final int shortTimeout;
+    private final int longTimeout;
 
     /**
      * Create a new request object that will connect to the given URL, and whose server reply will be interpreted by the response processor
@@ -58,17 +57,17 @@ abstract class HttpRequest<T> {
      * @param connectionType whether this request call is GET, POST, PUT
      * @param relativeUrlString the relative URL of the resource being referred to by the request call (i.e. excluding the server URL)
      * @param responseProcessor the object that will process the server's reply and produce an output of the parameterised type T
-     * @param giftCloudProperties
+     * @param httpProperties contains configurable settings for the Http connection
      * @param reporter an object for reporting errors and warnings back to the user and/or program logs
      */
-    HttpRequest(final HttpConnectionWrapper.ConnectionType connectionType, final String relativeUrlString, final HttpResponseProcessor<T> responseProcessor, GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    HttpRequest(final HttpConnection.ConnectionType connectionType, final String relativeUrlString, final HttpResponseProcessor<T> responseProcessor, HttpProperties httpProperties, final GiftCloudReporter reporter) {
         this.connectionType = connectionType;
         this.relativeUrlString = relativeUrlString;
         this.responseProcessor = responseProcessor;
         this.reporter = reporter;
-        userAgentString = giftCloudProperties.getUserAgentString();
-        shortTimeout = giftCloudProperties.getShortTimeout();
-        longTimeout = giftCloudProperties.getLongTimeout();
+        userAgentString = httpProperties.getUserAgentString();
+        shortTimeout = httpProperties.getShortTimeout();
+        longTimeout = httpProperties.getLongTimeout();
     }
 
     /**
@@ -78,7 +77,7 @@ abstract class HttpRequest<T> {
      * @return the result object computed by the response processor based on the response from the server
      * @throws IOException if an error occurs during the server communication
      */
-    final T getResponse(final String baseUrlString, final ConnectionFactory connectionFactory, final boolean rapidTimeout) throws IOException {
+    public final T getResponse(final String baseUrlString, final ConnectionFactory connectionFactory, final boolean rapidTimeout) throws IOException {
         if (!response.isPresent()) {
             doRequest(baseUrlString, connectionFactory, rapidTimeout);
         }

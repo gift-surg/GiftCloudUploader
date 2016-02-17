@@ -12,14 +12,15 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
+
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.IOException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class HttpConnectionBuilder {
 
-    static final String CONTENT_TYPE_ZIP = "application/zip";
+    public static final String CONTENT_TYPE_ZIP = "application/zip";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     static final String AUTHORIZATION_HEADER = "Authorization";
     static final String COOKIE_HEADER = "Cookie";
@@ -31,7 +32,7 @@ public class HttpConnectionBuilder {
     private Optional<Long> fixedLengthStreamingMode = Optional.empty();
     private Optional<String> contentType = Optional.empty();
     private Optional<Integer> chunkedStreamingMode = Optional.empty();
-    private Optional<HttpConnectionWrapper.ConnectionType> connectionType = Optional.empty();
+    private Optional<HttpConnection.ConnectionType> connectionType = Optional.empty();
     private Optional<String> authorisationHeader = Optional.empty();
     private Optional<String> cookieString = Optional.empty();
     private Optional<String> userAgent = Optional.empty();
@@ -40,7 +41,7 @@ public class HttpConnectionBuilder {
 
     private final String urlString;
 
-    HttpConnectionBuilder(final String urlString) {
+    public HttpConnectionBuilder(final String urlString) {
         this.urlString = urlString;
     }
 
@@ -104,7 +105,7 @@ public class HttpConnectionBuilder {
         this.doOutput = Optional.of(doOutput);
     }
 
-    public void setConnectionType(final HttpConnectionWrapper.ConnectionType connectionType) {
+    public void setConnectionType(final HttpConnection.ConnectionType connectionType) {
         this.connectionType = Optional.of(connectionType);
     }
 

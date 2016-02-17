@@ -12,28 +12,21 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
 import uk.ac.ucl.cs.cmic.giftcloud.request.ConnectionFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
-class ConnectionFactoryWithCookie implements ConnectionFactory {
+public class HttpMockConnectionFactory implements ConnectionFactory {
 
-    private final JSessionIdCookieWrapper cookie;
-    private final ConnectionFactory connectionFactory;
-
-    ConnectionFactoryWithCookie(final ConnectionFactory connectionFactory, final JSessionIdCookieWrapper cookie) {
-        this.connectionFactory = connectionFactory;
-        this.cookie = cookie;
+    public HttpMockConnectionFactory() {
+        HttpURLConnection.setFollowRedirects(false);
     }
 
+    @Override
     public HttpConnection createConnection(final String fullUrl, final HttpConnectionBuilder connectionBuilder) throws IOException {
-
-        connectionBuilder.setCookie(cookie.getFormattedCookieString());
-
-        return connectionFactory.createConnection(fullUrl, connectionBuilder);
+        return connectionBuilder.buildHttpURLConnection(new FakeHttpConnectionWrapper(fullUrl));
     }
 }

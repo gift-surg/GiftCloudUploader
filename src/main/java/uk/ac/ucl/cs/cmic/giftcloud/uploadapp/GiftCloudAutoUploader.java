@@ -11,8 +11,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.*;
-import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
@@ -151,7 +150,7 @@ public class GiftCloudAutoUploader {
         predefs.put(SessionVariableNames.PROJECT, new AssignedSessionVariable(SessionVariableNames.PROJECT, projectName));
         predefs.put(SessionVariableNames.SUBJECT, new AssignedSessionVariable(SessionVariableNames.SUBJECT, subjectLabel.getStringLabel()));
         predefs.put(SessionVariableNames.SESSION_LABEL, new AssignedSessionVariable(SessionVariableNames.SESSION_LABEL, experimentLabel.getStringLabel()));
-        for (final SessionVariable sessionVariable : session.getVariables(project, session)) {
+        for (final SessionVariable sessionVariable : session.getVariables(project)) {
             final String name = sessionVariable.getName();
             if (predefs.containsKey(name)) {
                 final SessionVariable predef = predefs.get(name);
@@ -163,7 +162,7 @@ public class GiftCloudAutoUploader {
             }
         }
 
-        return Lists.newLinkedList(session.getVariables(project, session));
+        return Lists.newLinkedList(session.getVariables(project));
     }
 
     private synchronized GiftCloudLabel.SubjectLabel getSubjectName(final GiftCloudServer server, final String projectName, final String patientId, final String patientName) throws IOException {
