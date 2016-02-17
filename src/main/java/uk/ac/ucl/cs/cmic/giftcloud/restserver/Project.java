@@ -39,7 +39,6 @@ public class Project {
 		sessions = executor.submit(new ProjectSessionLister(restServer, projectName));
 		subjects = executor.submit(new ProjectSubjectLister(restServer, projectName));
         dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServer, projectName, getDicomFunctions(sessions)));
-		executor.submit(new ProjectPreArcCodeRetriever(restServer, projectName));
 	}
 
 	private static Map<String, ScriptFunction>
