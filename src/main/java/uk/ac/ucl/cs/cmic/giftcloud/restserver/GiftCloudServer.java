@@ -19,6 +19,7 @@ import java.util.Vector;
 public class GiftCloudServer {
 
     private final String giftCloudServerUrlString;
+    private GiftCloudReporter reporter;
     private final RestServer restServer;
     private final URI giftCloudUri;
     private final ProjectCache projectCache;
@@ -26,6 +27,7 @@ public class GiftCloudServer {
 
     public GiftCloudServer(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudServerUrlString = giftCloudServerUrlString;
+        this.reporter = reporter;
 
         if (StringUtils.isBlank(giftCloudServerUrlString)) {
             throw new MalformedURLException("Please set the URL for the GIFT-Cloud server.");
@@ -51,7 +53,7 @@ public class GiftCloudServer {
     }
 
     public Project getProject(final String projectName) {
-        return projectCache.getProject(projectName);
+        return projectCache.getProject(projectName, reporter);
     }
 
     public void resetCancellation() {

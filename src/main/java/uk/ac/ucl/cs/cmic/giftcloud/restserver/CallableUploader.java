@@ -16,6 +16,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import com.google.common.collect.ImmutableList;
 import org.dcm4che2.data.Tag;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.DicomMetaDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.CallableWithParameter;
@@ -26,6 +27,7 @@ import java.util.Set;
 
 public abstract class CallableUploader implements CallableWithParameter<Set<String>, FileCollection> {
     protected final UploadParameters uploadParameters;
+    protected final DicomMetaDataAnonymiser dicomMetaDataAnonymiser;
     protected final FileCollection fileCollection;
     protected final GiftCloudServer server;
 
@@ -33,9 +35,9 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
             Tag.TransferSyntaxUID, Tag.FileMetaInformationVersion, Tag.SOPClassUID));
 
     public CallableUploader(
-            final UploadParameters uploadParameters,
-            final GiftCloudServer server) {
+            final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser) {
         this.uploadParameters = uploadParameters;
+        this.dicomMetaDataAnonymiser = dicomMetaDataAnonymiser;
         this.fileCollection = uploadParameters.getFileCollection();
         this.server = server;
     }
@@ -51,8 +53,6 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
 
 
     public interface CallableUploaderFactory {
-        CallableUploader create(
-                final UploadParameters uploadParameters,
-                final GiftCloudServer server);
+        CallableUploader create(final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser);
     }
 }

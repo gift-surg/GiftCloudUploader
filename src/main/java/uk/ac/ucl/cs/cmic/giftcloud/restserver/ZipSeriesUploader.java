@@ -15,6 +15,7 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.DicomMetaDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
 
@@ -23,15 +24,13 @@ import java.util.Set;
 
 public class ZipSeriesUploader extends CallableUploader {
 
-    private ZipSeriesUploader(
-            final UploadParameters uploadParameters,
-            final GiftCloudServer server) {
-        super(uploadParameters, server);
+    private ZipSeriesUploader(final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser) {
+        super(uploadParameters, server, dicomMetaDataAnonymiser);
     }
 
     @Override
     public Set<String> call() throws Exception {
-        final SeriesZipper seriesZipper = new SeriesZipper(uploadParameters.getProjectApplicators(), server.getPixelDataAnonymiser());
+        final SeriesZipper seriesZipper = new SeriesZipper(dicomMetaDataAnonymiser, server.getPixelDataAnonymiser(), uploadParameters);
         final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
         try {
             return server.uploadZipFile(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), temporaryZipFile);
@@ -41,10 +40,8 @@ public class ZipSeriesUploader extends CallableUploader {
     }
 
     public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {
-        public CallableUploader create(
-                final UploadParameters uploadParameters,
-                final GiftCloudServer server) {
-            return new ZipSeriesUploader(uploadParameters, server);
+        public CallableUploader create(final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser) {
+            return new ZipSeriesUploader(uploadParameters, server, dicomMetaDataAnonymiser);
         }
     }
 }

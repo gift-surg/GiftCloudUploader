@@ -12,13 +12,14 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
 import org.nrg.dcm.edit.ScriptFunction;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.DicomMetaDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.IndexedSessionLabelFunction;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -31,14 +32,16 @@ public class Project {
 	private final Future<Map<String,String>> sessions;
 	private final Future<Iterable<org.nrg.dcm.edit.ScriptApplicator>> dicomScriptApplicator;
 	private Optional<SeriesImportFilterApplicatorRetriever> seriesImportFilter = Optional.empty();
+	private final DicomMetaDataAnonymiser dicomMetaDataAnonymiser;
 
 
-	public Project(final String projectName, final RestServer restServer) {
+	public Project(final String projectName, final RestServer restServer, GiftCloudReporter reporter) {
 		this.name = projectName;
 
 		sessions = executor.submit(new ProjectSessionLister(restServer, projectName));
 		subjects = executor.submit(new ProjectSubjectLister(restServer, projectName));
         dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServer, projectName, getDicomFunctions(sessions)));
+		dicomMetaDataAnonymiser = new DicomMetaDataAnonymiser(dicomScriptApplicator, reporter);
 	}
 
 	private static Map<String, ScriptFunction>
@@ -46,16 +49,6 @@ public class Project {
 		return Collections.singletonMap("makeSessionLabel",
 				(ScriptFunction) new IndexedSessionLabelFunction(sessions));
 	}
-
-	public Iterable<org.nrg.dcm.edit.ScriptApplicator> getDicomScriptApplicators() throws IOException {
-        try {
-            return dicomScriptApplicator.get();
-        } catch (InterruptedException e) {
-            throw new IOException("Unable to retrieve Dicom scripts", e.getCause());
-        } catch (ExecutionException e) {
-            throw new IOException("Unable to retrieve Dicom scripts", e.getCause());
-        }
-    }
 
 	public void dispose() {
 		sessions.cancel(true);
@@ -85,5 +78,9 @@ public class Project {
 		}
 
 		return seriesImportFilter.get();
+	}
+
+	public DicomMetaDataAnonymiser getDicomMetaDataAnonymiser() {
+		return dicomMetaDataAnonymiser;
 	}
 }

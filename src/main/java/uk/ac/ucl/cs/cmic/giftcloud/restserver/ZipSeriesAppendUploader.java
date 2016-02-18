@@ -14,6 +14,7 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.DicomMetaDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
 
@@ -23,13 +24,12 @@ import java.util.Set;
 
 public class ZipSeriesAppendUploader extends CallableUploader {
 
-    public ZipSeriesAppendUploader(final UploadParameters uploadParameters,
-                                   final GiftCloudServer server) {
-        super(uploadParameters, server);
+    public ZipSeriesAppendUploader(final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser) {
+        super(uploadParameters, server, dicomMetaDataAnonymiser);
     }
 
     public Set<String> call() throws Exception {
-        final SeriesZipper seriesZipper = new SeriesZipper(uploadParameters.getProjectApplicators(), server.getPixelDataAnonymiser());
+        final SeriesZipper seriesZipper = new SeriesZipper(dicomMetaDataAnonymiser, server.getPixelDataAnonymiser(), uploadParameters);
         final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
         try {
             server.appendZipFileToExistingScan(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), uploadParameters.getXnatModalityParams(), temporaryZipFile);
@@ -42,9 +42,8 @@ public class ZipSeriesAppendUploader extends CallableUploader {
 
     public static class ZipSeriesAppendUploaderFactory implements CallableUploaderFactory {
         public CallableUploader create(
-                final UploadParameters uploadParameters,
-                final GiftCloudServer server) {
-            return new ZipSeriesAppendUploader(uploadParameters, server);
+                final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser) {
+            return new ZipSeriesAppendUploader(uploadParameters, server, dicomMetaDataAnonymiser);
         }
     }
 }

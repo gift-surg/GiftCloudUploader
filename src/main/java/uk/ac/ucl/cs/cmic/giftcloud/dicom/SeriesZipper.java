@@ -14,6 +14,7 @@ import org.nrg.dcm.edit.ScriptApplicator;
 import org.nrg.dcm.edit.ScriptEvaluationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiser;
@@ -33,9 +34,13 @@ public class SeriesZipper {
     private final Iterable<ScriptApplicator> applicators;
     private final StopTagInputHandler stopTagInputHandler;
     private final PixelDataAnonymiser pixelDataAnonymiser;
+    private final DicomMetaDataAnonymiser anonymiser;
+    private final UploadParameters uploadParameters;
 
-    public SeriesZipper(final Iterable<ScriptApplicator> scriptApplicators, final PixelDataAnonymiser pixelDataAnonymiser) {
-        this.applicators = ImmutableList.copyOf(scriptApplicators);
+    public SeriesZipper(final DicomMetaDataAnonymiser anonymiser, final PixelDataAnonymiser pixelDataAnonymiser, final UploadParameters uploadParameters) throws IOException {
+        this.anonymiser = anonymiser;
+        this.uploadParameters = uploadParameters;
+        this.applicators = ImmutableList.copyOf(anonymiser.getDicomScriptApplicators());
         this.pixelDataAnonymiser = pixelDataAnonymiser;
         this.stopTagInputHandler = makeStopTagInputHandler(this.applicators);
     }

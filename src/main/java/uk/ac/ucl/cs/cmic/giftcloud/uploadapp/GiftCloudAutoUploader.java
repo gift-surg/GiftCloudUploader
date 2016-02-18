@@ -1,16 +1,12 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.nrg.dcm.edit.ScriptApplicator;
-import uk.ac.ucl.cs.cmic.giftcloud.data.AssignedSessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
-import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
-import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariableNames;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.*;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.ZipSeriesUploaderFactorySelector;
 import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -72,11 +68,9 @@ public class GiftCloudAutoUploader {
         final MasterTrawler trawler = new MasterTrawler(progressWrapper, fileList, seriesImportFilter);
         final List<Session> sessions = trawler.call();
 
-        final Iterable<ScriptApplicator> projectApplicators = project.getDicomScriptApplicators();
-
         for (final Session session : sessions) {
 
-            addSessionToUploadList(server, project, projectApplicators, projectName, session);
+            addSessionToUploadList(server, project, projectName, session);
         }
 
 
@@ -104,7 +98,7 @@ public class GiftCloudAutoUploader {
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final Iterable<ScriptApplicator> projectApplicators, final String projectName, final Session session) throws IOException {
+    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final String projectName, final Session session) throws IOException {
         final String patientId = session.getPatientId();
         final String patientName = session.getPatientName();
         final String studyInstanceUid = session.getStudyUid();
@@ -117,7 +111,7 @@ public class GiftCloudAutoUploader {
         final GiftCloudLabel.ScanLabel scanName = getScanName(server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
 
 
-        final LinkedList<SessionVariable> sessionVariables = getSessionVariables(project, projectName, session, subjectLabel, experimentLabel);
+        project.getDicomMetaDataAnonymiser().fixSessionVariableValues(projectName, subjectLabel, experimentLabel, session.getSampleObject());
 
         final List<FileCollection> fileCollections = session.getFiles();
 
@@ -134,35 +128,12 @@ public class GiftCloudAutoUploader {
             uploadParameters.setSubjectLabel(subjectLabel);
             uploadParameters.setExperimentLabel(experimentLabel);
             uploadParameters.setScanLabel(scanName);
-            uploadParameters.setSessionVariables(sessionVariables);
             uploadParameters.setFileCollection(fileCollection);
             uploadParameters.setXnatModalityParams(xnatModalityParams);
-            uploadParameters.setProjectApplicators(projectApplicators);
 
-            final CallableUploader uploader = callableUploaderFactory.create(uploadParameters, server);
+            final CallableUploader uploader = callableUploaderFactory.create(uploadParameters, server, project.getDicomMetaDataAnonymiser());
             backgroundUploader.addUploader(uploader);
         }
-    }
-
-    private LinkedList<SessionVariable> getSessionVariables(Project project, String projectName, Session session, GiftCloudLabel.SubjectLabel subjectLabel, GiftCloudLabel.ExperimentLabel experimentLabel) {
-        // Set the predefined variables for project, subject and session, so that these can be used in the DICOM anonymisation scripts
-        final Map<String, SessionVariable> predefs = Maps.newLinkedHashMap();
-        predefs.put(SessionVariableNames.PROJECT, new AssignedSessionVariable(SessionVariableNames.PROJECT, projectName));
-        predefs.put(SessionVariableNames.SUBJECT, new AssignedSessionVariable(SessionVariableNames.SUBJECT, subjectLabel.getStringLabel()));
-        predefs.put(SessionVariableNames.SESSION_LABEL, new AssignedSessionVariable(SessionVariableNames.SESSION_LABEL, experimentLabel.getStringLabel()));
-        for (final SessionVariable sessionVariable : session.getVariables(project)) {
-            final String name = sessionVariable.getName();
-            if (predefs.containsKey(name)) {
-                final SessionVariable predef = predefs.get(name);
-                try {
-                    sessionVariable.fixValue(predef.getValue());
-                } catch (SessionVariable.InvalidValueException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        return Lists.newLinkedList(session.getVariables(project));
     }
 
     private synchronized GiftCloudLabel.SubjectLabel getSubjectName(final GiftCloudServer server, final String projectName, final String patientId, final String patientName) throws IOException {
