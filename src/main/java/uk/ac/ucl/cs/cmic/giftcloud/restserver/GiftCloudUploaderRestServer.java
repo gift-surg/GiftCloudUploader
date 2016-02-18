@@ -153,12 +153,6 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public String getPreArcCode(final String projectName) throws Exception {
-        final String uri = String.format("/data/archive/projects/%s/prearchive_code", projectName);
-        return restServerSessionHelper.getString(uri);
-    }
-
-    @Override
     public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final File temporaryFile) throws Exception {
         final String dataPostURL;
         final StringBuilder buffer = new StringBuilder();

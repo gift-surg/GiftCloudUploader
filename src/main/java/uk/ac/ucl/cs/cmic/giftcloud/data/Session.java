@@ -10,18 +10,19 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.data;
 
+import org.dcm4che2.data.DicomObject;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 
 import java.util.List;
 
 public interface Session {
-	List<SessionVariable> getVariables(final Project project);
     String getPatientId();
 	String getPatientName();
     String getStudyUid();
     String getSeriesUid();
 	List<FileCollection> getFiles();
 	XnatModalityParams getXnatModalityParams();
+
+	DicomObject getSampleObject();
 }

@@ -18,14 +18,8 @@ import com.google.common.collect.Sets;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.nrg.dcm.edit.DicomUtils;
-import org.nrg.dcm.edit.ScriptApplicator;
-import org.nrg.dcm.edit.Variable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
-import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
 
@@ -44,7 +38,6 @@ public class Study extends MapEntity implements Entity, Session {
         add(Tag.StudyTime);
     }});
 
-    private final Logger logger = LoggerFactory.getLogger(Study.class);
     private final Registry<Series> series = new MapRegistry<Series>(new TreeMap<Series, Series>());
     private final String patientId;
     private final String patientName;
@@ -177,35 +170,6 @@ public class Study extends MapEntity implements Entity, Session {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see Session#getVariables()
-     */
-    public List<SessionVariable> getVariables(final Project project) {
-        final LinkedHashSet<Variable> dvs = Sets.newLinkedHashSet();
-        try {
-            // This replaces variables in later scripts with similarly-name variables from
-            // earlier scripts. Therefore scripts whose variables should take precedence
-            // must appear earlier in the list.
-            final Iterable<ScriptApplicator> applicators = project.getDicomScriptApplicators();
-            for (final ScriptApplicator a : applicators) {
-                for (final Variable v : dvs) {
-                    a.unify(v);
-                }
-                dvs.addAll(a.getVariables().values());
-            }
-        } catch (Throwable t) { // ToDo: remove this catch, because we want the operation to fail if there is no script
-            logger.warn("unable to load script", t);
-            return Collections.emptyList();
-        }
-        final DicomObject o = series.isEmpty() ? null : series.get(0).getSampleObject();
-        final List<SessionVariable> vs = Lists.newArrayList();
-        for (final Variable dv : dvs) {
-            vs.add(DicomSessionVariable.getSessionVariable(dv, o));
-        }
-        return vs;
-    }
-
     public XnatModalityParams getXnatModalityParams() {
         final Set<XnatModalityParams> xnatModalityParams = Sets.newLinkedHashSet();
         for (final Series s : series) {
@@ -214,5 +178,10 @@ public class Study extends MapEntity implements Entity, Session {
 
         // ToDo: we are only returning one modality param
         return xnatModalityParams.iterator().next();
+    }
+
+    @Override
+    public DicomObject getSampleObject() {
+        return series.isEmpty() ? null : series.get(0).getSampleObject();
     }
 }

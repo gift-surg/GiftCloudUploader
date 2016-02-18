@@ -3,20 +3,19 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.pixelmed.dicom.DicomException;
 import org.apache.commons.lang.StringUtils;
 import org.dcm4che2.data.*;
 import org.dcm4che2.io.*;
 import org.nrg.dcm.edit.AttributeException;
-import org.nrg.dcm.edit.ScriptApplicator;
 import org.nrg.dcm.edit.ScriptEvaluationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiser;
 
 import java.io.*;
 import java.util.zip.GZIPInputStream;
@@ -29,42 +28,21 @@ import java.util.zip.ZipOutputStream;
  */
 public class SeriesZipper {
     private final Logger logger = LoggerFactory.getLogger(SeriesZipper.class);
-    
-    private final Iterable<ScriptApplicator> applicators;
-    private final StopTagInputHandler stopTagInputHandler;
-    private final PixelDataAnonymiser pixelDataAnonymiser;
 
-    public SeriesZipper(final Iterable<ScriptApplicator> scriptApplicators, final PixelDataAnonymiser pixelDataAnonymiser) {
-        this.applicators = ImmutableList.copyOf(scriptApplicators);
+    private final PixelDataAnonymiser pixelDataAnonymiser;
+    private final DicomMetaDataAnonymiser anonymiser;
+    private final UploadParameters uploadParameters;
+
+    public SeriesZipper(final DicomMetaDataAnonymiser anonymiser, final PixelDataAnonymiser pixelDataAnonymiser, final UploadParameters uploadParameters) throws IOException {
+        this.anonymiser = anonymiser;
+        this.uploadParameters = uploadParameters;
         this.pixelDataAnonymiser = pixelDataAnonymiser;
-        this.stopTagInputHandler = makeStopTagInputHandler(this.applicators);
     }
 
     private static String removeCompressionSuffix(final String path) {
         return path.replaceAll("\\.[gG][zZ]$", "");
     }
-    
-    private static StopTagInputHandler makeStopTagInputHandler(final Iterable<ScriptApplicator> scriptApplicators) {
 
-        // We will check the patient name, id and birth date to ensure anonymisation. Therefore we always need to fetch these tags
-        long top = Tag.PatientBirthDate;
-        for (final ScriptApplicator a : scriptApplicators) {
-            final long atop = 0xffffffffL & a.getTopTag();
-            if (atop > top) {
-                if (0xffffffffL == atop) {  // this means no stop tag
-                    return null;
-                } else {
-                    top = atop;
-                }
-            }
-        }
-        return new StopTagInputHandler((int)(top+1));
-    }
-    
-    public StopTagInputHandler getStopTagInputHandler() {
-        return stopTagInputHandler;
-    }
-    
     public void buildSeriesZipFile(final File f, final FileCollection seriesFileCollection)
             throws IOException, AttributeException, ScriptEvaluationException {
         logger.debug("creating zip file {}", f);
@@ -75,7 +53,7 @@ public class SeriesZipper {
             try {
                 logger.trace("adding {} files for series {}", seriesFileCollection.getFileCount(), seriesFileCollection);
                 for (final File file : seriesFileCollection.getFiles()) {
-                    processNextFile(file, zos, getStopTagInputHandler());
+                    processNextFile(file, zos);
                 }
             } catch (DicomException e) {
                 logger.trace("DicomException exception building zipfile", e);
@@ -134,10 +112,10 @@ public class SeriesZipper {
         }
     }
 
-    public void processNextFile(final File nextFile, final ZipOutputStream zos, final DicomInputHandler handler) throws AttributeException, IOException, ScriptEvaluationException, DicomException {
+    public void processNextFile(final File nextFile, final ZipOutputStream zos) throws AttributeException, IOException, ScriptEvaluationException, DicomException {
         final RedactedFileWrapper redactedFileWrapper = pixelDataAnonymiser.createRedactedFile(nextFile);
         try {
-            addFileToZip(redactedFileWrapper.getFileToProcess(), zos, handler);
+            addFileToZip(redactedFileWrapper.getFileToProcess(), zos, anonymiser.makeStopTagInputHandler());
         } finally {
             redactedFileWrapper.cleanup();
         }
@@ -166,9 +144,7 @@ public class SeriesZipper {
                 final String originalPatientId = o.getString(Tag.PatientID);
                 final String originalPatientBirthDate = o.getString(Tag.PatientBirthDate);
 
-                for (final ScriptApplicator a : applicators) {
-                    a.apply(f, o);
-                }
+                anonymiser.anonymiseMetaData(f, uploadParameters, o);
 
                 // Get the new patient details after anonymisation
                 final String finalPatientName = o.getString(Tag.PatientName);
