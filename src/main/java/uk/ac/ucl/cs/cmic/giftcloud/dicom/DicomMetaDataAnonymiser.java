@@ -68,7 +68,7 @@ public class DicomMetaDataAnonymiser {
      * @throws AttributeException
      * @throws ScriptEvaluationException
      */
-    public void anonymiseMetaData(final File outputDicomFile, final UploadParameters uploadParameters, final DicomObject originalDicomObject) throws AttributeException, ScriptEvaluationException, IOException {
+    synchronized public void anonymiseMetaData(final File outputDicomFile, final UploadParameters uploadParameters, final DicomObject originalDicomObject) throws AttributeException, ScriptEvaluationException, IOException {
 
         final Iterable<org.nrg.dcm.edit.ScriptApplicator> applicators = dicomProjectAnonymisationScripts.getDicomScriptApplicators();
         fixSessionVariableValues(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), originalDicomObject, applicators);
