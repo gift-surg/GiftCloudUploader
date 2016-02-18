@@ -116,11 +116,6 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public String getPreArcCode(String projectName) throws Exception {
-        return "";
-    }
-
-    @Override
     public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final File temporaryFile) throws Exception {
         final Set<String> uids = new HashSet<String>();
         uids.add(UUID.randomUUID().toString());
