@@ -33,15 +33,16 @@ public class Project {
 	private final Future<Iterable<org.nrg.dcm.edit.ScriptApplicator>> dicomScriptApplicator;
 	private Optional<SeriesImportFilterApplicatorRetriever> seriesImportFilter = Optional.empty();
 	private final DicomMetaDataAnonymiser dicomMetaDataAnonymiser;
-
+	private final DicomProjectAnonymisationScripts dicomProjectAnonymisationScripts;
 
 	public Project(final String projectName, final RestServer restServer, GiftCloudReporter reporter) {
 		this.name = projectName;
 
 		sessions = executor.submit(new ProjectSessionLister(restServer, projectName));
 		subjects = executor.submit(new ProjectSubjectLister(restServer, projectName));
-        dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServer, projectName, getDicomFunctions(sessions)));
-		dicomMetaDataAnonymiser = new DicomMetaDataAnonymiser(dicomScriptApplicator, reporter);
+		dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServer, projectName, getDicomFunctions(sessions)));
+		dicomProjectAnonymisationScripts = new DicomProjectAnonymisationScripts(dicomScriptApplicator);
+		dicomMetaDataAnonymiser = new DicomMetaDataAnonymiser(dicomProjectAnonymisationScripts, reporter);
 	}
 
 	private static Map<String, ScriptFunction>
