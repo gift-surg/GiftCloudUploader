@@ -171,6 +171,9 @@ public class SeriesZipper {
                 final String originalPatientId = o.getString(Tag.PatientID);
                 final String originalPatientBirthDate = o.getString(Tag.PatientBirthDate);
 
+                // Set up the session variables (which can be used in anaonymisation scripts)
+                anonymiser.fixSessionVariableValues(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), o);
+
                 for (final ScriptApplicator a : applicators) {
                     a.apply(f, o);
                 }

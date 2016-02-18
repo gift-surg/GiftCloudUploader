@@ -110,9 +110,6 @@ public class GiftCloudAutoUploader {
         final GiftCloudLabel.ExperimentLabel experimentLabel = getSessionName(server, projectName, subjectLabel, studyInstanceUid, xnatModalityParams);
         final GiftCloudLabel.ScanLabel scanName = getScanName(server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
 
-
-        project.getDicomMetaDataAnonymiser().fixSessionVariableValues(projectName, subjectLabel, experimentLabel, session.getSampleObject());
-
         final List<FileCollection> fileCollections = session.getFiles();
 
         if (fileCollections.isEmpty()) {
