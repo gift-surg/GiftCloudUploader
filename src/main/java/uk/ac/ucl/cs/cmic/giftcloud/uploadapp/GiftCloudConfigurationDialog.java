@@ -402,11 +402,18 @@ public class GiftCloudConfigurationDialog {
     }
 
     private void showProjectList(final boolean enabled) {
-        projectList.setEnabled(enabled);
-        projectList.setVisible(enabled);
-        projectListWaitingLabel.setVisible(!enabled);
-    }
 
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                projectList.setEnabled(enabled);
+                projectList.setVisible(enabled);
+                projectListWaitingLabel.setVisible(!enabled);
+            }
+        });
+
+    }
+urce
     public boolean isVisible() {
         return dialog.isDisplayable() && !isDisposed;
     }
