@@ -145,12 +145,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         return size;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see uk.ac.ucl.cs.cmic.giftcloud.dicom.Entity#getStudies()
-     */
-    public Collection<Study> getStudies() { return Collections.singleton(study); }
-
     public Iterator<File> iterator() {
         return Collections.unmodifiableSet(files).iterator();
     }

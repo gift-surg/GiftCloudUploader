@@ -123,14 +123,6 @@ public class Study extends MapEntity implements Entity, Session {
         return series.getAll();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see uk.ac.ucl.cs.cmic.giftcloud.dicom.Entity#getStudies()
-     */
-    public Collection<Study> getStudies() {
-        return Collections.singleton(this);
-    }
-
     /**
      * Provides a study identifier that is as unique and verbose as possible.
      *
@@ -180,8 +172,4 @@ public class Study extends MapEntity implements Entity, Session {
         return xnatModalityParams.iterator().next();
     }
 
-    @Override
-    public DicomObject getSampleObject() {
-        return series.isEmpty() ? null : series.get(0).getSampleObject();
-    }
 }

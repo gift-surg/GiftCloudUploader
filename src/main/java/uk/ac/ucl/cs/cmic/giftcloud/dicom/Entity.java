@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface Entity {
-	Collection<Study> getStudies();
 	Collection<Series> getSeries();
 	Map<Attribute,Object> getAttributes();
 	Object get(Attribute a);

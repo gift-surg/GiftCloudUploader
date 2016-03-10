@@ -21,8 +21,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.util.UIUtils;
-
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class MultiUploadParameters {
@@ -37,19 +35,6 @@ public class MultiUploadParameters {
         return multiUploadAppletParameters.getParameter(key);
     }
 
-    public boolean getDateFromSession() {
-        if (UIUtils.getConfirmSessionDatePage()) {
-            return true;
-        }
-
-        return "no_session_date".equals(multiUploadAppletParameters.getParameter(MultiUploadParameters.XNAT_SCAN_DATE));
-    }
-
-
-    public String getParameter(final String key, final String defaultValue) {
-        final String v = multiUploadAppletParameters.getParameter(key);
-        return null == v ? defaultValue : v;
-    }
 
     public Optional<String> getOptionalParameter(String key) {
         final String value = multiUploadAppletParameters.getParameter(key);
@@ -64,33 +49,11 @@ public class MultiUploadParameters {
         return getOptionalParameter(XNAT_PROJECT);
     }
 
-    public Optional<String> getSubjectName() {
-        return getOptionalParameter(XNAT_SUBJECT);
-    }
-
-    public Optional<String> getScanDate() {
-        return getOptionalParameter(XNAT_SCAN_DATE);
-    }
-
     public Optional<String> getXnatUrl() {
         return getOptionalParameter(XNAT_URL);
     }
 
-    public Optional<String> getStrippedXnatUrl() {
-        final Optional<String> url = getXnatUrl();
-        if (url.isPresent()) {
-            return Optional.of(StringUtils.stripEnd(url.get(), "/"));
-        } else{
-            return url;
-        }
-    }
 
-    public Optional<String> getJsessionId() {
-        return getOptionalParameter(MultiUploadParameters.JSESSIONID);
-    }
-
-
-    public static final String EXPECTED_MODALITY_LABEL = "*expected-modality*";
     public static final String XNAT_PROJECT = "xnat-project";
     public static final String XNAT_SUBJECT = "xnat-subject";
     public static final String XNAT_SCAN_DATE = "xnat-scan-date";
@@ -98,7 +61,6 @@ public class MultiUploadParameters {
     public static final String XNAT_PROTOCOL = "xnat-protocol";
     public static final String EXPECTED_MODALITY = "expected-modality";
     public static final String XNAT_SCAN_TYPE = "xnat-scan-type";
-    public static final String XNAT_SESSION = "xnat-session-label";
     public static final String XNAT_URL = "xnat-url";
     public static final String XNAT_DESCRIPTION = "xnat-description";
     public static final String XNAT_ADMIN_EMAIL = "xnat-admin-email";
