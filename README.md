@@ -81,3 +81,8 @@ even if advised of the possibility of such damage.
 This software has neither been tested nor approved for clinical use or for incorporation in
 a medical device. It is the redistributor's or user's responsibility to comply with any
 applicable local, state, national or international regulations.
+
+
+
+
+## Copyright and licensing information for DicomCleaner
