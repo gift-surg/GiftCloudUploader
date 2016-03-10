@@ -309,13 +309,20 @@ public class GiftCloudConfigurationDialog {
                 inputConstraints.gridy = 4;
                 remoteAEPanel.add(remoteAEPortField, inputConstraints);
             }
+
         }
 
         // The panel containing the cancel and apply buttons
+        JPanel buttonPanel = new JPanel();
         JPanel closeButtonPanel = new JPanel();
         {
+            final GridBagLayout buttonPanellayout = new GridBagLayout();
+            buttonPanel.setLayout(buttonPanellayout);
+
+            JSeparator separator = new JSeparator();
+            buttonPanel.add(separator, separatorConstraint);
+
             closeButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-            closeButtonPanel.setBorder(panelBorder);
 
             JButton cancelButton = new JButton(resourceBundle.getString("cancelSettingsButtonLabelText"));
             cancelButton.setToolTipText(resourceBundle.getString("cancelSettingsButtonToolTipText"));
@@ -331,6 +338,17 @@ public class GiftCloudConfigurationDialog {
             closeButton.setToolTipText(resourceBundle.getString("closeSettingsButtonToolTipText"));
             closeButtonPanel.add(closeButton);
             closeButton.addActionListener(new CloseActionListener());
+
+
+            final GridBagConstraints constraints = new GridBagConstraints();
+            constraints.gridx = 0;
+            constraints.gridy = 1;
+            constraints.weightx = 1;
+            constraints.weighty = 1;
+            constraints.insets = new Insets(5, 5, 5, 5);
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            buttonPanellayout.setConstraints(closeButtonPanel, constraints);
+            buttonPanel.add(closeButtonPanel);
         }
 
 
@@ -345,6 +363,7 @@ public class GiftCloudConfigurationDialog {
                 constraints.gridy = 0;
                 constraints.weightx = 1;
                 constraints.weighty = 1;
+                constraints.insets = new Insets(5, 5, 5, 5);
                 constraints.fill = GridBagConstraints.HORIZONTAL;
                 configPanelLayout.setConstraints(giftCloudServerPanel, constraints);
                 configPanel.add(giftCloudServerPanel);
@@ -355,6 +374,7 @@ public class GiftCloudConfigurationDialog {
                 constraints.gridy = 1;
                 constraints.weightx = 1;
                 constraints.weighty = 1;
+                constraints.insets = new Insets(5, 5, 5, 5);
                 constraints.fill = GridBagConstraints.HORIZONTAL;
                 configPanelLayout.setConstraints(listenerPanel, constraints);
                 configPanel.add(listenerPanel);
@@ -363,6 +383,7 @@ public class GiftCloudConfigurationDialog {
                 final GridBagConstraints constraints = new GridBagConstraints();
                 constraints.gridx = 0;
                 constraints.gridy = 2;
+                constraints.insets = new Insets(5, 5, 5, 5);
                 constraints.fill = GridBagConstraints.HORIZONTAL;
                 configPanelLayout.setConstraints(remoteAEPanel, constraints);
                 configPanel.add(remoteAEPanel);
@@ -371,9 +392,10 @@ public class GiftCloudConfigurationDialog {
                 final GridBagConstraints constraints = new GridBagConstraints();
                 constraints.gridx = 0;
                 constraints.gridy = 3;
+                constraints.insets = new Insets(5, 5, 5, 5);
                 constraints.fill = GridBagConstraints.HORIZONTAL;
-                configPanelLayout.setConstraints(closeButtonPanel, constraints);
-                configPanel.add(closeButtonPanel);
+                configPanelLayout.setConstraints(buttonPanel, constraints);
+                configPanel.add(buttonPanel);
             }
         }
 
@@ -402,9 +424,16 @@ public class GiftCloudConfigurationDialog {
     }
 
     private void showProjectList(final boolean enabled) {
-        projectList.setEnabled(enabled);
-        projectList.setVisible(enabled);
-        projectListWaitingLabel.setVisible(!enabled);
+
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                projectList.setEnabled(enabled);
+                projectList.setVisible(enabled);
+                projectListWaitingLabel.setVisible(!enabled);
+            }
+        });
+
     }
 
     public boolean isVisible() {
