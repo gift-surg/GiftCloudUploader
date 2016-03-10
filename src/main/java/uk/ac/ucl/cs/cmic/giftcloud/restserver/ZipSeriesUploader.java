@@ -12,7 +12,6 @@
 
 =============================================================================*/
 
-
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.DicomMetaDataAnonymiser;
@@ -24,8 +23,8 @@ import java.util.Set;
 
 public class ZipSeriesUploader extends CallableUploader {
 
-    private ZipSeriesUploader(final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser) {
-        super(uploadParameters, server, dicomMetaDataAnonymiser);
+    public ZipSeriesUploader(final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser, final boolean append) {
+        super(uploadParameters, server, dicomMetaDataAnonymiser, append);
     }
 
     @Override
@@ -33,15 +32,9 @@ public class ZipSeriesUploader extends CallableUploader {
         final SeriesZipper seriesZipper = new SeriesZipper(dicomMetaDataAnonymiser, server.getPixelDataAnonymiser(), uploadParameters);
         final File temporaryZipFile = seriesZipper.buildSeriesZipFile(fileCollection);
         try {
-            return server.uploadZipFile(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), temporaryZipFile);
+            return server.uploadZipFile(uploadParameters.getProjectName(), uploadParameters.getSubjectLabel(), uploadParameters.getExperimentLabel(), uploadParameters.getScanLabel(), uploadParameters.getXnatModalityParams(), temporaryZipFile, false);
         } finally {
             temporaryZipFile.delete();
-        }
-    }
-
-    public static class ZipSeriesUploaderFactory implements CallableUploaderFactory {
-        public CallableUploader create(final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser) {
-            return new ZipSeriesUploader(uploadParameters, server, dicomMetaDataAnonymiser);
         }
     }
 }

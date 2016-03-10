@@ -6,7 +6,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.ZipSeriesUploaderFactorySelector;
 import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -116,8 +115,6 @@ public class GiftCloudAutoUploader {
             throw new IOException("No files were selected for upload");
         }
 
-        final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
-
         // Iterate through each set of files
         for (final FileCollection fileCollection : fileCollections) {
             final UploadParameters uploadParameters = new UploadParameters();
@@ -128,7 +125,7 @@ public class GiftCloudAutoUploader {
             uploadParameters.setFileCollection(fileCollection);
             uploadParameters.setXnatModalityParams(xnatModalityParams);
 
-            final CallableUploader uploader = callableUploaderFactory.create(uploadParameters, server, project.getDicomMetaDataAnonymiser());
+            final CallableUploader uploader = new ZipSeriesUploader(uploadParameters, server, project.getDicomMetaDataAnonymiser(), true);
             backgroundUploader.addUploader(uploader);
         }
     }

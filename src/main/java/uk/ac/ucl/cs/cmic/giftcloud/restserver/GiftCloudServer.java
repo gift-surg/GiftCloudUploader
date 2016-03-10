@@ -93,12 +93,8 @@ public class GiftCloudServer {
         return restServer.getProjectSeriesImportFilter(projectName);
     }
 
-    public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final File temporaryFile) throws Exception {
-        return restServer.uploadZipFile(projectLabel, subjectLabel, experimentLabel, scanLabel, temporaryFile);
-    }
-
-    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final XnatModalityParams xnatModalityParams, final File temporaryFile) throws Exception {
-        restServer.appendZipFileToExistingScan(projectLabel, subjectLabel, experimentLabel, scanLabel, xnatModalityParams, temporaryFile);
+    public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final XnatModalityParams xnatModalityParams, final File temporaryFile, final boolean append) throws Exception {
+        return restServer.uploadZipFile(projectLabel, subjectLabel, experimentLabel, scanLabel, xnatModalityParams, temporaryFile, append);
     }
 
     public void createSubjectAliasIfNotExisting(final String projectName, final GiftCloudLabel.SubjectLabel subjectName, final String hashedPatientId) throws IOException {

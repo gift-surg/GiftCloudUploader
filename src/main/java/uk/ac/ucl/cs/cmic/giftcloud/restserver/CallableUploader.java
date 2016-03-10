@@ -28,6 +28,7 @@ import java.util.Set;
 public abstract class CallableUploader implements CallableWithParameter<Set<String>, FileCollection> {
     protected final UploadParameters uploadParameters;
     protected final DicomMetaDataAnonymiser dicomMetaDataAnonymiser;
+    protected boolean append;
     protected final FileCollection fileCollection;
     protected final GiftCloudServer server;
 
@@ -35,13 +36,13 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
             Tag.TransferSyntaxUID, Tag.FileMetaInformationVersion, Tag.SOPClassUID));
 
     public CallableUploader(
-            final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser) {
+            final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser, final boolean append) {
         this.uploadParameters = uploadParameters;
         this.dicomMetaDataAnonymiser = dicomMetaDataAnonymiser;
+        this.append = append;
         this.fileCollection = uploadParameters.getFileCollection();
         this.server = server;
     }
-
 
     public final FileCollection getFileCollection() {
         return fileCollection;
@@ -53,6 +54,6 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
 
 
     public interface CallableUploaderFactory {
-        CallableUploader create(final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser);
+        CallableUploader create(final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser, final boolean append);
     }
 }
