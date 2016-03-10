@@ -11,7 +11,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import org.nrg.util.EditProgressMonitor;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
+import uk.ac.ucl.cs.cmic.giftcloud.data.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 
 import java.io.File;
@@ -27,7 +27,7 @@ public interface Trawler {
 	 * @param files Iterator over files to be examined
 	 * @return any Sessions that could be identified
 	 */
-	Collection<Session> trawl(final Iterator<File> files, final Collection<File> remaining, EditProgressMonitor pm);
+	Collection<Study> trawl(final Iterator<File> files, final Collection<File> remaining, EditProgressMonitor pm);
 
 	List<GiftCloudUploaderError> getErrorMessages();
 }

@@ -15,7 +15,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 
 import java.util.List;
 
-public interface Session {
+public interface Study {
     String getPatientId();
 	String getPatientName();
     String getStudyUid();

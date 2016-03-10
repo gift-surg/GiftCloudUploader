@@ -18,7 +18,7 @@ import com.google.common.collect.Sets;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.nrg.dcm.edit.DicomUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
+import uk.ac.ucl.cs.cmic.giftcloud.data.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
@@ -27,7 +27,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class Study extends MapEntity implements Entity, Session {
+public class DicomStudy extends MapEntity implements Entity, Study {
 
     public static final int MAX_TAG = Collections.max(new ArrayList<Integer>() {{
         add(Tag.AccessionNumber);
@@ -44,7 +44,7 @@ public class Study extends MapEntity implements Entity, Session {
     private final String studyUid;
     private final String seriesUid;
 
-    public Study(final String uid, final Date dateTime, final String id, final String accessionNumber, final String description, final String patientId, final String patientName, final String seriesInstanceUid, final String studyInstanceUid) {
+    public DicomStudy(final String uid, final Date dateTime, final String id, final String accessionNumber, final String description, final String patientId, final String patientName, final String seriesInstanceUid, final String studyInstanceUid) {
         put(Tag.StudyInstanceUID, uid);
         if (null != dateTime) {
             put(Tag.StudyDate, new SimpleDateFormat("yyyyMMdd").format(dateTime));
@@ -59,7 +59,7 @@ public class Study extends MapEntity implements Entity, Session {
         this.studyUid = studyInstanceUid;
     }
 
-    public Study(final DicomObject o) {
+    public DicomStudy(final DicomObject o) {
         this(o.getString(Tag.StudyInstanceUID),
                 DicomUtils.getDateTime(o, Tag.StudyDate, Tag.StudyTime),
                 o.getString(Tag.StudyID),
@@ -97,7 +97,7 @@ public class Study extends MapEntity implements Entity, Session {
      */
     @Override
     public boolean equals(final Object o) {
-        return o instanceof Study && Objects.equal(get(Tag.StudyInstanceUID), ((Study) o).get(Tag.StudyInstanceUID));
+        return o instanceof DicomStudy && Objects.equal(get(Tag.StudyInstanceUID), ((DicomStudy) o).get(Tag.StudyInstanceUID));
     }
 
     /*
@@ -110,7 +110,7 @@ public class Study extends MapEntity implements Entity, Session {
     }
 
     public Series addFileAndGetSeries(final DicomObject o, final File f) {
-        final Series s = series.get(new Series(this, o));
+        final Series s = series.get(new Series(o));
         s.addFile(f, o);
         return s;
     }

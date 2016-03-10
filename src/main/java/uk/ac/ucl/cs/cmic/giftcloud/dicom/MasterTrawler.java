@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.nrg.io.FileWalkIterator;
 import org.nrg.util.EditProgressMonitor;
-import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
+import uk.ac.ucl.cs.cmic.giftcloud.data.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.ArrayIterator;
@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class MasterTrawler implements Callable<List<Session>> {
+public class MasterTrawler implements Callable<List<Study>> {
     private final Trawler[] trawlers = {
             new DicomTrawler()
     };
@@ -43,8 +43,8 @@ public class MasterTrawler implements Callable<List<Session>> {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Session> call() {
-        final List<Session> sessions = Lists.newArrayList();
+    public List<Study> call() {
+        final List<Study> studies = Lists.newArrayList();
         final Iterator<File> filei = new FileWalkIterator(roots, pm);   // TODO: progress monitor
         final Iterator<Trawler> trawleri = new ArrayIterator<Trawler>(trawlers);
         final Collection<File> remaining = Sets.newLinkedHashSet();
@@ -52,7 +52,7 @@ public class MasterTrawler implements Callable<List<Session>> {
         if (trawler instanceof DicomTrawler) {
             ((DicomTrawler) trawler).setSeriesImportFilters(filters);
         }
-        sessions.addAll(trawler.trawl(filei, remaining, pm));
+        studies.addAll(trawler.trawl(filei, remaining, pm));
         errors.addAll(trawler.getErrorMessages());
 
         while (trawleri.hasNext()) {
@@ -62,15 +62,15 @@ public class MasterTrawler implements Callable<List<Session>> {
             if (trawler instanceof DicomTrawler) {
                 ((DicomTrawler) trawler).setSeriesImportFilters(filters);
             }
-            sessions.addAll(trawler.trawl(files.iterator(), remaining, pm));
+            studies.addAll(trawler.trawl(files.iterator(), remaining, pm));
             if (null != pm && pm.isCanceled()) {
-                sessions.clear();
-                return sessions;
+                studies.clear();
+                return studies;
             }
 
             errors.addAll(trawler.getErrorMessages());
         }
-        return sessions;
+        return studies;
     }
 
     public List<GiftCloudUploaderError> getErrorMessages() {

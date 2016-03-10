@@ -51,9 +51,4 @@ public abstract class CallableUploader implements CallableWithParameter<Set<Stri
     public final FileCollection getParameter() {
         return fileCollection;
     }
-
-
-    public interface CallableUploaderFactory {
-        CallableUploader create(final UploadParameters uploadParameters, final GiftCloudServer server, final DicomMetaDataAnonymiser dicomMetaDataAnonymiser, final boolean append);
-    }
 }

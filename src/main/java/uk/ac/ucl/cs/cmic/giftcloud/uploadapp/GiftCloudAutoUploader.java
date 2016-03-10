@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
+import uk.ac.ucl.cs.cmic.giftcloud.data.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
@@ -65,11 +65,11 @@ public class GiftCloudAutoUploader {
 
         final EditProgressMonitorWrapper progressWrapper = new EditProgressMonitorWrapper(reporter);
         final MasterTrawler trawler = new MasterTrawler(progressWrapper, fileList, seriesImportFilter);
-        final List<Session> sessions = trawler.call();
+        final List<Study> studies = trawler.call();
 
-        for (final Session session : sessions) {
+        for (final Study study : studies) {
 
-            addSessionToUploadList(server, project, projectName, session);
+            addSessionToUploadList(server, project, projectName, study);
         }
 
 
@@ -97,19 +97,19 @@ public class GiftCloudAutoUploader {
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final String projectName, final Session session) throws IOException {
-        final String patientId = session.getPatientId();
-        final String patientName = session.getPatientName();
-        final String studyInstanceUid = session.getStudyUid();
-        final String seriesUid = session.getSeriesUid();
+    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final String projectName, final Study study) throws IOException {
+        final String patientId = study.getPatientId();
+        final String patientName = study.getPatientName();
+        final String studyInstanceUid = study.getStudyUid();
+        final String seriesUid = study.getSeriesUid();
 
-        final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
+        final XnatModalityParams xnatModalityParams = study.getXnatModalityParams();
 
         final GiftCloudLabel.SubjectLabel subjectLabel = getSubjectName(server, projectName, patientId, patientName);
         final GiftCloudLabel.ExperimentLabel experimentLabel = getSessionName(server, projectName, subjectLabel, studyInstanceUid, xnatModalityParams);
         final GiftCloudLabel.ScanLabel scanName = getScanName(server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
 
-        final List<FileCollection> fileCollections = session.getFiles();
+        final List<FileCollection> fileCollections = study.getFiles();
 
         if (fileCollections.isEmpty()) {
             throw new IOException("No files were selected for upload");
