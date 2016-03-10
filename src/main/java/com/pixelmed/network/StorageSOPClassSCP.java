@@ -3,8 +3,6 @@
 package com.pixelmed.network;
 
 import com.pixelmed.dicom.*;
-import com.pixelmed.query.QueryResponseGeneratorFactory;
-import com.pixelmed.query.RetrieveResponseGeneratorFactory;
 import com.pixelmed.utils.ByteArray;
 import com.pixelmed.utils.CopyStream;
 import com.pixelmed.utils.FileUtilities;
@@ -15,6 +13,10 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 /**
+ * This class is derived from a class by David Clunie, but substantial simplifications have been made
+ *
+ *
+ *
  * <p>This class implements the SCP role of SOP Classes of the Storage Service Class,
  * the Study Root Query Retrieve Information Model Find, Get and Move SOP Classes,
  * and the Verification SOP Class.</p>
@@ -35,6 +37,8 @@ import java.util.ListIterator;
  * @see com.pixelmed.network.StorageSOPClassSCPDispatcher
  *
  * @author	dclunie
+ *
+ *
  */
 public class StorageSOPClassSCP extends SOPClass implements Runnable {
 
@@ -54,21 +58,11 @@ public class StorageSOPClassSCP extends SOPClass implements Runnable {
 		/***/
 		private AttributeList commandList;
 		/***/
-		private byte[] dataReceived;
-		/***/
-		private AttributeList dataList;
-		/***/
 		private OutputStream out;
 		/***/
 		private CStoreRequestCommandMessage csrq;
 		/***/
 		private CEchoRequestCommandMessage cerq;
-		/***/
-		private CFindRequestCommandMessage cfrq;
-		/***/
-		private CMoveRequestCommandMessage cmrq;
-		/***/
-		private CGetRequestCommandMessage cgrq;
 		/***/
 		private byte[] response;
 		/***/
@@ -80,10 +74,6 @@ public class StorageSOPClassSCP extends SOPClass implements Runnable {
 		private File temporaryReceivedFile;
 		/***/
 		private File savedImagesFolder;
-		/***/
-		private QueryResponseGeneratorFactory queryResponseGeneratorFactory;
-		/***/
-		private RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory;
 
 		/**
 		 * @throws	IOException
@@ -112,130 +102,19 @@ public class StorageSOPClassSCP extends SOPClass implements Runnable {
 		
 		/**
 		 * @param	savedImagesFolder		null if we do not want to actually save received data (i.e., we want to discard it for testing)
-		 * @param	queryResponseGeneratorFactory		a factory to make handlers to generate query responses from a supplied query message
-		 * @param	retrieveResponseGeneratorFactory	a factory to make handlers to generate retrieve responses from a supplied retrieve message
 		 * @param	debugLevel
 		 */
-		public CompositeCommandReceivedPDUHandler(File savedImagesFolder,QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,int debugLevel) {
+		public CompositeCommandReceivedPDUHandler(File savedImagesFolder, int debugLevel) {
 			super(debugLevel);
 			command=MessageServiceElementCommand.NOCOMMAND;
 			commandReceived=null;
 			commandList=null;
-			dataReceived=null;
-			dataList=null;
 			out=null;
 			csrq=null;
 			receivedFile=null;
 			this.savedImagesFolder=savedImagesFolder;
-			this.queryResponseGeneratorFactory=queryResponseGeneratorFactory;
-			this.retrieveResponseGeneratorFactory=retrieveResponseGeneratorFactory;
 		}
 
-		private class CMovePendingResponseSender extends MultipleInstanceTransferStatusHandler {
-		
-			private Association association;
-			private CMoveRequestCommandMessage cmrq;
-			
-			int nRemaining;
-			int nCompleted;
-			int nFailed;
-			int nWarning;
-			
-			CMovePendingResponseSender(Association association,CMoveRequestCommandMessage cmrq) {
-				this.association = association;
-				this.cmrq = cmrq;
-				nRemaining = 0;
-				nCompleted = 0;
-				nFailed = 0;
-				nWarning = 0;
-			}
-			
-			public void updateStatus(int nRemaining,int nCompleted,int nFailed,int nWarning,String sopInstanceUID) {
-				this.nRemaining = nRemaining;
-				this.nCompleted = nCompleted;
-				this.nFailed = nFailed;
-				this.nWarning = nWarning;
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CMovePendingResponseSender.updateStatusText(): Bulding C-MOVE pending response");
-				if (nRemaining > 0) {
-					try {
-						byte cMovePendingResponseCommandMessage[] = new CMoveResponseCommandMessage(
-							cmrq.getAffectedSOPClassUID(),
-							cmrq.getMessageID(),
-							ResponseStatus.SubOperationsAreContinuing,	// status is pending
-							false,				// no dataset
-							nRemaining,nCompleted,nFailed,nWarning
-							).getBytes();
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CMovePendingResponseSender.updateStatusText(): C-MOVE pending response = "+CompositeResponseHandler.dumpAttributeListFromCommandOrData(cMovePendingResponseCommandMessage,TransferSyntax.Default));
-
-						byte presentationContextIDForResponse = association.getSuitablePresentationContextID(cmrq.getAffectedSOPClassUID());
-						association.send(presentationContextIDForResponse,cMovePendingResponseCommandMessage,null);
-					}
-					catch (DicomNetworkException e) {
-						e.printStackTrace(System.err);
-					}
-					catch (DicomException e) {
-						e.printStackTrace(System.err);
-					}
-					catch (IOException e) {
-						e.printStackTrace(System.err);
-					}
-				}
-				// else do not send pending message if nothing remaining; just update counts
-			}
-		}
-
-
-		private class CGetPendingResponseSender extends MultipleInstanceTransferStatusHandler {
-		
-			private Association association;
-			private CGetRequestCommandMessage cgrq;
-			
-			int nRemaining;
-			int nCompleted;
-			int nFailed;
-			int nWarning;
-			
-			CGetPendingResponseSender(Association association,CGetRequestCommandMessage cgrq) {
-				this.association = association;
-				this.cgrq = cgrq;
-				nRemaining = 0;
-				nCompleted = 0;
-				nFailed = 0;
-				nWarning = 0;
-			}
-			
-			public void updateStatus(int nRemaining,int nCompleted,int nFailed,int nWarning,String sopInstanceUID) {
-				this.nRemaining = nRemaining;
-				this.nCompleted = nCompleted;
-				this.nFailed = nFailed;
-				this.nWarning = nWarning;
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CGetPendingResponseSender.updateStatusText(): Bulding C-GET pending response");
-				if (nRemaining > 0) {
-					try {
-						byte cGetPendingResponseCommandMessage[] = new CGetResponseCommandMessage(
-							cgrq.getAffectedSOPClassUID(),
-							cgrq.getMessageID(),
-							ResponseStatus.SubOperationsAreContinuing,	// status is pending
-							false,				// no dataset
-							nRemaining,nCompleted,nFailed,nWarning
-							).getBytes();
-
-						byte presentationContextIDForResponse = association.getSuitablePresentationContextID(cgrq.getAffectedSOPClassUID());
-						association.send(presentationContextIDForResponse,cGetPendingResponseCommandMessage,null);
-					}
-					catch (DicomNetworkException e) {
-						e.printStackTrace(System.err);
-					}
-					catch (DicomException e) {
-						e.printStackTrace(System.err);
-					}
-					catch (IOException e) {
-						e.printStackTrace(System.err);
-					}
-				}
-				// else do not send pending message if nothing remaining; just update counts
-			}
-		}
 
 		/**
 		 * @param	pdata
@@ -344,15 +223,12 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 				}
 			}
 		}
-		
-		/***/
-		public AttributeList getCommandList() { return commandList; }
+
 		/***/
 		public byte[] getResponse() { return response; }
 		/***/
 		public byte getPresentationContextIDUsed() { return presentationContextIDUsed; }
-		/***/
-		public File getReceivedFile() { return receivedFile; }
+
 		/***/
 		public String getReceivedFileName() { return receivedFile == null ? null : receivedFile.getPath(); }
 	}
@@ -374,33 +250,22 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 	 * @throws	DicomNetworkException
 	 */
 	private boolean receiveAndProcessOneRequestMessage(Association association) throws AReleaseException, DicomNetworkException, DicomException, IOException {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.receiveAndProcessOneRequestMessage(): start");
-		CompositeCommandReceivedPDUHandler receivedPDUHandler = new CompositeCommandReceivedPDUHandler(savedImagesFolder,queryResponseGeneratorFactory,retrieveResponseGeneratorFactory,debugLevel);
+		CompositeCommandReceivedPDUHandler receivedPDUHandler = new CompositeCommandReceivedPDUHandler(savedImagesFolder, debugLevel);
 		association.setReceivedDataHandler(receivedPDUHandler);
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.receiveAndProcessOneRequestMessage(): waitForPDataPDUsUntilHandlerReportsDone");
 		association.waitForPDataPDUsUntilHandlerReportsDone();	// throws AReleaseException if release request instead
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.receiveAndProcessOneRequestMessage(): back from waitForPDataPDUsUntilHandlerReportsDone");
 		{
 			String receivedFileName=receivedPDUHandler.getReceivedFileName();	// null if C-ECHO
 			if (receivedFileName != null) {
-//long startTime=System.currentTimeMillis();
 				byte pcid = receivedPDUHandler.getPresentationContextIDUsed();
 				String ts = association.getTransferSyntaxForPresentationContextID(pcid);
 				String callingAE = association.getCallingAETitle();
 				receivedObjectHandler.sendReceivedObjectIndication(receivedFileName,ts,callingAE);
-if (debugLevel > 0) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.receiveAndProcessOneRequestMessage(): received file "+receivedFileName+" from "+callingAE+" in "+ts);
-//long endTime=System.currentTimeMillis();
-//System.err.println("StorageSOPClassSCP.receiveAndProcessOneRequestMessage(): call to sendReceivedObjectIndication() time "+(endTime-startTime)+" ms");
 			}
 		}
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.receiveAndProcessOneRequestMessage(): sending (final) response");
 		byte[] response = receivedPDUHandler.getResponse();
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.receiveAndProcessOneRequestMessage(): response = "+CompositeResponseHandler.dumpAttributeListFromCommandOrData(response,TransferSyntax.Default));
 		association.send(receivedPDUHandler.getPresentationContextIDUsed(),response,null);
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.receiveAndProcessOneRequestMessage(): end");
 		boolean moreExpected;
 		if (receivedPDUHandler.isToBeReleased()) {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.receiveAndProcessOneRequestMessage(): explicitly releasing association");
 			association.release();
 			moreExpected = false;
 		}
@@ -429,12 +294,6 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 	/***/
 	private AssociationStatusHandler associationStatusHandler;
 	/***/
-	private QueryResponseGeneratorFactory queryResponseGeneratorFactory;
-	/***/
-	private RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory;
-	/***/
-	private ApplicationEntityMap applicationEntityMap;
-	/***/
 	private PresentationContextSelectionPolicy presentationContextSelectionPolicy;
 	/***/
 	private int debugLevel;
@@ -452,9 +311,6 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 	 * @param	storedFilePathStrategy				the strategy to use for naming received files and folders
 	 * @param	receivedObjectHandler				the handler to call after each data set has been received and stored
 	 * @param	associationStatusHandler			the handler to call when the Association is closed
-	 * @param	queryResponseGeneratorFactory		a factory to make handlers to generate query responses from a supplied query message
-	 * @param	retrieveResponseGeneratorFactory	a factory to make handlers to generate retrieve responses from a supplied retrieve message
-	 * @param	applicationEntityMap				a map of application entity titles to presentation addresses
 	 * @param	presentationContextSelectionPolicy	which SOP Classes and Transfer Syntaxes to accept and reject
 	 * @param	debugLevel							zero for no debugging messages, higher values more verbose messages
 	 * @throws	IOException
@@ -462,15 +318,12 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 	 * @throws	DicomNetworkException
 	 */
 	public StorageSOPClassSCP(Socket socket, String calledAETitle,
-			int ourMaximumLengthReceived,int socketReceiveBufferSize,int socketSendBufferSize,
-			File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,
-			ReceivedObjectHandler receivedObjectHandler,
-			AssociationStatusHandler associationStatusHandler,
-			QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,
-			ApplicationEntityMap applicationEntityMap,
-			PresentationContextSelectionPolicy presentationContextSelectionPolicy,
-			int debugLevel) throws DicomNetworkException, DicomException, IOException {
-//System.err.println("StorageSOPClassSCP()");
+							  int ourMaximumLengthReceived, int socketReceiveBufferSize, int socketSendBufferSize,
+							  File savedImagesFolder, StoredFilePathStrategy storedFilePathStrategy,
+							  ReceivedObjectHandler receivedObjectHandler,
+							  AssociationStatusHandler associationStatusHandler,
+							  PresentationContextSelectionPolicy presentationContextSelectionPolicy,
+							  int debugLevel) throws DicomNetworkException, DicomException, IOException {
 		this.socket=socket;
 		this.calledAETitle=calledAETitle;
 		this.ourMaximumLengthReceived=ourMaximumLengthReceived;
@@ -480,9 +333,6 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 		this.storedFilePathStrategy=storedFilePathStrategy;
 		this.receivedObjectHandler=receivedObjectHandler;
 		this.associationStatusHandler=associationStatusHandler;
-		this.queryResponseGeneratorFactory=queryResponseGeneratorFactory;
-		this.retrieveResponseGeneratorFactory=retrieveResponseGeneratorFactory;
-		this.applicationEntityMap=applicationEntityMap;
 		this.presentationContextSelectionPolicy=presentationContextSelectionPolicy;
 		this.debugLevel=debugLevel;
 		storedFilePathStrategy.setDebugLevel(debugLevel);
@@ -494,19 +344,15 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 	 * is released or the transport connection closes.</p>
 	 */
 	public void run() {
-//System.err.println("StorageSOPClassSCP.run()");
 		try {
 			Association association = AssociationFactory.createNewAssociation(socket,calledAETitle,
 				ourMaximumLengthReceived,socketReceiveBufferSize,socketSendBufferSize,
 				presentationContextSelectionPolicy,
 				debugLevel);
-if (debugLevel > 0) System.err.println(new java.util.Date().toString()+": Association received "+association.getEndpointDescription());
-if (debugLevel > 2) System.err.println(association);
 			try {
 				while (receiveAndProcessOneRequestMessage(association));
 			}
 			catch (AReleaseException e) {
-//System.err.println("Association.run(): AReleaseException: "+association.getAssociationNumber()+" from "+association.getListenerCallingAETitle()+" released");
 				if (associationStatusHandler != null) {
 					associationStatusHandler.sendAssociationReleaseIndication(association);
 				}

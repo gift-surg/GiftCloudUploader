@@ -8,13 +8,11 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.*;
 import com.pixelmed.utils.CapabilitiesAvailable;
-import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,39 +64,14 @@ public class DicomNode {
             final String ourAETitle = giftCloudProperties.getListenerAETitle();
 
             ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port  + " AET " + ourAETitle));
-            int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
-            storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(getAe(), port, ourAETitle, savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
-                    null, null, // we do not permit query/retrieve from other systems, so send NULL factories
+            storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(port, ourAETitle, savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
                     new OurPresentationContextSelectionPolicy(),
-                    false/*secureTransport*/,
-                    storageSCPDebugLevel);
+                    false/*secureTransport*/
+            );
             storageSOPClassSCPDispatcher.startup();
         }
     }
 
-
-    /**
-     * Creates an ApplicationEntity from the current properties
-     * @return
-     * @throws DicomNetworkException
-     */
-    public Optional<ApplicationEntity> getAe() throws GiftCloudException {
-        final Optional<String> aeTitle = giftCloudProperties.getPacsAeTitle();
-        final Optional<String> hostname = giftCloudProperties.getPacsHostName();
-        final int port = giftCloudProperties.getPacsPort();
-        final Optional<String> queryModel = giftCloudProperties.getPacsQueryModel();
-        final Optional<String> primaryDeviceType = giftCloudProperties.getPacsPrimaryDeviceType();
-
-        if (!aeTitle.isPresent() || StringUtils.isBlank(aeTitle.get())) {
-            return Optional.empty();
-        }
-        if (!hostname.isPresent() || StringUtils.isBlank(hostname.get())) {
-            return Optional.empty();
-        }
-
-        final PresentationAddress presentationAddress = new PresentationAddress(hostname.get(), port);
-        return Optional.of(new ApplicationEntity(aeTitle.get(), presentationAddress, queryModel.orElse(null), primaryDeviceType.orElse(null)));
-    }
 
     public class DicomNodeStartException extends Exception {
         DicomNodeStartException(final String message, final Exception cause) {

@@ -1,9 +1,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public interface GiftCloudProperties {
 
@@ -22,12 +22,10 @@ public interface GiftCloudProperties {
     String propertyName_PacsAeTitle = "GiftCloud_RemoteAeTitle";
     String propertyName_PacsHostName = "GiftCloud_RemoteHostName";
     String propertyName_PacsQueryModel = "GiftCloud_RemoteQueryModel";
-    String propertyName_PacsPrimaryDeviceType = "GiftCloud_RemotePrimaryDeviceType";
     String propertyName_HideWindowOnStartup = "GiftCloud_HideWindowOnStartup";
     String propertyName_PacsPort = "GiftCloud_RemotePort";
     String propertyName_Shutdowntimeout = "GiftCloud_ShutdownTimeout";
     String propertyName_QueryDebugLevel = "GiftCloud_QueryDebugLevel";
-    String propertyName_StorageSCPDebugLevel = "GiftCloud_StorageSCPDebugLevel";
     String propertyName_ShortTimeoutMs = "GiftCloud_QuickAuthenticationTimeout";
     String propertyName_LongTimeoutMs = "GiftCloud_RequestTimeout";
 
@@ -68,8 +66,6 @@ public interface GiftCloudProperties {
     void setPacsPort(final int port);
 
     Optional<String> getPacsQueryModel();
-
-    Optional<String> getPacsPrimaryDeviceType();
 
     Optional<Boolean> getHideWindowOnStartup();
 

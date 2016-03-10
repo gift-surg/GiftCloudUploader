@@ -165,7 +165,7 @@ public class GiftCloudUploaderPanel extends JPanel {
         }
         final Optional<String> queryCalledAETitle = giftCloudProperties.getPacsAeTitle();
         if (!queryCalledAETitle.isPresent() || StringUtils.isBlank(queryCalledAETitle.get())) {
-            reporter.showMessageToUser("Please set the PACS AE title before performing importing from PACS.");
+            reporter.showMessageToUser("Please set the PACS AE title before importing from PACS.");
             controller.showConfigureDialog(false);
             return;
         }

@@ -6,10 +6,10 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.IOException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.ResourceBundle;
 
 
@@ -129,11 +129,6 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     }
 
     @Override
-    public Optional<String> getPacsPrimaryDeviceType() {
-        return getOptionalProperty(propertyName_PacsPrimaryDeviceType);
-    }
-
-    @Override
     public Optional<Boolean> getHideWindowOnStartup() {
         return getOptionalBoolean(propertyName_HideWindowOnStartup);
     }
@@ -209,10 +204,6 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
 
     public int getListeningPort() {
         return getIntegerWithDefault(propertyName_ListenerPort, NetworkDefaultValues.StandardDicomReservedPortNumber);
-    }
-
-    public int getStorageSCPDebugLevel() {
-        return getIntegerWithDefault(propertyName_StorageSCPDebugLevel, 0);
     }
 
     @Override

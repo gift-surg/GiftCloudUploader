@@ -4,17 +4,13 @@ package com.pixelmed.network;
 
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.StoredFilePathStrategy;
-import com.pixelmed.query.QueryResponseGeneratorFactory;
-import com.pixelmed.query.RetrieveResponseGeneratorFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -67,7 +63,6 @@ public class StorageSOPClassSCPDispatcher implements Runnable {
 	private static final String identString = "@(#) $Header: /userland/cvs/pixelmed/imgbook/com/pixelmed/network/StorageSOPClassSCPDispatcher.java,v 1.45 2014/09/09 20:34:09 dclunie Exp $";
 	
 	private int timeoutBeforeCheckingForInterrupted = 5000;	// in mS ... should be a property :(
-	private Optional<ApplicationEntity> remoteAe;
 
 	/***/
 	private class DefaultReceivedObjectHandler extends ReceivedObjectHandler {
@@ -104,10 +99,6 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	/***/
 	private AssociationStatusHandler associationStatusHandler;
 	/***/
-	private QueryResponseGeneratorFactory queryResponseGeneratorFactory;
-	/***/
-	private RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory;
-	/***/
 	private boolean secureTransport;
 	/***/
 	private PresentationContextSelectionPolicy presentationContextSelectionPolicy;
@@ -115,188 +106,10 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	private int debugLevel;
 	/***/
 	private boolean wantToShutdown;
-	/***/
-	private boolean isReady;
 
 	private Thread mainThread = null;
 	private Thread executingThread = null;
 	private ServerSocket serverSocket = null;
-	
-	/**
-	 * <p>Is the dispatcher ready to receive connections?</p>
-	 *
-	 * <p>Useful for unit tests so as to know when to start sending to it.</p>
-	 *
-	 * return	true if ready
-	 */
-	synchronized public boolean isReady() { return isReady; }
-
-	/**
-	 * <p>Construct an instance of dispatcher that will wait for transport
-	 * connection open indications, and handle associations and commands.</p>
-	 *
-	 * @param	port			the port on which to listen for connections
-	 * @param	calledAETitle		our AE Title
-	 * @param	savedImagesFolder	the folder in which to store received data sets (may be null, to ignore received data for testing)
-	 * @param	receivedObjectHandler	the handler to call after each data set has been received and stored
-	 * @param	debugLevel		zero for no debugging messages, higher values more verbose messages
-	 * @throws	IOException
-	 */
-	public StorageSOPClassSCPDispatcher(final ApplicationEntity applicationEntity, int port,String calledAETitle,File savedImagesFolder,ReceivedObjectHandler receivedObjectHandler,int debugLevel) throws IOException {
-		this.port=port;
-		this.calledAETitle=calledAETitle;
-		this.ourMaximumLengthReceived=AssociationFactory.getDefaultMaximumLengthReceived();
-		this.socketReceiveBufferSize=AssociationFactory.getDefaultReceiveBufferSize();
-		this.socketSendBufferSize=AssociationFactory.getDefaultSendBufferSize();
-		this.savedImagesFolder=savedImagesFolder;
-		this.storedFilePathStrategy=StoredFilePathStrategy.getDefaultStrategy();
-		this.receivedObjectHandler=receivedObjectHandler;
-		this.associationStatusHandler=null;
-		this.queryResponseGeneratorFactory=null;
-		this.retrieveResponseGeneratorFactory=null;
-		this.debugLevel=debugLevel;
-		this.secureTransport=false;
-		this.presentationContextSelectionPolicy=new UnencapsulatedExplicitStorePresentationContextSelectionPolicy();
-	}
-
-	/**
-	 * <p>Construct an instance of dispatcher that will wait for transport
-	 * connection open indications, and handle associations and commands.</p>
-	 *
-	 * @param	port							the port on which to listen for connections
-	 * @param	calledAETitle					our AE Title
-	 * @param	savedImagesFolder				the folder in which to store received data sets (may be null, to ignore received data for testing)
-	 * @param	storedFilePathStrategy			the strategy to use for naming received files and folders
-	 * @param	receivedObjectHandler			the handler to call after each data set has been received and stored
-	 * @param	debugLevel						zero for no debugging messages, higher values more verbose messages
-	 * @throws	IOException
-	 */
-	public StorageSOPClassSCPDispatcher(int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,ReceivedObjectHandler receivedObjectHandler,int debugLevel) throws IOException {
-		this.port=port;
-		this.calledAETitle=calledAETitle;
-		this.ourMaximumLengthReceived=AssociationFactory.getDefaultMaximumLengthReceived();
-		this.socketReceiveBufferSize=AssociationFactory.getDefaultReceiveBufferSize();
-		this.socketSendBufferSize=AssociationFactory.getDefaultSendBufferSize();
-		this.savedImagesFolder=savedImagesFolder;
-		this.storedFilePathStrategy=storedFilePathStrategy;
-		this.receivedObjectHandler=receivedObjectHandler;
-		this.associationStatusHandler=null;
-		this.queryResponseGeneratorFactory=null;
-		this.retrieveResponseGeneratorFactory=null;
-		this.debugLevel=debugLevel;
-		this.secureTransport=false;
-		this.presentationContextSelectionPolicy=new UnencapsulatedExplicitStorePresentationContextSelectionPolicy();
-	}
-
-	/**
-	 * <p>Construct an instance of dispatcher that will wait for transport
-	 * connection open indications, and handle associations and commands.</p>
-	 *
-	 * @param	port				the port on which to listen for connections
-	 * @param	calledAETitle			our AE Title
-	 * @param	ourMaximumLengthReceived	the maximum PDU length that we will offer to receive
-	 * @param	socketReceiveBufferSize		the TCP socket receive buffer size to set (if possible), 0 means leave at the default
-	 * @param	socketSendBufferSize		the TCP socket send buffer size to set (if possible), 0 means leave at the default
-	 * @param	savedImagesFolder		the folder in which to store received data sets (may be null, to ignore received data for testing)
-	 * @param	receivedObjectHandler		the handler to call after each data set has been received and stored, or null for the default that prints the file name
-	 * @param	queryResponseGeneratorFactory		the factory to make handlers to generate query responses from a supplied query message
-	 * @param	retrieveResponseGeneratorFactory	the factory to make handlers to generate retrieve responses from a supplied retrieve message
-	 * @param	secureTransport		true if to use secure transport protocol
-	 * @param	debugLevel			zero for no debugging messages, higher values more verbose messages
-	 * @throws	IOException
-	 */
-	public StorageSOPClassSCPDispatcher(int port,String calledAETitle,
-			int ourMaximumLengthReceived,int socketReceiveBufferSize,int socketSendBufferSize,
-			File savedImagesFolder,ReceivedObjectHandler receivedObjectHandler,
-			QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,
-			boolean secureTransport,int debugLevel) throws IOException {
-		this.port=port;
-		this.calledAETitle=calledAETitle;
-		this.ourMaximumLengthReceived=ourMaximumLengthReceived;
-		this.socketReceiveBufferSize=socketReceiveBufferSize;
-		this.socketSendBufferSize=socketSendBufferSize;
-		this.savedImagesFolder=savedImagesFolder;
-		this.storedFilePathStrategy=StoredFilePathStrategy.getDefaultStrategy();
-		this.receivedObjectHandler=receivedObjectHandler == null ? new DefaultReceivedObjectHandler() : receivedObjectHandler;
-		this.associationStatusHandler=null;
-		this.queryResponseGeneratorFactory=queryResponseGeneratorFactory;
-		this.retrieveResponseGeneratorFactory=retrieveResponseGeneratorFactory;
-		this.debugLevel=debugLevel;
-		this.secureTransport=secureTransport;
-		this.presentationContextSelectionPolicy=new UnencapsulatedExplicitStoreFindMoveGetPresentationContextSelectionPolicy();
-	}
-
-	/**
-	 * <p>Construct an instance of dispatcher that will wait for transport
-	 * connection open indications, and handle associations and commands.</p>
-	 *
-	 * @param	port								the port on which to listen for connections
-	 * @param	calledAETitle						our AE Title
-	 * @param	ourMaximumLengthReceived			the maximum PDU length that we will offer to receive
-	 * @param	socketReceiveBufferSize				the TCP socket receive buffer size to set (if possible), 0 means leave at the default
-	 * @param	socketSendBufferSize				the TCP socket send buffer size to set (if possible), 0 means leave at the default
-	 * @param	savedImagesFolder					the folder in which to store received data sets (may be null, to ignore received data for testing)
-	 * @param	storedFilePathStrategy				the strategy to use for naming received files and folders
-	 * @param	receivedObjectHandler				the handler to call after each data set has been received and stored, or null for the default that prints the file name
-	 * @param	queryResponseGeneratorFactory		the factory to make handlers to generate query responses from a supplied query message
-	 * @param	retrieveResponseGeneratorFactory	the factory to make handlers to generate retrieve responses from a supplied retrieve message
-	 * @param	secureTransport						true if to use secure transport protocol
-	 * @param	debugLevel							zero for no debugging messages, higher values more verbose messages
-	 * @throws	IOException
-	 */
-	public StorageSOPClassSCPDispatcher(int port,String calledAETitle,
-			int ourMaximumLengthReceived,int socketReceiveBufferSize,int socketSendBufferSize,
-			File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,ReceivedObjectHandler receivedObjectHandler,
-			QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,
-			boolean secureTransport,int debugLevel) throws IOException {
-		this.port=port;
-		this.calledAETitle=calledAETitle;
-		this.ourMaximumLengthReceived=ourMaximumLengthReceived;
-		this.socketReceiveBufferSize=socketReceiveBufferSize;
-		this.socketSendBufferSize=socketSendBufferSize;
-		this.savedImagesFolder=savedImagesFolder;
-		this.storedFilePathStrategy=storedFilePathStrategy;
-		this.receivedObjectHandler=receivedObjectHandler == null ? new DefaultReceivedObjectHandler() : receivedObjectHandler;
-		this.associationStatusHandler=null;
-		this.queryResponseGeneratorFactory=queryResponseGeneratorFactory;
-		this.retrieveResponseGeneratorFactory=retrieveResponseGeneratorFactory;
-		this.debugLevel=debugLevel;
-		this.secureTransport=secureTransport;
-		this.presentationContextSelectionPolicy=new UnencapsulatedExplicitStoreFindMoveGetPresentationContextSelectionPolicy();
-	}
-
-	/**
-	 * <p>Construct an instance of dispatcher that will wait for transport
-	 * connection open indications, and handle associations and commands.</p>
-	 *
-	 * @param	port				the port on which to listen for connections
-	 * @param	calledAETitle			our AE Title
-	 * @param	savedImagesFolder		the folder in which to store received data sets (may be null, to ignore received data for testing)
-	 * @param	receivedObjectHandler		the handler to call after each data set has been received and stored, or null for the default that prints the file name
-	 * @param	queryResponseGeneratorFactory		the factory to make handlers to generate query responses from a supplied query message
-	 * @param	retrieveResponseGeneratorFactory	the factory to make handlers to generate retrieve responses from a supplied retrieve message
-	 * @param	secureTransport		true if to use secure transport protocol
-	 * @param	debugLevel			zero for no debugging messages, higher values more verbose messages
-	 * @throws	IOException
-	 */
-	public StorageSOPClassSCPDispatcher(int port,String calledAETitle,File savedImagesFolder,ReceivedObjectHandler receivedObjectHandler,
-			QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,
-			boolean secureTransport,int debugLevel) throws IOException {
-		this.port=port;
-		this.calledAETitle=calledAETitle;
-		this.ourMaximumLengthReceived=AssociationFactory.getDefaultMaximumLengthReceived();
-		this.socketReceiveBufferSize=AssociationFactory.getDefaultReceiveBufferSize();
-		this.socketSendBufferSize=AssociationFactory.getDefaultSendBufferSize();
-		this.savedImagesFolder=savedImagesFolder;
-		this.storedFilePathStrategy=StoredFilePathStrategy.getDefaultStrategy();
-		this.receivedObjectHandler=receivedObjectHandler == null ? new DefaultReceivedObjectHandler() : receivedObjectHandler;
-		this.associationStatusHandler=null;
-		this.queryResponseGeneratorFactory=queryResponseGeneratorFactory;
-		this.retrieveResponseGeneratorFactory=retrieveResponseGeneratorFactory;
-		this.debugLevel=debugLevel;
-		this.secureTransport=secureTransport;
-		this.presentationContextSelectionPolicy=new UnencapsulatedExplicitStoreFindMoveGetPresentationContextSelectionPolicy();
-	}
 
 	/**
 	 * <p>Construct an instance of dispatcher that will wait for transport
@@ -307,61 +120,28 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	 * @param	savedImagesFolder					the folder in which to store received data sets (may be null, to ignore received data for testing)
 	 * @param	storedFilePathStrategy				the strategy to use for naming received files and folders, or null for the default
 	 * @param	receivedObjectHandler				the handler to call after each data set has been received and stored, or null for the default that prints the file name
-	 * @param	queryResponseGeneratorFactory		the factory to make handlers to generate query responses from a supplied query message
-	 * @param	retrieveResponseGeneratorFactory	the factory to make handlers to generate retrieve responses from a supplied retrieve message
 	 * @param	presentationContextSelectionPolicy	which SOP Classes and Transfer Syntaxes to accept and reject, or null for the default
 	 * @param	secureTransport						true if to use secure transport protocol
-	 * @param	debugLevel							zero for no debugging messages, higher values more verbose messages
 	 * @throws	IOException
 	 */
-	public StorageSOPClassSCPDispatcher(final Optional<ApplicationEntity> remoteAe, int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,ReceivedObjectHandler receivedObjectHandler,
-			QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,
-			PresentationContextSelectionPolicy presentationContextSelectionPolicy,
-			boolean secureTransport,int debugLevel) throws IOException {
-		this(remoteAe, port,calledAETitle,savedImagesFolder,storedFilePathStrategy,receivedObjectHandler,null/*associationStatusHandler*/,
-			queryResponseGeneratorFactory,retrieveResponseGeneratorFactory,
-			presentationContextSelectionPolicy,
-			secureTransport,debugLevel);
-	}
-
-	/**
-	 * <p>Construct an instance of dispatcher that will wait for transport
-	 * connection open indications, and handle associations and commands.</p>
-	 *
-	 * @param	port								the port on which to listen for connections
-	 * @param	calledAETitle						our AE Title
-	 * @param	savedImagesFolder					the folder in which to store received data sets (may be null, to ignore received data for testing)
-	 * @param	storedFilePathStrategy				the strategy to use for naming received files and folders, or null for the default
-	 * @param	receivedObjectHandler				the handler to call after each data set has been received and stored, or null for the default that prints the file name
-	 * @param	associationStatusHandler			the handler to call when the Association is closed, or null if none required
-	 * @param	queryResponseGeneratorFactory		the factory to make handlers to generate query responses from a supplied query message
-	 * @param	retrieveResponseGeneratorFactory	the factory to make handlers to generate retrieve responses from a supplied retrieve message
-	 * @param	presentationContextSelectionPolicy	which SOP Classes and Transfer Syntaxes to accept and reject, or null for the default
-	 * @param	secureTransport						true if to use secure transport protocol
-	 * @param	debugLevel							zero for no debugging messages, higher values more verbose messages
-	 * @throws	IOException
-	 */
-	public StorageSOPClassSCPDispatcher(final Optional<ApplicationEntity> remoteAe, int port,String calledAETitle,File savedImagesFolder,StoredFilePathStrategy storedFilePathStrategy,
-			ReceivedObjectHandler receivedObjectHandler,AssociationStatusHandler associationStatusHandler,
-			QueryResponseGeneratorFactory queryResponseGeneratorFactory,RetrieveResponseGeneratorFactory retrieveResponseGeneratorFactory,
-			PresentationContextSelectionPolicy presentationContextSelectionPolicy,
-			boolean secureTransport,int debugLevel) throws IOException {
+	public StorageSOPClassSCPDispatcher(int port, String calledAETitle, File savedImagesFolder, StoredFilePathStrategy storedFilePathStrategy, ReceivedObjectHandler receivedObjectHandler,
+										PresentationContextSelectionPolicy presentationContextSelectionPolicy,
+										boolean secureTransport) throws IOException {
 		this.port=port;
 		this.calledAETitle=calledAETitle;
-		this.ourMaximumLengthReceived=AssociationFactory.getDefaultMaximumLengthReceived();
-		this.socketReceiveBufferSize=AssociationFactory.getDefaultReceiveBufferSize();
-		this.socketSendBufferSize=AssociationFactory.getDefaultSendBufferSize();
 		this.savedImagesFolder=savedImagesFolder;
 		this.storedFilePathStrategy=storedFilePathStrategy == null ? StoredFilePathStrategy.getDefaultStrategy() : storedFilePathStrategy;
 		this.receivedObjectHandler=receivedObjectHandler == null ? new DefaultReceivedObjectHandler() : receivedObjectHandler;
-		this.associationStatusHandler=associationStatusHandler;
-		this.queryResponseGeneratorFactory=queryResponseGeneratorFactory;
-		this.retrieveResponseGeneratorFactory=retrieveResponseGeneratorFactory;
 		this.presentationContextSelectionPolicy=presentationContextSelectionPolicy == null ? new UnencapsulatedExplicitStoreFindMoveGetPresentationContextSelectionPolicy() : presentationContextSelectionPolicy;
 		this.secureTransport=secureTransport;
-		this.debugLevel=debugLevel;
-		this.remoteAe = remoteAe;
+
+		this.debugLevel=0;
+		this.associationStatusHandler=null;
+		this.ourMaximumLengthReceived=AssociationFactory.getDefaultMaximumLengthReceived();
+		this.socketReceiveBufferSize=AssociationFactory.getDefaultReceiveBufferSize();
+		this.socketSendBufferSize=AssociationFactory.getDefaultSendBufferSize();
 	}
+
 
 	/**
 	 * Start a new thread with a new dispatcher
@@ -416,35 +196,18 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 	 */
 	public void run() {
 		wantToShutdown = false;
-		isReady = false;
 		try {
 
-			isReady = true;
 			serverSocket.setSoTimeout(timeoutBeforeCheckingForInterrupted);
 			while (!wantToShutdown) {
 				try {
 					Socket socket = serverSocket.accept();
 					//setSocketOptions(socket,ourMaximumLengthReceived,socketReceiveBufferSize,socketSendBufferSize,debugLevel);
-					// defer loading applicationEntityMap until each incoming connection, since may have been updated
-					ApplicationEntityMap applicationEntityMap = new ApplicationEntityMap();
-					if (remoteAe.isPresent()) {
-						applicationEntityMap.put(remoteAe.get().getDicomAETitle(), remoteAe.get());
-					}
-					{
-						// add ourselves to AET map, if not already there, in case we want to C-MOVE to ourselves
-						InetAddress ourAddress = serverSocket.getInetAddress();
-						if (ourAddress != null && applicationEntityMap.get(calledAETitle) == null) {
-							applicationEntityMap.put(calledAETitle,new PresentationAddress(ourAddress.getHostAddress(),port),
-								NetworkApplicationProperties.StudyRootQueryModel/*hmm... :(*/,null/*primaryDeviceType*/);
-						}
-					}
 					try {
-
 						executingThread = new Thread(new StorageSOPClassSCP(socket,calledAETitle,
 							ourMaximumLengthReceived,socketReceiveBufferSize,socketSendBufferSize,savedImagesFolder,storedFilePathStrategy,
-							receivedObjectHandler,associationStatusHandler,queryResponseGeneratorFactory,retrieveResponseGeneratorFactory,
-							applicationEntityMap,
-							presentationContextSelectionPolicy,
+							receivedObjectHandler,associationStatusHandler,
+								presentationContextSelectionPolicy,
 							debugLevel));
 						executingThread.start();
 					}
@@ -468,7 +231,6 @@ System.err.println("StorageSOPClassSCPDispatcher.DefaultReceivedObjectHandler.se
 		catch (Exception e) {
 			e.printStackTrace(System.err);
 		}
-		isReady = false;
 	}
 
 	private ServerSocket getServerSocket() throws IOException {
