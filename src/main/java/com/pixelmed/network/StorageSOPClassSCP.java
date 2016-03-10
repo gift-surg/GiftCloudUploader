@@ -2,20 +2,17 @@
 
 package com.pixelmed.network;
 
-import com.pixelmed.utils.*;
 import com.pixelmed.dicom.*;
-import com.pixelmed.query.QueryResponseGenerator;
 import com.pixelmed.query.QueryResponseGeneratorFactory;
-import com.pixelmed.query.RetrieveResponseGenerator;
 import com.pixelmed.query.RetrieveResponseGeneratorFactory;
+import com.pixelmed.utils.ByteArray;
+import com.pixelmed.utils.CopyStream;
+import com.pixelmed.utils.FileUtilities;
 
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.StringTokenizer;
 import java.io.*;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 /**
  * <p>This class implements the SCP role of SOP Classes of the Storage Service Class,
@@ -222,7 +219,6 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 							false,				// no dataset
 							nRemaining,nCompleted,nFailed,nWarning
 							).getBytes();
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.CGetPendingResponseSender.updateStatusText(): C-GET pending response = "+CompositeResponseHandler.dumpAttributeListFromCommandOrData(cGetPendingResponseCommandMessage,TransferSyntax.Default));
 
 						byte presentationContextIDForResponse = association.getSuitablePresentationContextID(cgrq.getAffectedSOPClassUID());
 						association.send(presentationContextIDForResponse,cGetPendingResponseCommandMessage,null);
@@ -241,12 +237,6 @@ if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": Storag
 			}
 		}
 
-//long startReceivedFile;
-//long wroteMetaReceivedFile;
-//long wroteLastFragmentReceivedFile;
-//long endReceivedFile;
-//long accumulatedWritePDVTime;
-
 		/**
 		 * @param	pdata
 		 * @param	association
@@ -255,69 +245,57 @@ if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": Storag
 		 * @throws	DicomNetworkException
 		 */
 		public void sendPDataIndication(PDataPDU pdata,Association association) throws DicomNetworkException, DicomException, IOException {
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): sendPDataIndication()");
-if (debugLevel > 3) super.dumpPDVList(pdata.getPDVList());
-if (debugLevel > 3) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): finished dumping PDV list from PDU");
 			// append to command ...
 			LinkedList pdvList = pdata.getPDVList();
 			ListIterator i = pdvList.listIterator();
 			while (i.hasNext()) {
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): have another fragment");
 				PresentationDataValue pdv = (PresentationDataValue)i.next();
 				presentationContextIDUsed = pdv.getPresentationContextID();
 				if (pdv.isCommand()) {
 					receivedFile=null;
 					commandReceived=ByteArray.concatenate(commandReceived,pdv.getValue());	// handles null cases
 					if (pdv.isLastFragment()) {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): last fragment of data seen");
-if (debugLevel > 1) System.err.println(HexDump.dump(commandReceived));
 						commandList = new AttributeList();
 						commandList.read(new DicomInputStream(new ByteArrayInputStream(commandReceived),TransferSyntax.Default,false));
-if (debugLevel > 1) System.err.print(commandList);
 						command = Attribute.getSingleIntegerValueOrDefault(commandList,TagFromName.CommandField,0xffff);
+
+						// C_ECHO processing
 						if (command == MessageServiceElementCommand.C_ECHO_RQ) {	// C-ECHO-RQ
-if (debugLevel > 0) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): C-ECHO-RQ between "+association.getEndpointDescription());
 							cerq = new CEchoRequestCommandMessage(commandList);
 							buildCEchoResponse();
 							setDone(true);
 							setRelease(false);
 						}
 						else if (command == MessageServiceElementCommand.C_STORE_RQ) {
-if (debugLevel > 0) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): C-STORE-RQ between "+association.getEndpointDescription());
 							csrq = new CStoreRequestCommandMessage(commandList);
 						}
-						else if (command == MessageServiceElementCommand.C_FIND_RQ && queryResponseGeneratorFactory != null) {
-if (debugLevel > 0) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): C-FIND-RQ between "+association.getEndpointDescription());
-							cfrq = new CFindRequestCommandMessage(commandList);
+						else if (command == MessageServiceElementCommand.C_FIND_RQ) {
+							throw new UnsupportedOperationException("The DICOM node received a C_FIND command, but this is not supported.");
 						}
-						else if (command == MessageServiceElementCommand.C_MOVE_RQ && retrieveResponseGeneratorFactory != null) {
-if (debugLevel > 0) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): C-MOVE-RQ between "+association.getEndpointDescription());
-							cmrq = new CMoveRequestCommandMessage(commandList);
+						else if (command == MessageServiceElementCommand.C_MOVE_RQ) {
+							throw new UnsupportedOperationException("The DICOM node received a C_MOVE command, but this is not supported.");
 						}
-						else if (command == MessageServiceElementCommand.C_GET_RQ && retrieveResponseGeneratorFactory != null) {
-if (debugLevel > 0) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): C-GET-RQ between "+association.getEndpointDescription());
-							cgrq = new CGetRequestCommandMessage(commandList);
+						else if (command == MessageServiceElementCommand.C_GET_RQ) {
+							throw new UnsupportedOperationException("The DICOM node received a C_GET command, but this is not supported.");
 						}
 						else {
 							throw new DicomNetworkException("Unexpected command 0x"+Integer.toHexString(command)+" "+MessageServiceElementCommand.toString(command));
 						}
 						// 2004/06/08 DAC removed break that was here to resolve [bugs.mrmf] (000113) StorageSCP failing when data followed command in same PDU
-if (debugLevel > 1 && i.hasNext()) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler: Data after command in same PDU");
 					}
 				}
 				else {
+					// This is where the C_STORE command is processed
 					 if (command == MessageServiceElementCommand.C_STORE_RQ) {
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Storing data fragment");
-						if (out == null && savedImagesFolder != null) {		// lazy opening
-//startReceivedFile=System.currentTimeMillis();
-//accumulatedWritePDVTime=0;
+
+						 // out is initially null - this means we are receiving the first fragment, so create the file and write the DICOM header
+						 if (out == null && savedImagesFolder != null) {
 							FileMetaInformation fmi = new FileMetaInformation(
 								csrq.getAffectedSOPClassUID(),
 								csrq.getAffectedSOPInstanceUID(),
 								association.getTransferSyntaxForPresentationContextID(presentationContextIDUsed),
 								association.getCallingAETitle());
 							temporaryReceivedFile=new File(savedImagesFolder,FileUtilities.makeTemporaryFileName());
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Receiving and storing into temporary "+temporaryReceivedFile);
 							out = new FileOutputStream(temporaryReceivedFile);
 							if (useBufferedOutputStreamForCStoreFileWrite) {
 								out = new BufferedOutputStream(out,bufferedOutputStreamSizeForCStoreFileWrite);
@@ -325,281 +303,46 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": Storag
 							DicomOutputStream dout = new DicomOutputStream(out,TransferSyntax.ExplicitVRLittleEndian,null);
 							fmi.getAttributeList().write(dout);
 							dout.flush();
-//wroteMetaReceivedFile=System.currentTimeMillis();
 							if (useAsynchronousOutputStreamForCStoreFileWrite) {
 								out = new AsynchronousOutputStream(out);
 							}
 						}
+
+						 // Write the next fragment
 						if (out != null) {
-//long startWritePDV=System.currentTimeMillis();
 							byte[] bytesToWrite = pdv.getValue();
 							out.write(bytesToWrite);
-//accumulatedWritePDVTime+=(System.currentTimeMillis()-startWritePDV);
 						}
+
+						 // For the last fragment, close and tidy up
 						if (pdv.isLastFragment()) {
-//wroteLastFragmentReceivedFile=System.currentTimeMillis();
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Finished storing data");
 							if (out != null) {
 								out.close();
 								receivedFile=storedFilePathStrategy.makeReliableStoredFilePathWithFoldersCreated(savedImagesFolder,csrq.getAffectedSOPInstanceUID());
 								if (!temporaryReceivedFile.renameTo(receivedFile)) {
-/*if (debugLevel > 1)*/ System.err.println("StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Could not move temporary file into place ... copying instead");
+									System.err.println("StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Could not move temporary file into place ... copying instead");
 									CopyStream.copy(temporaryReceivedFile,receivedFile);
 									if (!temporaryReceivedFile.delete()) {
-/*if (debugLevel > 1)*/ System.err.println("StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Could not delete temporary file after copying");
+										System.err.println("StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Could not delete temporary file after copying");
 									}
 								}
 								out=null;
-//endReceivedFile=System.currentTimeMillis();
-//System.err.println("StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): time until metaheader written    "+(wroteMetaReceivedFile-startReceivedFile)+" ms");
-//System.err.println("StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): time until last fragment written "+(wroteLastFragmentReceivedFile-startReceivedFile)+" ms");
-//System.err.println("StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): time until file stored           "+(endReceivedFile-startReceivedFile)+" ms");
-//System.err.println("StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): accumulated write PDV time       "+accumulatedWritePDVTime+" ms");
 							}
 							buildCStoreResponse();
 							setDone(true);
 							setRelease(false);
 						}
 					}
-					else if (command == MessageServiceElementCommand.C_FIND_RQ && queryResponseGeneratorFactory != null) {
-						QueryResponseGenerator queryResponseGenerator = queryResponseGeneratorFactory.newInstance();
-						dataReceived=ByteArray.concatenate(dataReceived,pdv.getValue());	// handles null cases
-						if (pdv.isLastFragment()) {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): last fragment of data seen");
-if (debugLevel > 1) System.err.println(HexDump.dump(dataReceived));
-							dataList = new AttributeList();
-							dataList.read(new DicomInputStream(new ByteArrayInputStream(dataReceived),
-								association.getTransferSyntaxForPresentationContextID(presentationContextIDUsed),false));
-if (debugLevel > 1) System.err.print(dataList);
-							queryResponseGenerator.performQuery(cfrq.getAffectedSOPClassUID(),dataList,false/*relational*/);
-							int status = queryResponseGenerator.getStatus();
-							if (status != ResponseStatus.Success) {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Query failed, status = 0x"+Integer.toHexString(status));
-								response = new CFindResponseCommandMessage(
-									cfrq.getAffectedSOPClassUID(),
-									cfrq.getMessageID(),
-									status,
-									false,				// no dataset
-									queryResponseGenerator.getOffendingElement(),
-									null				// no ErrorComment
-								).getBytes();
-								queryResponseGenerator.close();
-							}
-							else {
-								AttributeList responseIdentifierList;
-								while ((responseIdentifierList = queryResponseGenerator.next()) != null) {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Building and sending pending response "+responseIdentifierList.toString());
-									byte presentationContextIDForResponse = association.getSuitablePresentationContextID(cfrq.getAffectedSOPClassUID());
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Using context ID for response "+presentationContextIDForResponse);
-									byte cFindResponseCommandMessage[] = new CFindResponseCommandMessage(
-											cfrq.getAffectedSOPClassUID(),
-											cfrq.getMessageID(),
-											(queryResponseGenerator.allOptionalKeysSuppliedWereSupported() ? ResponseStatus.MatchesAreContinuingOptionalKeysSupported : ResponseStatus.MatchesAreContinuingOptionalKeysNotSupported),	// pending
-											//ResponseStatus.MatchesAreContinuingOptionalKeysSupported,	// pending ... temporary workaround for [bugs.mrmf] (000213) K-PACS freaked out by valid unsupported optional keys pending response during C-FIND
-											true														// dataset present
-										).getBytes();
-									byte cFindIdentifier[] = new IdentifierMessage(
-											responseIdentifierList,
-											association.getTransferSyntaxForPresentationContextID(presentationContextIDForResponse)
-										).getBytes();
-									//association.setReceivedDataHandler(new CXXXXResponseHandler(debugLevel));
-									association.send(presentationContextIDForResponse,cFindResponseCommandMessage,null);
-									association.send(presentationContextIDForResponse,null,cFindIdentifier);
-								}
-								queryResponseGenerator.close();
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Bulding final C-FIND success response");
-								response = new CFindResponseCommandMessage(
-										cfrq.getAffectedSOPClassUID(),
-										cfrq.getMessageID(),
-										ResponseStatus.Success,				// success status matching is complete
-										false								// no dataset
-									).getBytes();
-							}
-							setDone(true);
-							setRelease(false);
-						}
+					else if (command == MessageServiceElementCommand.C_MOVE_RQ) {
+						 // Unsupported
 					}
-					else if (command == MessageServiceElementCommand.C_MOVE_RQ && retrieveResponseGeneratorFactory != null && applicationEntityMap != null) {
-						RetrieveResponseGenerator retrieveResponseGenerator = retrieveResponseGeneratorFactory.newInstance();
-						dataReceived=ByteArray.concatenate(dataReceived,pdv.getValue());	// handles null cases
-						if (pdv.isLastFragment()) {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): last fragment of data seen");
-if (debugLevel > 1) System.err.println(HexDump.dump(dataReceived));
-							dataList = new AttributeList();
-							dataList.read(new DicomInputStream(new ByteArrayInputStream(dataReceived),
-								association.getTransferSyntaxForPresentationContextID(presentationContextIDUsed),false));
-if (debugLevel > 1) System.err.print(dataList);
-							retrieveResponseGenerator.performRetrieve(cmrq.getAffectedSOPClassUID(),dataList,false/*relational*/);
-							SetOfDicomFiles dicomFiles = retrieveResponseGenerator.getDicomFiles();
-							int status = retrieveResponseGenerator.getStatus();
-							retrieveResponseGenerator.close();
-							if (status != ResponseStatus.Success || dicomFiles == null) {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): retrieve failed or contains nothing, status = 0x"+Integer.toHexString(status));
-								response = new CMoveResponseCommandMessage(
-									cmrq.getAffectedSOPClassUID(),
-									cmrq.getMessageID(),
-									status,
-									false,				// no dataset
-									retrieveResponseGenerator.getOffendingElement(),
-									null				// no ErrorComment
-								).getBytes();
-							}
-							else {
-								CMovePendingResponseSender pendingResponseSender = new CMovePendingResponseSender(association,cmrq);
-								pendingResponseSender.nRemaining = dicomFiles.size();		// in case fails immediately with no status updates
-							
-								String moveDestinationAETitle = cmrq.getMoveDestination();
-								PresentationAddress moveDestinationPresentationAddress = applicationEntityMap.getPresentationAddress(moveDestinationAETitle);
-								if (moveDestinationPresentationAddress == null && moveDestinationAETitle.equals(association.getCallingAETitle())) {
-									String callingHostName = association.getCallingAEHostName();
-									if (callingHostName != null && callingHostName.length() > 0) {
-if (debugLevel > 0) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): unrecognized moveDestinationAETitle="+moveDestinationAETitle+" but matches callingAETitle so trying some likely ports on host "+callingHostName);
-										// probably probe this first to see if it is possible to connect and C-ECHO, before proceeeding ...
-										for (int guessedPortNumber : NetworkDefaultValues.commonPortNumbers) {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): trying guessed port number "+guessedPortNumber);
-											try {
-												int timeout = 5000;	// ms
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): testing ability to connect socket to port "+guessedPortNumber+" with timeout "+timeout+" ms");
-												if (ProbeCapability.canConnectToPort(callingHostName,guessedPortNumber,timeout)) {
-													// this uses the default java.net.Socket() with connection constructor timeout, which can be quite long, hence the preceeding check ...
-													new VerificationSOPClassSCU(callingHostName,guessedPortNumber,moveDestinationAETitle,association.getCalledAETitle(),false/*secureTransport*/,debugLevel);
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): successful C-ECHO to guessed port number "+guessedPortNumber);
-													// if we get here without an exception, we succeeded
-													moveDestinationPresentationAddress = new PresentationAddress(callingHostName,guessedPortNumber);
-													break;	// can stop now, since we have a port that responds
-												}
-											}
-											catch (Exception e) {
-												e.printStackTrace(System.err);
-											}
-										}
-									}
-								}
-								if (moveDestinationPresentationAddress != null) {
-									String moveDestinationHostname = moveDestinationPresentationAddress.getHostname();
-									int moveDestinationPort = moveDestinationPresentationAddress.getPort();
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): moveDestinationAETitle="+moveDestinationAETitle);
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): moveDestinationHostname="+moveDestinationHostname);
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): moveDestinationPort="+moveDestinationPort);
-									{
-										new StorageSOPClassSCU(
-											moveDestinationHostname,
-											moveDestinationPort,
-											moveDestinationAETitle,	// the C-STORE called AET
-											calledAETitle,		// use ourselves (the C-MOVE called AET) as the C-STORE calling AET
-											dicomFiles,
-											0,			// compressionLevel
-											pendingResponseSender,
-											calledAETitle,			// use ourselves (the C-MOVE called AET) as the MoveOriginatorApplicationEntityTitle
-											cmrq.getMessageID(),	// MoveOriginatorMessageID
-											debugLevel);
-									}
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): after all stored: nRemaining="+pendingResponseSender.nRemaining+" nCompleted="+pendingResponseSender.nCompleted+" nFailed="+pendingResponseSender.nFailed+" nWarning="+pendingResponseSender.nWarning);
-									if (pendingResponseSender.nRemaining > 0) {
-										pendingResponseSender.nFailed+=pendingResponseSender.nRemaining;
-										pendingResponseSender.nRemaining=0;
-									}
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): after setting remaining to zero: nRemaining="+pendingResponseSender.nRemaining+" nCompleted="+pendingResponseSender.nCompleted+" nFailed="+pendingResponseSender.nFailed+" nWarning="+pendingResponseSender.nWarning);
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Bulding final C-MOVE success response");
-									response = new CMoveResponseCommandMessage(
-										cmrq.getAffectedSOPClassUID(),
-										cmrq.getMessageID(),
-										pendingResponseSender.nFailed > 0
-											? ResponseStatus.SubOperationsCompleteOneOrMoreFailures
-											: ResponseStatus.SubOperationsCompleteNoFailures,
-										false,				// no dataset, unless there was failure, then add Failed SOP Instance UID List (0008,0058) :(
-										pendingResponseSender.nRemaining,
-										pendingResponseSender.nCompleted,
-										pendingResponseSender.nFailed,
-										pendingResponseSender.nWarning
-									).getBytes();
-								}
-								else {
-									status=ResponseStatus.RefusedMoveDestinationUnknown;
-if (debugLevel > 0) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Unrecognized move destination "+moveDestinationAETitle+", status = 0x"+Integer.toHexString(status));
-									response = new CMoveResponseCommandMessage(
-										cmrq.getAffectedSOPClassUID(),
-										cmrq.getMessageID(),
-										status,
-										false,				// no dataset
-										null,				// no OffendingElement
-										moveDestinationAETitle		// ErrorComment
-									).getBytes();
-								}
-							}
-							setDone(true);
-							setRelease(false);
-						}
-					}
-					else if (command == MessageServiceElementCommand.C_GET_RQ && retrieveResponseGeneratorFactory != null) {
-						RetrieveResponseGenerator retrieveResponseGenerator = retrieveResponseGeneratorFactory.newInstance();
-						dataReceived=ByteArray.concatenate(dataReceived,pdv.getValue());	// handles null cases
-						if (pdv.isLastFragment()) {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): last fragment of data seen");
-if (debugLevel > 1) System.err.println(HexDump.dump(dataReceived));
-							dataList = new AttributeList();
-							dataList.read(new DicomInputStream(new ByteArrayInputStream(dataReceived),
-								association.getTransferSyntaxForPresentationContextID(presentationContextIDUsed),false));
-if (debugLevel > 1) System.err.print(dataList);
-							retrieveResponseGenerator.performRetrieve(cgrq.getAffectedSOPClassUID(),dataList,false/*relational*/);
-							SetOfDicomFiles dicomFiles = retrieveResponseGenerator.getDicomFiles();
-							int status = retrieveResponseGenerator.getStatus();
-							retrieveResponseGenerator.close();
-							if (status != ResponseStatus.Success || dicomFiles == null) {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): retrieve failed or contains nothing, status = 0x"+Integer.toHexString(status));
-								response = new CGetResponseCommandMessage(
-									cgrq.getAffectedSOPClassUID(),
-									cgrq.getMessageID(),
-									status,
-									false,				// no dataset
-									retrieveResponseGenerator.getOffendingElement(),
-									null				// no ErrorComment
-								).getBytes();
-							}
-							else {
-								CGetPendingResponseSender pendingResponseSender = new CGetPendingResponseSender(association,cgrq);
-								pendingResponseSender.nRemaining = dicomFiles.size();		// in case fails immediately with no status updates
-								{
-									// WARNING - StorageSOPClassSCU will override the current ReceivedDataHandler set on the association
-									// do NOT send MoveOriginatorApplicationEntityTitle or MoveOriginatorMessageID - that is only for C-MOVE
-									new StorageSOPClassSCU(
-										association,
-										dicomFiles,
-										pendingResponseSender,
-										debugLevel);
-									association.setReceivedDataHandler(this);	// re-establish ourselves as the handler to send done response
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): after all stored: nRemaining="+pendingResponseSender.nRemaining+" nCompleted="+pendingResponseSender.nCompleted+" nFailed="+pendingResponseSender.nFailed+" nWarning="+pendingResponseSender.nWarning);
-									if (pendingResponseSender.nRemaining > 0) {
-										pendingResponseSender.nFailed+=pendingResponseSender.nRemaining;
-										pendingResponseSender.nRemaining=0;
-									}
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): after setting remaining to zero: nRemaining="+pendingResponseSender.nRemaining+" nCompleted="+pendingResponseSender.nCompleted+" nFailed="+pendingResponseSender.nFailed+" nWarning="+pendingResponseSender.nWarning);
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Bulding final C-GET success response");
-									response = new CGetResponseCommandMessage(
-										cgrq.getAffectedSOPClassUID(),
-										cgrq.getMessageID(),
-										pendingResponseSender.nFailed > 0
-											? ResponseStatus.SubOperationsCompleteOneOrMoreFailures
-											: ResponseStatus.SubOperationsCompleteNoFailures,
-										false,				// no dataset, unless there was failure, then add Failed SOP Instance UID List (0008,0058)
-										pendingResponseSender.nRemaining,
-										pendingResponseSender.nCompleted,
-										pendingResponseSender.nFailed,
-										pendingResponseSender.nWarning
-									).getBytes();
-								}
-							}
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Setting done flag for C-GET response");
-							setDone(true);
-							setRelease(false);
-						}
+					else if (command == MessageServiceElementCommand.C_GET_RQ) {
+						 // Unsupported
 					}
 					else {
-if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): Unexpected data fragment for command 0x"+Integer.toHexString(command)+" "+MessageServiceElementCommand.toString(command)+" - ignoring");
 					}
 				}
 			}
-if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": StorageSOPClassSCP.CompositeCommandReceivedPDUHandler.sendPDataIndication(): finished; isDone()="+isDone());
 		}
 		
 		/***/
@@ -613,7 +356,16 @@ if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": Storag
 		/***/
 		public String getReceivedFileName() { return receivedFile == null ? null : receivedFile.getPath(); }
 	}
-	
+
+	class UnsupportedOperationException extends DicomNetworkException {
+
+		/** An exception for unsupported DICOM operations
+		 * @param    msg
+		 */
+		public UnsupportedOperationException(String msg) {
+			super(msg);
+		}
+	}
 	/**
 	 * @param	association
 	 * @throws	IOException
@@ -761,8 +513,9 @@ if (debugLevel > 2) System.err.println(association);
 			}
 		}
 		catch (Exception e) {
-			//System.err.println(e);
-			e.printStackTrace(System.err);
+			if (!(e.getCause() instanceof UnsupportedOperationException)) {
+				e.printStackTrace(System.err);
+			}
 		}
 	}
 }

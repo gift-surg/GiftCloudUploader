@@ -105,7 +105,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         uploadDatabase = new LocalWaitingForUploadDatabase(resourceBundle.getString("DatabaseRootTitleForOriginal"), uploaderStatusModel, reporter);
         giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
         uploadDatabase.addObserver(new DatabaseListener());
-        dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploadDatabase, uploaderStatusModel, reporter);
+        dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
 
         giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, uploadDatabase.getSrcDatabase(), filters, giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, uploaderStatusModel, reporter);

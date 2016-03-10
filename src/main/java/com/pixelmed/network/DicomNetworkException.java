@@ -15,6 +15,10 @@ public class DicomNetworkException extends Exception {
 	public DicomNetworkException(String msg) {
 		super(msg);
 	}
+
+	public DicomNetworkException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
 }
 
 
