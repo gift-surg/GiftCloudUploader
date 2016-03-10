@@ -2,25 +2,22 @@ package uk.ac.ucl.cs.cmic.giftcloud.workers;
 
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.query.QueryInformationModel;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomNode;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.QueryRetrieveRemoteView;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 
 public class QueryWorker implements Runnable {
     private QueryRetrieveRemoteView queryRetrieveRemoteView;
     private QueryInformationModel currentRemoteQueryInformationModel;
     AttributeList filter;
-    private DicomNode dicomNode;
     private UploaderStatusModel uploaderStatusModel;
     private GiftCloudReporterFromApplication reporter;
 
-    public QueryWorker(final QueryRetrieveRemoteView queryRetrieveRemoteView, final QueryInformationModel currentRemoteQueryInformationModel, AttributeList filter, final DicomNode dicomNode, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
+    public QueryWorker(final QueryRetrieveRemoteView queryRetrieveRemoteView, final QueryInformationModel currentRemoteQueryInformationModel, AttributeList filter, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
         this.queryRetrieveRemoteView = queryRetrieveRemoteView;
         this.currentRemoteQueryInformationModel = currentRemoteQueryInformationModel;
         this.filter=filter;
-        this.dicomNode = dicomNode;
         this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
     }

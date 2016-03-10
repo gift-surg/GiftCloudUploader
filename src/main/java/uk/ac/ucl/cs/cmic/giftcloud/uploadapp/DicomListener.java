@@ -20,7 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class DicomNode {
+public class DicomListener {
 
     private StorageSOPClassSCPDispatcher storageSOPClassSCPDispatcher;
     private GiftCloudUploader uploader;
@@ -29,7 +29,7 @@ public class DicomNode {
     private GiftCloudReporter reporter;
 
 
-    public DicomNode(final GiftCloudUploader uploader, final GiftCloudPropertiesFromApplication giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) throws DicomException {
+    public DicomListener(final GiftCloudUploader uploader, final GiftCloudPropertiesFromApplication giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) throws DicomException {
         this.uploader = uploader;
         this.giftCloudProperties = giftCloudProperties;
         this.uploaderStatusModel = uploaderStatusModel;
