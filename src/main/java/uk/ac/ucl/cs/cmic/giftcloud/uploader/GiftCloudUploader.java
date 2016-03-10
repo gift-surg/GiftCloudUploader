@@ -43,7 +43,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         this.reporter = reporter;
         projectListModel = new ProjectListModel(giftCloudProperties);
         serverFactory = new GiftCloudServerFactory(filters, restServerFactory, giftCloudProperties, projectListModel, reporter);
-        pendingUploadList = new PendingUploadTaskList(giftCloudProperties, pendingUploadFolder, reporter);
+        pendingUploadList = new PendingUploadTaskList(reporter);
 
         final int numThreads = 1;
         backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), this, uploaderStatusModel, reporter);
@@ -149,19 +149,27 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         }
     }
 
-    public void importFile(String dicomFileName, String fileReferenceType) throws IOException, DicomException {
-        uploadDatabase.importFileIntoDatabase(dicomFileName, fileReferenceType);
+    public void importFile(String fileName, String fileReferenceType) throws IOException, DicomException {
+        final Vector<String> fileNames = new Vector<String>();
+        fileNames.add(fileName);
+        importFiles(fileNames, fileReferenceType);
+    }
+
+    public void importFiles(final Vector<String> fileNames, String fileReferenceType) throws IOException, DicomException {
+        for (final String fileName: fileNames) {
+            uploadDatabase.importFileIntoDatabase(fileName, fileReferenceType);
+        }
 
         if (fileReferenceType.equals(DatabaseInformationModel.FILE_COPIED)) {
-            addFileInstance(dicomFileName);
+            addFileInstance(fileNames);
         } else if (fileReferenceType.equals(DatabaseInformationModel.FILE_REFERENCED)) {
-            addFileReference(dicomFileName);
+            addFileReference(fileNames);
         } else {
             throw new RuntimeException("Unexpected file reference type");
         }
     }
 
-    private void addFileReference(final String mediaFileName) {
+    private void addFileReference(final Vector<String> mediaFileName) {
         try {
             final Optional<String> projectName = giftCloudProperties.getLastProject();
             pendingUploadList.addFileReference(mediaFileName, projectName);
@@ -171,7 +179,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         }
     }
 
-    private void addFileInstance(final String dicomFileName) {
+    private void addFileInstance(final Vector<String> dicomFileName) {
         try {
             final Optional<String> projectName = giftCloudProperties.getLastProject();
             pendingUploadList.addFileInstance(dicomFileName, projectName);

@@ -1,63 +1,42 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import org.apache.commons.io.FileUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
+import java.util.Vector;
 
 /**
  * Maintains lists of files that are waiting to be uploaded
  */
 public class PendingUploadTaskList {
     private final BackgroundBlockingQueueTaskList<PendingUploadTask> taskList;
-    private final File pendingUploadFolder;
     private final UniqueFileMap<PendingUploadTask> fileMap = new UniqueFileMap<PendingUploadTask>();
     private GiftCloudReporter reporter;
     private final List<FileCollection> failures = new ArrayList<FileCollection>();
 
-    public PendingUploadTaskList(final GiftCloudProperties giftCloudProperties, final File pendingUploadFolder, final GiftCloudReporter reporter) {
+    public PendingUploadTaskList(final GiftCloudReporter reporter) {
         this.reporter = reporter;
         taskList = new BackgroundBlockingQueueTaskList<PendingUploadTask>();
-        this.pendingUploadFolder = pendingUploadFolder;
     }
 
-    public void addFileReference(final String fileReference, final Optional<String> projectName) throws IOException {
-        final PendingUploadTaskReference taskReference = new PendingUploadTaskReference(fileReference, projectName);
+    public void addFileReference(final Vector<String> fileReferences, final Optional<String> projectName) throws IOException {
+        final PendingUploadTaskReference taskReference = new PendingUploadTaskReference(fileReferences, projectName);
         taskList.addNewTask(taskReference);
-        fileMap.put(fileReference, taskReference);
+        for (final String fileReference : fileReferences) {
+            fileMap.put(fileReference, taskReference);
+        }
     }
 
-    public void addFileInstance(final String fileInstance, final Optional<String> projectName) throws IOException {
-        final PendingUploadTaskInstance taskInstance = new PendingUploadTaskInstance(fileInstance, projectName);
+    public void addFileInstance(final Vector<String> fileInstances, final Optional<String> projectName) throws IOException {
+        final PendingUploadTaskInstance taskInstance = new PendingUploadTaskInstance(fileInstances, projectName);
         taskList.addNewTask(taskInstance);
-        fileMap.put(fileInstance, taskInstance);
-    }
-
-    public File getPendingUploadFolder() {
-        return pendingUploadFolder;
-    }
-
-    public void addExistingFiles() {
-        final File directory = pendingUploadFolder;
-
-        Iterator fileIterator = FileUtils.iterateFiles(directory, null, true);
-
-        final Optional<String> emptyString = Optional.empty();
-        while (fileIterator.hasNext()) {
-            File file = (File) fileIterator.next();
-            try {
-                addFileInstance(file.getAbsolutePath(), emptyString);
-            } catch (IOException e) {
-                // If any files fails then we still try to add the rest
-                e.printStackTrace();
-            }
+        for (final String fileInstance : fileInstances) {
+            fileMap.put(fileInstance, taskInstance);
         }
     }
 
@@ -92,14 +71,14 @@ public class PendingUploadTaskList {
     }
 
     private class PendingUploadTaskReference extends PendingUploadTask {
-        PendingUploadTaskReference(final String fileReference, final Optional<String> projectName) {
-            super(fileReference, projectName, Append.APPEND, DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD);
+        PendingUploadTaskReference(final Vector<String> fileReferences, final Optional<String> projectName) {
+            super(fileReferences, projectName, Append.APPEND, DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD);
         }
     }
 
     private class PendingUploadTaskInstance extends PendingUploadTask {
-        PendingUploadTaskInstance(final String fileInstance, final Optional<String> projectName) {
-            super(fileInstance, projectName, Append.APPEND, DeleteAfterUpload.DELETE_AFTER_UPLOAD);
+        PendingUploadTaskInstance(final Vector<String> fileInstances, final Optional<String> projectName) {
+            super(fileInstances, projectName, Append.APPEND, DeleteAfterUpload.DELETE_AFTER_UPLOAD);
         }
     }
 }
