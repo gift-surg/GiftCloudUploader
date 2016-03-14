@@ -69,7 +69,7 @@ public class GiftCloudAutoUploader {
 
         for (final Study study : studies) {
 
-            addSessionToUploadList(server, project, projectName, study);
+            addSessionToUploadList(server, project, projectName, study, append);
         }
 
 
@@ -97,7 +97,7 @@ public class GiftCloudAutoUploader {
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final String projectName, final Study study) throws IOException {
+    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final String projectName, final Study study, final boolean append) throws IOException {
         final String patientId = study.getPatientId();
         final String patientName = study.getPatientName();
         final String studyInstanceUid = study.getStudyUid();
@@ -125,7 +125,7 @@ public class GiftCloudAutoUploader {
             uploadParameters.setFileCollection(fileCollection);
             uploadParameters.setXnatModalityParams(xnatModalityParams);
 
-            final CallableUploader uploader = new ZipSeriesUploader(uploadParameters, server, project.getDicomMetaDataAnonymiser(), true);
+            final ZipSeriesUploader uploader = new ZipSeriesUploader(uploadParameters, server, study.getSeriesZipper(project, uploadParameters), append);
             backgroundUploader.addUploader(uploader);
         }
     }

@@ -14,7 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import org.nrg.dcm.edit.ScriptFunction;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.DicomMetaDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.IndexedSessionLabelFunction;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiser;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.DicomPixelDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
@@ -36,7 +36,7 @@ public class Project {
 	private Optional<SeriesImportFilterApplicatorRetriever> seriesImportFilter = Optional.empty();
 	private final DicomMetaDataAnonymiser dicomMetaDataAnonymiser;
 	private final DicomProjectAnonymisationScripts dicomProjectAnonymisationScripts;
-	private final PixelDataAnonymiser pixelDataAnonymiser;
+	private final DicomPixelDataAnonymiser pixelDataAnonymiser;
 
 	public Project(final String projectName, final RestServer restServer, PixelDataAnonymiserFilterCache pixelDataAnonymiserFilterCache, GiftCloudProperties properties, GiftCloudReporter reporter) {
 		this.name = projectName;
@@ -46,7 +46,7 @@ public class Project {
 		dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServer, projectName, getDicomFunctions(sessions)));
 		dicomProjectAnonymisationScripts = new DicomProjectAnonymisationScripts(dicomScriptApplicator);
 		dicomMetaDataAnonymiser = new DicomMetaDataAnonymiser(dicomProjectAnonymisationScripts, reporter);
-		pixelDataAnonymiser = new PixelDataAnonymiser(pixelDataAnonymiserFilterCache, properties, reporter);
+		pixelDataAnonymiser = new DicomPixelDataAnonymiser(pixelDataAnonymiserFilterCache, properties, reporter);
 	}
 
 	private static Map<String, ScriptFunction>
@@ -89,7 +89,7 @@ public class Project {
 		return dicomMetaDataAnonymiser;
 	}
 
-	public PixelDataAnonymiser getPixelDataAnonymiser() {
+	public DicomPixelDataAnonymiser getPixelDataAnonymiser() {
 		return pixelDataAnonymiser;
 	}
 }

@@ -11,8 +11,12 @@
 package uk.ac.ucl.cs.cmic.giftcloud.data;
 
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface Study {
@@ -23,4 +27,5 @@ public interface Study {
 	List<FileCollection> getFiles();
 	XnatModalityParams getXnatModalityParams();
 
+    SeriesZipper getSeriesZipper(final Project project, final UploadParameters uploadParameters) throws IOException;
 }

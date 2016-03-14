@@ -19,11 +19,14 @@ import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.nrg.dcm.edit.DicomUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Study;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -170,6 +173,11 @@ public class DicomStudy extends MapEntity implements Entity, Study {
 
         // ToDo: we are only returning one modality param
         return xnatModalityParams.iterator().next();
+    }
+
+    @Override
+    public SeriesZipper getSeriesZipper(final Project project, final UploadParameters uploadParameters) throws IOException {
+        return new DicomSeriesZipper(project.getDicomMetaDataAnonymiser(), project.getPixelDataAnonymiser(), uploadParameters);
     }
 
 }
