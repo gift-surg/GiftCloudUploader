@@ -1,7 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.ProjectCache;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
@@ -19,14 +18,15 @@ import java.util.Vector;
 public class GiftCloudServer {
 
     private final String giftCloudServerUrlString;
+    private GiftCloudProperties giftCloudProperties;
     private GiftCloudReporter reporter;
     private final RestServer restServer;
     private final URI giftCloudUri;
     private final ProjectCache projectCache;
-    private final PixelDataAnonymiser pixelDataAnonymiser;
 
     public GiftCloudServer(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudServerUrlString = giftCloudServerUrlString;
+        this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
 
         if (StringUtils.isBlank(giftCloudServerUrlString)) {
@@ -40,8 +40,7 @@ public class GiftCloudServer {
         }
 
         restServer = restServerFactory.create(giftCloudServerUrlString, giftCloudProperties, reporter);
-        projectCache = new ProjectCache(restServer);
-        pixelDataAnonymiser = new PixelDataAnonymiser(filters, giftCloudProperties, reporter);
+        projectCache = new ProjectCache(restServer, filters);
     }
 
     public void tryAuthentication() throws IOException {
@@ -53,7 +52,7 @@ public class GiftCloudServer {
     }
 
     public Project getProject(final String projectName) {
-        return projectCache.getProject(projectName, reporter);
+        return projectCache.getProject(projectName, giftCloudProperties, reporter);
     }
 
     public void resetCancellation() {
@@ -119,9 +118,5 @@ public class GiftCloudServer {
 
     public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentAlias, final String hashedSeriesInstanceUid) throws IOException {
         return restServer.getScanLabel(projectName, subjectLabel, experimentAlias, hashedSeriesInstanceUid);
-    }
-
-    public PixelDataAnonymiser getPixelDataAnonymiser() {
-        return pixelDataAnonymiser;
     }
 }
