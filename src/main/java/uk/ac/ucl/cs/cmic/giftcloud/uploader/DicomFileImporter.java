@@ -17,7 +17,7 @@ public class DicomFileImporter {
         mediaImporter = new UploaderMediaImporter(reporter, acceptAnyTransferSyntax, giftCloudUploader, importAsReference);
     }
 
-    public boolean importFiles(final File mediaFile, final Progress progress) throws IOException, DicomException {
-        return mediaImporter.importDicomFileOrPath(mediaFile, progress);
+    public boolean importFiles(final File fileOrDirectory, final Progress progress) throws IOException, DicomException {
+        return mediaImporter.importDicomFileOrPath(fileOrDirectory, progress);
     }
 }
