@@ -13,7 +13,7 @@ import org.nrg.dcm.edit.ScriptEvaluationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiser;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.DicomPixelDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 
@@ -28,12 +28,12 @@ import java.util.zip.ZipOutputStream;
 public class DicomSeriesZipper extends SeriesZipper {
     private final Logger logger = LoggerFactory.getLogger(DicomSeriesZipper.class);
 
-    private final PixelDataAnonymiser pixelDataAnonymiser;
-    private final MetaDataAnonymiser metaDataAnonymiser;
+    private final DicomPixelDataAnonymiser pixelDataAnonymiser;
+    private final DicomMetaDataAnonymiser metaDataAnonymiser;
     private final UploadParameters uploadParameters;
     private final StopTagInputHandler stopTagInputHandler;
 
-    public DicomSeriesZipper(final DicomMetaDataAnonymiser metaDataAnonymiser, final PixelDataAnonymiser pixelDataAnonymiser, final UploadParameters uploadParameters) throws IOException {
+    public DicomSeriesZipper(final DicomMetaDataAnonymiser metaDataAnonymiser, final DicomPixelDataAnonymiser pixelDataAnonymiser, final UploadParameters uploadParameters) throws IOException {
         this.metaDataAnonymiser = metaDataAnonymiser;
         this.uploadParameters = uploadParameters;
         this.pixelDataAnonymiser = pixelDataAnonymiser;
