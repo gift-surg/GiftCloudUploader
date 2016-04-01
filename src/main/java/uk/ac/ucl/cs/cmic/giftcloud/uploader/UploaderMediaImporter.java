@@ -1,33 +1,30 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import com.pixelmed.database.DatabaseInformationModel;
+import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.MediaImporter;
 import com.pixelmed.dicom.SOPClass;
 import com.pixelmed.dicom.TransferSyntax;
 import com.pixelmed.utils.CapabilitiesAvailable;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 
-class UploaderMediaImporter extends MediaImporter {
+public class UploaderMediaImporter extends MediaImporter {
     boolean acceptAnyTransferSyntax;
     private GiftCloudUploader giftCloudUploader;
     private boolean importAsReference;
 
-    public UploaderMediaImporter(final GiftCloudReporterFromApplication reporter, boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference) {
+    public UploaderMediaImporter(boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporterFromApplication reporter) {
         super(reporter);
         this.acceptAnyTransferSyntax = acceptAnyTransferSyntax;
         this.giftCloudUploader = giftCloudUploader;
         this.importAsReference = importAsReference;
     }
 
-    protected void doSomethingWithDicomFileOnMedia(String mediaFileName) {
+    protected void doSomethingWithDicomFileOnMedia(String mediaFileName, AttributeList list) {
         try {
-            reporter.sendLn("Importing DICOM file: " + mediaFileName);
+            // Choose whether the imported files should be deleted after uploading; only do this if we have created the files and want them to be removed
+            final PendingUploadTask.DeleteAfterUpload deleteAfterUpload = importAsReference ? PendingUploadTask.DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD : PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD;
+            giftCloudUploader.importFiles(new DicomFileImportRecord(mediaFileName, deleteAfterUpload, list));
 
-            if (importAsReference) {
-                giftCloudUploader.importFile(mediaFileName, DatabaseInformationModel.FILE_REFERENCED);
-            } else {
-                giftCloudUploader.importFile(mediaFileName, DatabaseInformationModel.FILE_COPIED);
-            }
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
@@ -57,4 +54,5 @@ class UploaderMediaImporter extends MediaImporter {
                 || CapabilitiesAvailable.haveJPEGLSCodec() && (transferSyntaxUID.equals(TransferSyntax.JPEGLS) || transferSyntaxUID.equals(TransferSyntax.JPEGNLS))
         );
     }
+
 }

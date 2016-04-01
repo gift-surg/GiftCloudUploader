@@ -7,6 +7,8 @@ import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.DicomInputStream;
 import com.pixelmed.dicom.TagFromName;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.FileImportRecord;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadTask;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -48,7 +50,13 @@ public class LocalWaitingForUploadDatabase extends Observable {
         notifyObservers(filename);
     }
 
-    public void importFileIntoDatabase(String dicomFileName,String fileReferenceType) throws IOException, DicomException {
+    public void importFilesIntoDatabase(FileImportRecord fileImportRecord) throws IOException, DicomException {
+        for (final String fileName: fileImportRecord.getFilenames()) {
+            importFileIntoDatabase(fileName, fileImportRecord.getDeleteAfterUpload());
+        }
+    }
+
+    private void importFileIntoDatabase(String dicomFileName, PendingUploadTask.DeleteAfterUpload deleteAfterUpload) throws IOException, DicomException {
         uploaderStatusModel.setImportingStatusMessage("Added file " + dicomFileName + " to the list of files for upload");
         FileInputStream fis = new FileInputStream(dicomFileName);
         DicomInputStream i = new DicomInputStream(new BufferedInputStream(fis));
@@ -56,6 +64,8 @@ public class LocalWaitingForUploadDatabase extends Observable {
         list.read(i, TagFromName.PixelData);
         i.close();
         fis.close();
+
+        final String fileReferenceType = deleteAfterUpload == PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD ? DatabaseInformationModel.FILE_COPIED : DatabaseInformationModel.FILE_REFERENCED;
         srcDatabase.insertObject(list, dicomFileName, fileReferenceType);
 
         // Send a notification that the database has changed

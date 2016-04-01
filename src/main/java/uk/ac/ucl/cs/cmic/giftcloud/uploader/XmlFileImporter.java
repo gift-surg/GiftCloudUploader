@@ -22,7 +22,7 @@ public class XmlFileImporter {
     public XmlFileImporter(final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final GiftCloudReporterFromApplication reporter) {
 
         // Any DICOM files created from the XML import will be temporary; therefore we must import as copy not reference
-        mediaImporter = new UploaderMediaImporter(reporter, acceptAnyTransferSyntax, giftCloudUploader, false);
+        mediaImporter = new UploaderMediaImporter(acceptAnyTransferSyntax, giftCloudUploader, false, reporter);
     }
 
     public boolean importFiles(final File fileOrDirectory, final Progress progress) throws IOException, DicomException {

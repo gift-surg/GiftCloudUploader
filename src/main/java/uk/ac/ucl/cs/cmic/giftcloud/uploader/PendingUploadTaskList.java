@@ -24,19 +24,12 @@ public class PendingUploadTaskList {
         taskList = new BackgroundBlockingQueueTaskList<PendingUploadTask>();
     }
 
-    public void addFileReference(final Vector<String> fileReferences, final Optional<String> projectName) throws IOException {
-        final PendingUploadTaskReference taskReference = new PendingUploadTaskReference(fileReferences, projectName);
-        taskList.addNewTask(taskReference);
-        for (final String fileReference : fileReferences) {
-            fileMap.put(fileReference, taskReference);
-        }
-    }
-
-    public void addFileInstance(final Vector<String> fileInstances, final Optional<String> projectName) throws IOException {
-        final PendingUploadTaskInstance taskInstance = new PendingUploadTaskInstance(fileInstances, projectName);
-        taskList.addNewTask(taskInstance);
-        for (final String fileInstance : fileInstances) {
-            fileMap.put(fileInstance, taskInstance);
+    public void addFiles(final Optional<String> projectName, final FileImportRecord fileImportRecord) throws IOException {
+        final Vector<String> fileNames = fileImportRecord.getFilenames();
+        final PendingUploadTask task = fileImportRecord.getDeleteAfterUpload() == PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD ? new PendingUploadTaskInstance(fileNames, projectName) : new PendingUploadTaskReference(fileNames, projectName);
+        taskList.addNewTask(task);
+        for (final String file : fileNames) {
+            fileMap.put(file, task);
         }
     }
 

@@ -1,6 +1,5 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.dicom.DicomException;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
@@ -149,43 +148,13 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         }
     }
 
-    public void importFile(String fileName, String fileReferenceType) throws IOException, DicomException {
-        final Vector<String> fileNames = new Vector<String>();
-        fileNames.add(fileName);
-        importFiles(fileNames, fileReferenceType);
-    }
-
-    public void importFiles(final Vector<String> fileNames, String fileReferenceType) throws IOException, DicomException {
-        for (final String fileName: fileNames) {
-            uploadDatabase.importFileIntoDatabase(fileName, fileReferenceType);
-        }
-
-        if (fileReferenceType.equals(DatabaseInformationModel.FILE_COPIED)) {
-            addFileInstance(fileNames);
-        } else if (fileReferenceType.equals(DatabaseInformationModel.FILE_REFERENCED)) {
-            addFileReference(fileNames);
-        } else {
-            throw new RuntimeException("Unexpected file reference type");
-        }
-    }
-
-    private void addFileReference(final Vector<String> mediaFileName) {
+    public void importFiles(final FileImportRecord fileImportRecord) throws IOException, DicomException {
         try {
-            final Optional<String> projectName = giftCloudProperties.getLastProject();
-            pendingUploadList.addFileReference(mediaFileName, projectName);
+            uploadDatabase.importFilesIntoDatabase(fileImportRecord);
+            pendingUploadList.addFiles(giftCloudProperties.getLastProject(), fileImportRecord);
 
         } catch (Throwable throwable) {
-            reporter.silentLogException(throwable, "Error when attempting to import a file reference to " + mediaFileName);
-        }
-    }
-
-    private void addFileInstance(final Vector<String> dicomFileName) {
-        try {
-            final Optional<String> projectName = giftCloudProperties.getLastProject();
-            pendingUploadList.addFileInstance(dicomFileName, projectName);
-
-        } catch (Throwable throwable) {
-            reporter.silentLogException(throwable, "Error when attempting to import a file copy of " + dicomFileName);
+            reporter.silentLogException(throwable, "Error when attempting to import files " + fileImportRecord.getFilenames());
         }
     }
 

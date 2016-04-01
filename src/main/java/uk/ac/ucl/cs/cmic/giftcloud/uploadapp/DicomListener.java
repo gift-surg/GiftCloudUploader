@@ -1,6 +1,5 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.StoredFilePathStrategy;
 import com.pixelmed.dicom.TransferSyntax;
@@ -8,7 +7,9 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.*;
 import com.pixelmed.utils.CapabilitiesAvailable;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.DicomFileImportRecord;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadTask;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
@@ -107,7 +108,7 @@ public class DicomListener {
             if (dicomFileName != null) {
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Received "+dicomFileName+" from "+callingAETitle+" in "+transferSyntax));
                 try {
-                    uploader.importFile(dicomFileName, DatabaseInformationModel.FILE_COPIED);
+                    uploader.importFiles(new DicomFileImportRecord(dicomFileName, PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD));
                 } catch (Exception e) {
                     e.printStackTrace(System.err);
                 }

@@ -10,7 +10,7 @@ public class PendingUploadTask {
         REPLACE
     }
 
-    enum DeleteAfterUpload {
+    public enum DeleteAfterUpload {
         DELETE_AFTER_UPLOAD,
         DO_NOT_DELETE_AFTER_UPLOAD
     }
