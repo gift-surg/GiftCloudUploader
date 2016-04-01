@@ -90,7 +90,7 @@ public class DicomPixelDataAnonymiser {
     private File anonymisePixelData(final File inputFile, final PixelDataAnonymiseFilter filter, final String filePrefix) throws IOException {
 
         final String safePrefix = StringUtils.isNotBlank(filePrefix) ? filePrefix : OneWayHash.hashUid(inputFile.getName());
-        final File outputFile = new File(Files.createTempDir(), safePrefix +".dcm");
+        final File outputFile = new File(Files.createTempDir(), safePrefix + ".dcm");
         try {
             DicomPixelDataAnonymiser.anonymisePixelDataUsingFilter(inputFile, outputFile, filter.getRedactedShapesAsShapeVector(), burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, aeTitle);
         } catch (DicomException exception) {
