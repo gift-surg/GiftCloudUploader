@@ -19,8 +19,8 @@ import org.nrg.util.EditProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Study;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.SeriesImportFilterApplicatorRetriever;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.ZipSeriesUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.MapRegistry;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Registry;
@@ -42,7 +42,7 @@ public final class DicomTrawler implements Trawler {
         add(Series.MAX_TAG);
         add(DicomTrawler.getSeriesMaxTags());
         add(DicomStudy.MAX_TAG);
-        add(CallableUploader.MAX_TAG);
+        add(ZipSeriesUploader.MAX_TAG);
     }});
 
     private static int getSeriesMaxTags() {
@@ -53,7 +53,6 @@ public final class DicomTrawler implements Trawler {
             }});
     }
 
-    private SeriesImportFilterApplicatorRetriever _filters;
     private final Logger logger = LoggerFactory.getLogger(DicomTrawler.class);
 
     private final List<GiftCloudUploaderError> errors = new ArrayList<GiftCloudUploaderError>();
@@ -61,7 +60,7 @@ public final class DicomTrawler implements Trawler {
 	/* (non-Javadoc)
 	 * @see uk.ac.ucl.cs.cmic.giftcloud.dicom.Trawler#trawl(java.util.Iterator, java.util.Collection)
 	 */
-	public Collection<Study> trawl(final Iterator<File> files, final Collection<File> remaining, EditProgressMonitor pm) {
+	public Collection<Study> trawl(final Iterator<File> files, final Collection<File> remaining, EditProgressMonitor pm, final SeriesImportFilterApplicatorRetriever filters) {
 		final Registry<DicomStudy> studies = new MapRegistry<DicomStudy>();
 		while (files.hasNext()) {
 			if (null != pm && pm.isCanceled()) {
@@ -99,11 +98,11 @@ public final class DicomTrawler implements Trawler {
 
                 } else {
 
-                    if (_filters != null) {
+                    if (filters != null) {
                         logger.debug("Found series import filters, testing series for inclusion/exclusion.");
                         final String description = o.getString(Tag.SeriesDescription);
                         logger.debug("Found series description: {}", description);
-                        if (_filters.checkSeries(description)) {
+                        if (filters.checkSeries(description)) {
                             logger.debug("Series description {} matched series import filter restrictions, including in session", description);
                             final DicomStudy dicomStudy = studies.get(new DicomStudy(o));
                             dicomStudy.addFileAndGetSeries(o, f);
@@ -142,9 +141,5 @@ public final class DicomTrawler implements Trawler {
         } else {
             return false;
         }
-    }
-
-    public void setSeriesImportFilters(final SeriesImportFilterApplicatorRetriever filters) {
-        _filters = filters;
     }
 }
