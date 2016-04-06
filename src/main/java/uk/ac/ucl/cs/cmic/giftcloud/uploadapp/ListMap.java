@@ -19,7 +19,7 @@ public class ListMap<K, V> {
      * @param value the value for this key
      * @return the index of the newly created pair
      */
-    public int put(final K key, final V value) {
+    public synchronized int put(final K key, final V value) {
         if (map.containsKey(key)) {
             throw new java.lang.IllegalArgumentException("Key already present");
         }
@@ -34,7 +34,7 @@ public class ListMap<K, V> {
      * Removes a key-value pair
      * @param key the key of the pair to remove
      */
-    public void remove(final K key) {
+    public synchronized void remove(final K key) {
         if (!map.containsKey(key)) {
             throw new java.lang.IllegalArgumentException("Key does not exist");
         }
@@ -51,7 +51,7 @@ public class ListMap<K, V> {
      * @param index the index of the item to fetch
      * @return the value for the given index
      */
-    public V getFromIndex(final int index) {
+    public synchronized V getFromIndex(final int index) {
         if (index >= keyList.size()) {
             throw new java.lang.IllegalArgumentException("Index does not exist");
         }
@@ -63,7 +63,7 @@ public class ListMap<K, V> {
      * @param key of the item to fetch
      * @return the value for the given key
      */
-    public V getFromKey(final K key) {
+    public synchronized V getFromKey(final K key) {
         if (!map.containsKey(key)) {
             throw new java.lang.IllegalArgumentException("Key does not exist");
         }
@@ -73,7 +73,7 @@ public class ListMap<K, V> {
     /**
      * @return the number of key-value pairs
      */
-    public int size() {
+    public synchronized int size() {
         return map.size();
     }
 
@@ -81,7 +81,7 @@ public class ListMap<K, V> {
      * @param key the key for the key-value pair
      * @return true if a key-value pair exists for the given key
      */
-    public boolean containsKey(final K key) {
+    public synchronized boolean containsKey(final K key) {
         return map.containsKey(key);
     }
 
@@ -89,7 +89,7 @@ public class ListMap<K, V> {
      * @param key the key for the key-value pair
      * @return the array index of the key-value pair
      */
-    public int getIndex(final K key) {
+    public synchronized int getIndex(final K key) {
         if (!map.containsKey(key)) {
             throw new java.lang.IllegalArgumentException("Key does not exist");
         }
