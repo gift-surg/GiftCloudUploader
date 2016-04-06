@@ -1,7 +1,8 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 import org.junit.Assert;
 import org.junit.Test;
+import uk.ac.ucl.cs.cmic.giftcloud.util.ListMap;
 
 public class ListMapTest {
     @Test
