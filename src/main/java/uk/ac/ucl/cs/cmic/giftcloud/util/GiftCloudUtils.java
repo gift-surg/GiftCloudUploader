@@ -47,6 +47,10 @@ public class GiftCloudUtils {
     private GiftCloudUtils() {
     }
 
+    public static String getDateAsAString() {
+        return new SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date());
+    }
+
     public static JSONObject extractJSONEntity(final InputStream in)
             throws IOException, JSONException {
         return new JSONObject(new JSONTokener(new InputStreamReader(in)));
