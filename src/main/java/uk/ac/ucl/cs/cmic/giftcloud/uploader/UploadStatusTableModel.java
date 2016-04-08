@@ -1,6 +1,4 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
-
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.FileStatusGrouper;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -9,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class UploadStatusTableModel implements TableModel {
+class UploadStatusTableModel implements TableModel {
 
     private final List<TableModelListener> listeners = new ArrayList<TableModelListener>();
     private final FileStatusGrouper fileStatusGrouper;
@@ -21,11 +19,11 @@ public class UploadStatusTableModel implements TableModel {
     public static final int NUM_FILES_COLUMN = 3;
     public static final int STATUS_COLUMN = 4;
 
-    public UploadStatusTableModel(final FileStatusGrouper fileStatusGrouper) {
+    UploadStatusTableModel(final FileStatusGrouper fileStatusGrouper) {
         this.fileStatusGrouper = fileStatusGrouper;
     }
 
-    public void notifyListeners(final TableModelEvent tableModelEvent) {
+    void notifyListeners(final TableModelEvent tableModelEvent) {
         for (final TableModelListener listener : listeners) {
             listener.tableChanged(tableModelEvent);
         }

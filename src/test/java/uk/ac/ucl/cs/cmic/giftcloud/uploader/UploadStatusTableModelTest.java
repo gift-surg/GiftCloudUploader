@@ -1,9 +1,8 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.FileStatusGrouper;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;

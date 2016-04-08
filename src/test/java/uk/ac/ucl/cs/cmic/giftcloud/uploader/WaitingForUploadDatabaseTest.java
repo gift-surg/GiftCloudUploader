@@ -1,10 +1,8 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.FileImportRecord;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadTask;
 
 import javax.swing.table.TableModel;
 import java.io.File;

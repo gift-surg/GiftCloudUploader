@@ -1,6 +1,5 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.FileStatusGrouper;
 import uk.ac.ucl.cs.cmic.giftcloud.util.ConsecutiveThreadExecutor;
 
 import javax.swing.*;
@@ -15,7 +14,7 @@ import static javax.swing.event.TableModelEvent.UPDATE;
 /**
  * Aggregates status updates to an {@link UploadStatusTableModel} to prevent the table model from being updated too frequently.
  */
-public class UploadStatusTableModelAggregator {
+class UploadStatusTableModelAggregator {
 
     private final BlockingQueue<Runnable> statusUpdateEvents = new LinkedBlockingQueue<Runnable>();
     private volatile boolean isRunning = false;
@@ -28,7 +27,7 @@ public class UploadStatusTableModelAggregator {
      * Creates a new aggregator that will fire updates with a specified minimum frequency
      * @param delayBetweenUpdates the minimum delay between successive update events
      */
-    public UploadStatusTableModelAggregator(final int delayBetweenUpdates) {
+    UploadStatusTableModelAggregator(final int delayBetweenUpdates) {
         this.delayBetweenUpdates = delayBetweenUpdates;
     }
 
@@ -38,7 +37,7 @@ public class UploadStatusTableModelAggregator {
      * @param description the visible name for the file group
      * @param fileUids a list of unique identifiers
      */
-    public void notifyFilesAdded(final String groupId, final String date, final String modality, final String description, final List<String> fileUids) {
+    void notifyFilesAdded(final String groupId, final String date, final String modality, final String description, final List<String> fileUids) {
         addEvent(new Runnable() {
             @Override
             public void run() {
@@ -53,7 +52,7 @@ public class UploadStatusTableModelAggregator {
      * @param groupId the unique identifier for the group to which the file belongs
      * @param fileUid the unique file identifier matching the identifier previously added using {@link #notifyFilesAdded}
      */
-    public void notifyFileComplete(final String groupId, final String fileUid) {
+    void notifyFileComplete(final String groupId, final String fileUid) {
         addEvent(new Runnable() {
             @Override
             public void run() {
@@ -65,7 +64,7 @@ public class UploadStatusTableModelAggregator {
     /**
      * @return a {@link TableModel} view of this status data
      */
-    public TableModel getTableModel() {
+    TableModel getTableModel() {
         return tableModel;
     }
 

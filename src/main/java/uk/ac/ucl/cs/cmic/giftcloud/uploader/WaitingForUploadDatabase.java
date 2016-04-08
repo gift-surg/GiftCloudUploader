@@ -1,7 +1,5 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.FileImportRecord;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadTask;
 import uk.ac.ucl.cs.cmic.giftcloud.util.ConsecutiveThreadExecutor;
 
 import javax.swing.table.TableModel;
@@ -13,14 +11,14 @@ import java.util.*;
  *
  * In order to not delay execution of the calling thread, the database is modified using a sequential execution thread
  */
-public class WaitingForUploadDatabase extends Observable {
+class WaitingForUploadDatabase extends Observable {
 
     private final List<DatabaseItem> databaseItems = new ArrayList<DatabaseItem>();
     private final Map<String, DatabaseItem> fileNameToDatabaseItemMap = new HashMap<String, DatabaseItem>();
     private final UploadStatusTableModelAggregator tableModelUpdater;
     private final ConsecutiveThreadExecutor consecutiveThreadExecutor = new ConsecutiveThreadExecutor();
 
-    public WaitingForUploadDatabase(final int delayBetweenUpdates) {
+    WaitingForUploadDatabase(final int delayBetweenUpdates) {
         tableModelUpdater = new UploadStatusTableModelAggregator(delayBetweenUpdates);
     }
 
@@ -28,7 +26,7 @@ public class WaitingForUploadDatabase extends Observable {
      * Adds files to the in-memory database and table model
      * @param fileImportRecord
      */
-    public void addFiles(final FileImportRecord fileImportRecord) {
+    void addFiles(final FileImportRecord fileImportRecord) {
         consecutiveThreadExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -56,7 +54,7 @@ public class WaitingForUploadDatabase extends Observable {
      * Removes files from the in-memory database, update the table model, and delete files if necessary
      * @param fileName
      */
-    public void removeAndDeleteCopies(final String fileName) {
+    void removeAndDeleteCopies(final String fileName) {
         consecutiveThreadExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -89,7 +87,7 @@ public class WaitingForUploadDatabase extends Observable {
     /**
      * @return a TableModel representing the current status of files to upload
      */
-    public TableModel getTableModel() {
+    TableModel getTableModel() {
         return tableModelUpdater.getTableModel();
     }
 
