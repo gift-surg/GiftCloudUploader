@@ -32,14 +32,11 @@ import java.util.List;
  */
 public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
-    private final int DELAY_BETWEEN_UPDATES = 500;
-
     private final ResourceBundle resourceBundle;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final MainFrame mainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
     private final DicomListener dicomListener;
-    private final WaitingForUploadDatabase uploadDatabase;
     private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
     private GiftCloudConfigurationDialog configurationDialog = null;
@@ -104,11 +101,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Initialise the main GIFT-Cloud class
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
 
-        uploadDatabase = new WaitingForUploadDatabase(DELAY_BETWEEN_UPDATES);
-        giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
+        giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
         dicomListener = new DicomListener(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, uploadDatabase.getTableModel(), filters, giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), filters, giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderStatusModel, reporter);
 
         mainFrame.addMainPanel(giftCloudUploaderPanel);

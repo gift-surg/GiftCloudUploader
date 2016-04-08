@@ -15,7 +15,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariableNames;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.DicomProjectAnonymisationScripts;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;

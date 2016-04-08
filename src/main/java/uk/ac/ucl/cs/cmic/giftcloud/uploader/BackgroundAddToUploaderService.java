@@ -1,7 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;

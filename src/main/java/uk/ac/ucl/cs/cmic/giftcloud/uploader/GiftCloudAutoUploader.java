@@ -1,11 +1,9 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.data.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
 import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 

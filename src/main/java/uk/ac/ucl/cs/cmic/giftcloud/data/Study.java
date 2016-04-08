@@ -14,7 +14,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.Project;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploadParameters;
 
 import java.io.IOException;
 import java.util.List;

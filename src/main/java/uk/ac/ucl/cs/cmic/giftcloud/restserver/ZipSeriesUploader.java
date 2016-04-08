@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableList;
 import org.dcm4che2.data.Tag;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.SeriesZipper;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploadParameters;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploadParameters;
 
 import java.io.File;
 import java.util.Collections;

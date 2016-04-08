@@ -11,6 +11,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.security.sasl.AuthenticationException;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -31,8 +32,10 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
-    public GiftCloudUploader(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final WaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
-        this.uploadDatabase = uploadDatabase;
+    private final int DELAY_BETWEEN_UPDATES = 500;
+
+    public GiftCloudUploader(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
+        this.uploadDatabase =  new WaitingForUploadDatabase(DELAY_BETWEEN_UPDATES);
         this.giftCloudProperties = giftCloudProperties;
         this.dialogs = dialogs;
         this.container = reporter.getContainer();
@@ -184,5 +187,9 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     public void invalidateServer() {
         serverFactory.invalidate();
+    }
+
+    public TableModel getTableModel() {
+        return uploadDatabase.getTableModel();
     }
 }

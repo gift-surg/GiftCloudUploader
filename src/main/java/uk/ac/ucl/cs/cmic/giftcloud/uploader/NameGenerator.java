@@ -1,10 +1,10 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.util.HashMap;
 import java.util.Map;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.Set;
 
 /**
