@@ -1,7 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,11 +24,9 @@ public class QueryFilterPanel extends JPanel {
 
     QueryFilterPanel(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) {
         this.controller = controller;
-        Border panelBorder = BorderFactory.createEtchedBorder();
 
         GridBagLayout layout = new GridBagLayout();
         setLayout(layout);
-        setBorder(panelBorder);
 
         final GridBagConstraints introConstraints = new GridBagConstraints();
         introConstraints.gridx = 0;
