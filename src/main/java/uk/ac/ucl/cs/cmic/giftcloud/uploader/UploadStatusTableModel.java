@@ -12,7 +12,7 @@ class UploadStatusTableModel implements TableModel {
     private final List<TableModelListener> listeners = new ArrayList<TableModelListener>();
     private final FileStatusGrouper fileStatusGrouper;
 
-    public static final List<String> columnTitles = Arrays.asList("Date", "Modality", "Name", "Files", "Status");
+    public static final List<String> columnTitles = Arrays.asList("Date", "Modality", "Name", "Files uploaded", "Status");
     public static final int DATE_COLUMN = 0;
     public static final int MODALITY_COLUMN = 1;
     public static final int DESCRIPTION_COLUMN = 2;
