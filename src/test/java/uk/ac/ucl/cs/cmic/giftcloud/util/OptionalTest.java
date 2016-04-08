@@ -5,9 +5,6 @@ import org.junit.Test;
 
 import java.util.NoSuchElementException;
 
-/**
- * Created by tom on 12/11/2015.
- */
 public class OptionalTest {
 
     @Test
