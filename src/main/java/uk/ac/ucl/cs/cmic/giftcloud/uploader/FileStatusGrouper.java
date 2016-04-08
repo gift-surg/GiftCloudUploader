@@ -2,7 +2,9 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.ListMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *  A class for grouping files into collections, and maintaining them in a fixed order which is indexable. Files are represented by unique identifiers
@@ -26,13 +28,13 @@ public class FileStatusGrouper {
      * @param description the user-visible description of this group
      * @param fileUids a list of unique file identifiers
      */
-    public void addFiles(final String groupId, final String description, final List<String> fileUids) {
+    public void addFiles(final String groupId, final String date, final String modality, final String description, final List<String> fileUids) {
         if (groupStatusMap.containsKey(groupId)) {
             groupsChanged.add(groupStatusMap.getIndex(groupId));
             groupStatusMap.getFromKey(groupId).add(fileUids);
         } else {
             anyGroupsAddedOrRemoved = true;
-            groupStatusMap.put(groupId, new FileStatusGroup(description, fileUids));
+            groupStatusMap.put(groupId, new FileStatusGroup(date, modality, description, fileUids));
         }
     }
 
@@ -110,5 +112,25 @@ public class FileStatusGrouper {
      */
     public boolean getAnyGroupsAddedOrRemoved() {
         return anyGroupsAddedOrRemoved;
+    }
+
+    /**
+     * Returns a String representing the date added for the specified group
+     *
+     * @param groupIndex zero-based group index
+     * @return the description for the given group
+     */
+    public String getDate(final int groupIndex) {
+        return groupStatusMap.getFromIndex(groupIndex).getDate();
+    }
+
+    /**
+     * Returns a String representing modality for the specified group
+     *
+     * @param groupIndex zero-based group index
+     * @return the modality description for the given group
+     */
+    public Object getModality(final int groupIndex) {
+        return groupStatusMap.getFromIndex(groupIndex).getModality();
     }
 }

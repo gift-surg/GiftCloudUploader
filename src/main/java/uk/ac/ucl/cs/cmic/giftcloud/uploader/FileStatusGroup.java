@@ -8,7 +8,9 @@ import java.util.Set;
  * A class representing the status of a collection of files being uploaded
  */
 public class FileStatusGroup {
-    private String description;
+    private final String description;
+    private final String modality;
+    private final String date;
     private Set<String> filesToDo = new HashSet<String>();
     private Set<String> filesDone = new HashSet<String>();
 
@@ -17,7 +19,9 @@ public class FileStatusGroup {
      * @param description the viisble name for this group of files
      * @param fileUids a set of unique itentifiers representing the files
      */
-    public FileStatusGroup(final String description, final List<String> fileUids) {
+    public FileStatusGroup(final String date, final String modality, final String description, final List<String> fileUids) {
+        this.date = date;
+        this.modality = modality;
         this.description = description;
         add(fileUids);
     }
@@ -80,7 +84,7 @@ public class FileStatusGroup {
     }
 
     /**
-     * Indicates that a file has completed uploading
+     * Call this to indicate that a file has completed uploading
      *
      * @param fileUid
      */
@@ -89,5 +93,19 @@ public class FileStatusGroup {
             filesToDo.remove(fileUid);
         }
         filesDone.add(fileUid);
+    }
+
+    /**
+     * @return a @String indicating the date when this group was added
+     */
+    public String getDate() {
+        return date;
+    }
+
+    /**
+     * @return a @String describing the modality of the grup
+     */
+    public String getModality() {
+        return modality;
     }
 }

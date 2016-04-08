@@ -7,10 +7,26 @@ import java.util.List;
 
 public class FileStatusGroupTest {
     @Test
+    public void getDate() throws Exception {
+        List<String> uids1 = new ArrayList<String>();
+        uids1.add("uid1");
+        FileStatusGroup group = new FileStatusGroup("a date", "a modality", "A description", uids1);
+        org.junit.Assert.assertEquals(group.getDate(), "a date");
+    }
+
+    @Test
+    public void getModality() throws Exception {
+        List<String> uids1 = new ArrayList<String>();
+        uids1.add("uid1");
+        FileStatusGroup group = new FileStatusGroup("a date", "a modality", "A description", uids1);
+        org.junit.Assert.assertEquals(group.getModality(), "a modality");
+    }
+
+    @Test
     public void getDescription() throws Exception {
         List<String> uids1 = new ArrayList<String>();
         uids1.add("uid1");
-        FileStatusGroup group = new FileStatusGroup("A description", uids1);
+        FileStatusGroup group = new FileStatusGroup("a date", "a modality", "A description", uids1);
         org.junit.Assert.assertEquals(group.getDescription(), "A description");
     }
 
@@ -20,7 +36,7 @@ public class FileStatusGroupTest {
         uids1.add("uid1");
         uids1.add("uid2");
         uids1.add("uid3");
-        FileStatusGroup group = new FileStatusGroup("A description", uids1);
+        FileStatusGroup group = new FileStatusGroup("a date", "a modality", "A description", uids1);
         org.junit.Assert.assertEquals(group.getFileNumbers(), "(0/3)");
         group.done("uid3");
         org.junit.Assert.assertEquals(group.getFileNumbers(), "(1/3)");
@@ -38,7 +54,7 @@ public class FileStatusGroupTest {
         uids1.add("uid1");
         uids1.add("uid2");
         uids1.add("uid3");
-        FileStatusGroup group = new FileStatusGroup("A description", uids1);
+        FileStatusGroup group = new FileStatusGroup("a date", "a modality", "A description", uids1);
         org.junit.Assert.assertEquals(group.getStatus(), "Waiting");
         group.done("uid3");
         org.junit.Assert.assertEquals(group.getStatus(), "Uploading");
@@ -55,7 +71,7 @@ public class FileStatusGroupTest {
         List<String> uids1 = new ArrayList<String>();
         uids1.add("uid1");
         uids1.add("uid2");
-        FileStatusGroup group = new FileStatusGroup("A description", uids1);
+        FileStatusGroup group = new FileStatusGroup("a date", "a modality", "A description", uids1);
 
         List<String> uids2 = new ArrayList<String>();
         uids2.add("uid3");
@@ -73,7 +89,7 @@ public class FileStatusGroupTest {
         uids1.add("uid1");
         uids1.add("uid2");
         uids1.add("uid3");
-        FileStatusGroup group = new FileStatusGroup("A description", uids1);
+        FileStatusGroup group = new FileStatusGroup("a date", "a modality", "A description", uids1);
         org.junit.Assert.assertEquals(group.getFileNumbers(), "(0/3)");
         group.done("uid3");
         org.junit.Assert.assertEquals(group.getFileNumbers(), "(1/3)");

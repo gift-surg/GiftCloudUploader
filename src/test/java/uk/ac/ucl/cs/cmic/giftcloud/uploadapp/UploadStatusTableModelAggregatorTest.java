@@ -26,13 +26,13 @@ public class UploadStatusTableModelAggregatorTest {
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
         addFiles(aggregator, "G1", 2);
         tableModelListener.waitForCompletion();
-        Assert.assertEquals(tableModel.getValueAt(0, 1), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(0, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
 
         // Adding to same group will trigger update for just that group
         tableModelListener.clearAndSetExpectations(0, 0);
         addFiles(aggregator, "G1", 2);
         tableModelListener.waitForCompletion();
-        Assert.assertEquals(tableModel.getValueAt(0, 1), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(0, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
 
         // Adding a new group will trigger update for all rows
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
@@ -44,45 +44,45 @@ public class UploadStatusTableModelAggregatorTest {
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
         addFiles(aggregator, "G4", 2);
         tableModelListener.waitForCompletion();
-        Assert.assertEquals(tableModel.getValueAt(0, 1), "(0/4)");
-        Assert.assertEquals(tableModel.getValueAt(1, 1), "(0/2)");
-        Assert.assertEquals(tableModel.getValueAt(2, 1), "(0/2)");
-        Assert.assertEquals(tableModel.getValueAt(3, 1), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(0, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(1, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(2, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(3, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
 
         // Adding to same group will trigger update for just that group
         tableModelListener.clearAndSetExpectations(1, 2);
         addFiles(aggregator, "G2", 2);
         addFiles(aggregator, "G3", 2);
         tableModelListener.waitForCompletion();
-        Assert.assertEquals(tableModel.getValueAt(0, 1), "(0/4)");
-        Assert.assertEquals(tableModel.getValueAt(1, 1), "(0/4)");
-        Assert.assertEquals(tableModel.getValueAt(2, 1), "(0/4)");
-        Assert.assertEquals(tableModel.getValueAt(3, 1), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(0, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(1, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(2, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(3, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
 
         tableModelListener.clearAndSetExpectations(0, 0);
         addFiles(aggregator, "G1", 2);
         tableModelListener.waitForCompletion();
-        Assert.assertEquals(tableModel.getValueAt(0, 1), "(0/6)");
-        Assert.assertEquals(tableModel.getValueAt(1, 1), "(0/4)");
-        Assert.assertEquals(tableModel.getValueAt(2, 1), "(0/4)");
-        Assert.assertEquals(tableModel.getValueAt(3, 1), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(0, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/6)");
+        Assert.assertEquals(tableModel.getValueAt(1, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(2, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(3, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
 
         tableModelListener.clearAndSetExpectations(3, 3);
         addFiles(aggregator, "G4", 2);
         tableModelListener.waitForCompletion();
-        Assert.assertEquals(tableModel.getValueAt(0, 1), "(0/6)");
-        Assert.assertEquals(tableModel.getValueAt(1, 1), "(0/4)");
-        Assert.assertEquals(tableModel.getValueAt(2, 1), "(0/4)");
-        Assert.assertEquals(tableModel.getValueAt(3, 1), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(0, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/6)");
+        Assert.assertEquals(tableModel.getValueAt(1, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(2, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(3, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
 
         tableModelListener.clearAndSetExpectations(0, 3);
         addFiles(aggregator, "G1", 2);
         addFiles(aggregator, "G4", 2);
         tableModelListener.waitForCompletion();
-        Assert.assertEquals(tableModel.getValueAt(0, 1), "(0/8)");
-        Assert.assertEquals(tableModel.getValueAt(1, 1), "(0/4)");
-        Assert.assertEquals(tableModel.getValueAt(2, 1), "(0/4)");
-        Assert.assertEquals(tableModel.getValueAt(3, 1), "(0/6)");
+        Assert.assertEquals(tableModel.getValueAt(0, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/8)");
+        Assert.assertEquals(tableModel.getValueAt(1, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(2, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/4)");
+        Assert.assertEquals(tableModel.getValueAt(3, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/6)");
     }
 
 
@@ -98,10 +98,10 @@ public class UploadStatusTableModelAggregatorTest {
 
         // Adding a new group will trigger update for all rows
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
-        aggregator.notifyFilesAdded("G1", "descr1", new ArrayList<String>() {{ add("FILE1"); add("FILE2");}});
+        aggregator.notifyFilesAdded("G1", "date", "modality", "descr1", new ArrayList<String>() {{ add("FILE1"); add("FILE2");}});
         tableModelListener.waitForCompletion();
         tableModelListener.clearAndSetExpectations(0, 0);
-        aggregator.notifyFilesAdded("G1", "descr1", new ArrayList<String>() {{ add("FILE1"); add("FILE2");}});
+        aggregator.notifyFilesAdded("G1", "date", "modality", "descr1", new ArrayList<String>() {{ add("FILE1"); add("FILE2");}});
         tableModelListener.waitForCompletion();
         tableModelListener.clearAndSetExpectations(0, 0);
         addFiles(aggregator, "G1", 2);
@@ -109,8 +109,8 @@ public class UploadStatusTableModelAggregatorTest {
 
         // Adding to same group will trigger update for just that group
         tableModelListener.clearAndSetExpectations(0, 0);
-        aggregator.notifyFilesAdded("G1", "descr1", new ArrayList<String>() {{ add("FILE1"); add("FILE2");}});
-        aggregator.notifyFilesAdded("G1", "descr1", new ArrayList<String>() {{ add("FILE1"); add("FILE2");}});
+        aggregator.notifyFilesAdded("G1", "date", "modality", "descr1", new ArrayList<String>() {{ add("FILE1"); add("FILE2");}});
+        aggregator.notifyFilesAdded("G1", "date", "modality", "descr1", new ArrayList<String>() {{ add("FILE1"); add("FILE2");}});
         tableModelListener.waitForCompletion();
     }
 
@@ -124,21 +124,21 @@ public class UploadStatusTableModelAggregatorTest {
 
         // Adding a new group will trigger update for all rows
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
-        aggregator.notifyFilesAdded("G1", "D1" , new ArrayList<String>() {{ add("F11"); add("F12"); }} );
+        aggregator.notifyFilesAdded("G1", "date", "modality", "D1" , new ArrayList<String>() {{ add("F11"); add("F12"); }} );
         tableModelListener.waitForCompletion();
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
-        aggregator.notifyFilesAdded("G2", "D2" , new ArrayList<String>() {{ add("F21"); add("F22"); }} );
+        aggregator.notifyFilesAdded("G2", "date", "modality", "D2" , new ArrayList<String>() {{ add("F21"); add("F22"); }} );
         tableModelListener.waitForCompletion();
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
-        aggregator.notifyFilesAdded("G3", "D3" , new ArrayList<String>() {{ add("F31"); add("F32"); }} );
+        aggregator.notifyFilesAdded("G3", "date", "modality", "D3" , new ArrayList<String>() {{ add("F31"); add("F32"); }} );
         tableModelListener.waitForCompletion();
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
-        aggregator.notifyFilesAdded("G4", "D4" , new ArrayList<String>() {{ add("F41"); add("F42"); }} );
+        aggregator.notifyFilesAdded("G4", "date", "modality", "D4" , new ArrayList<String>() {{ add("F41"); add("F42"); }} );
         tableModelListener.waitForCompletion();
-        Assert.assertEquals(tableModel.getValueAt(0, 1), "(0/2)");
-        Assert.assertEquals(tableModel.getValueAt(1, 1), "(0/2)");
-        Assert.assertEquals(tableModel.getValueAt(2, 1), "(0/2)");
-        Assert.assertEquals(tableModel.getValueAt(3, 1), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(0, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(1, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(2, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(3, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
 
         tableModelListener.clearAndSetExpectations(0, 3);
         aggregator.notifyFileComplete("G1", "F12");
@@ -146,10 +146,10 @@ public class UploadStatusTableModelAggregatorTest {
         aggregator.notifyFileComplete("G3", "F31");
         aggregator.notifyFileComplete("G4", "F41");
         tableModelListener.waitForCompletion();
-        Assert.assertEquals(tableModel.getValueAt(0, 1), "(1/2)");
-        Assert.assertEquals(tableModel.getValueAt(1, 1), "(0/2)");
-        Assert.assertEquals(tableModel.getValueAt(2, 1), "(2/2)");
-        Assert.assertEquals(tableModel.getValueAt(3, 1), "(1/2)");
+        Assert.assertEquals(tableModel.getValueAt(0, UploadStatusTableModel.NUM_FILES_COLUMN), "(1/2)");
+        Assert.assertEquals(tableModel.getValueAt(1, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(2, UploadStatusTableModel.NUM_FILES_COLUMN), "(2/2)");
+        Assert.assertEquals(tableModel.getValueAt(3, UploadStatusTableModel.NUM_FILES_COLUMN), "(1/2)");
     }
 
     @Test
@@ -166,11 +166,11 @@ public class UploadStatusTableModelAggregatorTest {
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
         addFiles(aggregator, "G1", 2);
         tableModelListener.waitForCompletion();
-        Assert.assertEquals(tableModel.getValueAt(0, 1), "(0/2)");
+        Assert.assertEquals(tableModel.getValueAt(0, UploadStatusTableModel.NUM_FILES_COLUMN), "(0/2)");
     }
 
     private static void addFiles(final UploadStatusTableModelAggregator aggregator, String groupName, final int numFilesToAdd) {
-        aggregator.notifyFilesAdded(groupName, "Descrip:" + groupName, new ArrayList<String>() {{ for (int index = 0; index < numFilesToAdd; index++) { add(UUID.randomUUID().toString());}}});
+        aggregator.notifyFilesAdded(groupName, "Date", "Modality", "Descrip:" + groupName, new ArrayList<String>() {{ for (int index = 0; index < numFilesToAdd; index++) { add(UUID.randomUUID().toString());}}});
     }
 
     private class TableListener implements TableModelListener {
