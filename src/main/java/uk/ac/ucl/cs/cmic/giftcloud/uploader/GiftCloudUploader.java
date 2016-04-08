@@ -6,10 +6,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.LocalWaitingForUploadDatabase;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -22,7 +19,7 @@ import java.util.Vector;
 import java.util.concurrent.CancellationException;
 
 public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
-    private final LocalWaitingForUploadDatabase uploadDatabase;
+    private final WaitingForUploadDatabase uploadDatabase;
     private final GiftCloudProperties giftCloudProperties;
     private GiftCloudDialogs dialogs;
     private final Container container;
@@ -34,7 +31,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final GiftCloudAutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
-    public GiftCloudUploader(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final WaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
         this.uploadDatabase = uploadDatabase;
         this.giftCloudProperties = giftCloudProperties;
         this.dialogs = dialogs;
@@ -150,7 +147,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     public void importFiles(final FileImportRecord fileImportRecord) throws IOException, DicomException {
         try {
-            uploadDatabase.importFilesIntoDatabase(fileImportRecord);
+            uploadDatabase.addFiles(fileImportRecord);
             pendingUploadList.addFiles(giftCloudProperties.getLastProject(), fileImportRecord);
 
         } catch (Throwable throwable) {
@@ -162,7 +159,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     public void fileUploadSuccess(final FileCollection fileCollection) {
         pendingUploadList.fileUploadSuccess(fileCollection);
         for (final File file : fileCollection.getFiles()) {
-            uploadDatabase.deleteFileFromDatabase(file);
+            uploadDatabase.removeAndDeleteCopies(file.getPath());
         }
     }
 

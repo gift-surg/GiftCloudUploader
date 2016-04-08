@@ -32,12 +32,14 @@ import java.util.List;
  */
 public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
+    private final int DELAY_BETWEEN_UPDATES = 500;
+
     private final ResourceBundle resourceBundle;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final MainFrame mainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
     private final DicomListener dicomListener;
-    private final LocalWaitingForUploadDatabase uploadDatabase;
+    private final WaitingForUploadDatabase uploadDatabase;
     private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
     private GiftCloudConfigurationDialog configurationDialog = null;
@@ -102,12 +104,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Initialise the main GIFT-Cloud class
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
 
-        uploadDatabase = new LocalWaitingForUploadDatabase(resourceBundle.getString("DatabaseRootTitleForOriginal"), uploaderStatusModel, reporter);
+        uploadDatabase = new WaitingForUploadDatabase(DELAY_BETWEEN_UPDATES);
         giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
-        uploadDatabase.addObserver(new DatabaseListener());
         dicomListener = new DicomListener(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, uploadDatabase.getSrcDatabase(), filters, giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, uploadDatabase.getTableModel(), filters, giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderStatusModel, reporter);
 
         mainFrame.addMainPanel(giftCloudUploaderPanel);
@@ -392,11 +393,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void refreshFileList() {
-        giftCloudUploaderPanel.rebuildFileList(uploadDatabase.getSrcDatabase());
-    }
-
-    @Override
     public void exportPatientList() {
         giftCloudUploader.exportPatientList();
     }
@@ -443,61 +439,4 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
-    private class DatabaseListener implements Observer, Runnable {
-        private boolean updateIsPending = false;
-        private Thread thread = null;
-
-        public DatabaseListener() {
-            // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    cancelThread();
-                }
-            });
-
-        }
-
-        private synchronized void cancelThread() {
-            if (thread != null) {
-                try {
-                    thread.interrupt();
-                } catch (Throwable t) {
-                }
-            }
-        }
-
-        @Override
-        public void update(Observable o, Object arg) {
-            signalUpdateRequired();
-        }
-
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(1000);
-                resetUpdateStatus();
-                doUpdate();
-            } catch (InterruptedException e) {
-                resetUpdateStatus();
-            }
-        }
-
-        private void doUpdate() {
-            giftCloudUploaderPanel.rebuildFileList(uploadDatabase.getSrcDatabase());
-        }
-
-        private synchronized void signalUpdateRequired() {
-            if (!updateIsPending) {
-                updateIsPending = true;
-                thread = new Thread(this);
-                thread.start();
-            }
-        }
-
-        private synchronized void resetUpdateStatus() {
-            updateIsPending = false;
-        }
-
-
-    }
 }

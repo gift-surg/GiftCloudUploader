@@ -38,8 +38,6 @@ public interface GiftCloudUploaderController {
 
     void importFromPacs();
 
-    void refreshFileList();
-
     void exportPatientList();
 
     void showPixelDataTemplateDialog();

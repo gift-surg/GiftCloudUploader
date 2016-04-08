@@ -1,8 +1,5 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.pixelmed.database.DatabaseInformationModel;
-import com.pixelmed.database.DatabaseTreeBrowser;
-import com.pixelmed.database.DatabaseTreeRecord;
 import com.pixelmed.dicom.DicomException;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
@@ -11,6 +8,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,7 +37,7 @@ public class GiftCloudUploaderPanel extends JPanel {
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
-    public GiftCloudUploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final DatabaseInformationModel srcDatabase, final PixelDataAnonymiserFilterCache filters, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public GiftCloudUploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final TableModel tableModel, final PixelDataAnonymiserFilterCache filters, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
@@ -55,9 +53,12 @@ public class GiftCloudUploaderPanel extends JPanel {
 
         remoteQueryRetrieveDialog = new QueryRetrieveDialog(dialog, controller, resourceBundle);
 
+        JTable table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+
         srcDatabasePanel = new JPanel();
         srcDatabasePanel.setLayout(new GridLayout(1, 1));
-        new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
+        srcDatabasePanel.add(scrollPane);
 
         Border panelBorder = BorderFactory.createEtchedBorder();
 
@@ -96,14 +97,6 @@ public class GiftCloudUploaderPanel extends JPanel {
 //        buttonPanel.add(restartListenerButton);
 //        restartListenerButton.addActionListener(new RestartListenerActionListener());
 
-
-        // Refresh button
-//        JButton refreshButton = new JButton(resourceBundle.getString("refreshButtonLabelText"));
-//        refreshButton.setToolTipText(resourceBundle.getString("refreshButtonToolTipText"));
-//        buttonPanel.add(refreshButton);
-//        refreshButton.addActionListener(new RefreshActionListener());
-
-
         statusPanel = new StatusPanel(controller, uploaderStatusModel);
         reporter.addProgressListener(statusPanel);
 
@@ -137,19 +130,6 @@ public class GiftCloudUploaderPanel extends JPanel {
                 add(statusPanel);
             }
         }
-    }
-
-    // Called when the database model has changed
-    public void rebuildFileList(final DatabaseInformationModel srcDatabase) {
-        srcDatabasePanel.removeAll();
-
-        try {
-            new OurSourceDatabaseTreeBrowser(srcDatabase, srcDatabasePanel);
-
-        } catch (DicomException e) {
-            reporter.silentLogException(e, "Refresh of the file database failed: " + e.getLocalizedMessage());
-        }
-        srcDatabasePanel.validate();
     }
 
     public QueryRetrieveRemoteView getQueryRetrieveRemoteView() {
@@ -204,32 +184,6 @@ public class GiftCloudUploaderPanel extends JPanel {
             } catch (Exception e) {
                 e.printStackTrace(System.err);
             }
-        }
-    }
-
-    private class RefreshActionListener implements ActionListener {
-        public void actionPerformed(ActionEvent event) {
-            controller.refreshFileList();
-        }
-    }
-
-    private class GiftCloudUploadActionListener implements ActionListener {
-        public void actionPerformed(ActionEvent event) {
-            controller.upload(currentSourceFilePathSelections);
-        }
-    }
-
-    private class OurSourceDatabaseTreeBrowser extends DatabaseTreeBrowser {
-        public OurSourceDatabaseTreeBrowser(DatabaseInformationModel d,Container content) throws DicomException {
-            super(d,content);
-        }
-
-        protected boolean doSomethingWithSelections(DatabaseTreeRecord[] selections) {
-            return false;	// still want to call doSomethingWithSelectedFiles()
-        }
-
-        protected void doSomethingWithSelectedFiles(Vector<String> paths) {
-            currentSourceFilePathSelections = paths;
         }
     }
 
