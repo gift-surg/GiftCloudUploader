@@ -6,6 +6,8 @@ import com.pixelmed.dicom.SOPClass;
 import com.pixelmed.dicom.TransferSyntax;
 import com.pixelmed.utils.CapabilitiesAvailable;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class UploaderMediaImporter extends MediaImporter {
     boolean acceptAnyTransferSyntax;
@@ -23,7 +25,7 @@ public class UploaderMediaImporter extends MediaImporter {
         try {
             // Choose whether the imported files should be deleted after uploading; only do this if we have created the files and want them to be removed
             final PendingUploadTask.DeleteAfterUpload deleteAfterUpload = importAsReference ? PendingUploadTask.DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD : PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD;
-            giftCloudUploader.importFiles(new DicomFileImportRecord(mediaFileName, deleteAfterUpload, list));
+            giftCloudUploader.importFiles(new DicomFileImportRecord(mediaFileName, GiftCloudUtils.getDateAsAString(), deleteAfterUpload, Optional.of(list)));
 
         } catch (Exception e) {
             e.printStackTrace(System.err);
