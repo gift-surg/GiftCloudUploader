@@ -22,7 +22,7 @@ import java.util.Iterator;
  * referenced files.</p>
  * 
  * <p>The actual work (e.g. to import the file into a database or similar) is
- * performed by the implementation of the {@link MediaImporter#doSomethingWithDicomFileOnMedia(String) doSomethingWithDicomFileOnMedia}
+ * performed by the implementation of the {@link MediaImporter#doSomethingWithDicomFileOnMedia(String, AttributeList) doSomethingWithDicomFileOnMedia}
  * method in a sub-class of this class.</p>
  *
  *
@@ -68,7 +68,7 @@ public class MediaImporter {
 	 * <p>Imports a single DICOM file, a DICOMDIR file, or recursively imports a directory.</p>
 	 *
 	 * <p>How errors are handled during the importation of the referenced files
-	 * depends on the implementation of {@link MediaImporter#doSomethingWithDicomFileOnMedia(String) doSomethingWithDicomFileOnMedia}
+	 * depends on the implementation of {@link MediaImporter#doSomethingWithDicomFileOnMedia(String, AttributeList) doSomethingWithDicomFileOnMedia}
 	 * in the sub-class. Any such errors will not interrupt the execution of this method (i.e., will not prevent the
 	 * importation of the remaining files).</p>
 	 *
@@ -171,7 +171,7 @@ public class MediaImporter {
                     }
                 }
                 if (goodToGo) {
-                    doSomethingWithDicomFileOnMedia(mediaFileName);
+                    doSomethingWithDicomFileOnMedia(mediaFileName, list);
                     anyFiles = true;
                 }
                 else {
@@ -202,15 +202,14 @@ public class MediaImporter {
 			String transferSyntaxUID;
 			DicomInputStream i = new DicomInputStream(new BufferedInputStream(new FileInputStream(mediaFile)));
 
+			AttributeList list = new AttributeList();
 			if (i.haveMetaHeader()) {
-				AttributeList list = new AttributeList();
 				list.readOnlyMetaInformationHeader(i);
 				sopClassUID = Attribute.getSingleStringValueOrNull(list, TagFromName.MediaStorageSOPClassUID);
 				transferSyntaxUID = Attribute.getSingleStringValueOrNull(list, TagFromName.TransferSyntaxUID);
 			}
 			else {
 				// no meta information header, so assume implicit vr and default Transfer Syntax and try to read SOP Class IOD ...
-				AttributeList list = new AttributeList();
 				list.read(i, terminateAfterIdentifyingGroup);
 				sopClassUID = Attribute.getSingleStringValueOrNull(list, TagFromName.SOPClassUID);
 				transferSyntaxUID = TransferSyntax.ImplicitVRLittleEndian;
@@ -219,7 +218,7 @@ public class MediaImporter {
 			i.close();	// do this before calling the handler, just in case
 
 			if (isOKToImport(sopClassUID,transferSyntaxUID)) {
-				doSomethingWithDicomFileOnMedia(mediaFile.getPath());
+				doSomethingWithDicomFileOnMedia(mediaFile.getPath(), list);
 				fileImported = true;
 			} else {
 				// either is not a DICOM file, has bad meta-header, not a storage object, or is compressed with a scheme that is not supported
@@ -246,9 +245,10 @@ public class MediaImporter {
 	 * <p>This method does not define any exceptions and hence must handle any
 	 * errors locally.</p>
 	 *
-	 * @param	mediaFileName	the fully qualified path name to a DICOM file
+	 * @param    mediaFileName    the fully qualified path name to a DICOM file
+	 * @param list
 	 */
-	protected void doSomethingWithDicomFileOnMedia(String mediaFileName) {
+	protected void doSomethingWithDicomFileOnMedia(String mediaFileName, AttributeList list) {
 //		reporter.sendLn("Is a DICOM PS3.10 file that is wanted: " + mediaFileName);
 	}
 

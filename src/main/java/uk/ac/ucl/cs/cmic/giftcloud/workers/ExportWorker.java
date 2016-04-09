@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Vector;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -18,7 +18,7 @@ import java.util.zip.ZipOutputStream;
 * Created by tom on 17/03/15.
 */
 public class ExportWorker implements Runnable {
-    private final Vector<String> destinationFilePathSelections;
+    private final List<String> destinationFilePathSelections;
     private final File exportDirectory;
 private final boolean hierarchicalExport;
 private final boolean zipExport;
@@ -30,7 +30,7 @@ private String nameForDicomDirectoryOnInterchangeMedia = "DICOMDIR"; // static
 private String exportedZipFileName = "export.zip"; // static
 
 
-public ExportWorker(final Vector<String> destinationFilePathSelections, final File exportDirectory, final boolean hierarchicalExport, final boolean zipExport, final GiftCloudReporterFromApplication reporter) {
+public ExportWorker(final List<String> destinationFilePathSelections, final File exportDirectory, final boolean hierarchicalExport, final boolean zipExport, final GiftCloudReporterFromApplication reporter) {
         this.destinationFilePathSelections = destinationFilePathSelections;
         this.exportDirectory = exportDirectory;
 this.hierarchicalExport = hierarchicalExport;

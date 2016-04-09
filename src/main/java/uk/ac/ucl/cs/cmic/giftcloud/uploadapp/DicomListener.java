@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.pixelmed.database.DatabaseInformationModel;
+import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.StoredFilePathStrategy;
 import com.pixelmed.dicom.TransferSyntax;
@@ -8,35 +8,31 @@ import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
 import com.pixelmed.network.*;
 import com.pixelmed.utils.CapabilitiesAvailable;
-import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.DicomFileImportRecord;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PendingUploadTask;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
-public class DicomNode {
+public class DicomListener {
 
     private StorageSOPClassSCPDispatcher storageSOPClassSCPDispatcher;
     private GiftCloudUploader uploader;
     private GiftCloudPropertiesFromApplication giftCloudProperties;
     private UploaderStatusModel uploaderStatusModel;
     private GiftCloudReporter reporter;
-    private DatabaseInformationModel databaseInformationModel;
 
 
-    public DicomNode(final GiftCloudUploader uploader, final GiftCloudPropertiesFromApplication giftCloudProperties, final LocalWaitingForUploadDatabase localWaitingForUploadDatabase, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) throws DicomException {
+    public DicomListener(final GiftCloudUploader uploader, final GiftCloudPropertiesFromApplication giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) throws DicomException {
         this.uploader = uploader;
         this.giftCloudProperties = giftCloudProperties;
         this.uploaderStatusModel = uploaderStatusModel;
-        this.databaseInformationModel = localWaitingForUploadDatabase.getSrcDatabase();
         this.reporter = reporter;
 
         // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
@@ -68,41 +64,14 @@ public class DicomNode {
             final String ourAETitle = giftCloudProperties.getListenerAETitle();
 
             ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port  + " AET " + ourAETitle));
-            int storageSCPDebugLevel = giftCloudProperties.getStorageSCPDebugLevel();
-            int queryDebugLevel = giftCloudProperties.getQueryDebugLevel();
-            storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(getAe(), port, ourAETitle, savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
-                    databaseInformationModel == null ? null : databaseInformationModel.getQueryResponseGeneratorFactory(queryDebugLevel),
-                    databaseInformationModel == null ? null : databaseInformationModel.getRetrieveResponseGeneratorFactory(queryDebugLevel),
+            storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(port, ourAETitle, savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
                     new OurPresentationContextSelectionPolicy(),
-                    false/*secureTransport*/,
-                    storageSCPDebugLevel);
+                    false/*secureTransport*/
+            );
             storageSOPClassSCPDispatcher.startup();
         }
     }
 
-
-    /**
-     * Creates an ApplicationEntity from the current properties
-     * @return
-     * @throws DicomNetworkException
-     */
-    public Optional<ApplicationEntity> getAe() throws GiftCloudException {
-        final Optional<String> aeTitle = giftCloudProperties.getPacsAeTitle();
-        final Optional<String> hostname = giftCloudProperties.getPacsHostName();
-        final int port = giftCloudProperties.getPacsPort();
-        final Optional<String> queryModel = giftCloudProperties.getPacsQueryModel();
-        final Optional<String> primaryDeviceType = giftCloudProperties.getPacsPrimaryDeviceType();
-
-        if (!aeTitle.isPresent() || StringUtils.isBlank(aeTitle.get())) {
-            return Optional.empty();
-        }
-        if (!hostname.isPresent() || StringUtils.isBlank(hostname.get())) {
-            return Optional.empty();
-        }
-
-        final PresentationAddress presentationAddress = new PresentationAddress(hostname.get(), port);
-        return Optional.of(new ApplicationEntity(aeTitle.get(), presentationAddress, queryModel.orElse(null), primaryDeviceType.orElse(null)));
-    }
 
     public class DicomNodeStartException extends Exception {
         DicomNodeStartException(final String message, final Exception cause) {
@@ -138,7 +107,7 @@ public class DicomNode {
             if (dicomFileName != null) {
                 ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Received "+dicomFileName+" from "+callingAETitle+" in "+transferSyntax));
                 try {
-                    uploader.importFile(dicomFileName, DatabaseInformationModel.FILE_COPIED);
+                    uploader.importFiles(new DicomFileImportRecord(dicomFileName, GiftCloudUtils.getDateAsAString(), PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD, Optional.<AttributeList>empty()));
                 } catch (Exception e) {
                     e.printStackTrace(System.err);
                 }

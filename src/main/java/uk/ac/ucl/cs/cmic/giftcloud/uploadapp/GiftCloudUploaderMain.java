@@ -36,8 +36,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final MainFrame mainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
-    private final DicomNode dicomNode;
-    private final LocalWaitingForUploadDatabase uploadDatabase;
+    private final DicomListener dicomListener;
     private final GiftCloudUploader giftCloudUploader;
     private final GiftCloudUploaderPanel giftCloudUploaderPanel;
     private GiftCloudConfigurationDialog configurationDialog = null;
@@ -102,13 +101,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Initialise the main GIFT-Cloud class
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
 
-        uploadDatabase = new LocalWaitingForUploadDatabase(resourceBundle.getString("DatabaseRootTitleForOriginal"), uploaderStatusModel, reporter);
-        giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, uploadDatabase, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
-        uploadDatabase.addObserver(new DatabaseListener());
-        dicomNode = new DicomNode(giftCloudUploader, giftCloudProperties, uploadDatabase, uploaderStatusModel, reporter);
+        giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
+        dicomListener = new DicomListener(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, uploadDatabase.getSrcDatabase(), filters, giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
-        queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, dicomNode, uploaderStatusModel, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), filters, giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
+        queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderStatusModel, reporter);
 
         mainFrame.addMainPanel(giftCloudUploaderPanel);
 
@@ -132,7 +129,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     public void start(final boolean showImportDialog, final List<File> filesToImport) {
         Optional<Throwable> dicomNodeFailureException = Optional.empty();
         try {
-            dicomNode.activateStorageSCP();
+            dicomListener.activateStorageSCP();
         } catch (Throwable e) {
             dicomNodeFailureException = Optional.of(e);
             reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
@@ -284,7 +281,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void upload(Vector<String> filePaths) {
+    public void upload(List<String> filePaths) {
         try {
             Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudUploader, reporter));
             activeThread.start();
@@ -312,13 +309,13 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void export(String exportDirectory, Vector<String> filesToExport) {
+    public void export(String exportDirectory, List<String> filesToExport) {
         File exportDirectoryFile = new File(exportDirectory);
         new Thread(new ExportWorker(filesToExport, exportDirectoryFile, giftCloudProperties.hierarchicalExport(), giftCloudProperties.zipExport(), reporter)).start();
     }
 
     @Override
-    public void selectAndExport(final Vector<String> filesToExport) {
+    public void selectAndExport(final List<String> filesToExport) {
         try {
             reporter.showMesageLogger();
 
@@ -367,12 +364,12 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void restartDicomService() {
         try {
-            dicomNode.shutdownStorageSCPAndWait(giftCloudProperties.getShutdownTimeoutMs());
+            dicomListener.shutdownStorageSCPAndWait(giftCloudProperties.getShutdownTimeoutMs());
         } catch (Throwable e) {
             reporter.silentLogException(e, "Failed to shutdown the dicom node service");
         }
         try {
-            dicomNode.activateStorageSCP();
+            dicomListener.activateStorageSCP();
         } catch (Throwable e) {
             reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
             reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
@@ -389,11 +386,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void importFromPacs() {
         giftCloudUploaderPanel.showQueryRetrieveDialog();
-    }
-
-    @Override
-    public void refreshFileList() {
-        giftCloudUploaderPanel.rebuildFileList(uploadDatabase.getSrcDatabase());
     }
 
     @Override
@@ -443,61 +435,4 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
-    private class DatabaseListener implements Observer, Runnable {
-        private boolean updateIsPending = false;
-        private Thread thread = null;
-
-        public DatabaseListener() {
-            // ShutdownHook will run regardless of whether Command-Q (on Mac) or window closed ...
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    cancelThread();
-                }
-            });
-
-        }
-
-        private synchronized void cancelThread() {
-            if (thread != null) {
-                try {
-                    thread.interrupt();
-                } catch (Throwable t) {
-                }
-            }
-        }
-
-        @Override
-        public void update(Observable o, Object arg) {
-            signalUpdateRequired();
-        }
-
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(1000);
-                resetUpdateStatus();
-                doUpdate();
-            } catch (InterruptedException e) {
-                resetUpdateStatus();
-            }
-        }
-
-        private void doUpdate() {
-            giftCloudUploaderPanel.rebuildFileList(uploadDatabase.getSrcDatabase());
-        }
-
-        private synchronized void signalUpdateRequired() {
-            if (!updateIsPending) {
-                updateIsPending = true;
-                thread = new Thread(this);
-                thread.start();
-            }
-        }
-
-        private synchronized void resetUpdateStatus() {
-            updateIsPending = false;
-        }
-
-
-    }
 }

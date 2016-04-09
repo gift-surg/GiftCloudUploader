@@ -28,9 +28,9 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Vector<String> getListOfProjects() throws IOException {
+    public List<String> getListOfProjects() throws IOException {
         final Set<String> projectList = projectMap.getProjectList();
-        final Vector<String> projectVector = new Vector<String>();
+        final List<String> projectVector = new ArrayList<String>();
         for (final String projectLabel : projectList) {
             projectVector.add(projectLabel);
         }
@@ -116,7 +116,11 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final File temporaryFile) throws Exception {
+    public Set<String> uploadZipFile(String projectLabel, GiftCloudLabel.SubjectLabel subjectLabel, GiftCloudLabel.ExperimentLabel experimentLabel, GiftCloudLabel.ScanLabel scanLabel, XnatModalityParams xnatModalityParams, File temporaryFile, boolean append) throws Exception {
+        if (append) {
+            System.out.println("Appending file for " + temporaryFile);
+            Thread.sleep(10);
+        }
         final Set<String> uids = new HashSet<String>();
         uids.add(UUID.randomUUID().toString());
         return uids;
@@ -128,12 +132,6 @@ public class MockRestServer implements RestServer {
 
         final ProjectMap.ProjectRecord.SubjectRecord subjectRecord = projectRecord.get(subjectLabel);
         projectRecord.addPseudonym(subjectLabel, hashedPatientId);
-    }
-
-    @Override
-    public void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final XnatModalityParams xnatModalityParams, final File temporaryFile) throws Exception {
-        System.out.println("Appending file for " + temporaryFile);
-        Thread.sleep(10);
     }
 
     @Override

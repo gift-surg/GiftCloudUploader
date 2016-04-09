@@ -125,7 +125,7 @@ public class DatabaseTreeBrowser {
 			public void componentMoved(ComponentEvent e) {}
 			public void componentResized(ComponentEvent e) {
 //System.err.println("DoseUtility.OurSourceDatabaseTreeBrowser.componentResized(): event = "+e);
-				splitPane.setDividerLocation(1.0);
+				splitPane.setDividerLocation(0.7);
 			}
 			public void componentShown(ComponentEvent e) {}
 		});

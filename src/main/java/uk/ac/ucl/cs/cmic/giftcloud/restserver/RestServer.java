@@ -6,14 +6,14 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 public interface RestServer {
     void tryAuthentication() throws IOException;
 
-    Vector<String> getListOfProjects() throws IOException;
+    List<String> getListOfProjects() throws IOException;
 
     Map<String, String> getListOfSubjects(String projectName) throws IOException, JSONException;
 
@@ -37,11 +37,9 @@ public interface RestServer {
 
     Optional<Map<String, String>> getProjectSeriesImportFilter(String projectName) throws IOException, JSONException;
 
-    Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final File temporaryFile) throws Exception;
+    Set<String> uploadZipFile(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final XnatModalityParams xnatModalityParams, final File temporaryFile, final boolean append) throws Exception;
 
     void createSubjectAliasIfNotExisting(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedPatientId) throws IOException;
-
-    void appendZipFileToExistingScan(final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final XnatModalityParams xnatModalityParams, final File temporaryFile) throws Exception;
 
     void resetCancellation();
 

@@ -6,7 +6,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Shows a dialog for setting the properties of the GIFT-Cloud Uplaoder app
+ * Shows a dialog for setting the properties of the GIFT-Cloud Uploader app
  */
 public class GiftCloudConfigurationDialog {
 
@@ -79,8 +78,6 @@ public class GiftCloudConfigurationDialog {
 
         dialog.setLocationRelativeTo(componentToCenterDialogOver);	// without this, appears at TLHC rather then center of parent or screen
         dialog.setTitle(resourceBundle.getString("configurationDialogTitle"));
-
-        Border panelBorder = BorderFactory.createEtchedBorder();
 
         final GridBagConstraints sectionTitleConstraints = new GridBagConstraints();
         sectionTitleConstraints.gridx = 0;

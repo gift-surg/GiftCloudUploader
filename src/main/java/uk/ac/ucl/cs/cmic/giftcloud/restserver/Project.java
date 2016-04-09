@@ -14,6 +14,8 @@ import org.apache.commons.lang.StringUtils;
 import org.nrg.dcm.edit.ScriptFunction;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.DicomMetaDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.IndexedSessionLabelFunction;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.DicomPixelDataAnonymiser;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -34,8 +36,9 @@ public class Project {
 	private Optional<SeriesImportFilterApplicatorRetriever> seriesImportFilter = Optional.empty();
 	private final DicomMetaDataAnonymiser dicomMetaDataAnonymiser;
 	private final DicomProjectAnonymisationScripts dicomProjectAnonymisationScripts;
+	private final DicomPixelDataAnonymiser pixelDataAnonymiser;
 
-	public Project(final String projectName, final RestServer restServer, GiftCloudReporter reporter) {
+	public Project(final String projectName, final RestServer restServer, PixelDataAnonymiserFilterCache pixelDataAnonymiserFilterCache, GiftCloudProperties properties, GiftCloudReporter reporter) {
 		this.name = projectName;
 
 		sessions = executor.submit(new ProjectSessionLister(restServer, projectName));
@@ -43,6 +46,7 @@ public class Project {
 		dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServer, projectName, getDicomFunctions(sessions)));
 		dicomProjectAnonymisationScripts = new DicomProjectAnonymisationScripts(dicomScriptApplicator);
 		dicomMetaDataAnonymiser = new DicomMetaDataAnonymiser(dicomProjectAnonymisationScripts, reporter);
+		pixelDataAnonymiser = new DicomPixelDataAnonymiser(pixelDataAnonymiserFilterCache, properties, reporter);
 	}
 
 	private static Map<String, ScriptFunction>
@@ -83,5 +87,9 @@ public class Project {
 
 	public DicomMetaDataAnonymiser getDicomMetaDataAnonymiser() {
 		return dicomMetaDataAnonymiser;
+	}
+
+	public DicomPixelDataAnonymiser getPixelDataAnonymiser() {
+		return pixelDataAnonymiser;
 	}
 }

@@ -1,11 +1,11 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import junit.framework.Assert;
 import org.junit.Test;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.util.HashSet;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.Set;
 
 public class NameGeneratorTest {

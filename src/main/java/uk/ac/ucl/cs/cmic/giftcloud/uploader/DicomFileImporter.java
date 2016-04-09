@@ -14,10 +14,10 @@ public class DicomFileImporter {
     private final UploaderMediaImporter mediaImporter;
 
     public DicomFileImporter(final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporterFromApplication reporter) {
-        mediaImporter = new UploaderMediaImporter(reporter, acceptAnyTransferSyntax, giftCloudUploader, importAsReference);
+        mediaImporter = new UploaderMediaImporter(acceptAnyTransferSyntax, giftCloudUploader, importAsReference, reporter);
     }
 
-    public boolean importFiles(final File mediaFile, final Progress progress) throws IOException, DicomException {
-        return mediaImporter.importDicomFileOrPath(mediaFile, progress);
+    public boolean importFiles(final File fileOrDirectory, final Progress progress) throws IOException, DicomException {
+        return mediaImporter.importDicomFileOrPath(fileOrDirectory, progress);
     }
 }

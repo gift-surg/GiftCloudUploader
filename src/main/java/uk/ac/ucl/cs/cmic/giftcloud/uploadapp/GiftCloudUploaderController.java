@@ -4,7 +4,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
 import java.io.File;
 import java.util.List;
-import java.util.Vector;
 
 public interface GiftCloudUploaderController {
 
@@ -18,15 +17,15 @@ public interface GiftCloudUploaderController {
     void startUploading();
     void pauseUploading();
 
-    void upload(Vector<String> filePaths);
+    void upload(List<String> filePaths);
 
     void retrieve(List<QuerySelection> currentRemoteQuerySelectionList);
 
     void query(final QueryParams queryParams);
 
-    void export(String exportDirectory, Vector<String> filesToExport);
+    void export(String exportDirectory, List<String> filesToExport);
 
-    void selectAndExport(Vector<String> filesToExport);
+    void selectAndExport(List<String> filesToExport);
 
     void runImport(List<File> fileList, final boolean importAsReference, final Progress progress);
 
@@ -37,8 +36,6 @@ public interface GiftCloudUploaderController {
     void invalidateServerAndRestartUploader();
 
     void importFromPacs();
-
-    void refreshFileList();
 
     void exportPatientList();
 

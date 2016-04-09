@@ -1,12 +1,9 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import uk.ac.ucl.cs.cmic.giftcloud.data.Session;
+import uk.ac.ucl.cs.cmic.giftcloud.data.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.ZipSeriesUploaderFactorySelector;
 import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -39,11 +36,11 @@ public class GiftCloudAutoUploader {
         subjectAliasStore = new SubjectAliasStore(new PatientListStore(properties, reporter), reporter);
     }
 
-    public boolean uploadToGiftCloud(final GiftCloudServer server, final Vector<String> paths, final String projectName) throws IOException {
+    public boolean uploadToGiftCloud(final GiftCloudServer server, final List<String> paths, final String projectName) throws IOException {
         return uploadOrAppend(server, paths, projectName, false);
     }
 
-    public boolean appendToGiftCloud(final GiftCloudServer server, final Vector<String> paths, final String projectName) throws IOException {
+    public boolean appendToGiftCloud(final GiftCloudServer server, final List<String> paths, final String projectName) throws IOException {
         return uploadOrAppend(server, paths, projectName, true);
     }
 
@@ -54,9 +51,9 @@ public class GiftCloudAutoUploader {
         subjectAliasStore.exportPatientList();
     }
 
-    private boolean uploadOrAppend(final GiftCloudServer server, final Vector<String> paths, final String projectName, final boolean append) throws IOException {
+    private boolean uploadOrAppend(final GiftCloudServer server, final List<String> paths, final String projectName, final boolean append) throws IOException {
 
-        final Vector<File> fileList = new Vector<File>();
+        final List<File> fileList = new ArrayList<File>();
         for (final String path : paths) {
             fileList.add(new File(path));
         }
@@ -66,11 +63,11 @@ public class GiftCloudAutoUploader {
 
         final EditProgressMonitorWrapper progressWrapper = new EditProgressMonitorWrapper(reporter);
         final MasterTrawler trawler = new MasterTrawler(progressWrapper, fileList, seriesImportFilter);
-        final List<Session> sessions = trawler.call();
+        final List<Study> studies = trawler.call();
 
-        for (final Session session : sessions) {
+        for (final Study study : studies) {
 
-            addSessionToUploadList(server, project, projectName, session);
+            addSessionToUploadList(server, project, projectName, study, append);
         }
 
 
@@ -98,25 +95,23 @@ public class GiftCloudAutoUploader {
         return true;
     }
 
-    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final String projectName, final Session session) throws IOException {
-        final String patientId = session.getPatientId();
-        final String patientName = session.getPatientName();
-        final String studyInstanceUid = session.getStudyUid();
-        final String seriesUid = session.getSeriesUid();
+    private void addSessionToUploadList(final GiftCloudServer server, final Project project, final String projectName, final Study study, final boolean append) throws IOException {
+        final String patientId = study.getPatientId();
+        final String patientName = study.getPatientName();
+        final String studyInstanceUid = study.getStudyUid();
+        final String seriesUid = study.getSeriesUid();
 
-        final XnatModalityParams xnatModalityParams = session.getXnatModalityParams();
+        final XnatModalityParams xnatModalityParams = study.getXnatModalityParams();
 
         final GiftCloudLabel.SubjectLabel subjectLabel = getSubjectName(server, projectName, patientId, patientName);
         final GiftCloudLabel.ExperimentLabel experimentLabel = getSessionName(server, projectName, subjectLabel, studyInstanceUid, xnatModalityParams);
         final GiftCloudLabel.ScanLabel scanName = getScanName(server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
 
-        final List<FileCollection> fileCollections = session.getFiles();
+        final List<FileCollection> fileCollections = study.getFiles();
 
         if (fileCollections.isEmpty()) {
             throw new IOException("No files were selected for upload");
         }
-
-        final CallableUploader.CallableUploaderFactory callableUploaderFactory = ZipSeriesUploaderFactorySelector.getZipSeriesUploaderFactory(true);
 
         // Iterate through each set of files
         for (final FileCollection fileCollection : fileCollections) {
@@ -128,7 +123,7 @@ public class GiftCloudAutoUploader {
             uploadParameters.setFileCollection(fileCollection);
             uploadParameters.setXnatModalityParams(xnatModalityParams);
 
-            final CallableUploader uploader = callableUploaderFactory.create(uploadParameters, server, project.getDicomMetaDataAnonymiser());
+            final ZipSeriesUploader uploader = new ZipSeriesUploader(uploadParameters, server, study.getSeriesZipper(project, uploadParameters), append);
             backgroundUploader.addUploader(uploader);
         }
     }

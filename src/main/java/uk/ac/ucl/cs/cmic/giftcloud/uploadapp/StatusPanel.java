@@ -75,20 +75,6 @@ public class StatusPanel extends JPanel implements Progress, UploaderStatusModel
 
             progressBarUpdater = new SafeProgressBarUpdaterThread(progressBar);
         }
-        {
-            JButton closeButton = new JButton("Hide uploading window");
-            closeButton.setToolTipText("Close the uploader window");
-
-            GridBagConstraints closeButtonConstraints = new GridBagConstraints();
-            closeButtonConstraints.gridx = 0;
-            closeButtonConstraints.gridy = 2;
-            closeButtonConstraints.weightx = 1;
-            closeButtonConstraints.fill = GridBagConstraints.EAST;
-            closeButtonConstraints.anchor = GridBagConstraints.EAST;
-            closeButtonConstraints.gridwidth = GridBagConstraints.RELATIVE;
-            closeButton.addActionListener(new CloseActionListener());
-            add(closeButton, closeButtonConstraints);
-        }
 //        {
 //            JButton cancelButton = new JButton("Cancel");
 //            cancelButton.setToolTipText("Cancel current task");
@@ -200,12 +186,6 @@ public class StatusPanel extends JPanel implements Progress, UploaderStatusModel
 
         public void actionPerformed(ActionEvent event) {
             Cancel();
-        }
-    }
-    protected class CloseActionListener implements ActionListener {
-
-        public void actionPerformed(ActionEvent event) {
-            controller.hide();
         }
     }
 

@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.display.SafeFileChooser;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,8 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
-import java.util.Vector;
 import java.util.concurrent.CancellationException;
 
 public class GiftCloudDialogs {
@@ -120,7 +119,7 @@ public class GiftCloudDialogs {
     }
 
 
-    public String showInputDialogToSelectProject(final Vector<String> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
+    public String showInputDialogToSelectProject(final java.util.List<String> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
         final String lastProjectName = lastProject.isPresent() ? lastProject.get() : "";
 
         if (projectMap.size() < 1) {

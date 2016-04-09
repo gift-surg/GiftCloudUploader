@@ -32,7 +32,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         add(Tag.Modality);
     }});
 
-    private final Study study;
     private final Multimap<String,String> sopToTS = LinkedHashMultimap.create();
     private final Set<String> modalities = Sets.newTreeSet();
     private final Set<File> files = Sets.newLinkedHashSet();
@@ -40,9 +39,7 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
     private boolean uploadAllowed = true;
     private XnatModalityParams modalityParams;
 
-    Series(final Study study,
-            final String uid, final int number, final String modality, final String description, final String sopClassUid) {
-        this.study = study;
+    Series(final String uid, final int number, final String modality, final String description, final String sopClassUid) {
         put(Tag.SeriesInstanceUID, uid);
         put(Tag.SeriesNumber, number);
         put(Tag.SeriesDescription, description);
@@ -50,8 +47,8 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         modalityParams = XnatModalityParams.createFromDicom(modality, sopClassUid);
     }
 
-    Series(final Study study, final DicomObject o) {
-        this(study,
+    Series(final DicomObject o) {
+        this(
                 o.getString(Tag.SeriesInstanceUID),
                 o.getInt(Tag.SeriesNumber),
                 o.getString(Tag.Modality),
@@ -144,12 +141,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         }
         return size;
     }
-
-    /*
-     * (non-Javadoc)
-     * @see uk.ac.ucl.cs.cmic.giftcloud.dicom.Entity#getStudies()
-     */
-    public Collection<Study> getStudies() { return Collections.singleton(study); }
 
     public Iterator<File> iterator() {
         return Collections.unmodifiableSet(files).iterator();

@@ -2,13 +2,13 @@
 
 package com.pixelmed.network;
 
-import java.util.LinkedList;
-import java.io.IOException;
-import java.net.Socket;
-
-import java.lang.reflect.*;
-
 import com.pixelmed.dicom.VersionAndConstants;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.Socket;
+import java.util.LinkedList;
 
 /**
  * <p>A factory object of static methods that can accept and initiate associations.</p>
@@ -191,38 +191,6 @@ public class AssociationFactory {
 	 * The default Implementation Class UID and Implementation Version
 	 * of the toolkit are used.
 	 *
-	 * The default UnencapsulatedExplicitStoreFindMoveGetPresentationContextSelectionPolicy is used.
-	 *
-	 * @deprecated	See {@link #createNewAssociation(Socket,String,int,int,int,PresentationContextSelectionPolicy,int) createNewAssociation()}
-	 *
-	 * @param	socket				already open transport connection on which the association is to be accepted
-	 * @param	calledAETitle			the AE Title of the local (our) end of the association
-	 * @param	ourMaximumLengthReceived	the maximum PDU length that we will offer to receive
-	 * @param	socketReceiveBufferSize		the TCP socket receive buffer size to set (if possible), 0 means leave at the default
-	 * @param	socketSendBufferSize		the TCP socket send buffer size to set (if possible), 0 means leave at the default
-	 * @param	debugLevel			0 for no debugging, &gt; 0 for increasingly verbose debugging
-	 * @return					an open association in state 6 - Data Transfer
-	 * @throws	IOException
-	 * @throws	DicomNetworkException		thrown for A-ABORT and A-P-ABORT indications
-	 */
-	static public AssociationAcceptor createNewAssociation(Socket socket,String calledAETitle,
-				int ourMaximumLengthReceived,int socketReceiveBufferSize,int socketSendBufferSize,
-				int debugLevel) throws DicomNetworkException,IOException {
-
-		return new AssociationAcceptor(socket,calledAETitle,
-			VersionAndConstants.implementationClassUID,
-			VersionAndConstants.implementationVersionName,
-			ourMaximumLengthReceived,socketReceiveBufferSize,socketSendBufferSize,
-			new UnencapsulatedExplicitStoreFindMoveGetPresentationContextSelectionPolicy(),
-			debugLevel);
-	}
-
-	/**
-	 * Accepts an association on the supplied open transport connection.
-	 *
-	 * The default Implementation Class UID and Implementation Version
-	 * of the toolkit are used.
-	 *
 	 * @param	socket				already open transport connection on which the association is to be accepted
 	 * @param	calledAETitle			the AE Title of the local (our) end of the association
 	 * @param	ourMaximumLengthReceived	the maximum PDU length that we will offer to receive
@@ -244,68 +212,6 @@ public class AssociationFactory {
 			VersionAndConstants.implementationVersionName,
 			ourMaximumLengthReceived,socketReceiveBufferSize,socketSendBufferSize,
 			presentationContextSelectionPolicy,
-			debugLevel);
-	}
-
-	/**
-	 * Accepts an association on the supplied open transport connection.
-	 *
-	 * The default Implementation Class UID, Implementation Version and Maximum PDU Size
-	 * of the toolkit are used.
-	 *
-	 * The default maximum length received, receive buffer size and send buffer size are used.
-	 *
-	 * @param	socket				already open transport connection on which the association is to be accepted
-	 * @param	calledAETitle			the AE Title of the local (our) end of the association
-	 * @param	presentationContextSelectionPolicy	which SOP Classes and Transfer Syntaxes to accept and reject
-	 * @param	debugLevel			0 for no debugging, &gt; 0 for increasingly verbose debugging
-	 * @return					an open association in state 6 - Data Transfer
-	 * @throws	IOException
-	 * @throws	DicomNetworkException		thrown for A-ABORT and A-P-ABORT indications
-	 */
-	static public AssociationAcceptor createNewAssociation(Socket socket,String calledAETitle,
-				PresentationContextSelectionPolicy presentationContextSelectionPolicy,
-				int debugLevel) throws DicomNetworkException,IOException {
-
-		return new AssociationAcceptor(socket,calledAETitle,
-			VersionAndConstants.implementationClassUID,
-			VersionAndConstants.implementationVersionName,
-			getDefaultMaximumLengthReceived(),
-			getDefaultReceiveBufferSize(),
-			getDefaultSendBufferSize(),
-			presentationContextSelectionPolicy,
-			debugLevel);
-	}
-
-	/**
-	 * Accepts an association on the supplied open transport connection.
-	 *
-	 * The default Implementation Class UID, Implementation Version and Maximum PDU Size
-	 * of the toolkit are used.
-	 *
-	 * The default maximum length received, receive buffer size and send buffer size are used.
-	 *
-	 * The default UnencapsulatedExplicitStoreFindMoveGetPresentationContextSelectionPolicy is used.
-	 *
-	 * @deprecated	See {@link #createNewAssociation(Socket,String,PresentationContextSelectionPolicy,int) createNewAssociation()}
-	 *
-	 * @param	socket				already open transport connection on which the association is to be accepted
-	 * @param	calledAETitle			the AE Title of the local (our) end of the association
-	 * @param	debugLevel			0 for no debugging, &gt; 0 for increasingly verbose debugging
-	 * @return					an open association in state 6 - Data Transfer
-	 * @throws	IOException
-	 * @throws	DicomNetworkException		thrown for A-ABORT and A-P-ABORT indications
-	 */
-	static public AssociationAcceptor createNewAssociation(Socket socket,String calledAETitle,
-				int debugLevel) throws DicomNetworkException,IOException {
-
-		return new AssociationAcceptor(socket,calledAETitle,
-			VersionAndConstants.implementationClassUID,
-			VersionAndConstants.implementationVersionName,
-			getDefaultMaximumLengthReceived(),
-			getDefaultReceiveBufferSize(),
-			getDefaultSendBufferSize(),
-			new UnencapsulatedExplicitStoreFindMoveGetPresentationContextSelectionPolicy(),
 			debugLevel);
 	}
 

@@ -6,29 +6,27 @@ import com.pixelmed.network.NetworkApplicationProperties;
 import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.StudyRootQueryInformationModel;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.QueryWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.RetrieveWorker;
 
 import java.util.List;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class QueryRetrieveController {
 
     private QueryRetrieveRemoteView queryRetrieveRemoteView;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
-    private final DicomNode dicomNode;
     private UploaderStatusModel uploaderStatusModel;
     private final GiftCloudReporterFromApplication reporter;
     private Optional<QueryInformationModel> currentRemoteQueryInformationModel = Optional.empty();
     private Thread activeThread = null;
 
-    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrieveRemoteView, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
+    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrieveRemoteView, final GiftCloudPropertiesFromApplication giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
         this.queryRetrieveRemoteView = queryRetrieveRemoteView;
         this.giftCloudProperties = giftCloudProperties;
-        this.dicomNode = dicomNode;
         this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
 
@@ -74,7 +72,7 @@ public class QueryRetrieveController {
         queryRetrieveRemoteView.validate();
 
         AttributeList filter = queryParams.build();
-        Thread activeThread = new Thread(new QueryWorker(queryRetrieveRemoteView, currentRemoteQueryInformationModel.get(), filter, dicomNode, uploaderStatusModel, reporter));
+        Thread activeThread = new Thread(new QueryWorker(queryRetrieveRemoteView, currentRemoteQueryInformationModel.get(), filter, uploaderStatusModel, reporter));
         activeThread.start();
     }
 

@@ -33,7 +33,7 @@ public class PixelDataAnonymiserFilterCache {
 
 
     /**
-     * Creates the PixelDataAnonymiser object. Parameters will be set at construction time
+     * Creates the DicomPixelDataAnonymiser object. Parameters will be set at construction time
      *
      * @param giftCloudProperties Shared properties use to define anonymsation options
      * @param reporter

@@ -1,7 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,11 +36,19 @@ public class QueryRetrieveDialog extends JDialog {
         GridBagLayout layout = new GridBagLayout();
         setLayout(layout);
 
-        Border panelBorder = BorderFactory.createEtchedBorder();
+        JPanel buttonPanel = new JPanel();
+        final GridBagLayout buttonPanellayout = new GridBagLayout();
+        buttonPanel.setLayout(buttonPanellayout);
+
+        JSeparator separator = new JSeparator();
+        GridBagConstraints separatorConstraint = new GridBagConstraints();
+        separatorConstraint.weightx = 1.0;
+        separatorConstraint.fill = GridBagConstraints.HORIZONTAL;
+        separatorConstraint.gridwidth = GridBagConstraints.REMAINDER;
+        buttonPanel.add(separator, separatorConstraint);
 
         JPanel retrieveButtonPanel = new JPanel();
         retrieveButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        retrieveButtonPanel.setBorder(panelBorder);
 
         JButton cancelButton = new JButton(resourceBundle.getString("closeRetrieveButtonLabelText"));
         cancelButton.setToolTipText(resourceBundle.getString("closeRetrieveButtonToolTipText"));
@@ -54,6 +61,16 @@ public class QueryRetrieveDialog extends JDialog {
         retrieveButtonPanel.add(retrieveButton);
         retrieveButton.addActionListener(new RetrieveActionListener());
 
+        final GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.weightx = 1;
+        constraints.weighty = 1;
+        constraints.insets = new Insets(5, 5, 5, 5);
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        buttonPanellayout.setConstraints(buttonPanel, constraints);
+        buttonPanel.add(retrieveButtonPanel);
+
         // The remote view will call back into this class to enable or disable the retrieve button
         queryRetrieveRemoteView = new QueryRetrieveRemoteView(this);
 
@@ -62,6 +79,7 @@ public class QueryRetrieveDialog extends JDialog {
             queryFilterTextEntryPanelConstraints.gridx = 0;
             queryFilterTextEntryPanelConstraints.gridy = 0;
             queryFilterTextEntryPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+            queryFilterTextEntryPanelConstraints.insets = new Insets(5, 5, 5, 5);
             layout.setConstraints(queryFilterPanel, queryFilterTextEntryPanelConstraints);
             add(queryFilterPanel);
         }
@@ -72,6 +90,7 @@ public class QueryRetrieveDialog extends JDialog {
             remoteBrowserPanesConstraints.weightx = 1;
             remoteBrowserPanesConstraints.weighty = 1;
             remoteBrowserPanesConstraints.fill = GridBagConstraints.BOTH;
+            remoteBrowserPanesConstraints.insets = new Insets(5, 5, 5, 5);
             layout.setConstraints(queryRetrieveRemoteView, remoteBrowserPanesConstraints);
             add(queryRetrieveRemoteView);
         }
@@ -80,8 +99,9 @@ public class QueryRetrieveDialog extends JDialog {
             buttonPanelConstraints.gridx = 0;
             buttonPanelConstraints.gridy = 3;
             buttonPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layout.setConstraints(retrieveButtonPanel, buttonPanelConstraints);
-            add(retrieveButtonPanel);
+            buttonPanelConstraints.insets = new Insets(5, 5, 5, 5);
+            layout.setConstraints(buttonPanel, buttonPanelConstraints);
+            add(buttonPanel);
         }
 
         pack();

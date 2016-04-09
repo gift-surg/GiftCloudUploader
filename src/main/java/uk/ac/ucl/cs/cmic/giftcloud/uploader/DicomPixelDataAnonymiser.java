@@ -29,7 +29,7 @@ import java.util.Vector;
 /**
  * Removes burnt-in patient identifiable data from images
  */
-public class PixelDataAnonymiser {
+public class DicomPixelDataAnonymiser {
 
     private boolean burnInOverlays = false;
     private boolean useZeroBlackoutValue = false;
@@ -39,12 +39,12 @@ public class PixelDataAnonymiser {
     private final PixelDataAnonymiserFilterCache filters;
 
     /**
-     * Creates the PixelDataAnonymiser object. Parameters will be set at construction time
+     * Creates the DicomPixelDataAnonymiser object. Parameters will be set at construction time
      *
      * @param giftCloudProperties Shared properties use to define anonymsation options
      * @param reporter
      */
-    public PixelDataAnonymiser(final PixelDataAnonymiserFilterCache filters, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    public DicomPixelDataAnonymiser(final PixelDataAnonymiserFilterCache filters, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
         this.reporter = reporter;
         burnInOverlays = giftCloudProperties.getBurnInOverlays();
         useZeroBlackoutValue = giftCloudProperties.getUseZeroBlackoutValue();
@@ -90,9 +90,9 @@ public class PixelDataAnonymiser {
     private File anonymisePixelData(final File inputFile, final PixelDataAnonymiseFilter filter, final String filePrefix) throws IOException {
 
         final String safePrefix = StringUtils.isNotBlank(filePrefix) ? filePrefix : OneWayHash.hashUid(inputFile.getName());
-        final File outputFile = new File(Files.createTempDir(), safePrefix +".dcm");
+        final File outputFile = new File(Files.createTempDir(), safePrefix + ".dcm");
         try {
-            PixelDataAnonymiser.anonymisePixelDataUsingFilter(inputFile, outputFile, filter.getRedactedShapesAsShapeVector(), burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, aeTitle);
+            DicomPixelDataAnonymiser.anonymisePixelDataUsingFilter(inputFile, outputFile, filter.getRedactedShapesAsShapeVector(), burnInOverlays, usePixelPaddingBlackoutValue, useZeroBlackoutValue, aeTitle);
         } catch (DicomException exception) {
             throw new IOException(exception.getCause());
         }

@@ -1,4 +1,4 @@
-package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
