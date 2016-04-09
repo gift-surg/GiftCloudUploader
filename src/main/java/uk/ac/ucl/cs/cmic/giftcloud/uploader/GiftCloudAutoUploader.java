@@ -36,11 +36,11 @@ public class GiftCloudAutoUploader {
         subjectAliasStore = new SubjectAliasStore(new PatientListStore(properties, reporter), reporter);
     }
 
-    public boolean uploadToGiftCloud(final GiftCloudServer server, final Vector<String> paths, final String projectName) throws IOException {
+    public boolean uploadToGiftCloud(final GiftCloudServer server, final List<String> paths, final String projectName) throws IOException {
         return uploadOrAppend(server, paths, projectName, false);
     }
 
-    public boolean appendToGiftCloud(final GiftCloudServer server, final Vector<String> paths, final String projectName) throws IOException {
+    public boolean appendToGiftCloud(final GiftCloudServer server, final List<String> paths, final String projectName) throws IOException {
         return uploadOrAppend(server, paths, projectName, true);
     }
 
@@ -51,9 +51,9 @@ public class GiftCloudAutoUploader {
         subjectAliasStore.exportPatientList();
     }
 
-    private boolean uploadOrAppend(final GiftCloudServer server, final Vector<String> paths, final String projectName, final boolean append) throws IOException {
+    private boolean uploadOrAppend(final GiftCloudServer server, final List<String> paths, final String projectName, final boolean append) throws IOException {
 
-        final Vector<File> fileList = new Vector<File>();
+        final List<File> fileList = new ArrayList<File>();
         for (final String path : paths) {
             fileList.add(new File(path));
         }

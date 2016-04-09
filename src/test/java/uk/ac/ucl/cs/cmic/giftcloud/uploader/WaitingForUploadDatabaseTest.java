@@ -6,8 +6,9 @@ import org.junit.Test;
 
 import javax.swing.table.TableModel;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
-import java.util.Vector;
 
 public class WaitingForUploadDatabaseTest {
     private WaitingForUploadDatabase database;
@@ -59,7 +60,7 @@ public class WaitingForUploadDatabaseTest {
         // Test with real file to ensure it is deleted
         File tempFile = File.createTempFile("TestFile", ".dcm");
         Assert.assertTrue(tempFile.exists());
-        Vector<String> fileNames = new Vector<String>();
+        List<String> fileNames = new ArrayList<String>();
         fileNames.add(tempFile.getCanonicalPath());
         FileImportRecord record1 = new MockImportRecord("SERIES1", "NAME1", "MR", "DATE1", fileNames, true);
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
@@ -77,7 +78,7 @@ public class WaitingForUploadDatabaseTest {
         // Test with real file to ensure it is deleted
         File tempFile = File.createTempFile("TestFile", ".dcm");
         Assert.assertTrue(tempFile.exists());
-        Vector<String> fileNames = new Vector<String>();
+        List<String> fileNames = new ArrayList<String>();
         fileNames.add(tempFile.getCanonicalPath());
         FileImportRecord record1 = new MockImportRecord("SERIES1", "NAME1", "MR", "DATE1", fileNames, false);
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
@@ -97,13 +98,13 @@ public class WaitingForUploadDatabaseTest {
         private String modality;
 
         MockImportRecord(String seriesId, String name, String modality, final String date, final int numFiles, boolean deleteAfterUpload) {
-            super(new Vector<String>() {{ for (int index = 0; index < numFiles; index++) { add(UUID.randomUUID().toString()); } }}, date, deleteAfterUpload ? PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD : PendingUploadTask.DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD);
+            super(new ArrayList<String>() {{ for (int index = 0; index < numFiles; index++) { add(UUID.randomUUID().toString()); } }}, date, deleteAfterUpload ? PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD : PendingUploadTask.DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD);
             this.seriesId = seriesId;
             this.name = name;
             this.modality = modality;
         }
 
-        MockImportRecord(String seriesId, String name, String modality, final String date, final Vector<String> realFileNames, boolean deleteAfterUpload) {
+        MockImportRecord(String seriesId, String name, String modality, final String date, final List<String> realFileNames, boolean deleteAfterUpload) {
             super(realFileNames, date, deleteAfterUpload ? PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD : PendingUploadTask.DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD);
             this.seriesId = seriesId;
             this.name = name;

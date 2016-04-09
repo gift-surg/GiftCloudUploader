@@ -281,7 +281,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void upload(Vector<String> filePaths) {
+    public void upload(List<String> filePaths) {
         try {
             Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudUploader, reporter));
             activeThread.start();
@@ -309,13 +309,13 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void export(String exportDirectory, Vector<String> filesToExport) {
+    public void export(String exportDirectory, List<String> filesToExport) {
         File exportDirectoryFile = new File(exportDirectory);
         new Thread(new ExportWorker(filesToExport, exportDirectoryFile, giftCloudProperties.hierarchicalExport(), giftCloudProperties.zipExport(), reporter)).start();
     }
 
     @Override
-    public void selectAndExport(final Vector<String> filesToExport) {
+    public void selectAndExport(final List<String> filesToExport) {
         try {
             reporter.showMesageLogger();
 

@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 public class GiftCloudServer {
 
@@ -47,7 +47,7 @@ public class GiftCloudServer {
         restServer.tryAuthentication();
     }
 
-    public Vector<String> getListOfProjects() throws IOException {
+    public List<String> getListOfProjects() throws IOException {
         return restServer.getListOfProjects();
     }
 

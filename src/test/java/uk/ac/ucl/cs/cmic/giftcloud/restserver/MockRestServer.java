@@ -28,9 +28,9 @@ public class MockRestServer implements RestServer {
     }
 
     @Override
-    public Vector<String> getListOfProjects() throws IOException {
+    public List<String> getListOfProjects() throws IOException {
         final Set<String> projectList = projectMap.getProjectList();
-        final Vector<String> projectVector = new Vector<String>();
+        final List<String> projectVector = new ArrayList<String>();
         for (final String projectLabel : projectList) {
             projectVector.add(projectLabel);
         }

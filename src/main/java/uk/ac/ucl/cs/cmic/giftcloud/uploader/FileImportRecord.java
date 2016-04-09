@@ -1,24 +1,24 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import java.util.Vector;
+import java.util.List;
 
 /**
  * Describes a set of one or more files to be imported
  */
 public abstract class FileImportRecord {
 
-    protected final Vector<String> fileNames;
+    protected final List<String> fileNames;
     private final String date;
     protected final PendingUploadTask.DeleteAfterUpload deleteAfterUpload;
 
-    protected FileImportRecord(final Vector<String> fileNames, final String date, final PendingUploadTask.DeleteAfterUpload deleteAfterUpload) {
+    protected FileImportRecord(final List<String> fileNames, final String date, final PendingUploadTask.DeleteAfterUpload deleteAfterUpload) {
 
         this.fileNames = fileNames;
         this.date = date;
         this.deleteAfterUpload = deleteAfterUpload;
     }
 
-    public Vector<String> getFilenames() {
+    public List<String> getFilenames() {
         return fileNames;
     }
 

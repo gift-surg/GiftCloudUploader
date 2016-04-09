@@ -6,14 +6,14 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 public interface RestServer {
     void tryAuthentication() throws IOException;
 
-    Vector<String> getListOfProjects() throws IOException;
+    List<String> getListOfProjects() throws IOException;
 
     Map<String, String> getListOfSubjects(String projectName) throws IOException, JSONException;
 

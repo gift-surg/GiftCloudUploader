@@ -16,7 +16,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.CancellationException;
 
 public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
@@ -114,7 +113,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         return projectListModel;
     }
 
-    public boolean uploadToGiftCloud(Vector<String> paths) throws IOException {
+    public boolean uploadToGiftCloud(java.util.List<String> paths) throws IOException {
 
         try {
             final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();

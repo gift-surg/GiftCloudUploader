@@ -26,17 +26,14 @@ import org.json.JSONException;
 import uk.ac.ucl.cs.cmic.giftcloud.request.AuthorisationFailureException;
 import uk.ac.ucl.cs.cmic.giftcloud.request.ConnectionFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 public class GiftCloudUploaderRestServer implements RestServer {
 
@@ -57,9 +54,9 @@ public class GiftCloudUploaderRestServer implements RestServer {
     }
 
     @Override
-    public Vector<String> getListOfProjects() throws IOException {
+    public List<String> getListOfProjects() throws IOException {
         final String uri = "/REST/projects?format=json&owner=true&member=true";
-        return new Vector<String>(restServerSessionHelper.getValues(uri, "id"));
+        return new ArrayList<String>(restServerSessionHelper.getValues(uri, "id"));
     }
 
     @Override

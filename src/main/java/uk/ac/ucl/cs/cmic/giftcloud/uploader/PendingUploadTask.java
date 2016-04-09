@@ -1,7 +1,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
-import java.util.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PendingUploadTask {
 
@@ -16,11 +18,11 @@ public class PendingUploadTask {
     }
 
     private final DeleteAfterUpload deleteAfterUpload;
-    private final Vector<String> paths;
+    private final List<String> paths;
     private final Append append;
     private final Optional<String> projectName;
 
-    public PendingUploadTask(final Vector<String> paths, final Optional<String> projectName, final Append append, final DeleteAfterUpload deleteAfterUpload) {
+    public PendingUploadTask(final List<String> paths, final Optional<String> projectName, final Append append, final DeleteAfterUpload deleteAfterUpload) {
         this.paths = paths;
         this.projectName = projectName;
         this.append = append;
@@ -29,13 +31,13 @@ public class PendingUploadTask {
 
     public PendingUploadTask(final String path, final Optional<String> projectName, final Append append, final DeleteAfterUpload deleteAfterUpload) {
         this.projectName = projectName;
-        this.paths = new Vector<String>();
+        this.paths = new ArrayList<String>();
         paths.add(path);
         this.append = append;
         this.deleteAfterUpload = deleteAfterUpload;
     }
 
-    public Vector<String> getPaths() {
+    public List<String> getPaths() {
         return paths;
     }
 

@@ -2,11 +2,11 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.Vector;
 
 public class BackgroundAddToUploaderService extends BackgroundService<PendingUploadTask, PendingUploadTask> {
@@ -33,7 +33,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
     @Override
     protected void processItem(PendingUploadTask pendingUploadTask) throws Exception {
 
-        final Vector<String> paths = pendingUploadTask.getPaths();
+        final List<String> paths = pendingUploadTask.getPaths();
         if (paths.size() > 0) {
             uploaderStatusModel.setImportingStatusMessage("Adding file to upload queue:" + new File(paths.get(0)).getName());
         }
@@ -64,7 +64,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
 
     @Override
     protected void notifyFailure(BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask> taskWrapper) {
-        final Vector<String> fileCollection = taskWrapper.getTask().getPaths();
+        final List<String> fileCollection = taskWrapper.getTask().getPaths();
 
         // Update the status for any listeners
         String message;

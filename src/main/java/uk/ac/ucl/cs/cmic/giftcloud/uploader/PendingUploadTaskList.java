@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Maintains lists of files that are waiting to be uploaded
@@ -25,7 +24,7 @@ public class PendingUploadTaskList {
     }
 
     public void addFiles(final Optional<String> projectName, final FileImportRecord fileImportRecord) throws IOException {
-        final Vector<String> fileNames = fileImportRecord.getFilenames();
+        final List<String> fileNames = fileImportRecord.getFilenames();
         final PendingUploadTask task = fileImportRecord.getDeleteAfterUpload() == PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD ? new PendingUploadTaskInstance(fileNames, projectName) : new PendingUploadTaskReference(fileNames, projectName);
         taskList.addNewTask(task);
         for (final String file : fileNames) {
@@ -64,13 +63,13 @@ public class PendingUploadTaskList {
     }
 
     private class PendingUploadTaskReference extends PendingUploadTask {
-        PendingUploadTaskReference(final Vector<String> fileReferences, final Optional<String> projectName) {
+        PendingUploadTaskReference(final List<String> fileReferences, final Optional<String> projectName) {
             super(fileReferences, projectName, Append.APPEND, DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD);
         }
     }
 
     private class PendingUploadTaskInstance extends PendingUploadTask {
-        PendingUploadTaskInstance(final Vector<String> fileInstances, final Optional<String> projectName) {
+        PendingUploadTaskInstance(final List<String> fileInstances, final Optional<String> projectName) {
             super(fileInstances, projectName, Append.APPEND, DeleteAfterUpload.DELETE_AFTER_UPLOAD);
         }
     }

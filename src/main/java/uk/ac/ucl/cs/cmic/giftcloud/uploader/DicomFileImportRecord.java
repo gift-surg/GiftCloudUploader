@@ -9,8 +9,9 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
-import java.util.Vector;
 
 /**
  *
@@ -23,13 +24,13 @@ public class DicomFileImportRecord extends FileImportRecord {
     private Optional<String> visibleName = Optional.empty();
     private Optional<String> modality = Optional.empty();
 
-    public DicomFileImportRecord(Vector<String> fileNames, final String date, final PendingUploadTask.DeleteAfterUpload deleteAfterUpload, final Optional<AttributeList> attributeList) {
+    public DicomFileImportRecord(List<String> fileNames, final String date, final PendingUploadTask.DeleteAfterUpload deleteAfterUpload, final Optional<AttributeList> attributeList) {
         super(fileNames, date, deleteAfterUpload);
         this.attributeList = attributeList;
     }
 
     public DicomFileImportRecord(String dicomFileName, final String date, final PendingUploadTask.DeleteAfterUpload deleteAfterUpload, final Optional<AttributeList> attributeList) {
-        this(new Vector<String>(), date, deleteAfterUpload, attributeList);
+        this(new ArrayList<String>(), date, deleteAfterUpload, attributeList);
         fileNames.add(dicomFileName);
     }
 
