@@ -33,7 +33,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     private final int DELAY_BETWEEN_UPDATES = 500;
 
-    public GiftCloudUploader(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
         this.uploadDatabase =  new WaitingForUploadDatabase(DELAY_BETWEEN_UPDATES);
         this.giftCloudProperties = giftCloudProperties;
         this.dialogs = dialogs;

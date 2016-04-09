@@ -100,10 +100,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         // Initialise the main GIFT-Cloud class
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
 
-        giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
+        giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
         dicomListener = new DicomListener(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), filters, giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
+        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
         queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderStatusModel, reporter);
 
         mainFrame.addMainPanel(giftCloudUploaderPanel);
