@@ -10,7 +10,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
 import javax.imageio.ImageIO;
@@ -278,16 +277,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     @Override
     public void pauseUploading() {
         giftCloudUploader.setUploadServiceRunningState(false);
-    }
-
-    @Override
-    public void upload(List<String> filePaths) {
-        try {
-            Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudUploader, reporter));
-            activeThread.start();
-        } catch (Exception e) {
-            reporter.reportErrorToUser("Uploading to GIFT-Cloud failed due to the following error:", e);
-        }
     }
 
     @Override

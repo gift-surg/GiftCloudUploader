@@ -17,8 +17,6 @@ public interface GiftCloudUploaderController {
     void startUploading();
     void pauseUploading();
 
-    void upload(List<String> filePaths);
-
     void retrieve(List<QuerySelection> currentRemoteQuerySelectionList);
 
     void query(final QueryParams queryParams);

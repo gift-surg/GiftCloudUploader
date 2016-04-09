@@ -28,7 +28,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final ProjectListModel projectListModel;
     private final GiftCloudServerFactory serverFactory;
     private final BackgroundAddToUploaderService backgroundAddToUploaderService;
-    private final GiftCloudAutoUploader autoUploader;
+    private final AutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
 
     private final int DELAY_BETWEEN_UPDATES = 500;
@@ -45,7 +45,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
         final int numThreads = 1;
         backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), this, uploaderStatusModel, reporter);
-        autoUploader = new GiftCloudAutoUploader(backgroundUploader, giftCloudProperties, reporter);
+        autoUploader = new AutoUploader(backgroundUploader, giftCloudProperties, reporter);
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, uploaderStatusModel, reporter);
 
         // Add a shutdown hook for graceful exit
@@ -111,24 +111,6 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     public ProjectListModel getProjectListModel() {
         return projectListModel;
-    }
-
-    public boolean uploadToGiftCloud(java.util.List<String> paths) throws IOException {
-
-        try {
-            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-
-            // Allow user to log in again if they have previously cancelled a login dialog
-            giftCloudServer.resetCancellation();
-
-            final String projectName = getProjectName(giftCloudServer);
-
-            return autoUploader.uploadToGiftCloud(giftCloudServer, paths, projectName);
-
-        } catch (Throwable throwable) {
-
-            return false;
-        }
     }
 
     String getProjectName(final GiftCloudServer giftCloudServer) throws IOException {
