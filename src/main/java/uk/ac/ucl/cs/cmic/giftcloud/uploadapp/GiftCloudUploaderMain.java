@@ -5,11 +5,9 @@ import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
 import javax.imageio.ImageIO;
@@ -23,8 +21,10 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * The main controller class for the uploader
@@ -42,7 +42,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private PixelDataTemplateDialog pixelDataDialog = null;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
-    private final PixelDataAnonymiserFilterCache filters;
     private final SystemTrayController systemTrayController;
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
     private Optional<SingleInstanceService> singleInstanceService;
@@ -95,12 +94,11 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         // Initialise application properties
         giftCloudProperties = new GiftCloudPropertiesFromApplication(propertyStore, resourceBundle, reporter);
-        filters = new PixelDataAnonymiserFilterCache(giftCloudProperties, reporter);
 
         // Initialise the main GIFT-Cloud class
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
 
-        giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
+        giftCloudUploader = new GiftCloudUploader(restServerFactory, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
         dicomListener = new DicomListener(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
 
         giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
@@ -298,29 +296,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     }
 
     @Override
-    public void export(String exportDirectory, List<String> filesToExport) {
-        File exportDirectoryFile = new File(exportDirectory);
-        new Thread(new ExportWorker(filesToExport, exportDirectoryFile, giftCloudProperties.hierarchicalExport(), giftCloudProperties.zipExport(), reporter)).start();
-    }
-
-    @Override
-    public void selectAndExport(final List<String> filesToExport) {
-        try {
-            reporter.showMesageLogger();
-
-            Optional<String> selectDirectory = giftCloudDialogs.selectDirectory(giftCloudProperties.getLastExportDirectory());
-
-            if (selectDirectory.isPresent()) {
-                giftCloudProperties.setLastExportDirectory(selectDirectory.get());
-                giftCloudProperties.save();
-                export(selectDirectory.get(), filesToExport);
-            }
-        } catch (Exception e) {
-            reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
-        }
-    }
-
-    @Override
     public void runImport(List<File> fileList, final boolean importAsReference, final Progress progress) {
         new Thread(new ImportWorker(fileList, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, uploaderStatusModel, reporter)).start();
     }
@@ -388,8 +363,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             java.awt.EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), filters, giftCloudProperties, giftCloudDialogs, reporter);
-
+                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), giftCloudUploader.getPixelDataAnonymiserFilterCache(), giftCloudProperties, giftCloudDialogs, reporter);
                 }
             });
         }

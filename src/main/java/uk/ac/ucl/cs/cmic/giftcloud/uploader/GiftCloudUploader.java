@@ -6,7 +6,8 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.*;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -30,17 +31,19 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final BackgroundAddToUploaderService backgroundAddToUploaderService;
     private final AutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
+    private final PixelDataAnonymiserFilterCache pixelDataAnonymiserFilterCache;
 
     private final int DELAY_BETWEEN_UPDATES = 500;
 
-    public GiftCloudUploader(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final RestServerFactory restServerFactory, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
         this.uploadDatabase =  new WaitingForUploadDatabase(DELAY_BETWEEN_UPDATES);
         this.giftCloudProperties = giftCloudProperties;
         this.dialogs = dialogs;
         this.container = reporter.getContainer();
         this.reporter = reporter;
+        pixelDataAnonymiserFilterCache = new PixelDataAnonymiserFilterCache(giftCloudProperties, reporter);
         projectListModel = new ProjectListModel(giftCloudProperties);
-        serverFactory = new GiftCloudServerFactory(filters, restServerFactory, giftCloudProperties, projectListModel, reporter);
+        serverFactory = new GiftCloudServerFactory(pixelDataAnonymiserFilterCache, restServerFactory, giftCloudProperties, projectListModel, reporter);
         pendingUploadList = new PendingUploadTaskList(reporter);
 
         final int numThreads = 1;
@@ -173,4 +176,12 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     public TableModel getTableModel() {
         return uploadDatabase.getTableModel();
     }
+
+    /**
+     * @return the object containing pixel data anonymisation filters
+     */
+    public PixelDataAnonymiserFilterCache getPixelDataAnonymiserFilterCache() {
+        return pixelDataAnonymiserFilterCache;
+    }
 }
+

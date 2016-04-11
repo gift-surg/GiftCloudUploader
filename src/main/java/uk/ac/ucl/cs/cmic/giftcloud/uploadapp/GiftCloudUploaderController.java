@@ -21,10 +21,6 @@ public interface GiftCloudUploaderController {
 
     void query(final QueryParams queryParams);
 
-    void export(String exportDirectory, List<String> filesToExport);
-
-    void selectAndExport(List<String> filesToExport);
-
     void runImport(List<File> fileList, final boolean importAsReference, final Progress progress);
 
     void selectAndImport();
