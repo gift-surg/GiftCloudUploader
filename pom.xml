@@ -586,6 +586,11 @@
             <artifactId>spring-asm</artifactId>
             <version>3.1.4.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>mrj</groupId>
+            <artifactId>MRJToolkitStubs</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
 

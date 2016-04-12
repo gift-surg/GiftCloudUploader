@@ -1,13 +1,13 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundService;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -42,7 +42,7 @@ public class GiftCloudSystemTray {
      * @throws AWTException     if the desktop system tray is missing
      * @throws IOException      if an error occured while attempting to read the icon file
      */
-    private GiftCloudSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
+    private GiftCloudSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
 
         Image iconImage = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));
         trayIcon = new TrayIcon(iconImage, resourceBundle.getString("systemTrayIconText"));
@@ -54,7 +54,7 @@ public class GiftCloudSystemTray {
 
         final PopupMenu popup = new PopupMenu();
 
-        MenuItem aboutItem = new MenuItem(resourceBundle.getString("systemTrayAbout"));
+        MenuItem aboutItem = new MenuItem(resourceBundle.getString("menuAbout"));
         popup.add(aboutItem);
         aboutItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -64,7 +64,7 @@ public class GiftCloudSystemTray {
 
         popup.addSeparator();
 
-        importItem = new MenuItem(resourceBundle.getString("systemTrayImport"));
+        importItem = new MenuItem(resourceBundle.getString("menuImport"));
         popup.add(importItem);
         importItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -72,7 +72,7 @@ public class GiftCloudSystemTray {
             }
         });
 
-        importFromPacsItem = new MenuItem(resourceBundle.getString("systemTrayImportFromPacs"));
+        importFromPacsItem = new MenuItem(resourceBundle.getString("menuImportFromPacs"));
         popup.add(importFromPacsItem);
         importFromPacsItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -82,7 +82,7 @@ public class GiftCloudSystemTray {
 
         popup.addSeparator();
 
-        hideItem = new MenuItem(resourceBundle.getString("systemTrayHide"));
+        hideItem = new MenuItem(resourceBundle.getString("menuHide"));
         popup.add(hideItem);
         hideItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -90,7 +90,7 @@ public class GiftCloudSystemTray {
             }
         });
 
-        showItem = new MenuItem(resourceBundle.getString("systemTrayShow"));
+        showItem = new MenuItem(resourceBundle.getString("menuShow"));
         popup.add(showItem);
         showItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -100,7 +100,7 @@ public class GiftCloudSystemTray {
 
         popup.addSeparator();
 
-        restartListenerItem = new MenuItem(resourceBundle.getString("systemTrayRestartListener"));
+        restartListenerItem = new MenuItem(resourceBundle.getString("menuRestartListener"));
         popup.add(restartListenerItem);
         restartListenerItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -111,7 +111,7 @@ public class GiftCloudSystemTray {
         popup.addSeparator();
 
 
-        startUploaderItem = new MenuItem(resourceBundle.getString("systemTrayStartUploader"));
+        startUploaderItem = new MenuItem(resourceBundle.getString("menuStartUploader"));
         popup.add(startUploaderItem);
         startUploaderItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -119,7 +119,7 @@ public class GiftCloudSystemTray {
             }
         });
 
-        pauseUploaderItem = new MenuItem(resourceBundle.getString("systemTrayPauseUploader"));
+        pauseUploaderItem = new MenuItem(resourceBundle.getString("menuPauseUploader"));
         popup.add(pauseUploaderItem);
         pauseUploaderItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -128,11 +128,11 @@ public class GiftCloudSystemTray {
         });
 
         // After pausing, the "start" item changes to "resume"
-        resumeText = resourceBundle.getString("systemTrayResumeUploader");
+        resumeText = resourceBundle.getString("menuResumeUploader");
 
         popup.addSeparator();
 
-        MenuItem configItem = new MenuItem(resourceBundle.getString("systemTraySettings"));
+        MenuItem configItem = new MenuItem(isMac ? resourceBundle.getString("menuSettingsMac") : resourceBundle.getString("menuSettingsWin"));
         popup.add(configItem);
         configItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -146,7 +146,7 @@ public class GiftCloudSystemTray {
         });
 
         popup.addSeparator();
-        MenuItem exitItem = new MenuItem(resourceBundle.getString("systemTrayExit"));
+        MenuItem exitItem = new MenuItem(isMac ? resourceBundle.getString("menuExitMac") : resourceBundle.getString("menuExitWin"));
         popup.add(exitItem);
         exitItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -171,13 +171,13 @@ public class GiftCloudSystemTray {
      * @param reporter          the reporter object used to record errors
      * @return                  an (@link Optional) containing the (@link GiftCloudSystemTray) object or an empty (@link Optional) if the SystemTray is not supported, or an error occurred, e.g. in attempting to load the icon
      */
-    static Optional<GiftCloudSystemTray> safeCreateSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
+    static Optional<GiftCloudSystemTray> safeCreateSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
         if (!SystemTray.isSupported()) {
             reporter.silentError("SystemTray is not supported on this system.", null);
             return Optional.empty();
         } else {
             try {
-                return Optional.of(new GiftCloudSystemTray(controller, resourceBundle, reporter));
+                return Optional.of(new GiftCloudSystemTray(controller, resourceBundle, isMac, reporter));
             } catch (Throwable t) {
                 reporter.silentError("The system tray icon could not be created due to the following error: " + t.getLocalizedMessage(), t);
                 return Optional.empty();

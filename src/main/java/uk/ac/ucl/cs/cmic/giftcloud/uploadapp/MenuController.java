@@ -4,36 +4,46 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundService;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.StatusObservable;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
+
+import javax.swing.*;
 import java.util.ResourceBundle;
 
-public class SystemTrayController {
+public class MenuController {
 
-    private final Optional<GiftCloudSystemTray> giftCloudSystemTray;
+    private final Optional<GiftCloudSystemTray> systemTray;
+    private final Optional<GiftCloudUploaderMenu> menu;
 
-    SystemTrayController(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
+    MenuController(JFrame parent, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
         // Try to create a system tray icon. If this fails, then we warn the user and make the main dialog visible
-        giftCloudSystemTray = GiftCloudSystemTray.safeCreateSystemTray(controller, resourceBundle, reporter);
+        systemTray = GiftCloudSystemTray.safeCreateSystemTray(controller, resourceBundle, false, reporter);
+        menu = GiftCloudUploaderMenu.safeCreateMenu(parent, controller, resourceBundle, isOSX(), reporter);
     }
 
     public boolean isPresent() {
-        return giftCloudSystemTray.isPresent();
+        return systemTray.isPresent() || menu.isPresent();
     }
 
     public void windowVisibilityStatusChanged(GiftCloudMainFrame.MainWindowVisibility visibility) {
-        if (giftCloudSystemTray.isPresent()) {
-            giftCloudSystemTray.get().updateMenuForWindowVisibility(visibility);
+        if (systemTray.isPresent()) {
+            systemTray.get().updateMenuForWindowVisibility(visibility);
+        }
+        if (menu.isPresent()) {
+            menu.get().updateMenuForWindowVisibility(visibility);
         }
     }
 
     public void backgroundAddToUploaderServiceListenerServiceStatusChanged(final BackgroundService.ServiceStatus serviceStatus) {
-        if (giftCloudSystemTray.isPresent()) {
-            giftCloudSystemTray.get().updateMenuForBackgroundUploadingServiceStatus(serviceStatus);
+        if (systemTray.isPresent()) {
+            systemTray.get().updateMenuForBackgroundUploadingServiceStatus(serviceStatus);
+        }
+        if (menu.isPresent()) {
+            menu.get().updateMenuForBackgroundUploadingServiceStatus(serviceStatus);
         }
     }
 
     public void remove() {
-        if (giftCloudSystemTray.isPresent()) {
-            giftCloudSystemTray.get().remove();
+        if (systemTray.isPresent()) {
+            systemTray.get().remove();
         }
     }
 
@@ -51,4 +61,7 @@ public class SystemTrayController {
         }
     }
 
+    private static boolean isOSX() {
+        return (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0);
+    }
 }

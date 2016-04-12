@@ -42,7 +42,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private PixelDataTemplateDialog pixelDataDialog = null;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
-    private final SystemTrayController systemTrayController;
+    private final MenuController menuController;
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
     private Optional<SingleInstanceService> singleInstanceService;
 
@@ -80,6 +80,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     e.printStackTrace(System.err);
                 }
             }
+
+
         }
 
         System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -106,14 +108,14 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         mainFrame.addMainPanel(giftCloudUploaderPanel);
 
-        systemTrayController = new SystemTrayController(this, resourceBundle, reporter);
-        mainFrame.addListener(systemTrayController.new MainWindowVisibilityListener());
-        giftCloudUploader.getBackgroundAddToUploaderService().addListener(systemTrayController.new BackgroundAddToUploaderServiceListener());
+        menuController = new MenuController(mainFrame.getParent(), this, resourceBundle, reporter);
+        mainFrame.addListener(menuController.new MainWindowVisibilityListener());
+        giftCloudUploader.getBackgroundAddToUploaderService().addListener(menuController.new BackgroundAddToUploaderServiceListener());
 
         final Optional<Boolean> hideWindowOnStartupProperty = giftCloudProperties.getHideWindowOnStartup();
 
-        // We hide the main window only if specified in the preferences, AND if the system tray is supported
-        final boolean hideMainWindow = hideWindowOnStartupProperty.isPresent() && hideWindowOnStartupProperty.get() && systemTrayController.isPresent();
+        // We hide the main window only if specified in the preferences, AND if the system tray or menu is supported
+        final boolean hideMainWindow = hideWindowOnStartupProperty.isPresent() && hideWindowOnStartupProperty.get() && menuController.isPresent();
         if (hideMainWindow) {
             hide();
         } else {
