@@ -24,14 +24,13 @@ import java.util.ResourceBundle;
  */
 public class ApplicationMenu {
 
-    private JMenuBar menuBar;
+    private final JMenuBar menuBar = new JMenuBar();;
     private JMenuItem startUploaderItem;
     private JMenuItem pauseUploaderItem;
     private JMenuItem hideItem;
     private JMenuItem showItem;
     private boolean startIsResume = false;
     private final String resumeText;
-    private UploaderGuiController controller;
 
     /**
      * Private constructor for creating a new menu and icon for the system tray
@@ -45,7 +44,9 @@ public class ApplicationMenu {
      * @throws IOException  if an error occurred while attempting to read the icon file
      */
     public ApplicationMenu(final JFrame frame, final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
-        this.controller = controller;
+
+        // After pausing, the "start" item changes to "resume"
+        resumeText = resourceBundle.getString("menuResumeUploader");
 
         // Register custom events for OSX built-in menu functions (About, Preferences, Quit)
         if (isMac) {
@@ -68,8 +69,6 @@ public class ApplicationMenu {
                 }
             });
         }
-
-        menuBar = new JMenuBar();
 
         {
             JMenu menu = new JMenu("File");
@@ -226,9 +225,6 @@ public class ApplicationMenu {
             menuBar.add(menu);
         }
         frame.setJMenuBar(menuBar);
-
-        // After pausing, the "start" item changes to "resume"
-        resumeText = resourceBundle.getString("menuResumeUploader");
     }
 
     /**

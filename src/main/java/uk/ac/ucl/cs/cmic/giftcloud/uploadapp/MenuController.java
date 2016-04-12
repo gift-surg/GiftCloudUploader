@@ -8,12 +8,19 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import javax.swing.*;
 import java.util.ResourceBundle;
 
+/**
+ *  Creates menus for the main application and system tray, with some customisation for Windows/Mac platforms
+ *
+ * <p>This class is part of the GIFT-Cloud Uploader
+ *
+ * @author  Tom Doel
+ */
 public class MenuController {
 
     private final Optional<ApplicationSystemTray> systemTray;
     private final Optional<ApplicationMenu> menu;
 
-    MenuController(JFrame parent, final UploaderGuiController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
+    MenuController(final JFrame parent, final UploaderGuiController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
         // Try to create a system tray icon. If this fails, then we warn the user and make the main dialog visible
         final boolean isMac = isOSX();
         systemTray = ApplicationSystemTray.safeCreateSystemTray(controller, resourceBundle, isMac, reporter);
@@ -24,7 +31,13 @@ public class MenuController {
         return systemTray.isPresent() || menu.isPresent();
     }
 
-    public void windowVisibilityStatusChanged(GiftCloudMainFrame.MainWindowVisibility visibility) {
+    public void remove() {
+        if (systemTray.isPresent()) {
+            systemTray.get().remove();
+        }
+    }
+
+    private void windowVisibilityStatusChanged(GiftCloudMainFrame.MainWindowVisibility visibility) {
         if (systemTray.isPresent()) {
             systemTray.get().updateMenuForWindowVisibility(visibility);
         }
@@ -33,18 +46,12 @@ public class MenuController {
         }
     }
 
-    public void backgroundAddToUploaderServiceListenerServiceStatusChanged(final BackgroundService.ServiceStatus serviceStatus) {
+    private void backgroundAddToUploaderServiceListenerServiceStatusChanged(final BackgroundService.ServiceStatus serviceStatus) {
         if (systemTray.isPresent()) {
             systemTray.get().updateMenuForBackgroundUploadingServiceStatus(serviceStatus);
         }
         if (menu.isPresent()) {
             menu.get().updateMenuForBackgroundUploadingServiceStatus(serviceStatus);
-        }
-    }
-
-    public void remove() {
-        if (systemTray.isPresent()) {
-            systemTray.get().remove();
         }
     }
 
