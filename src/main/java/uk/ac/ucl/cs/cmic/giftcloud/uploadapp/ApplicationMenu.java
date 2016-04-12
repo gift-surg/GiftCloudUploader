@@ -13,13 +13,13 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 
 /**
- *  Creates a menu, allowing the user to execute actions and monitor progress from the GIFT-Cloud uploader while the main window is hidden
+ *  Creates an application menu, allowing the user to execute actions and monitor progress from the GIFT-Cloud uploader while the main window is hidden
  *
  * <p>This class is part of the GIFT-Cloud Uploader
  *
  * @author  Tom Doel
  */
-public class GiftCloudUploaderMenu {
+public class ApplicationMenu {
 
     private JMenuBar menuBar;
     private JMenuItem startUploaderItem;
@@ -40,7 +40,7 @@ public class GiftCloudUploaderMenu {
      * @throws AWTException if the desktop system tray is missing
      * @throws IOException  if an error occurred while attempting to read the icon file
      */
-    public GiftCloudUploaderMenu(final JFrame frame, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
+    public ApplicationMenu(final JFrame frame, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
 
         if (isMac) {
             MacMenuController macController = new MacMenuController(controller);
@@ -136,8 +136,6 @@ public class GiftCloudUploaderMenu {
             menuBar.add(menu);
         }
 
-//
-
        if (!isMac) {
             JMenu menu = new JMenu("Tools");
             menu.setMnemonic(KeyEvent.VK_T);
@@ -157,7 +155,6 @@ public class GiftCloudUploaderMenu {
 
             menuBar.add(menu);
         }
-
 
         {
             JMenu menu = new JMenu("View");
@@ -186,7 +183,6 @@ public class GiftCloudUploaderMenu {
                 });
                 menu.add(showItem);
             }
-
 
             menuBar.add(menu);
         }
@@ -223,11 +219,11 @@ public class GiftCloudUploaderMenu {
      * @param controller        the controller used to perform menu actions
      * @param resourceBundle    the application resources used to choose menu text
      * @param reporter          the reporter object used to record errors
-     * @return                  an (@link Optional) containing the (@link GiftCloudUploaderMenu) object or an empty (@link Optional) if the menu is not supported, or an error occurred
+     * @return                  an (@link Optional) containing the (@link ApplicationMenu) object or an empty (@link Optional) if the menu is not supported, or an error occurred
      */
-    static Optional<GiftCloudUploaderMenu> safeCreateMenu(final JFrame frame, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
+    static Optional<ApplicationMenu> safeCreateMenu(final JFrame frame, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
         try {
-            return Optional.of(new GiftCloudUploaderMenu(frame, controller, resourceBundle, isMac, reporter));
+            return Optional.of(new ApplicationMenu(frame, controller, resourceBundle, isMac, reporter));
         } catch (Throwable t) {
             reporter.silentError("The application menu could not be created due to the following error: " + t.getLocalizedMessage(), t);
             return Optional.empty();

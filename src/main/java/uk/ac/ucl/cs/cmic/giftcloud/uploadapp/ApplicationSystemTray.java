@@ -17,7 +17,7 @@ import java.util.ResourceBundle;
  *
  * @author  Tom Doel
  */
-public class GiftCloudSystemTray {
+public class ApplicationSystemTray {
 
     private final SystemTray tray;
     private final TrayIcon trayIcon;
@@ -42,7 +42,7 @@ public class GiftCloudSystemTray {
      * @throws AWTException     if the desktop system tray is missing
      * @throws IOException      if an error occured while attempting to read the icon file
      */
-    private GiftCloudSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
+    private ApplicationSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
 
         Image iconImage = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));
         trayIcon = new TrayIcon(iconImage, resourceBundle.getString("systemTrayIconText"));
@@ -169,15 +169,15 @@ public class GiftCloudSystemTray {
      * @param controller        the controller used to perform menu actions
      * @param resourceBundle    the application resources used to choose menu text
      * @param reporter          the reporter object used to record errors
-     * @return                  an (@link Optional) containing the (@link GiftCloudSystemTray) object or an empty (@link Optional) if the SystemTray is not supported, or an error occurred, e.g. in attempting to load the icon
+     * @return                  an (@link Optional) containing the (@link ApplicationSystemTray) object or an empty (@link Optional) if the SystemTray is not supported, or an error occurred, e.g. in attempting to load the icon
      */
-    static Optional<GiftCloudSystemTray> safeCreateSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
+    static Optional<ApplicationSystemTray> safeCreateSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
         if (!SystemTray.isSupported()) {
             reporter.silentError("SystemTray is not supported on this system.", null);
             return Optional.empty();
         } else {
             try {
-                return Optional.of(new GiftCloudSystemTray(controller, resourceBundle, isMac, reporter));
+                return Optional.of(new ApplicationSystemTray(controller, resourceBundle, isMac, reporter));
             } catch (Throwable t) {
                 reporter.silentError("The system tray icon could not be created due to the following error: " + t.getLocalizedMessage(), t);
                 return Optional.empty();

@@ -17,7 +17,7 @@ import java.util.ResourceBundle;
 /**
  * The main dialog panel for the GIFT-Cloud Uploader application
  */
-public class GiftCloudUploaderPanel extends JPanel {
+public class UploaderPanel extends JPanel {
 
     // User interface components
     private final StatusPanel statusPanel;
@@ -31,7 +31,7 @@ public class GiftCloudUploaderPanel extends JPanel {
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
-    public GiftCloudUploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final TableModel tableModel, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public UploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final TableModel tableModel, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;

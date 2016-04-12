@@ -6,6 +6,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
+import javax.swing.event.ListDataListener;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -22,7 +23,7 @@ import java.util.ResourceBundle;
 /**
  * Shows a dialog for setting the properties of the GIFT-Cloud Uploader app
  */
-public class GiftCloudConfigurationDialog {
+public class ConfigurationDialog {
 
     private static int textFieldLengthForGiftCloudServerUrl = 32;
 
@@ -54,7 +55,7 @@ public class GiftCloudConfigurationDialog {
 
     private boolean isDisposed = false;
 
-    GiftCloudConfigurationDialog(final Component owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
+    ConfigurationDialog(final Component owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.projectListModel = projectListModel;
@@ -483,7 +484,7 @@ public class GiftCloudConfigurationDialog {
 
             if (StringUtils.isBlank(listeningAETitle)) {
                 problems.add(resourceBundle.getString("configPanelListenerAeNotSet"));
-            } else if (!GiftCloudConfigurationDialog.isValidAETitle(listeningAETitle)) {
+            } else if (!ConfigurationDialog.isValidAETitle(listeningAETitle)) {
                 problems.add(resourceBundle.getString("configPanelListenerAeError"));
             }
         }
@@ -510,7 +511,7 @@ public class GiftCloudConfigurationDialog {
 
         {
             final String remoteAETitle = remoteAETitleField.getText();
-            if (!StringUtils.isBlank(remoteAETitle) && !GiftCloudConfigurationDialog.isValidAETitle(remoteAETitle)) {
+            if (!StringUtils.isBlank(remoteAETitle) && !ConfigurationDialog.isValidAETitle(remoteAETitle)) {
                 problems.add(resourceBundle.getString("configPanelPacsAeError"));
             }
         }
@@ -692,4 +693,51 @@ public class GiftCloudConfigurationDialog {
         }
     }
 
+    /**
+     * Implements a ComboBoxModel which uses an underlying ComboBoxModel for the elements,
+     * but does not change its selected item.
+     *
+     * An example use would be in a dialog with cancel and apply buttons, so that the selection change is only applied if
+     * the apply button is pushed, but not if the cancel button is pushed.
+     */
+    public static class TemporaryProjectListModel implements ComboBoxModel<String> {
+
+        private final ComboBoxModel<String> comboBoxModel;
+        private Object selectedItem = null;
+
+        public TemporaryProjectListModel(final ComboBoxModel<String> comboBoxModel, final Optional<String> initialSelectedItem) {
+            this.comboBoxModel = comboBoxModel;
+            setSelectedItem(initialSelectedItem.orElse(""));
+        }
+
+        @Override
+        public void setSelectedItem(Object anItem) {
+            selectedItem = anItem;
+        }
+
+        @Override
+        public Object getSelectedItem() {
+            return selectedItem;
+        }
+
+        @Override
+        public int getSize() {
+            return comboBoxModel.getSize();
+        }
+
+        @Override
+        public String getElementAt(int index) {
+            return comboBoxModel.getElementAt(index);
+        }
+
+        @Override
+        public void addListDataListener(ListDataListener l) {
+            comboBoxModel.addListDataListener(l);
+        }
+
+        @Override
+        public void removeListDataListener(ListDataListener l) {
+            comboBoxModel.removeListDataListener(l);
+        }
+    }
 }

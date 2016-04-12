@@ -37,8 +37,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final GiftCloudDialogs giftCloudDialogs;
     private final DicomListener dicomListener;
     private final GiftCloudUploader giftCloudUploader;
-    private final GiftCloudUploaderPanel giftCloudUploaderPanel;
-    private GiftCloudConfigurationDialog configurationDialog = null;
+    private final UploaderPanel uploaderPanel;
+    private ConfigurationDialog configurationDialog = null;
     private PixelDataTemplateDialog pixelDataDialog = null;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
@@ -103,10 +103,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         giftCloudUploader = new GiftCloudUploader(restServerFactory, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
         dicomListener = new DicomListener(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
-        queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderStatusModel, reporter);
+        uploaderPanel = new UploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
+        queryRetrieveController = new QueryRetrieveController(uploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderStatusModel, reporter);
 
-        mainFrame.addMainPanel(giftCloudUploaderPanel);
+        mainFrame.addMainPanel(uploaderPanel);
 
         menuController = new MenuController(mainFrame.getParent(), this, resourceBundle, reporter);
         mainFrame.addListener(menuController.new MainWindowVisibilityListener());
@@ -122,7 +122,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
             show();
         }
 
-        addExistingFilesToUploadQueue(pendingUploadFolder);
+        // Add existing files to the upload queue
+        runImport(Arrays.asList(pendingUploadFolder), false, reporter);
     }
 
     public void start(final boolean showImportDialog, final List<File> filesToImport) {
@@ -234,7 +235,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     java.awt.EventQueue.invokeAndWait(new Runnable() {
                         @Override
                         public void run() {
-                            configurationDialog = new GiftCloudConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                            configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
                         }
                     });
                 } catch (InvocationTargetException e) {
@@ -246,7 +247,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        configurationDialog = new GiftCloudConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                        configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
                     }
                 });
             }
@@ -351,7 +352,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     @Override
     public void importFromPacs() {
-        giftCloudUploaderPanel.showQueryRetrieveDialog();
+        uploaderPanel.showQueryRetrieveDialog();
     }
 
     @Override
@@ -371,11 +372,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
-    private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
-        runImport(Arrays.asList(pendingUploadFolder), false, reporter);
-    }
-
-    public static boolean isOSX() {
+    private static boolean isOSX() {
         return (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0);
     }
 
