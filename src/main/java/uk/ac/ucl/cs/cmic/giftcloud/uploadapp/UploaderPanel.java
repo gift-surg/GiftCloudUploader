@@ -25,13 +25,13 @@ public class UploaderPanel extends JPanel {
     private final QueryRetrieveDialog remoteQueryRetrieveDialog;
 
     // Callback to the controller for invoking actions
-    private final GiftCloudUploaderController controller;
+    private final UploaderGuiController controller;
 
     private GiftCloudPropertiesFromApplication giftCloudProperties;
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
-    public UploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final TableModel tableModel, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public UploaderPanel(final JFrame dialog, final UploaderGuiController controller, final TableModel tableModel, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;

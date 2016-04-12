@@ -27,9 +27,11 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * The main controller class for the uploader
+ * The main controller class for the GIFT-Cloud Uploader gui
+ *
+ * @author  Tom Doel
  */
-public class GiftCloudUploaderMain implements GiftCloudUploaderController {
+public class UploaderGuiController {
 
     private final ResourceBundle resourceBundle;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
@@ -46,7 +48,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
     private Optional<SingleInstanceService> singleInstanceService;
 
-    public GiftCloudUploaderMain(final MainFrame mainFrame, final RestServerFactory restServerFactory, final PropertyStore propertyStore, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public UploaderGuiController(final MainFrame mainFrame, final RestServerFactory restServerFactory, final PropertyStore propertyStore, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         resourceBundle = mainFrame.getResourceBundle();
         this.mainFrame = mainFrame;
         this.giftCloudDialogs = dialogs;
@@ -227,7 +229,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     }
 
-    @Override
     public void showConfigureDialog(final boolean wait) {
         if (configurationDialog == null || !configurationDialog.isVisible()) {
             if (wait) {
@@ -235,7 +236,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     java.awt.EventQueue.invokeAndWait(new Runnable() {
                         @Override
                         public void run() {
-                            configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                            configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), UploaderGuiController.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
                         }
                     });
                 } catch (InvocationTargetException e) {
@@ -247,40 +248,34 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                        configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), UploaderGuiController.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
                     }
                 });
             }
         }
     }
 
-    @Override
     public void showAboutDialog() {
         mainFrame.show();
         giftCloudDialogs.showMessage(resourceBundle.getString("giftCloudProductName"));
     }
 
-    @Override
     public void hide() {
         mainFrame.hide();
     }
 
-    @Override
     public void show() {
         mainFrame.show();
     }
 
-    @Override
     public void startUploading() {
         giftCloudUploader.setUploadServiceRunningState(true);
     }
 
-    @Override
     public void pauseUploading() {
         giftCloudUploader.setUploadServiceRunningState(false);
     }
 
-    @Override
     public void retrieve(List<QuerySelection> currentRemoteQuerySelectionList) {
         try {
             queryRetrieveController.retrieve(currentRemoteQuerySelectionList);
@@ -289,7 +284,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
-    @Override
     public void query(final QueryParams queryParams) {
         try {
             queryRetrieveController.query(queryParams);
@@ -298,12 +292,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
-    @Override
     public void runImport(List<File> fileList, final boolean importAsReference, final Progress progress) {
         new Thread(new ImportWorker(fileList, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, uploaderStatusModel, reporter)).start();
     }
 
-    @Override
     public void selectAndImport() {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -328,7 +320,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         });
     }
 
-    @Override
     public void restartDicomService() {
         try {
             dicomListener.shutdownStorageSCPAndWait(giftCloudProperties.getShutdownTimeoutMs());
@@ -343,24 +334,20 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
-    @Override
     public void invalidateServerAndRestartUploader() {
         pauseUploading();
         giftCloudUploader.invalidateServer();
         startUploading();
     }
 
-    @Override
     public void importFromPacs() {
         uploaderPanel.showQueryRetrieveDialog();
     }
 
-    @Override
     public void exportPatientList() {
         giftCloudUploader.exportPatientList();
     }
 
-    @Override
     public void showPixelDataTemplateDialog() {
         if (pixelDataDialog == null || !pixelDataDialog.isVisible()) {
             java.awt.EventQueue.invokeLater(new Runnable() {

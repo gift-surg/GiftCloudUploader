@@ -27,7 +27,7 @@ public class ConfigurationDialog {
 
     private static int textFieldLengthForGiftCloudServerUrl = 32;
 
-    private final GiftCloudUploaderController controller;
+    private final UploaderGuiController controller;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private ProjectListModel projectListModel;
     private ResourceBundle resourceBundle;
@@ -55,7 +55,7 @@ public class ConfigurationDialog {
 
     private boolean isDisposed = false;
 
-    ConfigurationDialog(final Component owner, final GiftCloudUploaderController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
+    ConfigurationDialog(final Component owner, final UploaderGuiController controller, final GiftCloudPropertiesFromApplication giftCloudProperties, final ProjectListModel projectListModel, final ResourceBundle resourceBundle, final GiftCloudDialogs giftCloudDialogs, final GiftCloudReporter reporter) {
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;
         this.projectListModel = projectListModel;

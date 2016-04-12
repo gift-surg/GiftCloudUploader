@@ -13,7 +13,7 @@ public class MenuController {
     private final Optional<ApplicationSystemTray> systemTray;
     private final Optional<ApplicationMenu> menu;
 
-    MenuController(JFrame parent, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
+    MenuController(JFrame parent, final UploaderGuiController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
         // Try to create a system tray icon. If this fails, then we warn the user and make the main dialog visible
         final boolean isMac = isOSX();
         systemTray = ApplicationSystemTray.safeCreateSystemTray(controller, resourceBundle, isMac, reporter);

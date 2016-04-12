@@ -12,7 +12,7 @@ import java.util.ResourceBundle;
 public class QueryRetrieveDialog extends JDialog {
 
     private final QueryFilterPanel queryFilterPanel;
-    private final GiftCloudUploaderController controller;
+    private final UploaderGuiController controller;
     private final QueryRetrieveRemoteView queryRetrieveRemoteView;
     private final JButton retrieveButton;
 
@@ -24,7 +24,7 @@ public class QueryRetrieveDialog extends JDialog {
      * @param controller used to perform the query-retrieve operations
      * @param resourceBundle for accessing the text labels
      */
-    QueryRetrieveDialog(final JFrame owner, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) {
+    QueryRetrieveDialog(final JFrame owner, final UploaderGuiController controller, final ResourceBundle resourceBundle) {
         super(owner);
         this.controller = controller;
 

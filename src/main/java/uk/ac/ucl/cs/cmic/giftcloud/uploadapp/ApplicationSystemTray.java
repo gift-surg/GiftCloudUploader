@@ -42,7 +42,7 @@ public class ApplicationSystemTray {
      * @throws AWTException     if the desktop system tray is missing
      * @throws IOException      if an error occured while attempting to read the icon file
      */
-    private ApplicationSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
+    private ApplicationSystemTray(final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
 
         Image iconImage = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));
         trayIcon = new TrayIcon(iconImage, resourceBundle.getString("systemTrayIconText"));
@@ -171,7 +171,7 @@ public class ApplicationSystemTray {
      * @param reporter          the reporter object used to record errors
      * @return                  an (@link Optional) containing the (@link ApplicationSystemTray) object or an empty (@link Optional) if the SystemTray is not supported, or an error occurred, e.g. in attempting to load the icon
      */
-    static Optional<ApplicationSystemTray> safeCreateSystemTray(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
+    static Optional<ApplicationSystemTray> safeCreateSystemTray(final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
         if (!SystemTray.isSupported()) {
             reporter.silentError("SystemTray is not supported on this system.", null);
             return Optional.empty();

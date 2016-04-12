@@ -1,6 +1,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
+import com.apple.mrj.MRJAboutHandler;
 import com.apple.mrj.MRJApplicationUtils;
+import com.apple.mrj.MRJPrefsHandler;
+import com.apple.mrj.MRJQuitHandler;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundService;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -28,6 +31,7 @@ public class ApplicationMenu {
     private JMenuItem showItem;
     private boolean startIsResume = false;
     private final String resumeText;
+    private UploaderGuiController controller;
 
     /**
      * Private constructor for creating a new menu and icon for the system tray
@@ -40,13 +44,29 @@ public class ApplicationMenu {
      * @throws AWTException if the desktop system tray is missing
      * @throws IOException  if an error occurred while attempting to read the icon file
      */
-    public ApplicationMenu(final JFrame frame, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
+    public ApplicationMenu(final JFrame frame, final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
+        this.controller = controller;
 
+        // Register custom events for OSX built-in menu functions (About, Preferences, Quit)
         if (isMac) {
-            MacMenuController macController = new MacMenuController(controller);
-            MRJApplicationUtils.registerAboutHandler(macController);
-            MRJApplicationUtils.registerPrefsHandler(macController);
-            MRJApplicationUtils.registerQuitHandler(macController);
+            MRJApplicationUtils.registerAboutHandler(new MRJAboutHandler() {
+                @Override
+                public void handleAbout() {
+                    controller.showAboutDialog();
+                }
+            });
+            MRJApplicationUtils.registerPrefsHandler(new MRJPrefsHandler() {
+                @Override
+                public void handlePrefs() throws IllegalStateException {
+                    controller.showConfigureDialog(false);
+                }
+            });
+            MRJApplicationUtils.registerQuitHandler(new MRJQuitHandler() {
+                @Override
+                public void handleQuit() {
+                    System.exit(0);
+                }
+            });
         }
 
         menuBar = new JMenuBar();
@@ -221,7 +241,7 @@ public class ApplicationMenu {
      * @param reporter          the reporter object used to record errors
      * @return                  an (@link Optional) containing the (@link ApplicationMenu) object or an empty (@link Optional) if the menu is not supported, or an error occurred
      */
-    static Optional<ApplicationMenu> safeCreateMenu(final JFrame frame, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
+    static Optional<ApplicationMenu> safeCreateMenu(final JFrame frame, final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
         try {
             return Optional.of(new ApplicationMenu(frame, controller, resourceBundle, isMac, reporter));
         } catch (Throwable t) {
@@ -283,6 +303,5 @@ public class ApplicationMenu {
             startUploaderItem.setText(resumeText);
             startIsResume = true;
         }
-
     }
 }
