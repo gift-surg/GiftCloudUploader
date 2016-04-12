@@ -15,8 +15,9 @@ public class MenuController {
 
     MenuController(JFrame parent, final GiftCloudUploaderController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
         // Try to create a system tray icon. If this fails, then we warn the user and make the main dialog visible
-        systemTray = GiftCloudSystemTray.safeCreateSystemTray(controller, resourceBundle, false, reporter);
-        menu = GiftCloudUploaderMenu.safeCreateMenu(parent, controller, resourceBundle, isOSX(), reporter);
+        final boolean isMac = isOSX();
+        systemTray = GiftCloudSystemTray.safeCreateSystemTray(controller, resourceBundle, isMac, reporter);
+        menu = GiftCloudUploaderMenu.safeCreateMenu(parent, controller, resourceBundle, isMac, reporter);
     }
 
     public boolean isPresent() {
