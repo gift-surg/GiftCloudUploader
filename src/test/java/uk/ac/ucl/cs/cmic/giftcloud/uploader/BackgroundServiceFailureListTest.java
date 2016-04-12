@@ -14,11 +14,11 @@ public class BackgroundServiceFailureListTest {
 
         final String task1 = "Task1";
         final Exception exception1 = new Exception("TestException1");
-        final BackgroundServiceErrorRecord errorRecord1 = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord errorRecord1 = BackgroundServiceErrorRecord.createInstantRepeater();
 
         final String task2 = "Task2";
         final Exception exception2 = new Exception("TestException2");
-        final BackgroundServiceErrorRecord errorRecord2 = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord errorRecord2 = BackgroundServiceErrorRecord.createInstantRepeater();
 
         {
             errorRecord1.addException(exception1);
@@ -49,9 +49,9 @@ public class BackgroundServiceFailureListTest {
         final BackgroundServiceFailureListFake backgroundServiceFailureList = new BackgroundServiceFailureListFake();
 
         Assert.assertTrue(backgroundServiceFailureList.isEmpty());
-        backgroundServiceFailureList.addFailure("Task1", new BackgroundServiceErrorRecord());
+        backgroundServiceFailureList.addFailure("Task1", BackgroundServiceErrorRecord.createInstantRepeater());
         Assert.assertFalse(backgroundServiceFailureList.isEmpty());
-        backgroundServiceFailureList.addFailure("Task2", new BackgroundServiceErrorRecord());
+        backgroundServiceFailureList.addFailure("Task2", BackgroundServiceErrorRecord.createInstantRepeater());
         Assert.assertFalse(backgroundServiceFailureList.isEmpty());
     }
 

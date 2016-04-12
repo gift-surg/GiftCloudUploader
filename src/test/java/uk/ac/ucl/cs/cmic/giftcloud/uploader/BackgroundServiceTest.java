@@ -253,10 +253,11 @@ public class BackgroundServiceTest {
     class FakeBackgroundServiceTaskList extends BackgroundServiceTaskList<FakeTask, FakeTask> {
 
         final BlockingQueue<BackgroundServiceTaskWrapper<FakeTask, FakeTask>> taskList = new LinkedBlockingDeque<BackgroundServiceTaskWrapper<FakeTask, FakeTask>>();
+        private long fileNum = 0;
 
         @Override
         public void add(FakeTask task, BackgroundServiceErrorRecord errorRecord) {
-            taskList.add(new BackgroundServiceTaskWrapper<FakeTask, FakeTask>(task, task, errorRecord));
+            taskList.add(new BackgroundServiceTaskWrapper<FakeTask, FakeTask>(task, task, errorRecord, fileNum++));
         }
 
         @Override
@@ -267,6 +268,11 @@ public class BackgroundServiceTest {
         @Override
         protected boolean isEmpty() {
             return taskList.isEmpty();
+        }
+
+        @Override
+        protected BackgroundServiceErrorRecord createErrorRecord() {
+            return BackgroundServiceErrorRecord.createInstantRepeater();
         }
     }
 

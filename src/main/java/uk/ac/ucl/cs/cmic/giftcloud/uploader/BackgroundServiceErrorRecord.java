@@ -9,6 +9,7 @@ class BackgroundServiceErrorRecord {
 
     private final List<ErrorRecordItem> errorList = new ArrayList<ErrorRecordItem>();
     private boolean allowRetry = true;
+    private final int[] delays;
 
     void addException(final Throwable exception) {
         errorList.add(new ErrorRecordItem(exception));
@@ -18,11 +19,16 @@ class BackgroundServiceErrorRecord {
     }
 
     boolean shouldRetry() {
-        return (errorList.size() < 3) && allowRetry;
+        return (errorList.size() < delays.length) && allowRetry;
     }
 
     List<ErrorRecordItem> getErrorList() {
         return errorList;
+    }
+
+    int getNextDelay() {
+        int delayIndex = errorList.size() < delays.length ? errorList.size() : delays.length - 1;
+        return delays[delayIndex];
     }
 
     class ErrorRecordItem {
@@ -35,5 +41,25 @@ class BackgroundServiceErrorRecord {
         Throwable getException() {
             return exception;
         }
+    }
+
+    private BackgroundServiceErrorRecord(final int[] delays) {
+        this.delays = delays;
+    }
+
+    static BackgroundServiceErrorRecord createExponentialRepeater() {
+        return new BackgroundServiceErrorRecord(new int[] {0, 60000, 3600000});
+    }
+
+    static BackgroundServiceErrorRecord createExtendedExponentialRepeater() {
+        return new BackgroundServiceErrorRecord(new int[] {0, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000, 1024000, 2048000, 4096000, 8192000, 16384000, 32768000, 65536000});
+    }
+
+    static BackgroundServiceErrorRecord createInstantRepeater() {
+        return new BackgroundServiceErrorRecord(new int[] {0, 0, 0});
+    }
+
+    static BackgroundServiceErrorRecord createSingleTry() {
+        return new BackgroundServiceErrorRecord(new int[] {0});
     }
 }
