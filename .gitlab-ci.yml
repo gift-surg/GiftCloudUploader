@@ -3,7 +3,7 @@ variables:
 
 gift-gala:
   script:
-    - touch ~/runner_start.txt 
+	- echo $PWD > runner_start.txt
     - "$CI_SCRIPTS_DIR/test-linux.sh"
     - touch ~/runner_done.txt 
   tags:

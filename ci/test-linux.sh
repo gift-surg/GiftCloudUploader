@@ -1,5 +1,5 @@
 #!/bin/bash
-mvn install
+mvn install -B
 STATUS = $?
 if [ $STATUS -eq 0 ]; then
 	exit 1;
