@@ -1,4 +1,11 @@
+variables:
+  HOME_DIR: "/home/gitlab-runner"
+
+before_script:
+  - export SCRATCH_DIR="$(pwd)/../scratch-space"
+
 gift-gala:
-  script: "mvn install -B"
+  script:
+	- "mvn install -B"
   tags:
     - gift-gala
