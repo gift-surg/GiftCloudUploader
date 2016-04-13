@@ -16,7 +16,4 @@ public final class SessionVariableNames {
 	public static final String PROJECT = "project";
 	public static final String SUBJECT = "subject";
 	public static final String SESSION_LABEL = "session";
-	public static final String WARN_ON_DUPE_SESSION_LABELS = "warn-on-dupe-session-labels";
-	public static final String ALLOW_OVERWRITE_ON_DUPE_SESSION_LABELS = "allow-overwrite-on-dupe-session-labels";
-
 }
