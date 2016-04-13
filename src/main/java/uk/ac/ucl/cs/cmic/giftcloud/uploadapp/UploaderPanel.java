@@ -2,7 +2,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.DicomException;
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -18,7 +17,7 @@ import java.util.ResourceBundle;
 /**
  * The main dialog panel for the GIFT-Cloud Uploader application
  */
-public class GiftCloudUploaderPanel extends JPanel {
+public class UploaderPanel extends JPanel {
 
     // User interface components
     private final StatusPanel statusPanel;
@@ -26,13 +25,13 @@ public class GiftCloudUploaderPanel extends JPanel {
     private final QueryRetrieveDialog remoteQueryRetrieveDialog;
 
     // Callback to the controller for invoking actions
-    private final GiftCloudUploaderController controller;
+    private final UploaderGuiController controller;
 
     private GiftCloudPropertiesFromApplication giftCloudProperties;
     // Error reporting interface
     private final GiftCloudReporterFromApplication reporter;
 
-    public GiftCloudUploaderPanel(final JFrame dialog, final GiftCloudUploaderController controller, final TableModel tableModel, final PixelDataAnonymiserFilterCache filters, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public UploaderPanel(final JFrame dialog, final UploaderGuiController controller, final TableModel tableModel, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         super();
         this.controller = controller;
         this.giftCloudProperties = giftCloudProperties;

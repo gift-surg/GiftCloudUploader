@@ -14,7 +14,7 @@ import java.util.*;
 /**
  * Class for uploading files and automatically assigning them to projects, subjects, experiments and scans
  */
-public class GiftCloudAutoUploader {
+public class AutoUploader {
 
     private final BackgroundUploader backgroundUploader;
     private final GiftCloudReporter reporter;
@@ -28,7 +28,7 @@ public class GiftCloudAutoUploader {
      * @para serverFactory
      * @param reporter
      */
-    public GiftCloudAutoUploader(final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
+    public AutoUploader(final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
         this.properties = properties;
         this.subjectNameGenerator = new NameGenerator.SubjectNameGenerator(properties.getSubjectPrefix());
         this.backgroundUploader = backgroundUploader;
@@ -36,22 +36,16 @@ public class GiftCloudAutoUploader {
         subjectAliasStore = new SubjectAliasStore(new PatientListStore(properties, reporter), reporter);
     }
 
-    public boolean uploadToGiftCloud(final GiftCloudServer server, final List<String> paths, final String projectName) throws IOException {
-        return uploadOrAppend(server, paths, projectName, false);
-    }
-
-    public boolean appendToGiftCloud(final GiftCloudServer server, final List<String> paths, final String projectName) throws IOException {
-        return uploadOrAppend(server, paths, projectName, true);
-    }
-
     /**
-     * Force saving of the patient list
+     * Upload a set of files to the server
+     *
+     * @param server a @GiftCloudServer object representing the destination for the files
+     * @param paths the set of files to upload
+     * @param projectName the project to which the files will be added
+     * @param append whether to create a new upload or append files to an existing dataset
+     * @throws IOException
      */
-    public void exportPatientList() {
-        subjectAliasStore.exportPatientList();
-    }
-
-    private boolean uploadOrAppend(final GiftCloudServer server, final List<String> paths, final String projectName, final boolean append) throws IOException {
+    boolean uploadToGiftCloud(final GiftCloudServer server, final List<String> paths, final String projectName, final boolean append) throws IOException {
 
         final List<File> fileList = new ArrayList<File>();
         for (final String path : paths) {
@@ -66,10 +60,8 @@ public class GiftCloudAutoUploader {
         final List<Study> studies = trawler.call();
 
         for (final Study study : studies) {
-
             addSessionToUploadList(server, project, projectName, study, append);
         }
-
 
         List<GiftCloudUploaderError> errors = trawler.getErrorMessages();
 
@@ -93,6 +85,13 @@ public class GiftCloudAutoUploader {
         }
 
         return true;
+    }
+
+    /**
+     * Force saving of the patient list
+     */
+    public void exportPatientList() {
+        subjectAliasStore.exportPatientList();
     }
 
     private void addSessionToUploadList(final GiftCloudServer server, final Project project, final String projectName, final Study study, final boolean append) throws IOException {

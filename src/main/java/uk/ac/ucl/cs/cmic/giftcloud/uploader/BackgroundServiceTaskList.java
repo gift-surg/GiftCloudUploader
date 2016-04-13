@@ -14,7 +14,7 @@ public abstract class BackgroundServiceTaskList<T_taskType, T_resultType> {
      * @param task the task to be processed
      */
     public final void addNewTask(final T_taskType task) {
-        add(task, new BackgroundServiceErrorRecord());
+        add(task, createErrorRecord());
     }
 
     /**
@@ -53,4 +53,6 @@ public abstract class BackgroundServiceTaskList<T_taskType, T_resultType> {
      * @return true if there are no tasks on the list to be processed
      */
     protected abstract boolean isEmpty();
+
+    protected abstract BackgroundServiceErrorRecord createErrorRecord();
 }

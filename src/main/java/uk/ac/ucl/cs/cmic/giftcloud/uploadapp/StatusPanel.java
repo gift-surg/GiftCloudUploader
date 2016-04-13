@@ -20,9 +20,9 @@ public class StatusPanel extends JPanel implements Progress, UploaderStatusModel
     private final JLabel importerServiceStatusText;
     private final StatusBarManager statusBarManager;		// maintain a strong reference else weak reference to listener gets nulled when garbage collected
     private boolean isCancelled = false;
-    private GiftCloudUploaderController controller;
+    private UploaderGuiController controller;
 
-    StatusPanel(final GiftCloudUploaderController controller, final UploaderStatusModel uploaderStatusModel) {
+    StatusPanel(final UploaderGuiController controller, final UploaderStatusModel uploaderStatusModel) {
         this.controller = controller;
         statusBarManager = new StatusBarManager(getBuildDate()+" "+getReleaseString());
         statusBar = getStatusBar();

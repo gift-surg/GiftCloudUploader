@@ -22,7 +22,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudUploaderRestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderMain;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.UploaderGuiController;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.MainFrame;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.PropertyStoreFromApplet;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
@@ -35,7 +35,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class MultiUploadAssistantApplet extends JApplet {
     private Optional<GiftCloudReporterFromApplet> reporter = Optional.empty();
-    private Optional<GiftCloudUploaderMain> giftCloudUploaderMain = Optional.empty();
+    private Optional<UploaderGuiController> giftCloudUploaderMain = Optional.empty();
 
     /**
      * Default constructor.
@@ -58,7 +58,7 @@ public class MultiUploadAssistantApplet extends JApplet {
             reporter = Optional.of(new GiftCloudReporterFromApplet(this, dialogs));
             final MultiUploadAppletParameters multiUploadAppletParameters = new MultiUploadAppletParameters(this, reporter.get());
             final PropertyStore propertyStore = new PropertyStoreFromApplet(new MultiUploadParameters(multiUploadAppletParameters));
-            giftCloudUploaderMain = Optional.of(new GiftCloudUploaderMain(mainFrame, new GiftCloudUploaderRestServerFactory(), propertyStore, dialogs, reporter.get()));
+            giftCloudUploaderMain = Optional.of(new UploaderGuiController(mainFrame, new GiftCloudUploaderRestServerFactory(), propertyStore, dialogs, reporter.get()));
 
 
         } catch (Throwable t) {

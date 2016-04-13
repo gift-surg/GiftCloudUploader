@@ -20,6 +20,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ *  A DICOM listener for receiving files sent by DICOM Push
+ *
+ * <p>This class is part of the GIFT-Cloud Uploader
+ *
+ * <p> Part of this class derives from DicomCleaner by dclunie
+ *
+ */
 public class DicomListener {
 
     private StorageSOPClassSCPDispatcher storageSOPClassSCPDispatcher;
@@ -45,7 +53,7 @@ public class DicomListener {
     }
 
     /**
-     * <p>Start DICOM storage listener for populating source database.</p>
+     * Start DICOM storage listener for populating source database.
      *
      * @throws	com.pixelmed.dicom.DicomException
      */
@@ -207,7 +215,6 @@ public class DicomListener {
                     pc.setResultReason((byte)4);				// transfer syntaxes not supported (provider rejection)
                 }
             }
-//System.err.println("GiftCloudUploaderPanel.OurTransferSyntaxSelectionPolicy.applyTransferSyntaxSelectionPolicy(): accepted "+presentationContexts);
             return presentationContexts;
         }
     }

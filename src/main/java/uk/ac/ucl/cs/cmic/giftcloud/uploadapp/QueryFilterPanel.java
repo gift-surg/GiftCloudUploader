@@ -20,9 +20,9 @@ public class QueryFilterPanel extends JPanel {
     private final JTextField queryFilterPatientIDTextField;
     private final JTextField queryFilterStudyDateTextField;
     private final JTextField queryFilterAccessionNumberTextField;
-    private GiftCloudUploaderController controller;
+    private UploaderGuiController controller;
 
-    QueryFilterPanel(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) {
+    QueryFilterPanel(final UploaderGuiController controller, final ResourceBundle resourceBundle) {
         this.controller = controller;
 
         GridBagLayout layout = new GridBagLayout();

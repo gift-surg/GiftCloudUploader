@@ -21,7 +21,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapplet;
 
 import com.google.common.base.Joiner;
-import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariableNames;
 
 import java.util.Calendar;
 
@@ -30,8 +29,6 @@ public class MultiUploadAppletParameterInfo {
             {MultiUploadParameters.XNAT_URL, "URL", "Base URL for XNAT instance"},
             {MultiUploadParameters.XNAT_DESCRIPTION, "string", "Human-readable name of the XNAT instance"},
             {MultiUploadParameters.XNAT_ADMIN_EMAIL, "email address", "Email address for the XNAT administrator"},
-            {SessionVariableNames.WARN_ON_DUPE_SESSION_LABELS, "boolean", "Indicates whether the applet should warn when session labels are specified that are duplicates of existing session labels in the target project; defaults to true."},
-            {SessionVariableNames.ALLOW_OVERWRITE_ON_DUPE_SESSION_LABELS, "boolean", "Indicates whether the applet should allow the user to select the overwrite option when session labels are specified that are duplicates of existing session labels in the target project; defaults to false."},
             {MultiUploadParameters.USE_FIXED_SIZE_STREAMING, "boolean", "Should the applet use fixed-size streaming for data upload?"},
             {MultiUploadParameters.N_UPLOAD_THREADS, "integer", "Number of threads to use for uploading"},
             {MultiUploadParameters.LOG4J_PROPS_URL, "URL", "URL for log4j properties file"},

@@ -29,12 +29,12 @@ public class BackgroundServiceTaskListTest {
         // Check that add(task) creates a new errorRecord and calls add(task, errorRecord)
         final BackgroundServiceTaskListFake backgroundServiceTaskList = new BackgroundServiceTaskListFake();
         Assert.assertEquals(backgroundServiceTaskList.taskList.size(), 0);
-        final BackgroundServiceErrorRecord errorRecord1 = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord errorRecord1 = BackgroundServiceErrorRecord.createInstantRepeater();
         backgroundServiceTaskList.retryTask("Task1", errorRecord1);
         Assert.assertEquals(backgroundServiceTaskList.taskList.size(), 1);
         Assert.assertEquals(backgroundServiceTaskList.taskList.get(0).errorRecord, errorRecord1);
 
-        final BackgroundServiceErrorRecord errorRecord2 = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord errorRecord2 = BackgroundServiceErrorRecord.createInstantRepeater();
         backgroundServiceTaskList.retryTask("Task2", errorRecord2);
         Assert.assertEquals(backgroundServiceTaskList.taskList.size(), 2);
         Assert.assertEquals(backgroundServiceTaskList.taskList.get(1).errorRecord, errorRecord2);
@@ -57,6 +57,11 @@ public class BackgroundServiceTaskListTest {
         @Override
         protected boolean isEmpty() {
             return taskList.isEmpty();
+        }
+
+        @Override
+        protected BackgroundServiceErrorRecord createErrorRecord() {
+            return BackgroundServiceErrorRecord.createInstantRepeater();
         }
 
         class TaskError {

@@ -5,12 +5,9 @@ import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.ExportWorker;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.GiftCloudUploadWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
 import javax.imageio.ImageIO;
@@ -24,13 +21,17 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
- * The main controller class for the uploader
+ * The main controller class for the GIFT-Cloud Uploader gui
+ *
+ * @author  Tom Doel
  */
-public class GiftCloudUploaderMain implements GiftCloudUploaderController {
+public class UploaderGuiController {
 
     private final ResourceBundle resourceBundle;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
@@ -38,17 +39,16 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
     private final GiftCloudDialogs giftCloudDialogs;
     private final DicomListener dicomListener;
     private final GiftCloudUploader giftCloudUploader;
-    private final GiftCloudUploaderPanel giftCloudUploaderPanel;
-    private GiftCloudConfigurationDialog configurationDialog = null;
+    private final UploaderPanel uploaderPanel;
+    private ConfigurationDialog configurationDialog = null;
     private PixelDataTemplateDialog pixelDataDialog = null;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
-    private final PixelDataAnonymiserFilterCache filters;
-    private final SystemTrayController systemTrayController;
+    private final MenuController menuController;
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
     private Optional<SingleInstanceService> singleInstanceService;
 
-    public GiftCloudUploaderMain(final MainFrame mainFrame, final RestServerFactory restServerFactory, final PropertyStore propertyStore, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public UploaderGuiController(final MainFrame mainFrame, final RestServerFactory restServerFactory, final PropertyStore propertyStore, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         resourceBundle = mainFrame.getResourceBundle();
         this.mainFrame = mainFrame;
         this.giftCloudDialogs = dialogs;
@@ -82,6 +82,8 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     e.printStackTrace(System.err);
                 }
             }
+
+
         }
 
         System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -96,34 +98,34 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
         // Initialise application properties
         giftCloudProperties = new GiftCloudPropertiesFromApplication(propertyStore, resourceBundle, reporter);
-        filters = new PixelDataAnonymiserFilterCache(giftCloudProperties, reporter);
 
         // Initialise the main GIFT-Cloud class
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
 
-        giftCloudUploader = new GiftCloudUploader(filters, restServerFactory, pendingUploadFolder, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
+        giftCloudUploader = new GiftCloudUploader(restServerFactory, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
         dicomListener = new DicomListener(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
 
-        giftCloudUploaderPanel = new GiftCloudUploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), filters, giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
-        queryRetrieveController = new QueryRetrieveController(giftCloudUploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderStatusModel, reporter);
+        uploaderPanel = new UploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
+        queryRetrieveController = new QueryRetrieveController(uploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderStatusModel, reporter);
 
-        mainFrame.addMainPanel(giftCloudUploaderPanel);
+        mainFrame.addMainPanel(uploaderPanel);
 
-        systemTrayController = new SystemTrayController(this, resourceBundle, reporter);
-        mainFrame.addListener(systemTrayController.new MainWindowVisibilityListener());
-        giftCloudUploader.getBackgroundAddToUploaderService().addListener(systemTrayController.new BackgroundAddToUploaderServiceListener());
+        menuController = new MenuController(mainFrame.getParent(), this, resourceBundle, reporter);
+        mainFrame.addListener(menuController.new MainWindowVisibilityListener());
+        giftCloudUploader.getBackgroundAddToUploaderService().addListener(menuController.new BackgroundAddToUploaderServiceListener());
 
         final Optional<Boolean> hideWindowOnStartupProperty = giftCloudProperties.getHideWindowOnStartup();
 
-        // We hide the main window only if specified in the preferences, AND if the system tray is supported
-        final boolean hideMainWindow = hideWindowOnStartupProperty.isPresent() && hideWindowOnStartupProperty.get() && systemTrayController.isPresent();
+        // We hide the main window only if specified in the preferences, AND if the system tray or menu is supported
+        final boolean hideMainWindow = hideWindowOnStartupProperty.isPresent() && hideWindowOnStartupProperty.get() && menuController.isPresent();
         if (hideMainWindow) {
             hide();
         } else {
             show();
         }
 
-        addExistingFilesToUploadQueue(pendingUploadFolder);
+        // Add existing files to the upload queue
+        runImport(Arrays.asList(pendingUploadFolder), false, reporter);
     }
 
     public void start(final boolean showImportDialog, final List<File> filesToImport) {
@@ -227,7 +229,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
 
     }
 
-    @Override
     public void showConfigureDialog(final boolean wait) {
         if (configurationDialog == null || !configurationDialog.isVisible()) {
             if (wait) {
@@ -235,7 +236,7 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                     java.awt.EventQueue.invokeAndWait(new Runnable() {
                         @Override
                         public void run() {
-                            configurationDialog = new GiftCloudConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                            configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), UploaderGuiController.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
                         }
                     });
                 } catch (InvocationTargetException e) {
@@ -247,50 +248,34 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        configurationDialog = new GiftCloudConfigurationDialog(mainFrame.getContainer(), GiftCloudUploaderMain.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                        configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), UploaderGuiController.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
                     }
                 });
             }
         }
     }
 
-    @Override
     public void showAboutDialog() {
         mainFrame.show();
         giftCloudDialogs.showMessage(resourceBundle.getString("giftCloudProductName"));
     }
 
-    @Override
     public void hide() {
         mainFrame.hide();
     }
 
-    @Override
     public void show() {
         mainFrame.show();
     }
 
-    @Override
     public void startUploading() {
         giftCloudUploader.setUploadServiceRunningState(true);
     }
 
-    @Override
     public void pauseUploading() {
         giftCloudUploader.setUploadServiceRunningState(false);
     }
 
-    @Override
-    public void upload(List<String> filePaths) {
-        try {
-            Thread activeThread = new Thread(new GiftCloudUploadWorker(filePaths, giftCloudUploader, reporter));
-            activeThread.start();
-        } catch (Exception e) {
-            reporter.reportErrorToUser("Uploading to GIFT-Cloud failed due to the following error:", e);
-        }
-    }
-
-    @Override
     public void retrieve(List<QuerySelection> currentRemoteQuerySelectionList) {
         try {
             queryRetrieveController.retrieve(currentRemoteQuerySelectionList);
@@ -299,7 +284,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
-    @Override
     public void query(final QueryParams queryParams) {
         try {
             queryRetrieveController.query(queryParams);
@@ -308,35 +292,10 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
-    @Override
-    public void export(String exportDirectory, List<String> filesToExport) {
-        File exportDirectoryFile = new File(exportDirectory);
-        new Thread(new ExportWorker(filesToExport, exportDirectoryFile, giftCloudProperties.hierarchicalExport(), giftCloudProperties.zipExport(), reporter)).start();
-    }
-
-    @Override
-    public void selectAndExport(final List<String> filesToExport) {
-        try {
-            reporter.showMesageLogger();
-
-            Optional<String> selectDirectory = giftCloudDialogs.selectDirectory(giftCloudProperties.getLastExportDirectory());
-
-            if (selectDirectory.isPresent()) {
-                giftCloudProperties.setLastExportDirectory(selectDirectory.get());
-                giftCloudProperties.save();
-                export(selectDirectory.get(), filesToExport);
-            }
-        } catch (Exception e) {
-            reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
-        }
-    }
-
-    @Override
     public void runImport(List<File> fileList, final boolean importAsReference, final Progress progress) {
         new Thread(new ImportWorker(fileList, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, uploaderStatusModel, reporter)).start();
     }
 
-    @Override
     public void selectAndImport() {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -361,7 +320,6 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         });
     }
 
-    @Override
     public void restartDicomService() {
         try {
             dicomListener.shutdownStorageSCPAndWait(giftCloudProperties.getShutdownTimeoutMs());
@@ -376,41 +334,32 @@ public class GiftCloudUploaderMain implements GiftCloudUploaderController {
         }
     }
 
-    @Override
     public void invalidateServerAndRestartUploader() {
         pauseUploading();
         giftCloudUploader.invalidateServer();
         startUploading();
     }
 
-    @Override
     public void importFromPacs() {
-        giftCloudUploaderPanel.showQueryRetrieveDialog();
+        uploaderPanel.showQueryRetrieveDialog();
     }
 
-    @Override
     public void exportPatientList() {
         giftCloudUploader.exportPatientList();
     }
 
-    @Override
     public void showPixelDataTemplateDialog() {
         if (pixelDataDialog == null || !pixelDataDialog.isVisible()) {
             java.awt.EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), filters, giftCloudProperties, giftCloudDialogs, reporter);
-
+                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), giftCloudUploader.getPixelDataAnonymiserFilterCache(), giftCloudProperties, giftCloudDialogs, reporter);
                 }
             });
         }
     }
 
-    private void addExistingFilesToUploadQueue(final File pendingUploadFolder) {
-        runImport(Arrays.asList(pendingUploadFolder), false, reporter);
-    }
-
-    public static boolean isOSX() {
+    private static boolean isOSX() {
         return (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0);
     }
 

@@ -2,9 +2,11 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A class representing a set of files waiting to be uploaded
+ */
 public class PendingUploadTask {
 
     enum Append {
@@ -25,14 +27,6 @@ public class PendingUploadTask {
     public PendingUploadTask(final List<String> paths, final Optional<String> projectName, final Append append, final DeleteAfterUpload deleteAfterUpload) {
         this.paths = paths;
         this.projectName = projectName;
-        this.append = append;
-        this.deleteAfterUpload = deleteAfterUpload;
-    }
-
-    public PendingUploadTask(final String path, final Optional<String> projectName, final Append append, final DeleteAfterUpload deleteAfterUpload) {
-        this.projectName = projectName;
-        this.paths = new ArrayList<String>();
-        paths.add(path);
         this.append = append;
         this.deleteAfterUpload = deleteAfterUpload;
     }

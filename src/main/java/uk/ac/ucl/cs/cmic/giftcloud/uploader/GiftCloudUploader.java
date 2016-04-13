@@ -6,7 +6,8 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.*;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -28,24 +29,26 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     private final ProjectListModel projectListModel;
     private final GiftCloudServerFactory serverFactory;
     private final BackgroundAddToUploaderService backgroundAddToUploaderService;
-    private final GiftCloudAutoUploader autoUploader;
+    private final AutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
+    private final PixelDataAnonymiserFilterCache pixelDataAnonymiserFilterCache;
 
     private final int DELAY_BETWEEN_UPDATES = 500;
 
-    public GiftCloudUploader(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final RestServerFactory restServerFactory, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
         this.uploadDatabase =  new WaitingForUploadDatabase(DELAY_BETWEEN_UPDATES);
         this.giftCloudProperties = giftCloudProperties;
         this.dialogs = dialogs;
         this.container = reporter.getContainer();
         this.reporter = reporter;
+        pixelDataAnonymiserFilterCache = new PixelDataAnonymiserFilterCache(giftCloudProperties, reporter);
         projectListModel = new ProjectListModel(giftCloudProperties);
-        serverFactory = new GiftCloudServerFactory(filters, restServerFactory, giftCloudProperties, projectListModel, reporter);
+        serverFactory = new GiftCloudServerFactory(pixelDataAnonymiserFilterCache, restServerFactory, giftCloudProperties, projectListModel, reporter);
         pendingUploadList = new PendingUploadTaskList(reporter);
 
         final int numThreads = 1;
         backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), this, uploaderStatusModel, reporter);
-        autoUploader = new GiftCloudAutoUploader(backgroundUploader, giftCloudProperties, reporter);
+        autoUploader = new AutoUploader(backgroundUploader, giftCloudProperties, reporter);
         backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, uploaderStatusModel, reporter);
 
         // Add a shutdown hook for graceful exit
@@ -113,24 +116,6 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         return projectListModel;
     }
 
-    public boolean uploadToGiftCloud(java.util.List<String> paths) throws IOException {
-
-        try {
-            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-
-            // Allow user to log in again if they have previously cancelled a login dialog
-            giftCloudServer.resetCancellation();
-
-            final String projectName = getProjectName(giftCloudServer);
-
-            return autoUploader.uploadToGiftCloud(giftCloudServer, paths, projectName);
-
-        } catch (Throwable throwable) {
-
-            return false;
-        }
-    }
-
     String getProjectName(final GiftCloudServer giftCloudServer) throws IOException {
         final Optional<String> lastProjectName = giftCloudProperties.getLastProject();
         if (lastProjectName.isPresent() && StringUtils.isNotBlank(lastProjectName.get())) {
@@ -191,4 +176,12 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     public TableModel getTableModel() {
         return uploadDatabase.getTableModel();
     }
+
+    /**
+     * @return the object containing pixel data anonymisation filters
+     */
+    public PixelDataAnonymiserFilterCache getPixelDataAnonymiserFilterCache() {
+        return pixelDataAnonymiserFilterCache;
+    }
 }
+

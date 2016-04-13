@@ -10,28 +10,28 @@ public class BackgroundServiceTaskWrapperTest {
 
     @Test
     public void testGetTask() throws Exception {
-        final BackgroundServiceErrorRecord errorRecord = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord errorRecord = BackgroundServiceErrorRecord.createInstantRepeater();
         final String task = "Task1";
         final String result = "Result1";
-        BackgroundServiceTaskWrapper<String, String> taskWrapper = new BackgroundServiceTaskWrapper<String, String>(task, result, errorRecord);
+        BackgroundServiceTaskWrapper<String, String> taskWrapper = new BackgroundServiceTaskWrapper<String, String>(task, result, errorRecord, 0);
         Assert.assertEquals(taskWrapper.getTask(), task);
     }
 
     @Test
     public void testGetErrorRecord() throws Exception {
-        final BackgroundServiceErrorRecord errorRecord = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord errorRecord = BackgroundServiceErrorRecord.createInstantRepeater();
         final String task = "Task1";
         final String result = "Result1";
-        BackgroundServiceTaskWrapper<String, String> taskWrapper = new BackgroundServiceTaskWrapper<String, String>(task, result, errorRecord);
+        BackgroundServiceTaskWrapper<String, String> taskWrapper = new BackgroundServiceTaskWrapper<String, String>(task, result, errorRecord, 0);
         Assert.assertEquals(taskWrapper.getErrorRecord(), errorRecord);
     }
 
     @Test
     public void testAddError() throws Exception {
-        final BackgroundServiceErrorRecord errorRecord = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord errorRecord = BackgroundServiceErrorRecord.createInstantRepeater();
         final String task = "Task1";
         final String result = "Result1";
-        BackgroundServiceTaskWrapper<String, String> taskWrapper = new BackgroundServiceTaskWrapper<String, String>(task, result, errorRecord);
+        BackgroundServiceTaskWrapper<String, String> taskWrapper = new BackgroundServiceTaskWrapper<String, String>(task, result, errorRecord, 0);
         Assert.assertEquals(errorRecord.getErrorList().size(), 0);
 
         final Exception exception1 = new Exception("Exception1");
@@ -51,7 +51,7 @@ public class BackgroundServiceTaskWrapperTest {
         final BackgroundServiceErrorRecord errorRecord = mock(BackgroundServiceErrorRecord.class);
         final String task = "Task1";
         final String result = "Result1";
-        BackgroundServiceTaskWrapper<String, String> taskWrapper = new BackgroundServiceTaskWrapper<String, String>(task, result, errorRecord);
+        BackgroundServiceTaskWrapper<String, String> taskWrapper = new BackgroundServiceTaskWrapper<String, String>(task, result, errorRecord, 0);
 
         when(errorRecord.shouldRetry()).thenReturn(true);
         Assert.assertTrue(taskWrapper.shouldRetry());
@@ -62,10 +62,10 @@ public class BackgroundServiceTaskWrapperTest {
 
     @Test
     public void testGetResult() throws Exception {
-        final BackgroundServiceErrorRecord errorRecord = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord errorRecord = BackgroundServiceErrorRecord.createInstantRepeater();
         final String task = "Task1";
         final String result = "Result1";
-        BackgroundServiceTaskWrapper<String, String> taskWrapper = new BackgroundServiceTaskWrapper<String, String>(task, result, errorRecord);
+        BackgroundServiceTaskWrapper<String, String> taskWrapper = new BackgroundServiceTaskWrapper<String, String>(task, result, errorRecord, 0);
         Assert.assertEquals(taskWrapper.getResult(), result);
     }
 }
