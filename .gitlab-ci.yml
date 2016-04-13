@@ -1,0 +1,4 @@
+gift-gala:
+  script: "mvn install -B"
+  tags:
+    - gift-gala
