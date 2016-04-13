@@ -6,6 +6,6 @@ before_script:
 
 gift-gala:
   script:
-	- "mvn install -B"
+    - "mvn install -B"
   tags:
     - gift-gala
