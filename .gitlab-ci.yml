@@ -7,3 +7,10 @@ gift-gala:
   tags:
     - gift-gala
     - gift-mac
+
+gift-adelie:
+  script:
+    - "$CI_SCRIPTS_DIR/test-linux.sh"
+  tags:
+    - gift-adelie
+    - gift-linux
