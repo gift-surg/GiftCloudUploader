@@ -6,6 +6,8 @@ before_script:
 
 gift-gala:
   script:
-    - "mvn install -B"
+    - touch ~/runner_start.txt 
+    - mvn install -B
+    - touch ~/runner_done.txt 
   tags:
     - gift-gala
