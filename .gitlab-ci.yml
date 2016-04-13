@@ -8,4 +8,4 @@ gift-gala:
     - touch ~/runner_done.txt 
   tags:
     - gift-gala
-	- gift-mac
+    - gift-mac
