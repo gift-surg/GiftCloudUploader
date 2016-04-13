@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -314,7 +315,7 @@ public class BackgroundServiceTest {
         }
 
         void waitForCompletion() throws InterruptedException {
-            latch.await();
+            latch.await(1000, TimeUnit.MILLISECONDS);
         }
 
         void waitForThreadToComplete() {

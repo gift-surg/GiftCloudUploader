@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class ConsecutiveThreadExecutorTest {
     private List<String> results;
@@ -28,7 +29,7 @@ public class ConsecutiveThreadExecutorTest {
         submitWithDelay("B", 10);
         submitWithDelay("C", 0);
         try {
-            endLatch.await();
+            endLatch.await(1000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Assert.fail();
         }
