@@ -1,13 +1,11 @@
 variables:
-  HOME_DIR: "/home/gitlab-runner"
-
-before_script:
-  - export SCRATCH_DIR="$(pwd)/../scratch-space"
+  CI_SCRIPTS_DIR: "./ci"
 
 gift-gala:
   script:
     - touch ~/runner_start.txt 
-    - mvn install -B
+    - "$CI_SCRIPTS_DIR/test-linux.sh"
     - touch ~/runner_done.txt 
   tags:
     - gift-gala
+	- gift-mac
