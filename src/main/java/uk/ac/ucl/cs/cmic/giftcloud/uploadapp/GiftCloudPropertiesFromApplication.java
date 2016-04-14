@@ -274,31 +274,6 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         }
     }
 
-    public Optional<String> getLastExportDirectory() {
-        final String lastExportDirectory = properties.getProperty(propertyName_LastExportDirectory);
-        if (StringUtils.isNotBlank(lastExportDirectory)) {
-            return Optional.of(lastExportDirectory);
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public void setLastExportDirectory(final String lastExportDirectory) {
-        if (!lastExportDirectory.equals(getLastExportDirectory())) {
-            properties.setProperty(propertyName_LastExportDirectory, lastExportDirectory);
-        }
-    }
-
-    // ToDo: Previously this was supported via a checkbox
-    public boolean hierarchicalExport() {
-        return true;
-    }
-
-    // ToDo: Previously this was supported via a checkbox
-    public boolean zipExport() {
-        return false;
-    }
-
     private void setPropertyString(final String propertyName, final String propertyValue) {
         properties.setProperty(propertyName, propertyValue);
     }
