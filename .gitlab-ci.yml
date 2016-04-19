@@ -17,7 +17,7 @@ gift-adelie:
 
 gift-gala-win:
   script:
-    - "$CI_SCRIPTS_DIR/test-win.bat"
+    - "./\ci/\test-win.bat"
   tags:
     - gift-win
 
