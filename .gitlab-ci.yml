@@ -14,3 +14,10 @@ gift-adelie:
   tags:
     - gift-adelie
     - gift-linux
+
+gift-gala-win:
+  script:
+    - "%CI_SCRIPTS_DIR%/test-win.bat"
+  tags:
+    - gift-win
+
