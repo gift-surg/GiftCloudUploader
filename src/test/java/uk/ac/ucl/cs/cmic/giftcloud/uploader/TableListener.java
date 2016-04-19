@@ -8,6 +8,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.min;
+import static java.lang.Math.max;
 
 class TableListener implements TableModelListener {
     private int expectedFirstRowChanged = -1;
@@ -19,7 +20,7 @@ class TableListener implements TableModelListener {
     private CountDownLatch endLatch;
 
     @Override
-    public void tableChanged(TableModelEvent e) {
+    public synchronized void tableChanged(TableModelEvent e) {
         if (firstRowChanged == -1) {
             firstRowChanged = e.getFirstRow();
         } else {
@@ -28,7 +29,7 @@ class TableListener implements TableModelListener {
         if (lastRowChanged == -1) {
             lastRowChanged = e.getLastRow();
         } else {
-            lastRowChanged = min(lastRowChanged, e.getLastRow());
+            lastRowChanged = max(lastRowChanged, e.getLastRow());
         }
         columns = e.getColumn();
         if (!expectationHit) {
@@ -39,13 +40,13 @@ class TableListener implements TableModelListener {
         }
     }
 
-    public void clear() {
+    public synchronized void clear() {
         firstRowChanged = -1;
         lastRowChanged = -1;
         columns = -1;
     }
 
-    public void clearAndSetExpectations(int expectedFirstRowChanged, int expectedLastRowChanged) {
+    public synchronized void clearAndSetExpectations(int expectedFirstRowChanged, int expectedLastRowChanged) {
         clear();
         expectationHit = false;
         endLatch = new CountDownLatch(1);
@@ -56,7 +57,7 @@ class TableListener implements TableModelListener {
     public void waitForCompletion() {
         try {
             // If it takes longer than 1 second then we assume the thread expectations are not fulfilled, so this means the test has failed
-            boolean ok = endLatch.await(10000, TimeUnit.MILLISECONDS);
+            boolean ok = endLatch.await(1000, TimeUnit.MILLISECONDS);
             Assert.assertTrue(ok);
         } catch (InterruptedException e) {
             Assert.fail();
