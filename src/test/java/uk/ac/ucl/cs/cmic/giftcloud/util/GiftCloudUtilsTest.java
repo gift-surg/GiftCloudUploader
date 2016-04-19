@@ -10,12 +10,20 @@ public class GiftCloudUtilsTest {
 
     @Test
     public void testIsDirectoryWritable() throws Exception {
-        File tempDir = Files.createTempDir();
-        final String tempDirString = tempDir.getPath();
-        Assert.assertTrue(GiftCloudUtils.isDirectoryWritable(tempDirString));
-
-        final String rootDir = "/";
-        Assert.assertFalse(GiftCloudUtils.isDirectoryWritable(rootDir));
+        {
+            File tempDir = Files.createTempDir();
+            final String tempDirString = tempDir.getPath();
+            Assert.assertTrue(GiftCloudUtils.isDirectoryWritable(tempDirString));
+            tempDir.delete();
+        }
+        {
+            File tempDir = Files.createTempDir();
+            tempDir.setWritable(false);
+            final String tempDirString = tempDir.getPath();
+            Assert.assertFalse(GiftCloudUtils.isDirectoryWritable(tempDirString));
+            tempDir.setWritable(true);
+            tempDir.delete();
+        }
     }
 
     @Test
