@@ -18,10 +18,15 @@ public class GiftCloudUtilsTest {
         }
         {
             File tempDir = Files.createTempDir();
-            tempDir.setWritable(false);
-            final String tempDirString = tempDir.getPath();
-            Assert.assertFalse(GiftCloudUtils.isDirectoryWritable(tempDirString));
-            tempDir.setWritable(true);
+            boolean setReadOnlySuccess = tempDir.setWritable(false);
+
+            // Java setWritable() doesn't work on Windows folders so we can't perform this test
+            // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=2189716
+            if (setReadOnlySuccess) {
+                final String tempDirString = tempDir.getPath();
+                Assert.assertFalse(GiftCloudUtils.isDirectoryWritable(tempDirString));
+                tempDir.setWritable(true);
+            }
             tempDir.delete();
         }
     }
