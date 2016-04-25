@@ -20,6 +20,13 @@ public class MenuController {
     private final Optional<ApplicationSystemTray> systemTray;
     private final Optional<ApplicationMenu> menu;
 
+    /**
+     * Create a new application menu and system tray menu if supported
+     * @param parent
+     * @param controller
+     * @param resourceBundle
+     * @param reporter
+     */
     MenuController(final JFrame parent, final UploaderGuiController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
         // Try to create a system tray icon. If this fails, then we warn the user and make the main dialog visible
         final boolean isMac = isOSX();
@@ -27,10 +34,16 @@ public class MenuController {
         menu = ApplicationMenu.safeCreateMenu(parent, controller, resourceBundle, isMac, reporter);
     }
 
+    /**
+     * @return true if a system tray is supported and was created successfully
+     */
     public boolean isPresent() {
         return systemTray.isPresent() || menu.isPresent();
     }
 
+    /**
+     * Removes the system tray menu
+     */
     public void remove() {
         if (systemTray.isPresent()) {
             systemTray.get().remove();
