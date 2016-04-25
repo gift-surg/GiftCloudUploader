@@ -4,10 +4,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
-import uk.ac.ucl.cs.cmic.giftcloud.util.EditProgressMonitorWrapper;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +19,7 @@ import java.util.Set;
 public class AutoUploader {
 
     private final BackgroundUploader backgroundUploader;
+    private final UserCallback userCallback;
     private final GiftCloudReporter reporter;
     private final GiftCloudServerFactory serverFactory;
     private final AliasGenerator aliasGenerator;
@@ -33,9 +31,10 @@ public class AutoUploader {
      * @param serverFactory
      * @param reporter
      */
-    public AutoUploader(GiftCloudServerFactory serverFactory, final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
+    public AutoUploader(final GiftCloudServerFactory serverFactory, final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final UserCallback userCallback, final GiftCloudReporter reporter) {
         this.serverFactory = serverFactory;
         this.backgroundUploader = backgroundUploader;
+        this.userCallback = userCallback;
         this.reporter = reporter;
         aliasGenerator = new AliasGenerator(properties, reporter);
     }
@@ -44,12 +43,18 @@ public class AutoUploader {
      * Upload a set of files to the server
      *
      * @param paths the set of files to upload
-     * @param projectName the project to which the files will be added
+     * @param projectNameOptional the project to which the files will be added
      * @param append whether to create a new upload or append files to an existing dataset
      * @throws IOException
      */
-    boolean uploadToGiftCloud(final List<String> paths, final String projectName, final boolean append) throws IOException {
+    boolean uploadToGiftCloud(final List<String> paths, final Optional<String> projectNameOptional, final boolean append) throws IOException {
         final GiftCloudServer server = serverFactory.getGiftCloudServer();
+
+        // Allow user to log in again if they have previously cancelled a login dialog
+        server.resetCancellation();
+
+        // If a project name is specified in the uploading task, use that; otherwise we get it from the uploader
+        final String projectName = projectNameOptional.orElse(userCallback.getProjectName(server));
 
         final List<File> fileList = new ArrayList<File>();
         for (final String path : paths) {

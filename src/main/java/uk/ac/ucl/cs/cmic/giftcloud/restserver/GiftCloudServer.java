@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.ProjectCache;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
@@ -24,7 +25,7 @@ public class GiftCloudServer {
     private final URI giftCloudUri;
     private final ProjectCache projectCache;
 
-    public GiftCloudServer(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
+    public GiftCloudServer(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final UserCallback userCallback, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudServerUrlString = giftCloudServerUrlString;
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
@@ -39,7 +40,7 @@ public class GiftCloudServer {
             throw new MalformedURLException("The GIFT-Cloud server name " + giftCloudServerUrlString + " is not a valid URL.");
         }
 
-        restServer = restServerFactory.create(giftCloudServerUrlString, giftCloudProperties, reporter);
+        restServer = restServerFactory.create(giftCloudServerUrlString, giftCloudProperties, userCallback, reporter);
         projectCache = new ProjectCache(restServer, filters);
     }
 

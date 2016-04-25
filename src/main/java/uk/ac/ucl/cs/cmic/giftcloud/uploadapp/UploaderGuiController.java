@@ -2,11 +2,15 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.apple.eawt.Application;
 import com.pixelmed.dicom.DicomException;
+import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLoginDialog;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
@@ -20,6 +24,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +36,7 @@ import java.util.ResourceBundle;
  *
  * @author  Tom Doel
  */
-public class UploaderGuiController {
+public class UploaderGuiController implements UserCallback {
 
     private final ResourceBundle resourceBundle;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
@@ -47,12 +52,16 @@ public class UploaderGuiController {
     private final MenuController menuController;
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
     private Optional<SingleInstanceService> singleInstanceService;
+    private GiftCloudLoginDialog loginDialog;
 
     public UploaderGuiController(final MainFrame mainFrame, final RestServerFactory restServerFactory, final PropertyStore propertyStore, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         resourceBundle = mainFrame.getResourceBundle();
         this.mainFrame = mainFrame;
         this.giftCloudDialogs = dialogs;
         this.reporter = reporter;
+
+        // Get the GIFT-Cloud icon - this will return null if not found
+        ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
 
         // Use the Java Web Start single instance mechanism to ensure only one instance of the application is running at a time. This is critical as the properties and patient list caching is not safe across multiple instances
         try {
@@ -99,10 +108,13 @@ public class UploaderGuiController {
         // Initialise application properties
         giftCloudProperties = new GiftCloudPropertiesFromApplication(propertyStore, resourceBundle, reporter);
 
+        // Create the object used for creating user login dialogs if necessary
+        this.loginDialog = new GiftCloudLoginDialog(icon, giftCloudProperties, mainFrame.getContainer());
+
         // Initialise the main GIFT-Cloud class
         final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
 
-        giftCloudUploader = new GiftCloudUploader(restServerFactory, giftCloudProperties, uploaderStatusModel, dialogs, reporter);
+        giftCloudUploader = new GiftCloudUploader(restServerFactory, giftCloudProperties, uploaderStatusModel, this, reporter);
         dicomListener = new DicomListener(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
 
         uploaderPanel = new UploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
@@ -361,6 +373,29 @@ public class UploaderGuiController {
 
     private static boolean isOSX() {
         return (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0);
+    }
+
+
+    @Override
+    public String getProjectName(GiftCloudServer server) throws IOException {
+        final Optional<String> lastProjectName = giftCloudProperties.getLastProject();
+        if (lastProjectName.isPresent() && StringUtils.isNotBlank(lastProjectName.get())) {
+            return lastProjectName.get();
+        } else {
+            try {
+                final String selectedProject = giftCloudDialogs.showInputDialogToSelectProject(server.getListOfProjects(), mainFrame.getContainer(), lastProjectName);
+                giftCloudProperties.setLastProject(selectedProject);
+                giftCloudProperties.save();
+                return selectedProject;
+            } catch (IOException e) {
+                throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    @Override
+    public PasswordAuthentication getPasswordAuthentication(final String supplementalMessage) {
+        return loginDialog.getPasswordAuthentication(supplementalMessage);
     }
 
     private class GiftCloudUploaderSingleInstanceListener implements SingleInstanceListener {

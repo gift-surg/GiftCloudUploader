@@ -8,6 +8,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.*;
 import uk.ac.ucl.cs.cmic.giftcloud.request.AuthorisationFailureException;
 import uk.ac.ucl.cs.cmic.giftcloud.request.ConnectionFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.ByteArrayInputStream;
@@ -46,15 +47,15 @@ public class GiftCloudAuthenticationTest {
         when(giftCloudProperties.getLastUserName()).thenReturn(Optional.of("WrongUserName"));
         when(giftCloudProperties.getLastPassword()).thenReturn(Optional.of("WrongPassword".toCharArray()));
 
-        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final UserCallback userCallback = mock(UserCallback.class);
         final String userName = "WrongUserName";
         final String password = "WrongPassword";
-        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
-        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, userCallback, giftCloudProperties, reporter);
 
         {
             // An authorisation failure should throw an exception
@@ -100,15 +101,15 @@ public class GiftCloudAuthenticationTest {
         when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
         when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
 
-        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final UserCallback userCallback = mock(UserCallback.class);
         final String userName = "WrongUserName";
         final String password = "WrongPassword";
-        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
-        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, userCallback, giftCloudProperties, reporter);
 
         {
             // Login with cookie string
@@ -138,16 +139,16 @@ public class GiftCloudAuthenticationTest {
         when(giftCloudProperties.getLastPassword()).thenReturn(Optional.of("WrongPassword".toCharArray()));
         when(giftCloudProperties.getSessionCookie()).thenReturn(Optional.of(cookieString));
 
-        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final UserCallback userCallback = mock(UserCallback.class);
         final String userName = "WrongUserName";
         final String password = "WrongPassword";
-        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
-        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
 
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, userCallback, giftCloudProperties, reporter);
 
         {
             // An authorisation failure should throw an exception
@@ -182,15 +183,15 @@ public class GiftCloudAuthenticationTest {
         when(giftCloudProperties.getLastUserName()).thenReturn(Optional.of(userName));
         when(giftCloudProperties.getLastPassword()).thenReturn(Optional.of(password.toCharArray()));
 
-        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final UserCallback userCallback = mock(UserCallback.class);
         final String userNameEntry = "WrongUserName";
         final String passwordEntry = "WrongPassword";
-        doReturn(new PasswordAuthentication(userNameEntry, passwordEntry.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
-        doReturn(new PasswordAuthentication(userNameEntry, passwordEntry.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userNameEntry, passwordEntry.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userNameEntry, passwordEntry.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, userCallback, giftCloudProperties, reporter);
 
         // Login with username and password
         when(connectionWrapper.getResponseCode()).thenReturn(HTTP_OK);
@@ -217,14 +218,14 @@ public class GiftCloudAuthenticationTest {
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
 
-        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final UserCallback userCallback = mock(UserCallback.class);
         final String userName = "WrongUserName";
         final String password = "WrongPassword";
-        doReturn(null).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
-        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
+        doReturn(null).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
 
 
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, userCallback, giftCloudProperties, reporter);
 
         // The authenticator has been set to cancel, and no cookie is valid, so an authorisation failure exception should be thrown
         when(connectionWrapper.getResponseCode()).thenReturn(HTTP_UNAUTHORIZED);
@@ -234,7 +235,7 @@ public class GiftCloudAuthenticationTest {
         } catch (CancellationException e) {        }
 
         // User is asked for login details, and if they cancel they are not asked again
-        verify(loginDialog, times(1)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
+        verify(userCallback, times(1)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
 
         // Try authentication again, without resetting the user cancellation
         try {
@@ -242,7 +243,7 @@ public class GiftCloudAuthenticationTest {
             Assert.fail();
         } catch (CancellationException e) {        }
         // User is not asked for login details again if they cancelled last time
-        verify(loginDialog, times(1)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
+        verify(userCallback, times(1)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
 
         // Reset the cancellation and try login again. This should increase the authentication count
         authentication.resetCancellation();
@@ -251,7 +252,7 @@ public class GiftCloudAuthenticationTest {
             Assert.fail();
         } catch (CancellationException e) {        }
         // User asked for login again after cancellation was reset
-        verify(loginDialog, times(2)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
+        verify(userCallback, times(2)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
 
         // Try authentication again, without resetting the user cancellation
         try {
@@ -260,7 +261,7 @@ public class GiftCloudAuthenticationTest {
         } catch (CancellationException e) {        }
 
         // User is not asked for login details again if they cancelled last time
-        verify(loginDialog, times(2)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
+        verify(userCallback, times(2)).getPasswordAuthentication("Please enter your GIFT-Cloud login details.");
     }
 
     @Test
@@ -282,14 +283,14 @@ public class GiftCloudAuthenticationTest {
         when(giftCloudProperties.getLastUserName()).thenReturn(emptyOptional);
         when(giftCloudProperties.getLastPassword()).thenReturn(emptyOptionalArray);
 
-        final GiftCloudLoginDialog loginDialog = mock(GiftCloudLoginDialog.class);
+        final UserCallback userCallback = mock(UserCallback.class);
         final String userName = "WrongUserName";
         final String password = "WrongPassword";
-        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
-        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(loginDialog).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE);
+        doReturn(new PasswordAuthentication(userName, password.toCharArray())).when(userCallback).getPasswordAuthentication(PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE);
 
         final GiftCloudReporterFromApplication reporter = mock(GiftCloudReporterFromApplication.class);
-        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, loginDialog, giftCloudProperties, reporter);
+        final GiftCloudAuthentication authentication = new GiftCloudAuthentication(urlString, connectionFactory, userCallback, giftCloudProperties, reporter);
         final HttpConnectionBuilder connectionBuilder = mock(HttpConnectionBuilder.class);
 
         final ConnectionFactory authenticatedConnectionFactory = authentication.getAuthenticatedConnectionFactory();

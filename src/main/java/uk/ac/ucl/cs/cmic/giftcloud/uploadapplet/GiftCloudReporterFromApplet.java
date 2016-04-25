@@ -31,7 +31,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.SwingProgressMonitorWrapper;
 
 import javax.swing.*;
 import java.applet.Applet;
-import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -50,7 +49,7 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
         this.applet = applet;
         configureLogging();
 
-        progressWrapper = new SwingProgressMonitorWrapper(getContainer());
+        progressWrapper = new SwingProgressMonitorWrapper(applet);
     }
 
     public void errorBox(final String errorMessage, final Throwable throwable) {
@@ -73,11 +72,6 @@ public class GiftCloudReporterFromApplet extends GiftCloudReporterFromApplicatio
         text.setEditable(false);
         applet.add(text);
         applet.validate();
-    }
-
-    @Override
-    public Container getContainer() {
-        return applet;
     }
 
 

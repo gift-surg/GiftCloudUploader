@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.*;
 import uk.ac.ucl.cs.cmic.giftcloud.request.*;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -27,7 +28,7 @@ class GiftCloudAuthentication {
     private static final int MAX_NUM_LOGIN_ATTEMPTS = 3;
     private String baseUrlString;
     private final ConnectionFactory connectionFactory;
-    private GiftCloudLoginDialog loginDialog;
+    private final UserCallback userCallback;
     private GiftCloudProperties giftCloudProperties;
     private GiftCloudReporter reporter;
     private final JSessionIdCookieWrapper cookieWrapper;
@@ -43,10 +44,10 @@ class GiftCloudAuthentication {
      * @param giftCloudProperties used to get the session cookie and to get and set the username and password for the last successful login
      * @param reporter used to get the container for the user login dialog
      */
-    GiftCloudAuthentication(final String baseUrlString, final ConnectionFactory connectionFactory, final GiftCloudLoginDialog loginDialog, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
+    GiftCloudAuthentication(final String baseUrlString, final ConnectionFactory connectionFactory, final UserCallback userCallback, final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) throws MalformedURLException {
         this.baseUrlString = baseUrlString;
         this.connectionFactory = connectionFactory;
-        this.loginDialog = loginDialog;
+        this.userCallback = userCallback;
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
         this.cookieWrapper = new JSessionIdCookieWrapper(giftCloudProperties.getSessionCookie());
@@ -116,7 +117,7 @@ class GiftCloudAuthentication {
             }
 
             final String prompt = number_of_login_attempts > 1 ? PasswordAuthenticationWrapper.ERROR_LOGIN_MESSAGE : PasswordAuthenticationWrapper.FIRST_LOGIN_MESSAGE;
-            Optional<PasswordAuthentication> passwordAuthentication = Optional.ofNullable(loginDialog.getPasswordAuthentication(prompt));
+            Optional<PasswordAuthentication> passwordAuthentication = Optional.ofNullable(userCallback.getPasswordAuthentication(prompt));
 
             // If the user cancels the login, we suspend all future login dialogs until resetCancellation() is called
             if (!passwordAuthentication.isPresent()) {

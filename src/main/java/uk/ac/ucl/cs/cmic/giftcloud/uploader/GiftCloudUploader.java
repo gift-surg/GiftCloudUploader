@@ -1,19 +1,16 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.pixelmed.dicom.DicomException;
-import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.security.sasl.AuthenticationException;
 import javax.swing.table.TableModel;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
@@ -22,8 +19,6 @@ import java.util.concurrent.CancellationException;
 public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
     private final WaitingForUploadDatabase uploadDatabase;
     private final GiftCloudProperties giftCloudProperties;
-    private GiftCloudDialogs dialogs;
-    private final Container container;
     private final PendingUploadTaskList pendingUploadList;
     private final GiftCloudReporter reporter;
     private final ProjectListModel projectListModel;
@@ -35,21 +30,19 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     private final int DELAY_BETWEEN_UPDATES = 500;
 
-    public GiftCloudUploader(final RestServerFactory restServerFactory, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final RestServerFactory restServerFactory, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final UserCallback userCallback, final GiftCloudReporter reporter) {
         this.uploadDatabase =  new WaitingForUploadDatabase(DELAY_BETWEEN_UPDATES);
         this.giftCloudProperties = giftCloudProperties;
-        this.dialogs = dialogs;
-        this.container = reporter.getContainer();
         this.reporter = reporter;
         pixelDataAnonymiserFilterCache = new PixelDataAnonymiserFilterCache(giftCloudProperties, reporter);
         projectListModel = new ProjectListModel(giftCloudProperties);
-        serverFactory = new GiftCloudServerFactory(pixelDataAnonymiserFilterCache, restServerFactory, giftCloudProperties, projectListModel, reporter);
+        serverFactory = new GiftCloudServerFactory(pixelDataAnonymiserFilterCache, restServerFactory, giftCloudProperties, projectListModel, userCallback, reporter);
         pendingUploadList = new PendingUploadTaskList(reporter);
 
         final int numThreads = 1;
         backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), this, uploaderStatusModel, reporter);
-        autoUploader = new AutoUploader(backgroundUploader, giftCloudProperties, reporter);
-        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, uploaderStatusModel, reporter);
+        autoUploader = new AutoUploader(serverFactory, backgroundUploader, giftCloudProperties, userCallback, reporter);
+        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, autoUploader, uploaderStatusModel, reporter);
 
         // Add a shutdown hook for graceful exit
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -116,21 +109,6 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         return projectListModel;
     }
 
-    String getProjectName(final GiftCloudServer giftCloudServer) throws IOException {
-        final Optional<String> lastProjectName = giftCloudProperties.getLastProject();
-        if (lastProjectName.isPresent() && StringUtils.isNotBlank(lastProjectName.get())) {
-            return lastProjectName.get();
-        } else {
-            try {
-                final String selectedProject = dialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, lastProjectName);
-                giftCloudProperties.setLastProject(selectedProject);
-                giftCloudProperties.save();
-                return selectedProject;
-            } catch (IOException e) {
-                throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
-            }
-        }
-    }
 
     public void importFiles(final FileImportRecord fileImportRecord) throws IOException, DicomException {
         try {
