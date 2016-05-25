@@ -7,7 +7,7 @@ gift-gala:
   tags:
     - gift-gala
     - gift-mac
-	- java
+    - java
 
 gift-adelie:
   script:
@@ -15,13 +15,13 @@ gift-adelie:
   tags:
     - gift-adelie
     - gift-linux
-	- java
+    - java
 
 gift-jalousie:
   script:
     - "call .\\ci\\test-win.bat"
   tags:
-	- gift-jalousie
+    - gift-jalousie
     - gift-win
-	- java
+    - java
 
