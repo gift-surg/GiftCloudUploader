@@ -58,6 +58,7 @@
                         <configuration>
                             <verbose>true</verbose>
                             <fork>true</fork>
+                            <forceJavacCompilerUse>true</forceJavacCompilerUse>
                             <executable>${java.home}/bin/javac</executable>
                             <source>1.6</source>
                             <target>1.6</target>
