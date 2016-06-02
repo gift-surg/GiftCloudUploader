@@ -56,10 +56,6 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.1</version>
                         <configuration>
-                            <verbose>true</verbose>
-                            <fork>true</fork>
-                            <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                            <executable>${java.home}/bin/javac</executable>
                             <source>1.6</source>
                             <target>1.6</target>
                         </configuration>
@@ -143,10 +139,10 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.1</version>
                         <configuration>
-                            <verbose>true</verbose>
-                            <fork>true</fork>
-                            <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                            <executable>${java.home}/bin/javac</executable>
+                            <!--<verbose>true</verbose>-->
+                            <!--<fork>true</fork>-->
+                            <!--<forceJavacCompilerUse>true</forceJavacCompilerUse>-->
+                            <!--<executable>${java.home}/bin/javac</executable>-->
                             <source>1.6</source>
                             <target>1.6</target>
                         </configuration>
@@ -232,6 +228,14 @@
             
             <build>
                 <plugins>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.1</version>
+                        <configuration>
+                            <source>1.6</source>
+                            <target>1.6</target>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>webstart-maven-plugin</artifactId>
