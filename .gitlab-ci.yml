@@ -11,6 +11,7 @@ gift-gala:
 
 gift-adelie:
   script:
+    - export JAVA_HOME="/usr/lib/jvm/java-8-oracle/"
     - "$CI_SCRIPTS_DIR/test-linux.sh"
   tags:
     - gift-adelie
