@@ -56,6 +56,9 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.1</version>
                         <configuration>
+                            <verbose>true</verbose>
+                            <fork>true</fork>
+                            <executable>${java.home}/bin/javac</executable>
                             <source>1.6</source>
                             <target>1.6</target>
                         </configuration>
