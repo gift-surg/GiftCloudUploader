@@ -53,6 +53,7 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.1</version>
                         <configuration>
@@ -82,11 +83,6 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <version>1.0-beta-6</version>
-                        <artifactId>webstart-maven-plugin</artifactId>
                     </plugin>
                     <plugin>
                         <artifactId>maven-jarsigner-plugin</artifactId>
@@ -225,7 +221,9 @@
         </profile>
         <profile>
             <id>Webstart</id>
-            
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
