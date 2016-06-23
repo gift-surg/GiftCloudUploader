@@ -1,5 +1,5 @@
 #!/bin/bash
-mvn install -B -P Applet,Application,Webstart
+mvn test -B
 if [ $? -eq 0 ]; then
 	exit 0;
 else
