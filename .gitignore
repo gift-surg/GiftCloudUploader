@@ -2,3 +2,4 @@ GiftCloudUploader.log.*
 target
 .classpath
 *.iml
+*.ipr
