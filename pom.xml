@@ -216,6 +216,10 @@
             <name>Mojo repository</name>
             <url>http://repo1.maven.org/maven2/org/codehaus/mojo/</url>
         </repository>
+        <repository>
+            <id>jboss-3rd-party-releases</id>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -225,44 +229,39 @@
             <version>1.4</version>
         </dependency>
         <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>pixelmed_codec</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>wizard</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
+            <groupId>java3d</groupId>
             <artifactId>vecmath</artifactId>
             <version>1.3.1</version>
         </dependency>
         <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.media</groupId>
+            <artifactId>jai_core</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.media</groupId>
+            <artifactId>jai_imageio</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.media</groupId>
+            <artifactId>jai-codec</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.hudson</groupId>
             <artifactId>jmdns</artifactId>
             <version>2.1</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>jai_core</artifactId>
-            <version>1.1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>jai_codec</artifactId>
-            <version>1.1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>jai_imageio</artifactId>
-            <version>1.1</version>
+            <artifactId>pixelmed_codec</artifactId>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
@@ -313,28 +312,6 @@
             <groupId>org.nrg</groupId>
             <artifactId>ecat-io</artifactId>
             <version>0.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>dicom-xnat-sop</artifactId>
-            <version>1.6.4</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>dcm4che-core</artifactId>
-                    <groupId>dcm4che</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>dicom-xnat-util</artifactId>
-            <version>1.6.4</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>dcm4che-core</artifactId>
-                    <groupId>dcm4che</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
@@ -390,16 +367,6 @@
             <groupId>org.nrg</groupId>
             <artifactId>ecat-edit</artifactId>
             <version>0.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>framework</artifactId>
-            <version>1.6.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>transaction</artifactId>
-            <version>1.6.4</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
