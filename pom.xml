@@ -199,12 +199,12 @@
         <repository>
             <id>org.nrg.maven.artifacts.release</id>
             <name>NRG/XDAT/XNAT Temporary Release Maven Repo</name>
-            <url>http://maven.xnat.org/libs-release</url>
+            <url>https://nrgxnat.artifactoryonline.com/nrgxnat/libs-release/</url>
         </repository>
         <repository>
             <id>org.nrg.maven.artifacts.snapshot</id>
             <name>NRG/XDAT/XNAT Temporary Snapshot Maven Repo</name>
-            <url>http://maven.xnat.org/libs-snapshot</url>
+            <url>https://nrgxnat.artifactoryonline.com/nrgxnat/libs-snapshot/</url>
         </repository>
         <repository>
             <id>dcm4che</id>
