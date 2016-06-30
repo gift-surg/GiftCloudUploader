@@ -58,7 +58,7 @@ class TableListener implements TableModelListener {
         try {
             // If it takes longer than 1 second then we assume the thread expectations are not fulfilled, so this means the test has failed
             boolean ok = endLatch.await(1000, TimeUnit.MILLISECONDS);
-            Assert.assertTrue(ok);
+            Assert.assertTrue("TableListener: The expected event did not fire within the given time", ok);
         } catch (InterruptedException e) {
             Assert.fail();
         }
