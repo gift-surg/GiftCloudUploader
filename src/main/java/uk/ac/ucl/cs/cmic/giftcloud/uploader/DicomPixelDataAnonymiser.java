@@ -233,9 +233,9 @@ public class DicomPixelDataAnonymiser {
                 list.put(aDeidentificationMethod);
             }
             if (burnInOverlays) {
-                aDeidentificationMethod.addValue("Overlays burned in then blacked out");
+                aDeidentificationMethod.addValue("GIFT-Cloud overlays burned in then blacked out");
             }
-            aDeidentificationMethod.addValue("Burned in text blacked out");
+            aDeidentificationMethod.addValue("GIFT-Cloud Burned in text blacked out");
         }
         {
             SequenceAttribute aDeidentificationMethodCodeSequence = (SequenceAttribute) (list.get(TagFromName.DeidentificationMethodCodeSequence));
