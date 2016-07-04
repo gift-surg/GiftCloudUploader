@@ -21,6 +21,7 @@ public class DicomFileImportRecord extends FileImportRecord {
     private Optional<AttributeList> attributeList;
     private boolean attemptedToGetAttributes = false;
     private Optional<String> seriesIdentifier = Optional.empty();
+    private Optional<String> patientId = Optional.empty();
     private Optional<String> visibleName = Optional.empty();
     private Optional<String> modality = Optional.empty();
 
@@ -38,6 +39,12 @@ public class DicomFileImportRecord extends FileImportRecord {
     public String getSeriesIdentifier() {
         getAttributes();
         return seriesIdentifier.get();
+    }
+
+    @Override
+    public String getPatientId() {
+        getAttributes();
+        return patientId.orElse("Unknown");
     }
 
     @Override
@@ -98,9 +105,17 @@ public class DicomFileImportRecord extends FileImportRecord {
         }
 
         try {
-            final String name = attributes.get(TagFromName.PatientID).getStringValues()[0];
+            final String name = attributes.get(TagFromName.PatientName).getStringValues()[0];
             if (StringUtils.isNotBlank(name)) {
                 visibleName = Optional.of(name);
+            }
+        } catch (DicomException e) {
+        }
+
+        try {
+            final String id = attributes.get(TagFromName.PatientID).getStringValues()[0];
+            if (StringUtils.isNotBlank(id)) {
+                patientId = Optional.of(id);
             }
         } catch (DicomException e) {
         }
