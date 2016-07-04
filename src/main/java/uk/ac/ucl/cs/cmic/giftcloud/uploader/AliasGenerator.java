@@ -29,8 +29,8 @@ public class AliasGenerator {
         subjectAliasStore.exportPatientList();
     }
 
-    synchronized GiftCloudLabel.SubjectLabel getSubjectName(final GiftCloudServer server, final String projectName, final String patientId, final String patientName) throws IOException {
-        final Optional<GiftCloudLabel.SubjectLabel> existingSubjectLabel = subjectAliasStore.getSubjectAlias(server, projectName, patientId, patientName);
+    synchronized GiftCloudLabel.SubjectLabel getSubjectName(boolean requireHashing, final GiftCloudServer server, final String projectName, final String patientId, final String patientName) throws IOException {
+        final Optional<GiftCloudLabel.SubjectLabel> existingSubjectLabel = subjectAliasStore.getSubjectAlias(requireHashing, server, projectName, patientId, patientName);
         if (existingSubjectLabel.isPresent()) {
             return existingSubjectLabel.get();
         } else {
@@ -42,13 +42,13 @@ public class AliasGenerator {
             final GiftCloudLabel.SubjectLabel newSubjectLabel = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
 
             // Add the label and its uid alias
-            subjectAliasStore.addSubjectAlias(server, projectName, patientId, newSubjectLabel, patientName);
+            subjectAliasStore.addSubjectAlias(requireHashing, server, projectName, patientId, newSubjectLabel, patientName);
             return newSubjectLabel;
         }
     }
 
-    GiftCloudLabel.ExperimentLabel getSessionName(final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final String studyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<GiftCloudLabel.ExperimentLabel> existingExperimentLabel = subjectAliasStore.getExperimentLabel(server, projectName, subjectLabel, studyInstanceUid);
+    GiftCloudLabel.ExperimentLabel getSessionName(boolean requireHashing, final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final String studyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+        final Optional<GiftCloudLabel.ExperimentLabel> existingExperimentLabel = subjectAliasStore.getExperimentLabel(requireHashing, server, projectName, subjectLabel, studyInstanceUid);
         if (existingExperimentLabel.isPresent()) {
             return existingExperimentLabel.get();
         } else {
@@ -59,13 +59,13 @@ public class AliasGenerator {
             final GiftCloudLabel.ExperimentLabel newExperimentLabel = subjectNameGenerator.getExperimentNameGenerator(subjectLabel).getNewName(experimentMapFromServer.keySet());
 
             // Add the label and its uid alias
-            subjectAliasStore.addExperimentAlias(server, projectName, subjectLabel, newExperimentLabel, studyInstanceUid, xnatModalityParams);
+            subjectAliasStore.addExperimentAlias(requireHashing, server, projectName, subjectLabel, newExperimentLabel, studyInstanceUid, xnatModalityParams);
             return newExperimentLabel;
         }
     }
 
-    GiftCloudLabel.ScanLabel getScanName(final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String seriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<GiftCloudLabel.ScanLabel> existingScanLabel = subjectAliasStore.getScanLabel(server, projectName, subjectLabel, experimentLabel, seriesInstanceUid);
+    GiftCloudLabel.ScanLabel getScanName(boolean requireHashing, final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String seriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+        final Optional<GiftCloudLabel.ScanLabel> existingScanLabel = subjectAliasStore.getScanLabel(requireHashing, server, projectName, subjectLabel, experimentLabel, seriesInstanceUid);
         if (existingScanLabel.isPresent()) {
             return existingScanLabel.get();
         } else {
@@ -76,7 +76,7 @@ public class AliasGenerator {
             final GiftCloudLabel.ScanLabel newScanLabel = subjectNameGenerator.getExperimentNameGenerator(subjectLabel).getScanNameGenerator(experimentLabel).getNewName(scanMapFromServer.keySet());
 
             // Add the label and its uid alias
-            subjectAliasStore.addScanAlias(server, projectName, subjectLabel, experimentLabel, newScanLabel, seriesInstanceUid, xnatModalityParams);
+            subjectAliasStore.addScanAlias(requireHashing, server, projectName, subjectLabel, experimentLabel, newScanLabel, seriesInstanceUid, xnatModalityParams);
             return newScanLabel;
         }
     }

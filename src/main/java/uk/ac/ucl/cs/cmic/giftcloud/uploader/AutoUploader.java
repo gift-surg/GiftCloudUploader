@@ -111,9 +111,10 @@ public class AutoUploader {
 
         final XnatModalityParams xnatModalityParams = study.getXnatModalityParams();
 
-        final GiftCloudLabel.SubjectLabel subjectLabel = aliasGenerator.getSubjectName(server, projectName, patientId, patientName);
-        final GiftCloudLabel.ExperimentLabel experimentLabel = aliasGenerator.getSessionName(server, projectName, subjectLabel, studyInstanceUid, xnatModalityParams);
-        final GiftCloudLabel.ScanLabel scanName = aliasGenerator.getScanName(server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
+        boolean requireHashing = !study.isAnonymised();
+        final GiftCloudLabel.SubjectLabel subjectLabel = aliasGenerator.getSubjectName(requireHashing, server, projectName, patientId, patientName);
+        final GiftCloudLabel.ExperimentLabel experimentLabel = aliasGenerator.getSessionName(requireHashing, server, projectName, subjectLabel, studyInstanceUid, xnatModalityParams);
+        final GiftCloudLabel.ScanLabel scanName = aliasGenerator.getScanName(requireHashing, server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
 
         final List<FileCollection> fileCollections = study.getFiles();
 

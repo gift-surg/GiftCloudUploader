@@ -29,11 +29,13 @@ public class DicomSeriesZipper extends SeriesZipper {
     private final Logger logger = LoggerFactory.getLogger(DicomSeriesZipper.class);
 
     private final DicomPixelDataAnonymiser pixelDataAnonymiser;
+    private final boolean dataAlreadyAnonymised;
     private final DicomMetaDataAnonymiser metaDataAnonymiser;
     private final UploadParameters uploadParameters;
     private final StopTagInputHandler stopTagInputHandler;
 
-    public DicomSeriesZipper(final DicomMetaDataAnonymiser metaDataAnonymiser, final DicomPixelDataAnonymiser pixelDataAnonymiser, final UploadParameters uploadParameters) throws IOException {
+    public DicomSeriesZipper(final boolean dataAlreadyAnonymised, final DicomMetaDataAnonymiser metaDataAnonymiser, final DicomPixelDataAnonymiser pixelDataAnonymiser, final UploadParameters uploadParameters) throws IOException {
+        this.dataAlreadyAnonymised = dataAlreadyAnonymised;
         this.metaDataAnonymiser = metaDataAnonymiser;
         this.uploadParameters = uploadParameters;
         this.pixelDataAnonymiser = pixelDataAnonymiser;
@@ -41,7 +43,7 @@ public class DicomSeriesZipper extends SeriesZipper {
     }
 
     public void processNextFile(final File nextFile, final ZipOutputStream zos) throws AttributeException, IOException, ScriptEvaluationException, DicomException {
-        final RedactedFileWrapper redactedFileWrapper = pixelDataAnonymiser.createRedactedFile(nextFile);
+        final RedactedFileWrapper redactedFileWrapper = pixelDataAnonymiser.createRedactedFile(nextFile, dataAlreadyAnonymised);
         try {
             addFileToZip(redactedFileWrapper.getFileToProcess(), zos, stopTagInputHandler);
         } finally {

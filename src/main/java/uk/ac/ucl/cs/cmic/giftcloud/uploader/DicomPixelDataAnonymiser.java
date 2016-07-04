@@ -57,10 +57,11 @@ public class DicomPixelDataAnonymiser {
      * Creates a RedactedFileWrapper object and if necessary construct a new temporary file with pixel data redacted
      *
      * @param file the image file to be parsed and anonymised if necessary
+     * @param dataAlreadyAnonymised true if teh data has already been anonymised so no further anonymisation is required
      * @return a RedactedFileWrapper object which is used to return either a file suitable for uploading
      * @throws IOException if there was an error parsing or anonymising the file
      */
-    public RedactedFileWrapper createRedactedFile(final File file) throws IOException, DicomException {
+    public RedactedFileWrapper createRedactedFile(final File file, boolean dataAlreadyAnonymised) throws IOException, DicomException {
         RedactedFileWrapper.FileRedactionStatus redactionStatus;
         Optional<File> redactedFile;
         AttributeList attributeList = readAttributeList(file, true);
@@ -68,7 +69,7 @@ public class DicomPixelDataAnonymiser {
             throw new IOException("Could not read image");
         }
 
-        if (anonymisationIsRequired(attributeList)) {
+        if (!dataAlreadyAnonymised && anonymisationIsRequired(attributeList)) {
             final Optional<PixelDataAnonymiseFilter> filter = getFilter(attributeList);
             if (filter.isPresent()) {
                 redactionStatus = RedactedFileWrapper.FileRedactionStatus.REDACTED;

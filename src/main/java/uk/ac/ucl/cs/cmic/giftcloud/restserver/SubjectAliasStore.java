@@ -4,11 +4,13 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
-
-import java.io.IOException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
+import java.io.IOException;
+
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash.convertExistingUid;
+import static uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash.hashUid;
 
 /**
  * This class is used to get the XNAT subject identifier for a given patient ID. The patient ID is hashed and the hashed
@@ -41,7 +43,7 @@ public class SubjectAliasStore {
      * ID does not already exist, or if it does not exist locally and the XNAT server does not support pseudonymisations
      * @throws IOException if communication with the server failed
      */
-    public Optional<GiftCloudLabel.SubjectLabel> getSubjectAlias(final GiftCloudServer server, final String projectName, final String patientId, final String patientName) throws IOException {
+    public Optional<GiftCloudLabel.SubjectLabel> getSubjectAlias(final boolean requireHashing, final GiftCloudServer server, final String projectName, final String patientId, final String patientName) throws IOException {
 
 
         if (StringUtils.isBlank(projectName)) {
@@ -53,7 +55,7 @@ public class SubjectAliasStore {
         }
 
         // First hash the patient ID
-        final String hashedPatientId = OneWayHash.hashUid(patientId);
+        final String hashedPatientId = requireHashing ? hashUid(patientId) : convertExistingUid(patientId);
 
         // Ensure that the local and server caches of the hashed patient ID are not being updated before we check them
         synchronized (synchronizationLock) {
@@ -93,7 +95,7 @@ public class SubjectAliasStore {
      * @param subjectLabel the new XNAT subject identifier to be mapped to this patient ID
      * @throws IOException if communication with the XNAT server failed
      */
-    public void addSubjectAlias(final GiftCloudServer server, final String projectName, final String patientId, final GiftCloudLabel.SubjectLabel subjectLabel, final String patientName) throws IOException {
+    public void addSubjectAlias(final boolean requireHashing, final GiftCloudServer server, final String projectName, final String patientId, final GiftCloudLabel.SubjectLabel subjectLabel, final String patientName) throws IOException {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -108,7 +110,7 @@ public class SubjectAliasStore {
         }
 
         // Hash the patient ID
-        final String hashedPatientId = OneWayHash.hashUid(patientId);
+        final String hashedPatientId = requireHashing ? OneWayHash.hashUid(patientId) : convertExistingUid(patientId);
 
         // Ensure that the local and server caches of the hashed patient ID are not being queried or updated before we check them
         synchronized (synchronizationLock) {
@@ -140,7 +142,7 @@ public class SubjectAliasStore {
         }
     }
 
-    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final GiftCloudServer server, final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final String studyInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final boolean requireHashing, final GiftCloudServer server, final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final String studyInstanceUid) throws IOException {
 
         if (StringUtils.isBlank(projectLabel)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -155,7 +157,7 @@ public class SubjectAliasStore {
         }
 
         // First hash the study instance UID
-        final String hashedStudyInstanceUid = OneWayHash.hashUid(studyInstanceUid);
+        final String hashedStudyInstanceUid = requireHashing ? hashUid(studyInstanceUid): convertExistingUid(studyInstanceUid);
 
         // Ensure that the local and server caches of the hashed patient ID are not being updated before we check them
         synchronized (synchronizationLock) {
@@ -190,7 +192,7 @@ public class SubjectAliasStore {
         }
     }
 
-    public void addExperimentAlias(final GiftCloudServer server, final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String studyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+    public void addExperimentAlias(final boolean requireHashing, final GiftCloudServer server, final String projectLabel, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String studyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
 
         if (StringUtils.isBlank(projectLabel)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -205,7 +207,7 @@ public class SubjectAliasStore {
         }
 
         // Hash the study instance UID
-        final String hashedStudyInstanceUid = OneWayHash.hashUid(studyInstanceUid);
+        final String hashedStudyInstanceUid = requireHashing ? hashUid(studyInstanceUid) : convertExistingUid(studyInstanceUid);
 
         // Ensure that the local and server caches of the hashed patient ID are not being queried or updated before we check them
         synchronized (synchronizationLock) {
@@ -228,7 +230,7 @@ public class SubjectAliasStore {
         }
     }
 
-    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String seriesInstanceUid) throws IOException {
+    public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final boolean requireHashing, final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String seriesInstanceUid) throws IOException {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -247,7 +249,7 @@ public class SubjectAliasStore {
         }
 
         // First hash the series instance UID
-        final String hashedSeriesInstanceUid = OneWayHash.hashUid(seriesInstanceUid);
+        final String hashedSeriesInstanceUid = requireHashing ? hashUid(seriesInstanceUid) : convertExistingUid(seriesInstanceUid);
 
         // Ensure that the local and server caches of the hashed patient ID are not being updated before we check them
         synchronized (synchronizationLock) {
@@ -283,7 +285,7 @@ public class SubjectAliasStore {
     }
 
 
-    public void addScanAlias(final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String seriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
+    public void addScanAlias(boolean requireHashing, final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final GiftCloudLabel.ScanLabel scanLabel, final String seriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
 
         if (StringUtils.isBlank(projectName)) {
             throw new IllegalArgumentException("A project name must be specified.");
@@ -306,7 +308,7 @@ public class SubjectAliasStore {
         }
 
         // Hash the series instance UID
-        final String hashedSeriesInstanceUid = OneWayHash.hashUid(seriesInstanceUid);
+        final String hashedSeriesInstanceUid = requireHashing ? hashUid(seriesInstanceUid) : convertExistingUid(seriesInstanceUid);
 
         // Ensure that the local and server caches of the hashed patient ID are not being queried or updated before we check them
         synchronized (synchronizationLock) {

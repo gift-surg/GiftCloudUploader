@@ -30,6 +30,15 @@ public class OneWayHash {
         }
     }
 
+    public static String convertExistingUid(final String inputUid) {
+        if (StringUtils.isBlank(inputUid)) {
+            return null;
+        } else {
+            String hashedUid = inputUid.trim();
+            return hashedUid.replace('.', '_');
+        }
+    }
+
     /** Private constructor - non-instantiable utility class
      */
     private OneWayHash() {
