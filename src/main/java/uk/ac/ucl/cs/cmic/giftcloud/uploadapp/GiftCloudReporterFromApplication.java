@@ -31,16 +31,12 @@ import org.slf4j.Logger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
+
+import java.awt.*;
 
 public class GiftCloudReporterFromApplication implements GiftCloudReporter, MessageLogger, Progress {
 
-    private final Container container;
     private final GiftCloudDialogs giftCloudDialogs;
 
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(GiftCloudReporterFromApplication.class);
@@ -51,29 +47,11 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     private final ProgressModel progressModel = new ProgressModel();
 
     public GiftCloudReporterFromApplication(final Container container, final GiftCloudDialogs giftCloudDialogs) {
-        this.container = container;
         this.giftCloudDialogs = giftCloudDialogs;
         configureLogging();
         messageLogger = new DialogMessageLogger("GIFT-Cloud Log", 512, 384, false/*exitApplicationOnClose*/, false/*visible*/);
         cursorChanger = new SafeCursorChanger(container);
         cursorChanger.saveCursor();
-    }
-
-    private void errorBox(final String errorMessage, final Optional<String> additionalText) {
-        final StringWriter sw = new StringWriter();
-        final PrintWriter writer = new PrintWriter(sw);
-        writer.println(errorMessage);
-        writer.println("Error details:");
-        writer.println(additionalText);
-        final JTextArea text = new JTextArea(sw.toString());
-        text.setEditable(false);
-        container.add(text);
-        container.validate();
-    }
-
-    @Override
-    public Container getContainer() {
-        return container;
     }
 
     @Override
@@ -202,6 +180,4 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     public void warnUser(final String warningMessage) {
         giftCloudDialogs.showMessage(warningMessage);
     }
-
-
 }

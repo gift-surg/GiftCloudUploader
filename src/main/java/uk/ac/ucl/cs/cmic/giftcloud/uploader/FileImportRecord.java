@@ -35,6 +35,8 @@ public abstract class FileImportRecord {
      */
     public abstract String getSeriesIdentifier();
 
+    public abstract String getPatientId();
+
     public abstract String getVisibleName();
 
     public abstract String getModality();

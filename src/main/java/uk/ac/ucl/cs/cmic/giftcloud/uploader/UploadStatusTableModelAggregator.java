@@ -34,14 +34,14 @@ class UploadStatusTableModelAggregator {
     /**
      * Add a notification of a group of files added
      * @param groupId the unique identifier for the group to which all the files belong
-     * @param description the visible name for the file group
+     * @param name the visible name for the file group
      * @param fileUids a list of unique identifiers
      */
-    void notifyFilesAdded(final String groupId, final String date, final String modality, final String description, final List<String> fileUids) {
+    void notifyFilesAdded(final String groupId, final String date, final String modality, final String name, final List<String> fileUids) {
         addEvent(new Runnable() {
             @Override
             public void run() {
-                fileStatusGrouper.addFiles(groupId, date, modality, description, fileUids);
+                fileStatusGrouper.addFiles(groupId, date, modality, name, fileUids);
             }
         });
     }

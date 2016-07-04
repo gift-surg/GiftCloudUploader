@@ -21,6 +21,7 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     protected static String KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY = "GiftCloud.PatientListSpreadsheetPassword";
 
     private final String userAgentString;
+    private final String anonymisationMethodString;
 
     private final PropertyStore properties;
     private GiftCloudReporter reporter;
@@ -32,8 +33,10 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
 
         // Set the user agent string for the application
         final String nameString = resourceBundle.getString("userAgentNameApplication");
+        final String anonymisationMethodPrefix = resourceBundle.getString("anonymisationMethodPrefix");
         final String versionString = resourceBundle.getString("mavenVersion");
         userAgentString = (nameString != null ? nameString : "") + (versionString != null ? versionString : "");
+        anonymisationMethodString =  (anonymisationMethodPrefix != null ? anonymisationMethodPrefix : "") + (versionString != null ? versionString : "");
     }
 
 
@@ -86,6 +89,11 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     @Override
     public String getUserAgentString() {
         return userAgentString;
+    }
+
+    @Override
+    public String getAnonymisationMethodString() {
+        return anonymisationMethodString;
     }
 
     @Override

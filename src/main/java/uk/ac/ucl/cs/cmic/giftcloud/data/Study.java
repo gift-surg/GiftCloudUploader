@@ -28,4 +28,6 @@ public interface Study {
 	XnatModalityParams getXnatModalityParams();
 
     SeriesZipper getSeriesZipper(final Project project, final UploadParameters uploadParameters) throws IOException;
+
+    boolean isAnonymised();
 }

@@ -5,11 +5,13 @@ import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.*;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Class for uploading files and automatically assigning them to projects, subjects, experiments and scans
@@ -17,35 +19,42 @@ import java.util.*;
 public class AutoUploader {
 
     private final BackgroundUploader backgroundUploader;
+    private final UserCallback userCallback;
     private final GiftCloudReporter reporter;
-    private final NameGenerator.SubjectNameGenerator subjectNameGenerator;
-    private final SubjectAliasStore subjectAliasStore;
-    private final GiftCloudProperties properties;
+    private final GiftCloudServerFactory serverFactory;
+    private final AliasGenerator aliasGenerator;
 
     /**
      * This class is used to automatically and asynchronously group and upload multiple files to a GIFT-Cloud server
      *
      * @para serverFactory
+     * @param serverFactory
      * @param reporter
      */
-    public AutoUploader(final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
-        this.properties = properties;
-        this.subjectNameGenerator = new NameGenerator.SubjectNameGenerator(properties.getSubjectPrefix());
+    public AutoUploader(final GiftCloudServerFactory serverFactory, final BackgroundUploader backgroundUploader, final GiftCloudProperties properties, final UserCallback userCallback, final GiftCloudReporter reporter) {
+        this.serverFactory = serverFactory;
         this.backgroundUploader = backgroundUploader;
+        this.userCallback = userCallback;
         this.reporter = reporter;
-        subjectAliasStore = new SubjectAliasStore(new PatientListStore(properties, reporter), reporter);
+        aliasGenerator = new AliasGenerator(properties, reporter);
     }
 
     /**
      * Upload a set of files to the server
      *
-     * @param server a @GiftCloudServer object representing the destination for the files
      * @param paths the set of files to upload
-     * @param projectName the project to which the files will be added
+     * @param projectNameOptional the project to which the files will be added
      * @param append whether to create a new upload or append files to an existing dataset
      * @throws IOException
      */
-    boolean uploadToGiftCloud(final GiftCloudServer server, final List<String> paths, final String projectName, final boolean append) throws IOException {
+    boolean uploadToGiftCloud(final List<String> paths, final Optional<String> projectNameOptional, final boolean append) throws IOException {
+        final GiftCloudServer server = serverFactory.getGiftCloudServer();
+
+        // Allow user to log in again if they have previously cancelled a login dialog
+        server.resetCancellation();
+
+        // If a project name is specified in the uploading task, use that; otherwise we get it from the uploader
+        final String projectName = projectNameOptional.orElse(userCallback.getProjectName(server));
 
         final List<File> fileList = new ArrayList<File>();
         for (final String path : paths) {
@@ -91,7 +100,7 @@ public class AutoUploader {
      * Force saving of the patient list
      */
     public void exportPatientList() {
-        subjectAliasStore.exportPatientList();
+        aliasGenerator.exportPatientList();
     }
 
     private void addSessionToUploadList(final GiftCloudServer server, final Project project, final String projectName, final Study study, final boolean append) throws IOException {
@@ -102,9 +111,10 @@ public class AutoUploader {
 
         final XnatModalityParams xnatModalityParams = study.getXnatModalityParams();
 
-        final GiftCloudLabel.SubjectLabel subjectLabel = getSubjectName(server, projectName, patientId, patientName);
-        final GiftCloudLabel.ExperimentLabel experimentLabel = getSessionName(server, projectName, subjectLabel, studyInstanceUid, xnatModalityParams);
-        final GiftCloudLabel.ScanLabel scanName = getScanName(server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
+        boolean requireHashing = !study.isAnonymised();
+        final GiftCloudLabel.SubjectLabel subjectLabel = aliasGenerator.getSubjectName(requireHashing, server, projectName, patientId, patientName);
+        final GiftCloudLabel.ExperimentLabel experimentLabel = aliasGenerator.getSessionName(requireHashing, server, projectName, subjectLabel, studyInstanceUid, xnatModalityParams);
+        final GiftCloudLabel.ScanLabel scanName = aliasGenerator.getScanName(requireHashing, server, projectName, subjectLabel, experimentLabel, seriesUid, xnatModalityParams);
 
         final List<FileCollection> fileCollections = study.getFiles();
 
@@ -127,57 +137,7 @@ public class AutoUploader {
         }
     }
 
-    private synchronized GiftCloudLabel.SubjectLabel getSubjectName(final GiftCloudServer server, final String projectName, final String patientId, final String patientName) throws IOException {
-        final Optional<GiftCloudLabel.SubjectLabel> existingSubjectLabel = subjectAliasStore.getSubjectAlias(server, projectName, patientId, patientName);
-        if (existingSubjectLabel.isPresent()) {
-            return existingSubjectLabel.get();
-        } else {
-            // Get a list of known subject labels from the server
-            Map<String, String> subjectMapFromServer = server.getListOfSubjects(projectName);
-
-            // Generate a new subject label
-            subjectNameGenerator.updateSubjectNamePrefix(properties.getSubjectPrefix());
-            final GiftCloudLabel.SubjectLabel newSubjectLabel = subjectNameGenerator.getNewName(subjectMapFromServer.keySet());
-
-            // Add the label and its uid alias
-            subjectAliasStore.addSubjectAlias(server, projectName, patientId, newSubjectLabel, patientName);
-            return newSubjectLabel;
-        }
+    public void tryAuthentication() throws IOException {
+        serverFactory.getGiftCloudServer().tryAuthentication();
     }
-
-    private GiftCloudLabel.ExperimentLabel getSessionName(final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final String studyInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<GiftCloudLabel.ExperimentLabel> existingExperimentLabel = subjectAliasStore.getExperimentLabel(server, projectName, subjectLabel, studyInstanceUid);
-        if (existingExperimentLabel.isPresent()) {
-            return existingExperimentLabel.get();
-        } else {
-            // Get a list of known experiment labels from the server for this project
-            final Map<String, String> experimentMapFromServer = server.getListOfSessions(projectName);
-
-            // Generate a new experiment label
-            final GiftCloudLabel.ExperimentLabel newExperimentLabel = subjectNameGenerator.getExperimentNameGenerator(subjectLabel).getNewName(experimentMapFromServer.keySet());
-
-            // Add the label and its uid alias
-            subjectAliasStore.addExperimentAlias(server, projectName, subjectLabel, newExperimentLabel, studyInstanceUid, xnatModalityParams);
-            return newExperimentLabel;
-        }
-    }
-
-    private GiftCloudLabel.ScanLabel getScanName(final GiftCloudServer server, final String projectName, final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String seriesInstanceUid, final XnatModalityParams xnatModalityParams) throws IOException {
-        final Optional<GiftCloudLabel.ScanLabel> existingScanLabel = subjectAliasStore.getScanLabel(server, projectName, subjectLabel, experimentLabel, seriesInstanceUid);
-        if (existingScanLabel.isPresent()) {
-            return existingScanLabel.get();
-        } else {
-            // Get a list of known scan labels from the server for this project, subject and experiment
-            final Map<String, String> scanMapFromServer = server.getListOfScans(projectName, subjectLabel, experimentLabel);
-
-            // Generate a new scan label
-            final GiftCloudLabel.ScanLabel newScanLabel = subjectNameGenerator.getExperimentNameGenerator(subjectLabel).getScanNameGenerator(experimentLabel).getNewName(scanMapFromServer.keySet());
-
-            // Add the label and its uid alias
-            subjectAliasStore.addScanAlias(server, projectName, subjectLabel, experimentLabel, newScanLabel, seriesInstanceUid, xnatModalityParams);
-            return newScanLabel;
-        }
-    }
-
-
 }

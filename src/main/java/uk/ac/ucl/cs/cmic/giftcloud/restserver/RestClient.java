@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface RestServer {
+public interface RestClient {
     void tryAuthentication() throws IOException;
 
     List<String> getListOfProjects() throws IOException;

@@ -5,16 +5,15 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
+import org.dcm4che2.data.VR;
 import org.dcm4che2.io.StopTagInputHandler;
-import org.nrg.dcm.edit.AttributeException;
-import org.nrg.dcm.edit.ScriptApplicator;
-import org.nrg.dcm.edit.ScriptEvaluationException;
-import org.nrg.dcm.edit.Variable;
+import org.nrg.dcm.edit.*;
 import uk.ac.ucl.cs.cmic.giftcloud.data.AssignedSessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariable;
 import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariableNames;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.DicomProjectAnonymisationScripts;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
@@ -31,10 +30,12 @@ import java.util.Map;
 public class DicomMetaDataAnonymiser {
     private final DicomProjectAnonymisationScripts dicomProjectAnonymisationScripts;
     private GiftCloudReporter reporter;
+    private String anonymisationMethodString;
 
-    public DicomMetaDataAnonymiser(final DicomProjectAnonymisationScripts dicomProjectAnonymisationScripts, final GiftCloudReporter reporter) {
+    public DicomMetaDataAnonymiser(final DicomProjectAnonymisationScripts dicomProjectAnonymisationScripts, final GiftCloudProperties properties, final GiftCloudReporter reporter) {
         this.dicomProjectAnonymisationScripts = dicomProjectAnonymisationScripts;
         this.reporter = reporter;
+        this.anonymisationMethodString = properties.getAnonymisationMethodString();
     }
 
     /** Returns a dcm4chee StopTagInputHandler suitable for parsing a DICOM file sufficiently to implement and verify anonymisation
@@ -76,6 +77,9 @@ public class DicomMetaDataAnonymiser {
         for (final ScriptApplicator a : applicators) {
             a.apply(outputDicomFile, originalDicomObject);
         }
+
+        originalDicomObject.putString(Tag.PatientIdentityRemoved, VR.CS, "YES");
+        originalDicomObject.putString(Tag.DeidentificationMethod, VR.LO, anonymisationMethodString);
     }
 
     /** Set the predefined variables for project, subject and session, so that these can be used in the DICOM anonymisation scripts
@@ -120,5 +124,10 @@ public class DicomMetaDataAnonymiser {
             vs.add(DicomSessionVariable.getSessionVariable(dv, sampleObject));
         }
         return vs;
+    }
+
+    public boolean anonymisationIsRequired(final DicomObject o) {
+        final String patientIdentityRemoved = o.getString(Tag.PatientIdentityRemoved);
+        return (patientIdentityRemoved == null) || (!patientIdentityRemoved.equals("YES"));
     }
 }

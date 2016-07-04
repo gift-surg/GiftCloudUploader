@@ -22,11 +22,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 
-import java.awt.*;
-
 public interface GiftCloudReporter extends Progress {
-
-    Container getContainer();
 
     /**
      * Used to display a message to the end user, unless running in background mode

@@ -45,15 +45,15 @@
     -->
     <profiles>
         <profile>
-            <id>Applet</id>
-            <properties>
-                <applet.main.class>MultiUploadAssistantApplet</applet.main.class>
-                <applet.main.package>uk.ac.ucl.cs.cmic.giftcloud.uploadapplet</applet.main.package>
-            </properties>
+            <id>Webstart</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.1</version>
                         <configuration>
                             <source>1.6</source>
                             <target>1.6</target>
@@ -72,78 +72,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-jar-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-source-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <version>1.0-beta-6</version>
-                        <artifactId>webstart-maven-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-jarsigner-plugin</artifactId>
-                    </plugin>
-                </plugins>
-                <pluginManagement>
-                    <plugins>
-                        <!-- Ignore/Execute plugin execution -->
-                        <plugin>
-                            <groupId>org.eclipse.m2e</groupId>
-                            <artifactId>lifecycle-mapping</artifactId>
-                            <version>1.0.0</version>
-                            <configuration>
-                                <lifecycleMappingMetadata>
-                                    <pluginExecutions>
-                                        <!-- copy-dependency plugin -->
-                                        <pluginExecution>
-                                            <pluginExecutionFilter>
-                                                <groupId>org.apache.maven.plugins</groupId>
-                                                <artifactId>maven-dependency-plugin</artifactId>
-                                                <versionRange>[1.0.0,)</versionRange>
-                                                <goals>
-                                                    <goal>copy-dependencies</goal>
-                                                </goals>
-                                            </pluginExecutionFilter>
-                                            <action>
-                                                <ignore/>
-                                            </action>
-                                        </pluginExecution>
-                                    </pluginExecutions>
-                                </lifecycleMappingMetadata>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources</directory>
-                        <filtering>true</filtering>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-        <profile>
-            <id>Application</id>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>2.3.2</version>
-                        <configuration>
-                            <source>1.6</source>
-                            <target>1.6</target>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-dependency-plugin</artifactId>
                     </plugin>
                     <plugin>
                         <artifactId>maven-jar-plugin</artifactId>
@@ -166,63 +94,9 @@
                         <version>2.10.1</version>
                     </plugin>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-jarsigner-plugin</artifactId>
                         <version>1.4</version>
-                        <!-- TODO: comment out the part below for jarsigner to work -->
-                        <!-- <executions>
-                            <execution>
-                                <id>sign</id>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions> -->
                     </plugin>
-                </plugins>
-                <pluginManagement>
-                    <plugins>
-                        <!-- Ignore/Execute plugin execution -->
-                        <plugin>
-                            <groupId>org.eclipse.m2e</groupId>
-                            <artifactId>lifecycle-mapping</artifactId>
-                            <version>1.0.0</version>
-                            <configuration>
-                                <lifecycleMappingMetadata>
-                                    <pluginExecutions>
-                                        <!-- copy-dependency plugin -->
-                                        <pluginExecution>
-                                            <pluginExecutionFilter>
-                                                <groupId>org.apache.maven.plugins</groupId>
-                                                <artifactId>maven-dependency-plugin</artifactId>
-                                                <versionRange>[1.0.0,)</versionRange>
-                                                <goals>
-                                                    <goal>copy-dependencies</goal>
-                                                </goals>
-                                            </pluginExecutionFilter>
-                                            <action>
-                                                <ignore/>
-                                            </action>
-                                        </pluginExecution>
-                                    </pluginExecutions>
-                                </lifecycleMappingMetadata>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources</directory>
-                        <filtering>true</filtering>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-        <profile>
-            <id>Webstart</id>
-            
-            <build>
-                <plugins>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>webstart-maven-plugin</artifactId>
@@ -275,6 +149,36 @@
                         </configuration>
                     </plugin>
                 </plugins>
+                <pluginManagement>
+                    <plugins>
+                        <!-- Ignore/Execute plugin execution -->
+                        <plugin>
+                            <groupId>org.eclipse.m2e</groupId>
+                            <artifactId>lifecycle-mapping</artifactId>
+                            <version>1.0.0</version>
+                            <configuration>
+                                <lifecycleMappingMetadata>
+                                    <pluginExecutions>
+                                        <!-- copy-dependency plugin -->
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>org.apache.maven.plugins</groupId>
+                                                <artifactId>maven-dependency-plugin</artifactId>
+                                                <versionRange>[1.0.0,)</versionRange>
+                                                <goals>
+                                                    <goal>copy-dependencies</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <ignore/>
+                                            </action>
+                                        </pluginExecution>
+                                    </pluginExecutions>
+                                </lifecycleMappingMetadata>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
                 <resources>
                     <resource>
                         <directory>src/main/resources</directory>
@@ -293,14 +197,14 @@
             <url>file:${project.basedir}/repo</url>
         </repository>
         <repository>
-            <id>org.nrg.maven.artifacts.snapshot</id>
-            <name>NRG/XDAT/XNAT Temporary Snapshot Maven Repo</name>
-            <url>http://maven.xnat.org/libs-snapshot</url>
-        </repository>
-        <repository>
             <id>org.nrg.maven.artifacts.release</id>
             <name>NRG/XDAT/XNAT Temporary Release Maven Repo</name>
-            <url>http://maven.xnat.org/libs-release</url>
+            <url>https://nrgxnat.artifactoryonline.com/nrgxnat/libs-release/</url>
+        </repository>
+        <repository>
+            <id>org.nrg.maven.artifacts.snapshot</id>
+            <name>NRG/XDAT/XNAT Temporary Snapshot Maven Repo</name>
+            <url>https://nrgxnat.artifactoryonline.com/nrgxnat/libs-snapshot/</url>
         </repository>
         <repository>
             <id>dcm4che</id>
@@ -312,6 +216,10 @@
             <name>Mojo repository</name>
             <url>http://repo1.maven.org/maven2/org/codehaus/mojo/</url>
         </repository>
+        <repository>
+            <id>jboss-3rd-party-releases</id>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -321,44 +229,39 @@
             <version>1.4</version>
         </dependency>
         <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>pixelmed_codec</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>wizard</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
+            <groupId>java3d</groupId>
             <artifactId>vecmath</artifactId>
             <version>1.3.1</version>
         </dependency>
         <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.media</groupId>
+            <artifactId>jai_core</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.media</groupId>
+            <artifactId>jai_imageio</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.media</groupId>
+            <artifactId>jai-codec</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.hudson</groupId>
             <artifactId>jmdns</artifactId>
             <version>2.1</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>jai_core</artifactId>
-            <version>1.1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>jai_codec</artifactId>
-            <version>1.1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ucl.cs.cmic.giftcloud.localrepo</groupId>
-            <artifactId>jai_imageio</artifactId>
-            <version>1.1</version>
+            <artifactId>pixelmed_codec</artifactId>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
@@ -409,28 +312,6 @@
             <groupId>org.nrg</groupId>
             <artifactId>ecat-io</artifactId>
             <version>0.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>dicom-xnat-sop</artifactId>
-            <version>1.6.4</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>dcm4che-core</artifactId>
-                    <groupId>dcm4che</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>dicom-xnat-util</artifactId>
-            <version>1.6.4</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>dcm4che-core</artifactId>
-                    <groupId>dcm4che</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.nrg</groupId>
@@ -486,16 +367,6 @@
             <groupId>org.nrg</groupId>
             <artifactId>ecat-edit</artifactId>
             <version>0.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>framework</artifactId>
-            <version>1.6.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.nrg</groupId>
-            <artifactId>transaction</artifactId>
-            <version>1.6.4</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

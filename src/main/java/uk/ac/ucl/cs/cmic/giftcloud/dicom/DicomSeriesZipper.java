@@ -12,8 +12,8 @@ import org.nrg.dcm.edit.AttributeException;
 import org.nrg.dcm.edit.ScriptEvaluationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.DicomPixelDataAnonymiser;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 
@@ -29,11 +29,13 @@ public class DicomSeriesZipper extends SeriesZipper {
     private final Logger logger = LoggerFactory.getLogger(DicomSeriesZipper.class);
 
     private final DicomPixelDataAnonymiser pixelDataAnonymiser;
+    private final boolean dataAlreadyAnonymised;
     private final DicomMetaDataAnonymiser metaDataAnonymiser;
     private final UploadParameters uploadParameters;
     private final StopTagInputHandler stopTagInputHandler;
 
-    public DicomSeriesZipper(final DicomMetaDataAnonymiser metaDataAnonymiser, final DicomPixelDataAnonymiser pixelDataAnonymiser, final UploadParameters uploadParameters) throws IOException {
+    public DicomSeriesZipper(final boolean dataAlreadyAnonymised, final DicomMetaDataAnonymiser metaDataAnonymiser, final DicomPixelDataAnonymiser pixelDataAnonymiser, final UploadParameters uploadParameters) throws IOException {
+        this.dataAlreadyAnonymised = dataAlreadyAnonymised;
         this.metaDataAnonymiser = metaDataAnonymiser;
         this.uploadParameters = uploadParameters;
         this.pixelDataAnonymiser = pixelDataAnonymiser;
@@ -41,7 +43,7 @@ public class DicomSeriesZipper extends SeriesZipper {
     }
 
     public void processNextFile(final File nextFile, final ZipOutputStream zos) throws AttributeException, IOException, ScriptEvaluationException, DicomException {
-        final RedactedFileWrapper redactedFileWrapper = pixelDataAnonymiser.createRedactedFile(nextFile);
+        final RedactedFileWrapper redactedFileWrapper = pixelDataAnonymiser.createRedactedFile(nextFile, dataAlreadyAnonymised);
         try {
             addFileToZip(redactedFileWrapper.getFileToProcess(), zos, stopTagInputHandler);
         } finally {
@@ -67,28 +69,31 @@ public class DicomSeriesZipper extends SeriesZipper {
 
                 final DicomObject o = dis.readDicomObject();
 
-                // Temporarily store patient details to confirm they have been modified by the anonymisation scripts
-                final String originalPatientName = o.getString(Tag.PatientName);
-                final String originalPatientId = o.getString(Tag.PatientID);
-                final String originalPatientBirthDate = o.getString(Tag.PatientBirthDate);
+                if (metaDataAnonymiser.anonymisationIsRequired(o)) {
+                    // Temporarily store patient details to confirm they have been modified by the anonymisation scripts
+                    final String originalPatientName = o.getString(Tag.PatientName);
+                    final String originalPatientId = o.getString(Tag.PatientID);
+                    final String originalPatientBirthDate = o.getString(Tag.PatientBirthDate);
 
-                metaDataAnonymiser.anonymiseMetaData(f, uploadParameters, o);
+                    metaDataAnonymiser.anonymiseMetaData(f, uploadParameters, o);
 
-                // Get the new patient details after anonymisation
-                final String finalPatientName = o.getString(Tag.PatientName);
-                final String finalPatientId = o.getString(Tag.PatientID);
-                final String finalPatientBirthDate = o.getString(Tag.PatientBirthDate);
+                    // Get the new patient details after anonymisation
+                    final String finalPatientName = o.getString(Tag.PatientName);
+                    final String finalPatientId = o.getString(Tag.PatientID);
+                    final String finalPatientBirthDate = o.getString(Tag.PatientBirthDate);
 
-                // Check critical tags have been anonymised
-                if (StringUtils.isNotBlank(finalPatientName) && finalPatientName.equals(originalPatientName)) {
-                    throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
+                    // Check critical tags have been anonymised
+                    if (StringUtils.isNotBlank(finalPatientName) && finalPatientName.equals(originalPatientName)) {
+                        throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
+                    }
+                    if (StringUtils.isNotBlank(finalPatientId) && finalPatientId.equals(originalPatientId)) {
+                        throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
+                    }
+                    if (StringUtils.isNotBlank(finalPatientBirthDate) && finalPatientBirthDate.equals(originalPatientBirthDate)) {
+                        throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
+                    }
                 }
-                if (StringUtils.isNotBlank(finalPatientId) && finalPatientId.equals(originalPatientId)) {
-                    throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
-                }
-                if (StringUtils.isNotBlank(finalPatientBirthDate) && finalPatientBirthDate.equals(originalPatientBirthDate)) {
-                    throw new GiftCloudException(GiftCloudUploaderError.ANONYMISATION_UNACCEPTABLE);
-                }
+
 
                 final String tsuid = o.getString(Tag.TransferSyntaxUID, UID.ImplicitVRLittleEndian);
                 final TransferSyntax tsOriginal = TransferSyntax.valueOf(tsuid);

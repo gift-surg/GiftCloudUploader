@@ -1,5 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -12,6 +14,7 @@ import java.util.Set;
  */
 class NameGenerator<T extends GiftCloudLabel> {
     private long nameNumber;
+    private final String numZerosString;
     private final GiftCloudLabel.LabelFactory<T> labelFactory;
     private String prefix;
 
@@ -19,9 +22,10 @@ class NameGenerator<T extends GiftCloudLabel> {
      * @param prefix the string prefix for each generated name
      * @param startNumber the number used for the suffix of the first name, which will be incremented after each name generation
      */
-    NameGenerator(final String prefix, final long startNumber, final GiftCloudLabel.LabelFactory<T> labelFactory) {
+    NameGenerator(final String prefix, final long startNumber, final String numZerosString, final GiftCloudLabel.LabelFactory<T> labelFactory) {
         this.prefix = prefix;
         this.nameNumber = startNumber;
+        this.numZerosString = numZerosString;
         this.labelFactory = labelFactory;
     }
 
@@ -41,22 +45,25 @@ class NameGenerator<T extends GiftCloudLabel> {
      * @return a new name
      */
     T getNewName(final Set<String> knownNames) {
-        String candidateName;
+        Pair<String, String> candidateNames;
 
+        // Repeat until we get a name which doesn't already exist, either in its legacy or new format
         do {
-            candidateName = getNextName();
+            candidateNames = getNextName();
 
-        } while (knownNames.contains(candidateName));
+        } while (knownNames.contains(candidateNames.getLeft()) || knownNames.contains(candidateNames.getRight()));
 
-        return labelFactory.create(candidateName);
+        return labelFactory.create(candidateNames.getLeft());
     }
 
     /** Returns a name that has not been returned before by this object
-     * @return a new name
+     * @return a {@link Pair} containing two versions of the new name. The first should be used. The second is used to prevent duplicates arising from the use of different naming schemes
      */
-    private String getNextName() {
+    private Pair<String, String> getNextName() {
         long nextNameNumber = getNextNameNumber();
-        return prefix + Long.toString(nextNameNumber);
+        final String new_value = prefix + String.format("%0" + numZerosString + "d", nextNameNumber);
+        final String legacy_value = prefix + Long.toString(nextNameNumber);
+        return new ImmutablePair<String, String>(new_value, legacy_value);
     }
 
     private synchronized long getNextNameNumber() {
@@ -74,7 +81,7 @@ class NameGenerator<T extends GiftCloudLabel> {
         /** Creates a new NameGenerator which will create names starting with the given prefix, and incrementing a suffix number starting at startNumber
          */
         SubjectNameGenerator(final Optional<String> prefix) {
-            super(prefix.orElse(defaultAutoSubjectNamePrefix), autoSubjectNameStartNumber, GiftCloudLabel.SubjectLabel.getFactory());
+            super(prefix.orElse(defaultAutoSubjectNamePrefix), autoSubjectNameStartNumber, "3", GiftCloudLabel.SubjectLabel.getFactory());
         }
 
         void updateSubjectNamePrefix(final Optional<String> prefix) {
@@ -108,7 +115,7 @@ class NameGenerator<T extends GiftCloudLabel> {
         /** Creates a new ExperimentNameGenerator which will create GIFT-Cloud experiment labels
          */
         ExperimentNameGenerator() {
-            super(autoExperimentNamePrefix, autoExperimentNameStartNumber, GiftCloudLabel.ExperimentLabel.getFactory());
+            super(autoExperimentNamePrefix, autoExperimentNameStartNumber, "1", GiftCloudLabel.ExperimentLabel.getFactory());
         }
 
         /**
@@ -136,7 +143,7 @@ class NameGenerator<T extends GiftCloudLabel> {
         /** Creates a new ScanNameGenerator which will create GIFT-Cloud scan labels
          */
         ScanNameGenerator() {
-            super(autoScanNamePrefix, autoScanNameStartNumber, GiftCloudLabel.ScanLabel.getFactory());
+            super(autoScanNamePrefix, autoScanNameStartNumber, "1", GiftCloudLabel.ScanLabel.getFactory());
         }
     }
 }

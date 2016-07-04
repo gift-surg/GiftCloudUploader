@@ -43,6 +43,7 @@ class WaitingForUploadDatabase extends Observable {
 
                 // Update table model
                 final String name = fileImportRecord.getVisibleName();
+                final String id = fileImportRecord.getPatientId();
                 final String modality = fileImportRecord.getModality();
                 final String date = fileImportRecord.getDate();
                 tableModelUpdater.notifyFilesAdded(groupId, date, modality, name, fileUids);

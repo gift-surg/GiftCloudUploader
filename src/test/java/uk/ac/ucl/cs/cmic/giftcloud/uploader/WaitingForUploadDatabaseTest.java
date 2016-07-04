@@ -25,9 +25,9 @@ public class WaitingForUploadDatabaseTest {
 
     @Test
     public void combinedTest() throws Exception {
-        FileImportRecord record1 = new MockImportRecord("SERIES1", "NAME1", "MR", "DATE1", 10, false);
-        FileImportRecord record2 = new MockImportRecord("SERIES2", "NAME2", "US", "DATE2", 9, false);
-        FileImportRecord record3 = new MockImportRecord("SERIES2", "NAME2", "US", "DATE3", 5, false);
+        FileImportRecord record1 = new MockImportRecord("SERIES1", "NAME1", "ID1", "MR", "DATE1", 10, false);
+        FileImportRecord record2 = new MockImportRecord("SERIES2", "NAME2", "ID2", "US", "DATE2", 9, false);
+        FileImportRecord record3 = new MockImportRecord("SERIES2", "NAME2", "ID2", "US", "DATE3", 5, false);
 
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
         database.addFiles(record1);
@@ -62,7 +62,7 @@ public class WaitingForUploadDatabaseTest {
         Assert.assertTrue(tempFile.exists());
         List<String> fileNames = new ArrayList<String>();
         fileNames.add(tempFile.getCanonicalPath());
-        FileImportRecord record1 = new MockImportRecord("SERIES1", "NAME1", "MR", "DATE1", fileNames, true);
+        FileImportRecord record1 = new MockImportRecord("SERIES1", "NAME1", "ID1", "MR", "DATE1", fileNames, true);
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
         database.addFiles(record1);
         tableModelListener.waitForCompletion();
@@ -80,7 +80,7 @@ public class WaitingForUploadDatabaseTest {
         Assert.assertTrue(tempFile.exists());
         List<String> fileNames = new ArrayList<String>();
         fileNames.add(tempFile.getCanonicalPath());
-        FileImportRecord record1 = new MockImportRecord("SERIES1", "NAME1", "MR", "DATE1", fileNames, false);
+        FileImportRecord record1 = new MockImportRecord("SERIES1", "NAME1", "ID1", "MR", "DATE1", fileNames, false);
         tableModelListener.clearAndSetExpectations(0, Integer.MAX_VALUE);
         database.addFiles(record1);
         tableModelListener.waitForCompletion();
@@ -95,24 +95,32 @@ public class WaitingForUploadDatabaseTest {
 
         private String seriesId;
         private String name;
+        private String patientId;
         private String modality;
 
-        MockImportRecord(String seriesId, String name, String modality, final String date, final int numFiles, boolean deleteAfterUpload) {
+        MockImportRecord(String seriesId, String name, String patientId, String modality, final String date, final int numFiles, boolean deleteAfterUpload) {
             super(new ArrayList<String>() {{ for (int index = 0; index < numFiles; index++) { add(UUID.randomUUID().toString()); } }}, date, deleteAfterUpload ? PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD : PendingUploadTask.DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD);
             this.seriesId = seriesId;
             this.name = name;
             this.modality = modality;
+            this.patientId = patientId;
         }
 
-        MockImportRecord(String seriesId, String name, String modality, final String date, final List<String> realFileNames, boolean deleteAfterUpload) {
+        MockImportRecord(String seriesId, String name, String patientId, String modality, final String date, final List<String> realFileNames, boolean deleteAfterUpload) {
             super(realFileNames, date, deleteAfterUpload ? PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD : PendingUploadTask.DeleteAfterUpload.DO_NOT_DELETE_AFTER_UPLOAD);
             this.seriesId = seriesId;
             this.name = name;
             this.modality = modality;
+            this.patientId = patientId;
         }
         @Override
         public String getSeriesIdentifier() {
             return seriesId;
+        }
+
+        @Override
+        public String getPatientId() {
+            return patientId;
         }
 
         @Override

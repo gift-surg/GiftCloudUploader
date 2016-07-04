@@ -46,8 +46,9 @@ public class DicomStudy extends MapEntity implements Entity, Study {
     private final String patientName;
     private final String studyUid;
     private final String seriesUid;
+    private final String patientIdentityRemoved;
 
-    public DicomStudy(final String uid, final Date dateTime, final String id, final String accessionNumber, final String description, final String patientId, final String patientName, final String seriesInstanceUid, final String studyInstanceUid) {
+    public DicomStudy(final String uid, final Date dateTime, final String id, final String accessionNumber, final String description, final String patientId, final String patientName, final String seriesInstanceUid, final String studyInstanceUid, final String patientIdentityRemoved) {
         put(Tag.StudyInstanceUID, uid);
         if (null != dateTime) {
             put(Tag.StudyDate, new SimpleDateFormat("yyyyMMdd").format(dateTime));
@@ -60,6 +61,7 @@ public class DicomStudy extends MapEntity implements Entity, Study {
         this.patientName = patientName;
         this.seriesUid = seriesInstanceUid;
         this.studyUid = studyInstanceUid;
+        this.patientIdentityRemoved = patientIdentityRemoved;
     }
 
     public DicomStudy(final DicomObject o) {
@@ -71,7 +73,8 @@ public class DicomStudy extends MapEntity implements Entity, Study {
                 o.getString(Tag.PatientID),
                 o.getString(Tag.PatientName),
                 o.getString(Tag.SeriesInstanceUID),
-                o.getString(Tag.StudyInstanceUID));
+                o.getString(Tag.StudyInstanceUID),
+                o.getString(Tag.PatientIdentityRemoved));
     }
 
     @Override
@@ -177,7 +180,12 @@ public class DicomStudy extends MapEntity implements Entity, Study {
 
     @Override
     public SeriesZipper getSeriesZipper(final Project project, final UploadParameters uploadParameters) throws IOException {
-        return new DicomSeriesZipper(project.getDicomMetaDataAnonymiser(), project.getPixelDataAnonymiser(), uploadParameters);
+        return new DicomSeriesZipper(isAnonymised(), project.getDicomMetaDataAnonymiser(), project.getPixelDataAnonymiser(), uploadParameters);
+    }
+
+    @Override
+    public boolean isAnonymised() {
+        return patientIdentityRemoved != null && patientIdentityRemoved.equals("YES");
     }
 
 }

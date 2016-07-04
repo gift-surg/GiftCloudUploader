@@ -9,13 +9,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class MockRestServer implements RestServer {
+public class MockRestClient implements RestClient {
 
     private final ProjectMap projectMap = new ProjectMap();
     private final Map<String, GiftCloudLabel.ExperimentLabel> experimentMap = new HashMap<String, GiftCloudLabel.ExperimentLabel>();
     private final Map<String, GiftCloudLabel.ScanLabel> scanMap = new HashMap<String, GiftCloudLabel.ScanLabel>();
 
-    public MockRestServer(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) {
+    public MockRestClient(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) {
     }
 
     public void addTestProject(final String projectName) {

@@ -17,6 +17,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import uk.ac.ucl.cs.cmic.giftcloud.request.AuthorisationFailureException;
 import uk.ac.ucl.cs.cmic.giftcloud.request.ConnectionFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.request.HttpRequest;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -33,12 +34,12 @@ class GiftCloudSession {
     private String baseUrlString;
 
 
-    GiftCloudSession(final String baseUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
+    GiftCloudSession(final String baseUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final UserCallback userCallback, final GiftCloudReporter reporter) throws MalformedURLException {
         this.baseUrlString = baseUrlString;
 
         // Get the GIFT-Cloud icon - this will return null if not found
         ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
-        giftCloudAuthentication = new GiftCloudAuthentication(baseUrlString, connectionFactory, new GiftCloudLoginDialog(icon, giftCloudProperties, reporter.getContainer()), giftCloudProperties, reporter);
+        giftCloudAuthentication = new GiftCloudAuthentication(baseUrlString, connectionFactory, userCallback, giftCloudProperties, reporter);
     }
 
     /**
