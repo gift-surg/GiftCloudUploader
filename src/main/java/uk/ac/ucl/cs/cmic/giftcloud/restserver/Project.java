@@ -38,12 +38,12 @@ public class Project {
 	private final DicomProjectAnonymisationScripts dicomProjectAnonymisationScripts;
 	private final DicomPixelDataAnonymiser pixelDataAnonymiser;
 
-	public Project(final String projectName, final RestServer restServer, PixelDataAnonymiserFilterCache pixelDataAnonymiserFilterCache, GiftCloudProperties properties, GiftCloudReporter reporter) {
+	public Project(final String projectName, final RestClient restClient, PixelDataAnonymiserFilterCache pixelDataAnonymiserFilterCache, GiftCloudProperties properties, GiftCloudReporter reporter) {
 		this.name = projectName;
 
-		sessions = executor.submit(new ProjectSessionLister(restServer, projectName));
-		subjects = executor.submit(new ProjectSubjectLister(restServer, projectName));
-		dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServer, projectName, getDicomFunctions(sessions)));
+		sessions = executor.submit(new ProjectSessionLister(restClient, projectName));
+		subjects = executor.submit(new ProjectSubjectLister(restClient, projectName));
+		dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restClient, projectName, getDicomFunctions(sessions)));
 		dicomProjectAnonymisationScripts = new DicomProjectAnonymisationScripts(dicomScriptApplicator);
 		dicomMetaDataAnonymiser = new DicomMetaDataAnonymiser(dicomProjectAnonymisationScripts, properties, reporter);
 		pixelDataAnonymiser = new DicomPixelDataAnonymiser(pixelDataAnonymiserFilterCache, properties, reporter);

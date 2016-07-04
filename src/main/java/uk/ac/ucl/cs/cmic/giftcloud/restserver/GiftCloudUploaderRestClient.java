@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 
-public class GiftCloudUploaderRestServer implements RestServer {
+public class GiftCloudUploaderRestClient implements RestClient {
 
     // Access to these members is through a synchronized method to ensure thread safety
     private Optional<String> siteWideAnonScript = Optional.empty();
@@ -46,7 +46,7 @@ public class GiftCloudUploaderRestServer implements RestServer {
     private GiftCloudReporter reporter;
 
 
-    public GiftCloudUploaderRestServer(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final UserCallback userCallback, final GiftCloudReporter reporter) throws MalformedURLException {
+    public GiftCloudUploaderRestClient(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final UserCallback userCallback, final GiftCloudReporter reporter) throws MalformedURLException {
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
         giftCloudSession = new GiftCloudSession(giftCloudServerUrlString, giftCloudProperties, connectionFactory, userCallback, reporter);

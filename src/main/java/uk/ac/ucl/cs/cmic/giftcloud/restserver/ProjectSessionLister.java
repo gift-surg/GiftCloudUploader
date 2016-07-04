@@ -27,11 +27,11 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public final class ProjectSessionLister implements Callable<Map<String,String>> {
-	private final RestServer restServer;
+	private final RestClient restServer;
 	private final String projectName;
 	
-	public ProjectSessionLister(final RestServer restServer, final String projectName) {
-		this.restServer = restServer;
+	public ProjectSessionLister(final RestClient restClient, final String projectName) {
+		this.restServer = restClient;
 		this.projectName = projectName;
 	}
 

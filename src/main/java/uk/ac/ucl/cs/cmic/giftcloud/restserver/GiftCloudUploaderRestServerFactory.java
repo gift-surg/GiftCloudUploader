@@ -9,7 +9,7 @@ import java.net.MalformedURLException;
 public class GiftCloudUploaderRestServerFactory implements RestServerFactory {
 
     @Override
-    public RestServer create(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final UserCallback userCallback, final GiftCloudReporter reporter) throws MalformedURLException {
-        return new GiftCloudUploaderRestServer(giftCloudServerUrlString, giftCloudProperties, new HttpConnectionFactory(), userCallback, reporter);
+    public RestClient create(final String giftCloudServerUrlString, final GiftCloudProperties giftCloudProperties, final UserCallback userCallback, final GiftCloudReporter reporter) throws MalformedURLException {
+        return new GiftCloudUploaderRestClient(giftCloudServerUrlString, giftCloudProperties, new HttpConnectionFactory(), userCallback, reporter);
     }
 }
