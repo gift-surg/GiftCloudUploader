@@ -51,6 +51,8 @@ public interface GiftCloudProperties {
 
     String getUserAgentString();
 
+    String getAnonymisationMethodString();
+
     long getShutdownTimeoutMs();
 
     Optional<String> getPacsAeTitle();

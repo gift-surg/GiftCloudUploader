@@ -45,7 +45,7 @@ public class Project {
 		subjects = executor.submit(new ProjectSubjectLister(restServer, projectName));
 		dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServer, projectName, getDicomFunctions(sessions)));
 		dicomProjectAnonymisationScripts = new DicomProjectAnonymisationScripts(dicomScriptApplicator);
-		dicomMetaDataAnonymiser = new DicomMetaDataAnonymiser(dicomProjectAnonymisationScripts, reporter);
+		dicomMetaDataAnonymiser = new DicomMetaDataAnonymiser(dicomProjectAnonymisationScripts, properties, reporter);
 		pixelDataAnonymiser = new DicomPixelDataAnonymiser(pixelDataAnonymiserFilterCache, properties, reporter);
 	}
 
