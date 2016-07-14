@@ -32,16 +32,12 @@
     </developers>
 
     <properties>
-        <jarsigner.keystore>${basedir}/keystore</jarsigner.keystore>
-        <jarsigner.alias>****** put here the alias ******</jarsigner.alias>
-        <jarsigner.storepass>****** put here the store pass ******</jarsigner.storepass>
-        <jarsigner.keypass>****** put here the key pass ******</jarsigner.keypass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <!-- 	Profiles based on http://blog.sonatype.com/2010/01/how-to-create-two-jars-from-one-project-and-why-you-shouldnt/#.VP1Q9Esij1o
-            but in general not recommended. This is a quick and dirty way of creating two different jars: -PApplet creates an applet jar,
-            while -PStandalone creates an executable one. Note that *only* one option can be specified at a time.
+    <!-- 	A profile is used to create the webstart app. We could also define additional profiles for building the jars to support an applet or standalone application by adding more profiles.
+            See http://blog.sonatype.com/2010/01/how-to-create-two-jars-from-one-project-and-why-you-shouldnt/#.VP1Q9Esij1o
+            but in general not recommended.
     -->
     <profiles>
         <profile>
@@ -78,7 +74,7 @@
                         <configuration>
                             <libPath>lib</libPath>
                             <filenameMapping>simple</filenameMapping>
-                            
+
                             <jnlp>
                                 <!-- we play with the resource path and template relative path to test MOJO-391 -->
                                 <!--inputTemplateResourcePath>${project.basedir}/src/</inputTemplateResourcePath>
@@ -86,7 +82,7 @@
                                 <outputFile>webstart.jnlp</outputFile>
                                 <mainClass>uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderApp</mainClass>
                             </jnlp>
-                            
+
                             <!-- SIGNING -->
                             <!-- defining this will automatically sign the jar and its dependencies -->
                             <sign>
@@ -94,7 +90,6 @@
                                 <storetype>${gc.storetype}</storetype>
                                 <keypass>${gc.keypass}</keypass>
                                 <storepass>${gc.storepass}</storepass>
-                                <!--sigfile>m2m2m2</sigfile-->
                                 <alias>${gc.alias}</alias>
                                 <validity>${gc.validity}</validity>
 
