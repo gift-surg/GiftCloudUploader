@@ -110,6 +110,23 @@
                             </updateManifestEntries>
                         </configuration>
                     </plugin>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                                <configuration>
+                                    <tasks>
+                                        <!-- Use an ant task to unzip the output into the installation folder -->
+                                        <unzip src="${project.basedir}/target/${artifactId}-${version}.zip" dest="${gc.installfolder}"/>
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
                 <pluginManagement>
                     <plugins>
