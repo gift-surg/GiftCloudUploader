@@ -100,6 +100,7 @@
                                     <gen>false</gen>
                                 </keystoreConfig>
                             </sign>
+                            <unsignAlreadySignedJars>true</unsignAlreadySignedJars>
                             <updateManifestEntries>
                                 <Application-Name>GIFT-Cloud Uploader</Application-Name>
                                 <Trusted-Library>true</Trusted-Library>
