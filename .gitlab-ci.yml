@@ -18,7 +18,7 @@ gift-adelie:
     - gift-linux
     - java
   except:
-	- dev  
+    - dev  
 
 gift-adelie-deploy:
   script:
@@ -29,7 +29,7 @@ gift-adelie-deploy:
     - gift-linux
     - java
   only:
-	- dev  		
+    - dev  		
 
 gift-jalousie:
   script:
