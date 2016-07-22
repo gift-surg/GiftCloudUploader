@@ -1,5 +1,5 @@
 #!/bin/bash
-if ["$CI_BUILD_REF_NAME" = "dev"]; then
+if [ "$CI_BUILD_REF_NAME" == "dev" ]; then
 	echo "Deploying..."
 	mvn -e -U clean install -B -P Webstart;
 else
