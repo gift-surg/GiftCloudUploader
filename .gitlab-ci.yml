@@ -3,7 +3,7 @@ variables:
 
 gift-gala:
   script:
-    - "$CI_SCRIPTS_DIR/test-linux.sh"
+    - "$CI_SCRIPTS_DIR/test-mac.sh"
   tags:
     - gift-gala
     - gift-mac
@@ -12,11 +12,24 @@ gift-gala:
 gift-adelie:
   script:
     - export JAVA_HOME="/usr/lib/jvm/java-8-oracle/"
+    - "$CI_SCRIPTS_DIR/test-linux.sh"
+  tags:
+    - gift-adelie
+    - gift-linux
+    - java
+  except:
+	- dev  
+
+gift-adelie-deploy:
+  script:
+    - export JAVA_HOME="/usr/lib/jvm/java-8-oracle/"
     - "$CI_SCRIPTS_DIR/test-and-deploy-linux.sh"
   tags:
     - gift-adelie
     - gift-linux
     - java
+  only:
+	- dev  		
 
 gift-jalousie:
   script:

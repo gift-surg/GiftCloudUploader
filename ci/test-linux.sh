@@ -1,5 +1,6 @@
 #!/bin/bash
-mvn -e -U clean test -B
+echo "Building and testing..."
+mvn -e -U clean package -B
 if [ $? -eq 0 ]; then
 	exit 0;
 else
