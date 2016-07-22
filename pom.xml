@@ -127,7 +127,7 @@
                                 <configuration>
                                     <tasks>
                                         <!-- Use an ant task to unzip the output into the installation folder -->
-                                        <unzip src="${project.basedir}/target/${project.artifactId}-${project.version}.zip" dest="${gc.installfolder}"/>
+                                        <unzip src="${project.basedir}/target/${project.artifactId}-${project.version}.zip" dest="${gc.installfolder}"  overwrite="true"/>
                                     </tasks>
                                 </configuration>
                                 <goals>
