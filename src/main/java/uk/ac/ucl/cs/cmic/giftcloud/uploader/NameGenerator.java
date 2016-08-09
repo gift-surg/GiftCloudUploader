@@ -81,7 +81,7 @@ class NameGenerator<T extends GiftCloudLabel> {
         /** Creates a new NameGenerator which will create names starting with the given prefix, and incrementing a suffix number starting at startNumber
          */
         SubjectNameGenerator(final Optional<String> prefix) {
-            super(prefix.orElse(defaultAutoSubjectNamePrefix), autoSubjectNameStartNumber, "3", GiftCloudLabel.SubjectLabel.getFactory());
+            super(prefix.orElse(defaultAutoSubjectNamePrefix), autoSubjectNameStartNumber, "5", GiftCloudLabel.SubjectLabel.getFactory());
         }
 
         void updateSubjectNamePrefix(final Optional<String> prefix) {
