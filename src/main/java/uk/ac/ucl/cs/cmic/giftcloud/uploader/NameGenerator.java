@@ -97,7 +97,7 @@ class NameGenerator<T extends GiftCloudLabel> {
          */
         ExperimentNameGenerator getExperimentNameGenerator(final GiftCloudLabel.SubjectLabel subjectLabel) {
             if (!experimentLabelGeneratorMap.containsKey(subjectLabel)) {
-                experimentLabelGeneratorMap.put(subjectLabel, new ExperimentNameGenerator());
+                experimentLabelGeneratorMap.put(subjectLabel, new ExperimentNameGenerator(subjectLabel.getStringLabel() + "-Study"));
             }
             return experimentLabelGeneratorMap.get(subjectLabel);
         }
@@ -108,13 +108,12 @@ class NameGenerator<T extends GiftCloudLabel> {
      */
     static class ExperimentNameGenerator extends NameGenerator<GiftCloudLabel.ExperimentLabel>{
 
-        private static String autoExperimentNamePrefix = "Study";
         private static long autoExperimentNameStartNumber = 1;
         private Map<GiftCloudLabel.ExperimentLabel, ScanNameGenerator> scanLabelGeneratorMap = new HashMap<GiftCloudLabel.ExperimentLabel, ScanNameGenerator>();
 
         /** Creates a new ExperimentNameGenerator which will create GIFT-Cloud experiment labels
          */
-        ExperimentNameGenerator() {
+        ExperimentNameGenerator(final String autoExperimentNamePrefix) {
             super(autoExperimentNamePrefix, autoExperimentNameStartNumber, "1", GiftCloudLabel.ExperimentLabel.getFactory());
         }
 

@@ -45,7 +45,7 @@ public class NameGeneratorTest {
     }
     @Test
     public void testExperimentNameGenerator() throws Exception {
-        final NameGenerator.ExperimentNameGenerator experimentNameGenerator = new NameGenerator.ExperimentNameGenerator();
+        final NameGenerator.ExperimentNameGenerator experimentNameGenerator = new NameGenerator.ExperimentNameGenerator("Study");
         final GiftCloudLabel.LabelFactory<GiftCloudLabel.ExperimentLabel> experimentLabelFactory = GiftCloudLabel.ExperimentLabel.getFactory();
         commonNameGeneratorTests(experimentNameGenerator, experimentLabelFactory, "Study", "");
 
