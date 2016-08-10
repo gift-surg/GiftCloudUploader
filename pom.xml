@@ -88,7 +88,7 @@
                                 <!-- we play with the resource path and template relative path to test MOJO-391 -->
                                 <!--inputTemplateResourcePath>${project.basedir}/src/</inputTemplateResourcePath>
                                 <inputTemplate>jnlp/template.vm</inputTemplate-->
-                                <outputFile>webstart.jnlp</outputFile>
+                                <outputFile>GiftCloudUploader.jnlp</outputFile>
                                 <mainClass>uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderApp</mainClass>
                             </jnlp>
 
