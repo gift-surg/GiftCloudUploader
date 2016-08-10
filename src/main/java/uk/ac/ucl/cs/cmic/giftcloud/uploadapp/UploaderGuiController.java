@@ -269,7 +269,7 @@ public class UploaderGuiController implements UserCallback {
 
     public void showAboutDialog() {
         mainFrame.show();
-        giftCloudDialogs.showMessage(resourceBundle.getString("giftCloudProductName"));
+        giftCloudDialogs.showMessage(resourceBundle.getString("giftCloudAboutBoxText"));
     }
 
     public void hide() {

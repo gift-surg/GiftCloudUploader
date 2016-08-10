@@ -38,7 +38,7 @@ public class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> 
     }
 
     public String getApplicationName() {
-        return resourceBundle.getString("applicationTitle")
+        return resourceBundle.getString("applicationTitle");
     }
 
     public void show() {
