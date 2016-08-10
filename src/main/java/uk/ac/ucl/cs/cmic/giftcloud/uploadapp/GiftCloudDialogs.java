@@ -16,9 +16,11 @@ public class GiftCloudDialogs {
 
     private final MainFrame mainFrame;
     private final ImageIcon icon;
+    private final String applicationName;
 
-    public GiftCloudDialogs(MainFrame mainFrame) {
+    public GiftCloudDialogs(final MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        this.applicationName = mainFrame.getApplicationName();
 
         // Set the default background colour to white
         UIManager UI = new UIManager();
@@ -35,7 +37,7 @@ public class GiftCloudDialogs {
         messagePanel.add(new JLabel(message, SwingConstants.CENTER));
 
 
-        JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, "GIFT-Cloud", JOptionPane.INFORMATION_MESSAGE, icon);
+        JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, applicationName, JOptionPane.INFORMATION_MESSAGE, icon);
     }
 
     public void showError(final String message, final Optional<String> additionalText) throws HeadlessException {
@@ -50,7 +52,7 @@ public class GiftCloudDialogs {
         stringMessage.append("</html>");
         messagePanel.add(new JLabel(stringMessage.toString(), SwingConstants.CENTER));
 
-        JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, "GIFT-Cloud", JOptionPane.ERROR_MESSAGE, icon);
+        JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, applicationName, JOptionPane.ERROR_MESSAGE, icon);
     }
 
 
@@ -130,7 +132,7 @@ public class GiftCloudDialogs {
 
         final String defaultSelection = projectMap.contains(lastProjectName) ? lastProjectName : null;
 
-        final Object returnValue = JOptionPane.showInputDialog(component, "Please select a project to which data will be uploaded.", "GIFT-Cloud", JOptionPane.QUESTION_MESSAGE, null, projectStringArray, defaultSelection);
+        final Object returnValue = JOptionPane.showInputDialog(component, "Please select a project to which data will be uploaded.", applicationName, JOptionPane.QUESTION_MESSAGE, null, projectStringArray, defaultSelection);
 
         if (returnValue == null) {
             throw new CancellationException("User cancelled project selection during upload");
@@ -148,7 +150,7 @@ public class GiftCloudDialogs {
         String returnString = "";
 
         while (returnString.length() < 1) {
-            final Object returnValue = JOptionPane.showInputDialog(component, message, "GIFT-Cloud", JOptionPane.PLAIN_MESSAGE, icon, null, initialName);
+            final Object returnValue = JOptionPane.showInputDialog(component, message, applicationName, JOptionPane.PLAIN_MESSAGE, icon, null, initialName);
             if (returnValue == null) {
                 throw new CancellationException("User cancelled template saving");
             }

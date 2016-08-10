@@ -37,6 +37,10 @@ public class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> 
         resourceBundle = ResourceBundle.getBundle(resourceBundleName);
     }
 
+    public String getApplicationName() {
+        return resourceBundle.getString("applicationTitle")
+    }
+
     public void show() {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
