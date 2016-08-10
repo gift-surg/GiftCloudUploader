@@ -18,7 +18,7 @@ public class XnatModalityParams {
 
             // Get the session type from the primary scan type. If there is no corresponding session type (for example, if the scan is a secondary capture) then we use the secondary scan type
             String xnatSessionTagFromScanType = primaryXnatScanType.getXnatSessionType();
-            if (StringUtils.isBlank(xnatSessionTagFromScanType)) {
+            if (primaryXnatScanType == XnatScanType.Unknown || StringUtils.isBlank(xnatSessionTagFromScanType)) {
                 xnatSessionTagFromScanType = secondaryScanType.getXnatSessionType();
             }
             if (StringUtils.isNotBlank(xnatSessionTagFromScanType)) {
@@ -26,7 +26,7 @@ public class XnatModalityParams {
             }
 
             String xnatScanTagFromScanType = primaryXnatScanType.getXnatScanType();
-            if (StringUtils.isBlank(xnatScanTagFromScanType)) {
+            if (primaryXnatScanType == XnatScanType.Unknown || StringUtils.isBlank(xnatScanTagFromScanType)) {
                 xnatScanTagFromScanType = secondaryScanType.getXnatScanType();
             }
             if (StringUtils.isNotBlank(xnatScanTagFromScanType)) {

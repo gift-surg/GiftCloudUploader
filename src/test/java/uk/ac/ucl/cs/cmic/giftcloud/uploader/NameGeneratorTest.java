@@ -14,13 +14,13 @@ public class NameGeneratorTest {
     public void testSubjectNameGenerator() throws Exception {
         final NameGenerator.SubjectNameGenerator subjectNameGenerator = new NameGenerator.SubjectNameGenerator(Optional.of("AutoUploadSubject"));
         final GiftCloudLabel.LabelFactory<GiftCloudLabel.SubjectLabel> subjectLabelFactory = GiftCloudLabel.SubjectLabel.getFactory();
-        commonNameGeneratorTests(subjectNameGenerator, subjectLabelFactory, "AutoUploadSubject", "00");
+        commonNameGeneratorTests(subjectNameGenerator, subjectLabelFactory, "AutoUploadSubject", "0000");
 
         final NameGenerator.ExperimentNameGenerator experimentNameGenerator1 = subjectNameGenerator.getExperimentNameGenerator(subjectLabelFactory.create("Subject001"));
         final NameGenerator.ExperimentNameGenerator experimentNameGenerator2 = subjectNameGenerator.getExperimentNameGenerator(subjectLabelFactory.create("Subject002"));
 
-        commonNameGeneratorTests(experimentNameGenerator1, GiftCloudLabel.ScanLabel.getFactory(), "Study", "");
-        commonNameGeneratorTests(experimentNameGenerator2, GiftCloudLabel.ScanLabel.getFactory(), "Study", "");
+        commonNameGeneratorTests(experimentNameGenerator1, GiftCloudLabel.ScanLabel.getFactory(), "Subject001-Study", "");
+        commonNameGeneratorTests(experimentNameGenerator2, GiftCloudLabel.ScanLabel.getFactory(), "Subject002-Study", "");
 
         GiftCloudLabel label1 = subjectLabelFactory.create("Study1");
         GiftCloudLabel label2 = subjectLabelFactory.create("Study1");
@@ -29,19 +29,19 @@ public class NameGeneratorTest {
         final NameGenerator.ExperimentNameGenerator experimentNameGenerator1again = subjectNameGenerator.getExperimentNameGenerator(subjectLabelFactory.create("Subject001"));
         Assert.assertSame(experimentNameGenerator1again, experimentNameGenerator1);
         final Set<String> knownNames = new HashSet<String>();
-        Assert.assertEquals(experimentNameGenerator1again.getNewName(knownNames), GiftCloudLabel.ExperimentLabel.getFactory().create("Study9"));
+        Assert.assertEquals(experimentNameGenerator1again.getNewName(knownNames), GiftCloudLabel.ExperimentLabel.getFactory().create("Subject001-Study9"));
 
 
         final String newSubjectPrefix = "SubjectTest";
 
         // Updating with a different prefix will change the prefix and reset the index number
         subjectNameGenerator.updateSubjectNamePrefix(Optional.of(newSubjectPrefix));
-        Assert.assertEquals(subjectNameGenerator.getNewName(knownNames), subjectLabelFactory.create(newSubjectPrefix + "001"));
-        Assert.assertEquals(subjectNameGenerator.getNewName(knownNames), subjectLabelFactory.create(newSubjectPrefix + "002"));
+        Assert.assertEquals(subjectNameGenerator.getNewName(knownNames), subjectLabelFactory.create(newSubjectPrefix + "00001"));
+        Assert.assertEquals(subjectNameGenerator.getNewName(knownNames), subjectLabelFactory.create(newSubjectPrefix + "00002"));
 
         // Updating with the same prefix will not update the index number
         subjectNameGenerator.updateNamePrefix(newSubjectPrefix, 1);
-        Assert.assertEquals(subjectNameGenerator.getNewName(knownNames), subjectLabelFactory.create(newSubjectPrefix + "003"));
+        Assert.assertEquals(subjectNameGenerator.getNewName(knownNames), subjectLabelFactory.create(newSubjectPrefix + "00003"));
     }
     @Test
     public void testExperimentNameGenerator() throws Exception {
@@ -83,8 +83,8 @@ public class NameGeneratorTest {
 
         knownNames.add(prefix + "4");   // Legacy name format
 
-        if (leadingZeros.equals("00")) {
-            knownNames.add(prefix + "006"); // New name format
+        if (leadingZeros.equals("0000")) {
+            knownNames.add(prefix + "00006"); // New name format
         } else {
             knownNames.add(prefix + "6"); // New name format
         }
@@ -93,8 +93,8 @@ public class NameGeneratorTest {
         Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + leadingZeros + "7"));
         Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + leadingZeros + "8"));
 
-        if (leadingZeros.equals("00")) {
-            knownNames.add(prefix + "010"); // New name format
+        if (leadingZeros.equals("0000")) {
+            knownNames.add(prefix + "00010"); // New name format
         } else {
             knownNames.add(prefix + "10"); // New name format
         }
@@ -102,9 +102,9 @@ public class NameGeneratorTest {
         knownNames.add(prefix + "12");  // Legacy name format
 
         Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + leadingZeros + "9"));
-        if (leadingZeros.equals("00")) {
-            Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + "011"));
-            Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + "013"));
+        if (leadingZeros.equals("0000")) {
+            Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + "00011"));
+            Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + "00013"));
         } else {
             Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + "11"));
             Assert.assertEquals(nameGenerator.getNewName(knownNames), labelFactory.create(prefix + "13"));
