@@ -76,23 +76,20 @@ public class UploaderGuiController implements UserCallback {
         URL iconURL = GiftCloudUploaderApp.class.getResource("/uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png");
 
         if (iconURL == null) {
-            System.out.println("Warning: could not find the icon resource");
+            reporter.silentWarning("Could not find Uploader icon resource.");
         } else {
             if (isOSX()) {
                 try {
                     Image iconImage = ImageIO.read(iconURL);
                     if (iconImage == null) {
-                        System.out.println("Could not find icon");
+                        reporter.silentWarning("Could not find Uploader icon.");
                     } else {
                         Application.getApplication().setDockIconImage(new ImageIcon(iconImage).getImage());
                     }
                 } catch (Exception e) {
-                    System.out.println("Warning: could not configure the dock menu");
-                    e.printStackTrace(System.err);
+                    reporter.silentLogException(e, "Could not configure the dock menu: " + e.getLocalizedMessage());
                 }
             }
-
-
         }
 
         System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -146,7 +143,7 @@ public class UploaderGuiController implements UserCallback {
             dicomListener.activateStorageSCP();
         } catch (Throwable e) {
             dicomNodeFailureException = Optional.of(e);
-            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
+            reporter.silentLogException(e, resourceBundle.getString("dicomNodeFailureMessageWithDetails") + e.getLocalizedMessage());
         }
 
         new Thread(new Runnable() {
@@ -175,7 +172,7 @@ public class UploaderGuiController implements UserCallback {
                 } else {
                     // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
                     if (dicomNodeFailureException.isPresent()) {
-                        reporter.reportErrorToUser("The DICOM listening node failed to start. Please check the listener settings and restart the listener.", dicomNodeFailureException.get());
+                        reporter.reportErrorToUser(resourceBundle.getString("dicomNodeFailureMessage"), dicomNodeFailureException.get());
                         showConfigureDialog(startImport);
                     }
                 }
@@ -292,7 +289,7 @@ public class UploaderGuiController implements UserCallback {
         try {
             queryRetrieveController.retrieve(currentRemoteQuerySelectionList);
         } catch (Exception e) {
-            reporter.reportErrorToUser("The DICOM retrieve operation failed due to the following error:", e);
+            reporter.reportErrorToUser(resourceBundle.getString("dicomRetrieveFailureMessage"), e);
         }
     }
 
@@ -300,7 +297,7 @@ public class UploaderGuiController implements UserCallback {
         try {
             queryRetrieveController.query(queryParams);
         } catch (Exception e) {
-            reporter.reportErrorToUser("The DICOM query operation failed due to the following error:", e);
+            reporter.reportErrorToUser(resourceBundle.getString("dicomQueryFailureMessage"), e);
         }
     }
 
@@ -324,7 +321,7 @@ public class UploaderGuiController implements UserCallback {
                         runImport(selectFileOrDirectory.get().getSelectedFiles(), true, reporter);
                     }
                 } catch (Exception e) {
-                    reporter.reportErrorToUser("Exporting failed due to the following error: " + e.getLocalizedMessage(), e);
+                    reporter.reportErrorToUser(resourceBundle.getString("fileImportFailureMessage") + e.getLocalizedMessage(), e);
                 } finally {
                     reporter.restoreCursor();
                 }
@@ -341,8 +338,8 @@ public class UploaderGuiController implements UserCallback {
         try {
             dicomListener.activateStorageSCP();
         } catch (Throwable e) {
-            reporter.silentLogException(e, "The DICOM listening node failed to start due to the following error: " + e.getLocalizedMessage());
-            reporter.showError("The DICOM listening node failed to start. Please check the listener settings and restart the listener.");
+            reporter.silentLogException(e, resourceBundle.getString("dicomNodeFailureMessageWithDetails") + e.getLocalizedMessage());
+            reporter.reportErrorToUser(resourceBundle.getString("dicomNodeFailureMessage"), e);
         }
     }
 

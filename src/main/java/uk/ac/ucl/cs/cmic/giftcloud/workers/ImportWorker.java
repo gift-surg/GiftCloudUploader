@@ -27,18 +27,17 @@ public class ImportWorker implements Runnable {
     public void run() {
         uploaderStatusModel.setImportingStatusMessage("Importing files...");
         reporter.startProgressBar();
-        boolean anyFiles = false;
 
         try {
-            anyFiles = masterFileImporter.importFiles(fileList, progress);
+            boolean anyFiles = masterFileImporter.importFiles(fileList, progress);
+            final String statusMessage = anyFiles ? "Files have been imported and added to the upload queue." : "Waiting to receive files.";
+            uploaderStatusModel.setImportingStatusMessage(statusMessage);
         } catch (Exception e) {
             uploaderStatusModel.setImportingStatusMessage("Failure when importing files" , e);
             reporter.silentLogException(e, "Failure when importing files");
         }
 
         reporter.endProgressBar();
-        final String statusMessage = anyFiles ? "Files have been imported and are ready for upload" : "Ready";
-        uploaderStatusModel.setImportingStatusMessage(statusMessage);
         // importer sends its own completion message to log, so do not need another one
     }
 }

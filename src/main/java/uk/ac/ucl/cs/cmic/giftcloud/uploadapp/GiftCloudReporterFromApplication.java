@@ -79,7 +79,7 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
             additionalText = Optional.of(throwable.getLocalizedMessage());
         }
 
-        giftCloudDialogs.showError(errorMessageForUser, additionalText);
+        giftCloudDialogs.showError("<html>" + errorMessageForUser + "</html>", additionalText);
         updateStatusText(errorMessageForStatusBar);
         logger.error(errorMessageForLog);
         throwable.printStackTrace(System.err);

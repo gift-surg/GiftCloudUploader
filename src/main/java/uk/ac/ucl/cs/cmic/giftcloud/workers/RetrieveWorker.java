@@ -74,11 +74,13 @@ public class RetrieveWorker implements Runnable {
 
     private void performRetrieve(AttributeList uniqueKeys,String selectionLevel,String retrieveAE) {
         try {
+            uploaderStatusModel.setImportingStatusMessage("Retrieving files...");
             AttributeList identifier = new AttributeList();
             if (uniqueKeys != null) {
                 identifier.putAll(uniqueKeys);
                 { AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue(selectionLevel); identifier.put(t,a); }
                 currentRemoteQueryInformationModel.performHierarchicalMoveFrom(identifier,retrieveAE);
+                uploaderStatusModel.setImportingStatusMessage("Files have been retrieved and added to the upload queue.");
             }
             // else do nothing, since no unique key to specify what to retrieve
         } catch (Exception e) {

@@ -58,7 +58,7 @@ public class DicomListener {
      * @throws	com.pixelmed.dicom.DicomException
      */
     public void activateStorageSCP() throws IOException {
-        uploaderStatusModel.setImportingStatusMessage("Starting up Dicom listening service");
+        uploaderStatusModel.setImportingStatusMessage("Starting up Dicom listener");
         final File savedImagesFolder = giftCloudProperties.getUploadFolder(reporter);
 
         // Start up DICOM association listener in background for receiving images and responding to echoes ...
@@ -66,17 +66,18 @@ public class DicomListener {
             int port = giftCloudProperties.getListeningPort();
             if (port < 0) {
 
-                uploaderStatusModel.setImportingStatusMessage("Cannot listen to PACS because the port is not set");
-                throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_PORT, "Could not start the Dicom storage SCP service because the port was not set");
+                uploaderStatusModel.setImportingStatusMessage("Cannot start the DICOM listener because the port is not set");
+                throw new GiftCloudException(GiftCloudUploaderError.EMPTY_LISTENER_PORT, "Could not start the Dicom listener because the port is not set");
             }
             final String ourAETitle = giftCloudProperties.getListenerAETitle();
 
-            ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting up DICOM association listener on port " + port  + " AET " + ourAETitle));
+            ApplicationEventDispatcher.getApplicationEventDispatcher().processEvent(new StatusChangeEvent("Starting the DICOM listener on port " + port  + " AET " + ourAETitle));
             storageSOPClassSCPDispatcher = new StorageSOPClassSCPDispatcher(port, ourAETitle, savedImagesFolder, StoredFilePathStrategy.BYSOPINSTANCEUIDINSINGLEFOLDER, new OurReceivedObjectHandler(),
                     new OurPresentationContextSelectionPolicy(),
                     false/*secureTransport*/
             );
             storageSOPClassSCPDispatcher.startup();
+            uploaderStatusModel.setImportingStatusMessage("Dicom listener started.");
         }
     }
 
@@ -89,14 +90,14 @@ public class DicomListener {
 
     public void shutdownStorageSCP() {
         if (storageSOPClassSCPDispatcher != null) {
-            uploaderStatusModel.setImportingStatusMessage("Shutting down Dicom listening service");
+            uploaderStatusModel.setImportingStatusMessage("Stopping the DICOM listener");
             storageSOPClassSCPDispatcher.shutdown();
         }
     }
 
     public void shutdownStorageSCPAndWait(final long maximumThreadCompletionWaitTime) {
         if (storageSOPClassSCPDispatcher != null) {
-            uploaderStatusModel.setImportingStatusMessage("Shutting down Dicom listening service");
+            uploaderStatusModel.setImportingStatusMessage("Stopping the DICOM listener");
             storageSOPClassSCPDispatcher.shutdownAndWait(maximumThreadCompletionWaitTime);
         }
     }
