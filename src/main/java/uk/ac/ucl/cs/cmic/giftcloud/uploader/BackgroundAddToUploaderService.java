@@ -26,10 +26,10 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
     @Override
     protected void processItem(PendingUploadTask pendingUploadTask) throws Exception {
 
-        final List<String> paths = pendingUploadTask.getPaths();
-        if (paths.size() > 0) {
-            uploaderStatusModel.setImportingStatusMessage("Adding file to upload queue:" + new File(paths.get(0)).getName());
-        }
+//        final List<String> paths = pendingUploadTask.getPaths();
+//        if (paths.size() > 0) {
+//            uploaderStatusModel.setImportingStatusMessage("Adding file to upload queue:" + new File(paths.get(0)).getName());
+//        }
 
         autoUploader.uploadToGiftCloud(pendingUploadTask.getPaths(), pendingUploadTask.getProjectName(), pendingUploadTask.shouldAppend());
     }
