@@ -34,8 +34,19 @@ public class GiftCloudDialogs {
     public void showMessage(final String message) throws HeadlessException {
 
         final JPanel messagePanel = new JPanel(new GridBagLayout());
-        messagePanel.add(new JLabel(message, SwingConstants.CENTER));
+        final JEditorPane textField = new JEditorPane();
+        textField.setContentType("text/html");
+        textField.setText(message);
+        textField.setEditable(false);
+        textField.setBackground(null);
+        textField.setBorder(null);
+        textField.setEditable(false);
+        textField.setForeground(UIManager.getColor("Label.foreground"));
+        textField.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+        textField.setFont(UIManager.getFont("Label.font"));
 
+        messagePanel.add(textField);
+        textField.setAlignmentX(SwingConstants.CENTER);
 
         JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, applicationName, JOptionPane.INFORMATION_MESSAGE, icon);
     }
