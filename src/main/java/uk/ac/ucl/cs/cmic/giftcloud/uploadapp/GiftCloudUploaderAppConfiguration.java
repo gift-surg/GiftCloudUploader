@@ -1,8 +1,8 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.apple.eawt.Application;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.imageio.ImageIO;
@@ -24,11 +24,14 @@ public class GiftCloudUploaderAppConfiguration {
     private Optional<MainFrame> mainFrame = Optional.empty();
     private final String applicationTitle;
     private Optional<Image> iconImage = Optional.empty();
+    private final GiftCloudLogger logger;
+    private final GiftCloudPropertiesFromApplication properties;
 
     public GiftCloudUploaderAppConfiguration() {
         /// Get up root folder for logging
-        final File appRoot = GiftCloudUtils.createOrGetGiftCloudFolder(Optional.<GiftCloudReporter>empty());
+        final File appRoot = GiftCloudUtils.createOrGetGiftCloudFolder(Optional.<LoggingReporter>empty());
         System.setProperty("app.root", appRoot.getAbsolutePath());
+        logger = new GiftCloudLogger();
 
         // Use the Java Web Start single instance mechanism to ensure only one instance of the application is running at a time. This is critical as the properties and patient list caching is not safe across multiple instances
         try {
@@ -46,12 +49,12 @@ public class GiftCloudUploaderAppConfiguration {
         final URL iconURL = GiftCloudUploaderApp.class.getResource(iconURLString);
 
         if (iconURL == null) {
-            System.out.println("Could not find Uploader icon resource.");
+            logger.silentWarning("Could not find the Uploader icon resource.");
         } else {
             try {
                 final Image loadedImage = ImageIO.read(iconURL);
                 if (loadedImage == null) {
-                    System.out.println("Could not find Uploader icon.");
+                    logger.silentWarning("Could not find the Uploader icon.");
                 } else {
                     iconImage = Optional.of(loadedImage);
 
@@ -61,7 +64,7 @@ public class GiftCloudUploaderAppConfiguration {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Failed to load the application icon: " + e.getLocalizedMessage());
+                logger.silentLogException(e, "Failed to load the Uploader icon.");
             }
         }
 
@@ -72,6 +75,9 @@ public class GiftCloudUploaderAppConfiguration {
             // This is used to set the application title on OSX, but may not work when run from the debugger
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", applicationTitle);
         }
+
+        // Initialise application properties
+        properties = new GiftCloudPropertiesFromApplication(new PropertyStoreFromApplication(GiftCloudMainFrame.propertiesFileName, logger), resourceBundle, logger);
     }
 
     public String getApplicationTitle() {
@@ -96,6 +102,14 @@ public class GiftCloudUploaderAppConfiguration {
 
     public ImageIcon getLargeIcon() {
         return new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
+    }
+
+    public GiftCloudLogger getLogger() {
+        return logger;
+    }
+
+    public GiftCloudPropertiesFromApplication getProperties() {
+        return properties;
     }
 
     /**

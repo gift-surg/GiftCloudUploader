@@ -6,7 +6,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLoginDialog;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderController;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
@@ -39,14 +38,12 @@ public class UploaderGuiController implements UserCallback {
     private final UploaderController uploaderController;
     private GiftCloudLoginDialog loginDialog;
 
-    public UploaderGuiController(final GiftCloudUploaderAppConfiguration application, final MainFrame mainFrame, final RestServerFactory restServerFactory, final PropertyStore propertyStore, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public UploaderGuiController(final GiftCloudUploaderAppConfiguration application, final MainFrame mainFrame, final RestServerFactory restServerFactory, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         resourceBundle = application.getResourceBundle();
         this.mainFrame = mainFrame;
         this.giftCloudDialogs = dialogs;
+        this.giftCloudProperties = application.getProperties();
         this.reporter = reporter;
-
-        // Initialise application properties
-        giftCloudProperties = new GiftCloudPropertiesFromApplication(propertyStore, resourceBundle, reporter);
 
         // Create the object used for creating user login dialogs if necessary
         this.loginDialog = new GiftCloudLoginDialog(application, giftCloudProperties, mainFrame.getContainer());
@@ -230,7 +227,6 @@ public class UploaderGuiController implements UserCallback {
             public void run() {
                 try {
                     reporter.setWaitCursor();
-                    reporter.showMesageLogger();
 
                     Optional<GiftCloudDialogs.SelectedPathAndFiles> selectFileOrDirectory = giftCloudDialogs.selectMultipleFilesOrDirectors(giftCloudProperties.getLastImportDirectory());
 

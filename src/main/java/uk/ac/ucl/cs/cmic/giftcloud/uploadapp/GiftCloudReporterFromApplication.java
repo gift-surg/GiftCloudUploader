@@ -20,14 +20,10 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-
-import com.pixelmed.display.DialogMessageLogger;
 import com.pixelmed.display.SafeCursorChanger;
 import com.pixelmed.display.event.StatusChangeEvent;
 import com.pixelmed.event.ApplicationEventDispatcher;
-import com.pixelmed.utils.MessageLogger;
 import org.apache.log4j.PropertyConfigurator;
-import org.slf4j.Logger;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
@@ -35,21 +31,19 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.awt.*;
 
-public class GiftCloudReporterFromApplication implements GiftCloudReporter, MessageLogger, Progress {
+public class GiftCloudReporterFromApplication implements GiftCloudReporter, Progress {
 
     private final GiftCloudDialogs giftCloudDialogs;
 
-    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(GiftCloudReporterFromApplication.class);
-
     protected final SafeCursorChanger cursorChanger;
-    protected final MessageLogger messageLogger;
 
     private final ProgressModel progressModel = new ProgressModel();
+    private final GiftCloudLogger logger;
 
-    public GiftCloudReporterFromApplication(final Container container, final GiftCloudDialogs giftCloudDialogs) {
+    public GiftCloudReporterFromApplication(final GiftCloudLogger logger, final Container container, final GiftCloudDialogs giftCloudDialogs) {
         this.giftCloudDialogs = giftCloudDialogs;
+        this.logger = logger;
         configureLogging();
-        messageLogger = new DialogMessageLogger("GIFT-Cloud Log", 512, 384, false/*exitApplicationOnClose*/, false/*visible*/);
         cursorChanger = new SafeCursorChanger(container);
         cursorChanger.saveCursor();
     }

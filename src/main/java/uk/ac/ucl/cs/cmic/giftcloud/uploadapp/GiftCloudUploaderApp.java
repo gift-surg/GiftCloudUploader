@@ -16,8 +16,9 @@ public class GiftCloudUploaderApp {
             final GiftCloudMainFrame mainFrame = new GiftCloudMainFrame(application);
             application.registerMainFrame(mainFrame);
             final GiftCloudDialogs dialogs = new GiftCloudDialogs(application, mainFrame);
-            final GiftCloudReporterFromApplication reporter = new GiftCloudReporterFromApplication(mainFrame.getContainer(), dialogs);
-            UploaderGuiController uploaderMain = new UploaderGuiController(application, mainFrame, restServerFactory, new PropertyStoreFromApplication(GiftCloudMainFrame.propertiesFileName, reporter), dialogs, reporter);
+            final GiftCloudReporterFromApplication reporter = new GiftCloudReporterFromApplication(application.getLogger(), mainFrame.getContainer(), dialogs);
+
+            UploaderGuiController uploaderMain = new UploaderGuiController(application, mainFrame, restServerFactory, dialogs, reporter);
             uploaderMain.start(false, fileList);
         }
         catch (Exception e) {
