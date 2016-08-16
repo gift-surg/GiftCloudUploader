@@ -11,11 +11,11 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.*;
 import java.security.GeneralSecurityException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * Class for exporting a patient map to an Excel spreadsheet
@@ -40,7 +40,7 @@ public class ExcelWriter extends PatientListWriter {
      * @param patientListFolder the folder to which the excel file will be exported
      * @param reporter for error reporting
      */
-    public ExcelWriter(final File patientListFolder, final Optional<char[]> spreadsheetPassword, final GiftCloudReporter reporter) {
+    public ExcelWriter(final File patientListFolder, final Optional<char[]> spreadsheetPassword, final LoggingReporter reporter) {
         super(patientListFolder, reporter);
         this.spreadsheetPassword = spreadsheetPassword;
         workbook = new XSSFWorkbook();

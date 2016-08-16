@@ -2,8 +2,8 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public abstract class PatientListWriter {
     private final File patientListFolder;
-    protected final GiftCloudReporter reporter;
+    protected final LoggingReporter reporter;
     private final Map<String, PatientListForProject> sheets = new HashMap<String, PatientListForProject>();
 
     /**
@@ -25,7 +25,7 @@ public abstract class PatientListWriter {
      * @param patientListFolder the folder to which the excel file will be exported
      * @param reporter for error reporting
      */
-    public PatientListWriter(final File patientListFolder, final GiftCloudReporter reporter) {
+    public PatientListWriter(final File patientListFolder, final LoggingReporter reporter) {
         this.patientListFolder = patientListFolder;
         this.reporter = reporter;
         if (!GiftCloudUtils.createDirectoryIfNotExisting(patientListFolder)) {

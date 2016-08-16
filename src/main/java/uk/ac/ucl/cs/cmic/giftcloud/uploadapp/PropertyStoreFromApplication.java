@@ -2,7 +2,8 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.utils.FileUtilities;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,18 +15,17 @@ import java.security.UnrecoverableEntryException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.Map;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.Properties;
 
 public class PropertyStoreFromApplication implements PropertyStore {
 
-    private GiftCloudReporter reporter;
+    private final LoggingReporter reporter;
     private Optional<PasswordStore> passwordStore = null;
     private final Map<String, Optional<char[]>> passwords = new HashMap<String, Optional<char[]>>();
     private final Properties applicationProperties;
     private final String applicationPropertyFileName;
 
-    public PropertyStoreFromApplication(final String applicationPropertyFileName, final GiftCloudReporter reporter) {
+    public PropertyStoreFromApplication(final String applicationPropertyFileName, final LoggingReporter reporter) {
         this.applicationPropertyFileName = applicationPropertyFileName;
         this.reporter = reporter;
         try {

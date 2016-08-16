@@ -28,6 +28,7 @@ public class UploaderMediaImporter extends MediaImporter {
             giftCloudUploader.importFiles(new DicomFileImportRecord(mediaFileName, GiftCloudUtils.getDateAsAString(), deleteAfterUpload, Optional.of(list)));
 
         } catch (Exception e) {
+            reporter.silentLogException(e, "Error during file import");
             e.printStackTrace(System.err);
         }
     }

@@ -94,7 +94,7 @@ public class GiftCloudUtils {
      * @param reporter for logging warnings
      * @return File object referencing the existing or newly created folder
      */
-    public static File createOrGetLocalUploadCacheDirectory(final GiftCloudReporter reporter) {
+    public static File createOrGetLocalUploadCacheDirectory(final LoggingReporter reporter) {
 
         final File appFolder = createOrGetGiftCloudFolder(Optional.of(reporter));
 
@@ -114,7 +114,7 @@ public class GiftCloudUtils {
      * @param reporter for logging warnings
      * @return File object referencing the existing or newly created folder
      */
-    public static File createOrGetTemplateDirectory(final GiftCloudReporter reporter) {
+    public static File createOrGetTemplateDirectory(final LoggingReporter reporter) {
 
         final File appFolder = createOrGetGiftCloudFolder(Optional.of(reporter));
 
@@ -149,7 +149,7 @@ public class GiftCloudUtils {
      * @param reporter for logging warnings
      * @return File object referencing the existing or newly created folder
      */
-    public static File createOrGetGiftCloudFolder(final Optional<GiftCloudReporter> reporter) {
+    public static File createOrGetGiftCloudFolder(final Optional<LoggingReporter> reporter) {
 
         File appFolder = new File(System.getProperty("user.home"), GIFT_CLOUD_APPLICATION_DATA_FOLDER_NAME);
 

@@ -6,7 +6,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
 
 import java.io.*;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ public class JsonWriter extends PatientListWriter {
      * @param patientListFolder the folder to which the patient list will be stored
      * @param reporter for error and progress reporting
      */
-    public JsonWriter(final File patientListFolder, final GiftCloudReporter reporter) {
+    public JsonWriter(final File patientListFolder, final LoggingReporter reporter) {
         super(patientListFolder, reporter);
         mainObj = new JSONObject();
         projectList = new JSONArray();
@@ -65,7 +65,7 @@ public class JsonWriter extends PatientListWriter {
      * @param reporter for error and progress reporting
      * @return a map of project names to AliasMaps
      */
-    public static Map<String, PatientAliasMap> readProjectMap(final File patientListFolder, final GiftCloudReporter reporter) {
+    public static Map<String, PatientAliasMap> readProjectMap(final File patientListFolder, final LoggingReporter reporter) {
         final Map<String, PatientAliasMap> projectMap = new HashMap<String, PatientAliasMap>();
         JSONParser parser = new JSONParser();
 

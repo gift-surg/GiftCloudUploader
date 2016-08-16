@@ -6,6 +6,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
@@ -24,10 +25,10 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     private final String anonymisationMethodString;
 
     private final PropertyStore properties;
-    private GiftCloudReporter reporter;
+    private final LoggingReporter reporter;
 
 
-    public GiftCloudPropertiesFromApplication(final PropertyStore properties, final ResourceBundle resourceBundle, final GiftCloudReporter reporter) {
+    public GiftCloudPropertiesFromApplication(final PropertyStore properties, final ResourceBundle resourceBundle, final LoggingReporter reporter) {
         this.reporter = reporter;
         this.properties = properties;
 

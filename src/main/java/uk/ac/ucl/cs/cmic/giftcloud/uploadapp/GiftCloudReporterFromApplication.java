@@ -81,18 +81,23 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
 
         giftCloudDialogs.showError("<html>" + errorMessageForUser + "</html>", additionalText);
         updateStatusText(errorMessageForStatusBar);
-        logger.error(errorMessageForLog);
+        logger.silentError(errorMessageForLog);
         throwable.printStackTrace(System.err);
     }
 
     @Override
     public void silentWarning(final String warning) {
-        logger.info(warning);
+        logger.silentWarning(warning);
+    }
+
+    @Override
+    public void silentError(final String error) {
+        logger.silentError(error);
     }
 
     @Override
     public void silentLogException(final Throwable throwable, final String errorMessage) {
-        logger.info(errorMessage + ":" + throwable.getLocalizedMessage());
+        logger.silentLogException(throwable, errorMessage);
     }
 
     /**
@@ -110,25 +115,8 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
         cursorChanger.restoreCursor();
     }
 
-
     public void addProgressListener(final Progress progress) {
         progressModel.addListener(progress);
-    }
-
-    @Override
-    public void sendLn(String message) {
-        messageLogger.sendLn(message);
-    }
-
-    @Override
-    public void send(String message) {
-        messageLogger.send(message);
-    }
-
-    public void showMesageLogger() {
-        if (logger instanceof DialogMessageLogger) {
-            ((DialogMessageLogger) logger).setVisible(true);
-        }
     }
 
     public void startProgressBar(int maximum) {
