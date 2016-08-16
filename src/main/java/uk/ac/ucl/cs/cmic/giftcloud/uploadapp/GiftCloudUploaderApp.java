@@ -9,13 +9,8 @@ import java.util.List;
 
 public class GiftCloudUploaderApp {
 
-	public GiftCloudUploaderApp(final RestServerFactory restServerFactory, String arg[]) {
+	public GiftCloudUploaderApp(final RestServerFactory restServerFactory, List<File> fileList) {
         try {
-            final List<File> fileList = new ArrayList<File>();
-            if (arg.length==2) {
-                fileList.add(new File(arg[1]));
-            }
-
             final GiftCloudUploaderAppConfiguration application = new GiftCloudUploaderAppConfiguration();
 
             final GiftCloudMainFrame mainFrame = new GiftCloudMainFrame(application);
@@ -36,6 +31,11 @@ public class GiftCloudUploaderApp {
 	 * @param	arg	none
 	 */
 	public static void main(String arg[]) {
-	    new GiftCloudUploaderApp(new GiftCloudUploaderRestServerFactory(), arg);
+        final List<File> fileList = new ArrayList<File>();
+        if (arg.length==2) {
+            fileList.add(new File(arg[1]));
+        }
+
+        new GiftCloudUploaderApp(new GiftCloudUploaderRestServerFactory(), fileList);
 	}
 }
