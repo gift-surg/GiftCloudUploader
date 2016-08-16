@@ -18,9 +18,9 @@ public class GiftCloudDialogs {
     private final ImageIcon icon;
     private final String applicationName;
 
-    public GiftCloudDialogs(final MainFrame mainFrame) {
+    public GiftCloudDialogs(final GiftCloudUploaderAppConfiguration application, final MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        this.applicationName = mainFrame.getApplicationName();
+        this.applicationName = application.getApplicationTitle();
 
         // Set the default background colour to white
         UIManager UI = new UIManager();
