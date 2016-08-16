@@ -15,6 +15,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 =============================================================================*/
 
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderAppConfiguration;
 
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
@@ -47,8 +48,8 @@ public class GiftCloudLoginDialog {
     private final GiftCloudProperties giftCloudProperties;
     private final Component parent;
 
-    public GiftCloudLoginDialog(final ImageIcon icon, final GiftCloudProperties giftCloudProperties, final Component parent) {
-        this.icon = icon;
+    public GiftCloudLoginDialog(final GiftCloudUploaderAppConfiguration appConfiguration, final GiftCloudProperties giftCloudProperties, final Component parent) {
+        this.icon = appConfiguration.getLargeIcon();
         this.giftCloudProperties = giftCloudProperties;
         this.parent = parent;
     }

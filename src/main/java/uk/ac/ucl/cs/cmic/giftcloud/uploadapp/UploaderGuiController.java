@@ -6,20 +6,16 @@ import uk.ac.ucl.cs.cmic.giftcloud.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLoginDialog;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderController;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
-import uk.ac.ucl.cs.cmic.giftcloud.workers.ImportWorker;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.PasswordAuthentication;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -34,15 +30,13 @@ public class UploaderGuiController implements UserCallback {
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private final MainFrame mainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
-    private final DicomListener dicomListener;
-    private final GiftCloudUploader giftCloudUploader;
     private final UploaderPanel uploaderPanel;
     private ConfigurationDialog configurationDialog = null;
     private PixelDataTemplateDialog pixelDataDialog = null;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
     private final MenuController menuController;
-    private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
+    private final UploaderController uploaderController;
     private GiftCloudLoginDialog loginDialog;
 
     public UploaderGuiController(final GiftCloudUploaderAppConfiguration application, final MainFrame mainFrame, final RestServerFactory restServerFactory, final PropertyStore propertyStore, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
@@ -54,26 +48,19 @@ public class UploaderGuiController implements UserCallback {
         // Initialise application properties
         giftCloudProperties = new GiftCloudPropertiesFromApplication(propertyStore, resourceBundle, reporter);
 
-        // Get the GIFT-Cloud icon - this will return null if not found
-        ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
-
         // Create the object used for creating user login dialogs if necessary
-        this.loginDialog = new GiftCloudLoginDialog(icon, giftCloudProperties, mainFrame.getContainer());
+        this.loginDialog = new GiftCloudLoginDialog(application, giftCloudProperties, mainFrame.getContainer());
 
-        // Initialise the main GIFT-Cloud class
-        final File pendingUploadFolder = giftCloudProperties.getUploadFolder(reporter);
+        uploaderController = new UploaderController(restServerFactory, giftCloudProperties, this, reporter);
 
-        giftCloudUploader = new GiftCloudUploader(restServerFactory, giftCloudProperties, uploaderStatusModel, this, reporter);
-        dicomListener = new DicomListener(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
-
-        uploaderPanel = new UploaderPanel(mainFrame.getParent(), this, giftCloudUploader.getTableModel(), giftCloudProperties, resourceBundle, uploaderStatusModel, reporter);
-        queryRetrieveController = new QueryRetrieveController(uploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderStatusModel, reporter);
+        uploaderPanel = new UploaderPanel(mainFrame.getParent(), this, uploaderController.getTableModel(), giftCloudProperties, resourceBundle, uploaderController.getUploaderStatusModel(), reporter);
+        queryRetrieveController = new QueryRetrieveController(uploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderController.getUploaderStatusModel(), reporter);
 
         mainFrame.addMainPanel(uploaderPanel);
 
         menuController = new MenuController(mainFrame.getParent(), this, resourceBundle, reporter);
         mainFrame.addListener(menuController.new MainWindowVisibilityListener());
-        giftCloudUploader.getBackgroundAddToUploaderService().addListener(menuController.new BackgroundAddToUploaderServiceListener());
+        uploaderController.addBackgroundAddToUploaderServiceListener(menuController.new BackgroundAddToUploaderServiceListener());
 
         final Optional<Boolean> hideWindowOnStartupProperty = giftCloudProperties.getHideWindowOnStartup();
 
@@ -86,13 +73,13 @@ public class UploaderGuiController implements UserCallback {
         }
 
         // Add existing files to the upload queue
-        runImport(Arrays.asList(pendingUploadFolder), false, reporter);
+        uploaderController.importPendingFiles();
     }
 
     public void start(final boolean showImportDialog, final List<File> filesToImport) {
         Optional<Throwable> dicomNodeFailureException = Optional.empty();
         try {
-            dicomListener.activateStorageSCP();
+            uploaderController.startDicomListener();
         } catch (Throwable e) {
             dicomNodeFailureException = Optional.of(e);
             reporter.silentLogException(e, resourceBundle.getString("dicomNodeFailureMessageWithDetails") + e.getLocalizedMessage());
@@ -177,7 +164,7 @@ public class UploaderGuiController implements UserCallback {
                     java.awt.EventQueue.invokeAndWait(new Runnable() {
                         @Override
                         public void run() {
-                            configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), UploaderGuiController.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                            configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), UploaderGuiController.this, giftCloudProperties, uploaderController.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
                         }
                     });
                 } catch (InvocationTargetException e) {
@@ -189,7 +176,7 @@ public class UploaderGuiController implements UserCallback {
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), UploaderGuiController.this, giftCloudProperties, giftCloudUploader.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
+                        configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), UploaderGuiController.this, giftCloudProperties, uploaderController.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
                     }
                 });
             }
@@ -210,11 +197,11 @@ public class UploaderGuiController implements UserCallback {
     }
 
     public void startUploading() {
-        giftCloudUploader.setUploadServiceRunningState(true);
+        uploaderController.startUploading();
     }
 
     public void pauseUploading() {
-        giftCloudUploader.setUploadServiceRunningState(false);
+        uploaderController.pauseUploading();
     }
 
     public void retrieve(List<QuerySelection> currentRemoteQuerySelectionList) {
@@ -234,7 +221,7 @@ public class UploaderGuiController implements UserCallback {
     }
 
     public void runImport(List<File> fileList, final boolean importAsReference, final Progress progress) {
-        new Thread(new ImportWorker(fileList, progress, giftCloudProperties.acceptAnyTransferSyntax(), giftCloudUploader, importAsReference, uploaderStatusModel, reporter)).start();
+        uploaderController.runImport(fileList, importAsReference, progress);
     }
 
     public void selectAndImport() {
@@ -263,12 +250,12 @@ public class UploaderGuiController implements UserCallback {
 
     public void restartDicomService() {
         try {
-            dicomListener.shutdownStorageSCPAndWait(giftCloudProperties.getShutdownTimeoutMs());
+            uploaderController.stopDicomListener();
         } catch (Throwable e) {
             reporter.silentLogException(e, "Failed to shutdown the dicom node service");
         }
         try {
-            dicomListener.activateStorageSCP();
+            uploaderController.startDicomListener();
         } catch (Throwable e) {
             reporter.silentLogException(e, resourceBundle.getString("dicomNodeFailureMessageWithDetails") + e.getLocalizedMessage());
             reporter.reportErrorToUser(resourceBundle.getString("dicomNodeFailureMessage"), e);
@@ -276,9 +263,7 @@ public class UploaderGuiController implements UserCallback {
     }
 
     public void invalidateServerAndRestartUploader() {
-        pauseUploading();
-        giftCloudUploader.invalidateServer();
-        startUploading();
+        uploaderController.invalidateServerAndRestartUploader();
     }
 
     public void importFromPacs() {
@@ -286,7 +271,7 @@ public class UploaderGuiController implements UserCallback {
     }
 
     public void exportPatientList() {
-        giftCloudUploader.exportPatientList();
+        uploaderController.exportPatientList();
     }
 
     public void showPixelDataTemplateDialog() {
@@ -294,7 +279,7 @@ public class UploaderGuiController implements UserCallback {
             java.awt.EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), giftCloudUploader.getPixelDataAnonymiserFilterCache(), giftCloudProperties, giftCloudDialogs, reporter);
+                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), uploaderController.getPixelDataAnonymiserFilterCache(), giftCloudProperties, giftCloudDialogs, reporter);
                 }
             });
         }

@@ -10,6 +10,7 @@ import javax.jnlp.ServiceManager;
 import javax.jnlp.SingleInstanceListener;
 import javax.jnlp.SingleInstanceService;
 import javax.jnlp.UnavailableServiceException;
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.net.URL;
@@ -91,6 +92,10 @@ public class GiftCloudUploaderAppConfiguration {
 
     public Optional<Image> getIconImage() {
         return iconImage;
+    }
+
+    public ImageIcon getLargeIcon() {
+        return new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
     }
 
     /**
