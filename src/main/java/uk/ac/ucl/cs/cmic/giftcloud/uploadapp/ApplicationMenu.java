@@ -241,7 +241,7 @@ public class ApplicationMenu {
         try {
             return Optional.of(new ApplicationMenu(frame, controller, resourceBundle, isMac, reporter));
         } catch (Throwable t) {
-            reporter.silentError("The application menu could not be created due to the following error: " + t.getLocalizedMessage(), t);
+            reporter.silentLogException(t, "The application menu could not be created.");
             return Optional.empty();
         }
     }

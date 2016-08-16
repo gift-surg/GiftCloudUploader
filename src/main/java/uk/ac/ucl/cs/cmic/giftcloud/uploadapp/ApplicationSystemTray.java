@@ -173,13 +173,13 @@ public class ApplicationSystemTray {
      */
     static Optional<ApplicationSystemTray> safeCreateSystemTray(final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
         if (!SystemTray.isSupported()) {
-            reporter.silentError("SystemTray is not supported on this system.", null);
+            reporter.silentWarning("SystemTray is not supported on this system.");
             return Optional.empty();
         } else {
             try {
                 return Optional.of(new ApplicationSystemTray(controller, resourceBundle, isMac, reporter));
             } catch (Throwable t) {
-                reporter.silentError("The system tray icon could not be created due to the following error: " + t.getLocalizedMessage(), t);
+                reporter.silentLogException(t, "The system tray icon could not be created.");
                 return Optional.empty();
             }
         }

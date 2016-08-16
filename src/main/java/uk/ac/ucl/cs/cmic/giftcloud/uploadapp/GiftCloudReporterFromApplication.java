@@ -131,10 +131,6 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
         }
     }
 
-    public void showError(final String errorMessage) {
-        giftCloudDialogs.showError(errorMessage, Optional.<String>empty());
-    }
-
     public void startProgressBar(int maximum) {
         progressModel.startProgress(maximum);
     }
@@ -164,20 +160,5 @@ public class GiftCloudReporterFromApplication implements GiftCloudReporter, Mess
     @Override
     public boolean isCancelled() {
         return progressModel.isCancelled();
-    }
-
-
-    // These are the preferred methods for reporting to the user
-
-    public void silentError(final String errorMessage, final Throwable throwable) {
-        if (throwable == null) {
-            messageLogger.sendLn(errorMessage);
-        } else {
-            messageLogger.sendLn(errorMessage + " with exception:" + throwable.getLocalizedMessage());
-        }
-    }
-
-    public void warnUser(final String warningMessage) {
-        giftCloudDialogs.showMessage(warningMessage);
     }
 }
