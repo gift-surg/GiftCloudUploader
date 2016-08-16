@@ -2,7 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.io.IOException;
 public class DicomFileImporter {
     private final UploaderMediaImporter mediaImporter;
 
-    public DicomFileImporter(final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporterFromApplication reporter) {
+    public DicomFileImporter(final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporter reporter) {
         mediaImporter = new UploaderMediaImporter(acceptAnyTransferSyntax, giftCloudUploader, importAsReference, reporter);
     }
 

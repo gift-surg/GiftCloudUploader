@@ -1,22 +1,22 @@
 package uk.ac.ucl.cs.cmic.giftcloud.workers;
 
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.MasterFileImporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.util.List;
 
 public class ImportWorker implements Runnable {
     private final UploaderStatusModel uploaderStatusModel;
-    private final GiftCloudReporterFromApplication reporter;
+    private final GiftCloudReporter reporter;
     private final List<File> fileList;
     private final Progress progress;
     private final MasterFileImporter masterFileImporter;
 
-    public ImportWorker(final List<File> fileList, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
+    public ImportWorker(final List<File> fileList, final Progress progress, final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) {
         this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
         this.progress = progress;

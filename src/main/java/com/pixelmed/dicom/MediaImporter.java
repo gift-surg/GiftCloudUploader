@@ -4,7 +4,7 @@ package com.pixelmed.dicom;
 
 import com.pixelmed.utils.FileUtilities;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -29,14 +29,14 @@ import java.util.Iterator;
  * @author	dclunie
  */
 public class MediaImporter {
-	protected GiftCloudReporterFromApplication reporter;
+	protected GiftCloudReporter reporter;
 
 	/**
 	 * <p>Construct an importer that will looked for files in the system default path.</p>
 	 *
 	 * @param	reporter			where to send status updates as files are read (may be null for no logging)
 	 */
-	public MediaImporter(GiftCloudReporterFromApplication reporter) {
+	public MediaImporter(GiftCloudReporter reporter) {
 		this.reporter = reporter;
 	}
 

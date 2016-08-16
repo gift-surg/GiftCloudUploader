@@ -5,7 +5,7 @@ import com.pixelmed.dicom.MediaImporter;
 import com.pixelmed.dicom.SOPClass;
 import com.pixelmed.dicom.TransferSyntax;
 import com.pixelmed.utils.CapabilitiesAvailable;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -14,7 +14,7 @@ public class UploaderMediaImporter extends MediaImporter {
     private GiftCloudUploader giftCloudUploader;
     private boolean importAsReference;
 
-    public UploaderMediaImporter(boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporterFromApplication reporter) {
+    public UploaderMediaImporter(boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final boolean importAsReference, final GiftCloudReporter reporter) {
         super(reporter);
         this.acceptAnyTransferSyntax = acceptAnyTransferSyntax;
         this.giftCloudUploader = giftCloudUploader;
