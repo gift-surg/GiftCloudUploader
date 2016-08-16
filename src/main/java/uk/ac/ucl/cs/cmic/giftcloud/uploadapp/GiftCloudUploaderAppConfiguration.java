@@ -16,6 +16,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Provides essential application configuration, logging and preference file loading. Generally this class should be instantiated before any GUI items are created
+ */
 public class GiftCloudUploaderAppConfiguration {
     private static String resourceBundleName  = "uk.ac.ucl.cs.cmic.giftcloud.GiftCloudUploader";
     private static String iconURLString  = "/uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png";

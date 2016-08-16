@@ -1,19 +1,13 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.DicomException;
-import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLoginDialog;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderController;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.PasswordAuthentication;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -23,7 +17,7 @@ import java.util.ResourceBundle;
  *
  * @author  Tom Doel
  */
-public class UploaderGuiController implements UserCallback {
+public class UploaderGuiController {
 
     private final ResourceBundle resourceBundle;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
@@ -36,22 +30,17 @@ public class UploaderGuiController implements UserCallback {
     private final QueryRetrieveController queryRetrieveController;
     private final MenuController menuController;
     private final UploaderController uploaderController;
-    private GiftCloudLoginDialog loginDialog;
 
-    public UploaderGuiController(final GiftCloudUploaderAppConfiguration application, final MainFrame mainFrame, final RestServerFactory restServerFactory, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public UploaderGuiController(final GiftCloudUploaderAppConfiguration application, final UploaderController uploaderController, final MainFrame mainFrame, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         resourceBundle = application.getResourceBundle();
+        this.uploaderController = uploaderController;
         this.mainFrame = mainFrame;
         this.giftCloudDialogs = dialogs;
         this.giftCloudProperties = application.getProperties();
         this.reporter = reporter;
 
-        // Create the object used for creating user login dialogs if necessary
-        this.loginDialog = new GiftCloudLoginDialog(application, giftCloudProperties, mainFrame.getContainer());
-
-        uploaderController = new UploaderController(restServerFactory, giftCloudProperties, this, reporter);
-
         uploaderPanel = new UploaderPanel(mainFrame.getParent(), this, uploaderController.getTableModel(), giftCloudProperties, resourceBundle, uploaderController.getUploaderStatusModel(), reporter);
-        queryRetrieveController = new QueryRetrieveController(uploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, uploaderController.getUploaderStatusModel(), reporter);
+        queryRetrieveController = new QueryRetrieveController(uploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);
 
         mainFrame.addMainPanel(uploaderPanel);
 
@@ -68,12 +57,9 @@ public class UploaderGuiController implements UserCallback {
         } else {
             show();
         }
-
-        // Add existing files to the upload queue
-        uploaderController.importPendingFiles();
     }
 
-    public void start(final boolean showImportDialog, final List<File> filesToImport) {
+    public void startDicomNodeAndCheckProperties(final boolean wait, final List<File> filesToImport) {
         Optional<Throwable> dicomNodeFailureException = Optional.empty();
         try {
             uploaderController.startDicomListener();
@@ -82,19 +68,10 @@ public class UploaderGuiController implements UserCallback {
             reporter.silentLogException(e, resourceBundle.getString("dicomNodeFailureMessageWithDetails") + e.getLocalizedMessage());
         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // Attempt to authenticate
-//                giftCloudUploader.tryAuthentication();
-                startUploading();
-            }
-        }).start();
-
-        propertiesCheckAndImportLoop(dicomNodeFailureException, showImportDialog, filesToImport);
+        propertiesCheckAndImportLoop(dicomNodeFailureException, wait, filesToImport);
     }
 
-    private void propertiesCheckAndImportLoop(final Optional<Throwable> dicomNodeFailureException, final boolean startImport, final List<File> filesToImport) {
+    private void propertiesCheckAndImportLoop(final Optional<Throwable> dicomNodeFailureException, final boolean wait, final List<File> filesToImport) {
 
         new Thread(new Runnable() {
             @Override
@@ -103,20 +80,14 @@ public class UploaderGuiController implements UserCallback {
                 final Optional<String> propertiesNotConfigured = checkProperties();
                 if (propertiesNotConfigured.isPresent()) {
                     reporter.showMessageToUser(propertiesNotConfigured.get());
-                    showConfigureDialog(startImport);
+                    showConfigureDialog(wait);
 
                 } else {
                     // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
                     if (dicomNodeFailureException.isPresent()) {
                         reporter.reportErrorToUser(resourceBundle.getString("dicomNodeFailureMessage"), dicomNodeFailureException.get());
-                        showConfigureDialog(startImport);
+                        showConfigureDialog(wait);
                     }
-                }
-                if (!filesToImport.isEmpty()) {
-                    runImport(filesToImport, true, reporter);
-                }
-                if (startImport) {
-                    selectAndImport();
                 }
             }
         }).start();
@@ -280,28 +251,4 @@ public class UploaderGuiController implements UserCallback {
             });
         }
     }
-
-
-    @Override
-    public String getProjectName(GiftCloudServer server) throws IOException {
-        final Optional<String> lastProjectName = giftCloudProperties.getLastProject();
-        if (lastProjectName.isPresent() && StringUtils.isNotBlank(lastProjectName.get())) {
-            return lastProjectName.get();
-        } else {
-            try {
-                final String selectedProject = giftCloudDialogs.showInputDialogToSelectProject(server.getListOfProjects(), mainFrame.getContainer(), lastProjectName);
-                giftCloudProperties.setLastProject(selectedProject);
-                giftCloudProperties.save();
-                return selectedProject;
-            } catch (IOException e) {
-                throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
-            }
-        }
-    }
-
-    @Override
-    public PasswordAuthentication getPasswordAuthentication(final String supplementalMessage) {
-        return loginDialog.getPasswordAuthentication(supplementalMessage);
-    }
-
 }

@@ -4,7 +4,6 @@ import com.pixelmed.network.NetworkDefaultValues;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
@@ -78,7 +77,7 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     }
 
     @Override
-    public File getUploadFolder(final GiftCloudReporter reporter) {
+    public File getUploadFolder(final LoggingReporter reporter) {
         final String uploadFolderString = properties.getProperty(propertyName_GiftCloudLocalUploadFolder);
         if (StringUtils.isNotBlank(uploadFolderString)) {
             return new File(uploadFolderString);

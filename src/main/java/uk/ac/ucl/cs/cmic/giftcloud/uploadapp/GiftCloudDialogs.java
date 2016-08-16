@@ -66,9 +66,6 @@ public class GiftCloudDialogs {
         JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, applicationName, JOptionPane.ERROR_MESSAGE, icon);
     }
 
-
-
-
     public String getSelection(String message, String title, String[] valueArray, String defaultSelection) {
         return (String)JOptionPane.showInputDialog(mainFrame.getContainer(), message, title, JOptionPane.QUESTION_MESSAGE, icon, valueArray, defaultSelection);
     }
