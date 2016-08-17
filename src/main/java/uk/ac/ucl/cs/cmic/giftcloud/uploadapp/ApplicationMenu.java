@@ -33,7 +33,7 @@ public class ApplicationMenu {
     private final String resumeText;
 
     /**
-     * Private constructor for creating a new menu and icon for the system tray
+     * Creates a new application menu
      *
      * @param frame          the frame to whcih the menu will be added
      * @param controller     the controller used to perform menu actions

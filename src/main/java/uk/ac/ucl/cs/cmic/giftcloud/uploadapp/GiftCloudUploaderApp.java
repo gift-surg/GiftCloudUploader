@@ -36,7 +36,7 @@ public class GiftCloudUploaderApp {
             // Create the GUI-less UploaderController. This will use the UploaderControllerCallback and Reporting objects for any required output or user interaction
             final UploaderController uploaderController = new UploaderController(restServerFactory, applicationConfiguration.getProperties(), uploaderControllerCallback, reporter);
 
-            //
+            // Create the GUI and related GUI controller code
             final UploaderGuiController uploaderMain = new UploaderGuiController(applicationConfiguration, uploaderController, mainFrame, dialogs, reporter);
 
             // Add any leftover files from the last session to the upload queue
