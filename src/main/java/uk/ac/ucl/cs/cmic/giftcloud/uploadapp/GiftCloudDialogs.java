@@ -5,9 +5,12 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CancellationException;
@@ -44,6 +47,21 @@ public class GiftCloudDialogs {
         textField.setForeground(UIManager.getColor("Label.foreground"));
         textField.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
         textField.setFont(UIManager.getFont("Label.font"));
+        textField.addHyperlinkListener(new HyperlinkListener() {
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+                if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    if(Desktop.isDesktopSupported()) {
+                        try {
+                            Desktop.getDesktop().browse(e.getURL().toURI());
+                        } catch (IOException e1) {
+                            // Ignore failure to launch URL
+                        } catch (URISyntaxException e1) {
+                            // Ignore failure to launch URL
+                        }
+                    }
+                }
+            }
+        });
 
         messagePanel.add(textField);
         textField.setAlignmentX(SwingConstants.CENTER);
