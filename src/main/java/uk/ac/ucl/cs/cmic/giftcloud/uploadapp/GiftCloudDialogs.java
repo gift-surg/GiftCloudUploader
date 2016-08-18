@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.display.SafeFileChooser;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLoginDialog;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
@@ -10,6 +11,7 @@ import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.PasswordAuthentication;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,10 +22,14 @@ public class GiftCloudDialogs {
     private final MainFrame mainFrame;
     private final ImageIcon icon;
     private final String applicationName;
+    private final GiftCloudLoginDialog loginDialog;
 
-    public GiftCloudDialogs(final GiftCloudUploaderAppConfiguration application, final MainFrame mainFrame) {
+    public GiftCloudDialogs(final GiftCloudUploaderAppConfiguration appConfiguration, final MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        this.applicationName = application.getApplicationTitle();
+        this.applicationName = appConfiguration.getApplicationTitle();
+
+        // Create the object used for creating user login dialogs if necessary. Note this does not create any GUI in the constructor
+        loginDialog = new GiftCloudLoginDialog(appConfiguration, appConfiguration.getProperties(), mainFrame.getContainer());
 
         // Set the default background colour to white
         UIManager UI = new UIManager();
@@ -186,6 +192,10 @@ public class GiftCloudDialogs {
             returnString = (String)returnValue;
         }
         return returnString;
+    }
+
+    public PasswordAuthentication getPasswordAuthentication(final String supplementalMessage) {
+        return loginDialog.getPasswordAuthentication(supplementalMessage);
     }
 
     /**
