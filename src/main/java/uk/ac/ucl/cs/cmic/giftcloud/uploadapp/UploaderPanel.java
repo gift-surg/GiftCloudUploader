@@ -1,40 +1,57 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
 /**
  * The main dialog panel for the GIFT-Cloud Uploader application
  */
-public class UploaderPanel extends JPanel {
+public class UploaderPanel {
 
     // User interface components
-    private final StatusPanel statusPanel;
-    private final JPanel srcDatabasePanel;
+    private final JFrame parentFrame;
+    private JPanel basePanel;
+    private StatusPanel statusPanel;
+    private JPanel srcDatabasePanel;
 
     // Callback to the controller for invoking actions
     private final UploaderGuiController controller;
 
-    private GiftCloudPropertiesFromApplication giftCloudProperties;
-    // Error reporting interface
+    private TableModel tableModel;
+    private ResourceBundle resourceBundle;
+    private UploaderStatusModel uploaderStatusModel;
     private final GiftCloudReporterFromApplication reporter;
 
-    public UploaderPanel(final JFrame dialog, final UploaderGuiController controller, final TableModel tableModel, final GiftCloudPropertiesFromApplication giftCloudProperties, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
-        super();
+    public UploaderPanel(final MainFrame mainFrame, final UploaderGuiController controller, final TableModel tableModel, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws InvocationTargetException, InterruptedException {
         this.controller = controller;
-        this.giftCloudProperties = giftCloudProperties;
+        this.tableModel = tableModel;
+        this.resourceBundle = resourceBundle;
+        this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
+        parentFrame = mainFrame.getParent();
 
-        new FileDrop(dialog, new FileDrop.Listener()
+        GiftCloudUtils.runNowOnEdt(new Runnable() {
+            @Override
+            public void run() {
+                createPanel();
+                mainFrame.addMainPanel(basePanel);
+            }
+        });
+    }
+
+    private void createPanel() {
+        basePanel = new JPanel();
+
+        new FileDrop(parentFrame, new FileDrop.Listener()
         {
             public void filesDropped(final java.io.File[] files) {
                 controller.runImport(Arrays.asList(files), true, reporter);
@@ -113,7 +130,7 @@ public class UploaderPanel extends JPanel {
             }
 
             GridBagLayout mainPanelLayout = new GridBagLayout();
-            setLayout(mainPanelLayout);
+            basePanel.setLayout(mainPanelLayout);
 
             {
                 GridBagConstraints combinedPanelConstraints = new GridBagConstraints();
@@ -122,7 +139,7 @@ public class UploaderPanel extends JPanel {
                 combinedPanelConstraints.fill = GridBagConstraints.BOTH;
                 combinedPanelConstraints.insets = new Insets(5, 5, 5, 5);
                 mainPanelLayout.setConstraints(combinedPanel, combinedPanelConstraints);
-                add(combinedPanel);
+                basePanel.add(combinedPanel);
             }
             {
                 GridBagConstraints separatorConstraint = new GridBagConstraints();
@@ -133,7 +150,7 @@ public class UploaderPanel extends JPanel {
                 separatorConstraint.gridwidth = GridBagConstraints.REMAINDER;
                 JSeparator separator = new JSeparator();
                 mainPanelLayout.setConstraints(separator,separatorConstraint);
-                add(separator);
+                basePanel.add(separator);
             }
             {
                 GridBagConstraints buttonPanelConstraints = new GridBagConstraints();
@@ -142,7 +159,7 @@ public class UploaderPanel extends JPanel {
                 buttonPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
                 buttonPanelConstraints.insets = new Insets(5, 5, 5, 5);
                 mainPanelLayout.setConstraints(buttonPanel, buttonPanelConstraints);
-                add(buttonPanel);
+                basePanel.add(buttonPanel);
             }
         }
     }

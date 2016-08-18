@@ -8,6 +8,7 @@ import uk.ac.ucl.cs.cmic.giftcloud.workers.AppStartupWorker;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -32,7 +33,7 @@ public class UploaderGuiController {
     private GiftCloudUploaderAppConfiguration appConfiguration;
     private final UploaderController uploaderController;
 
-    public UploaderGuiController(final GiftCloudUploaderAppConfiguration appConfiguration, final UploaderController uploaderController, final MainFrame mainFrame, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+    public UploaderGuiController(final GiftCloudUploaderAppConfiguration appConfiguration, final UploaderController uploaderController, final MainFrame mainFrame, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException, InvocationTargetException, InterruptedException {
         this.resourceBundle = appConfiguration.getResourceBundle();
         this.appConfiguration = appConfiguration;
         this.uploaderController = uploaderController;
@@ -41,14 +42,15 @@ public class UploaderGuiController {
         this.giftCloudProperties = appConfiguration.getProperties();
         this.reporter = reporter;
 
+        // Create GUI components - each controller must ensure Swing creation is performed on the EDT
         this.queryRetrieveDialogController = new QueryRetrieveDialogController(appConfiguration, mainFrame, this, reporter);
         this.pixelDataDialogController = new PixelDataTemplateDialogController(appConfiguration, uploaderController.getPixelDataAnonymiserFilterCache(), mainFrame, dialogs, reporter);
         this.configurationDialogController = new ConfigurationDialogController(appConfiguration, mainFrame, this, uploaderController.getProjectListModel(), dialogs, reporter);
-        this.uploaderPanel = new UploaderPanel(mainFrame.getParent(), UploaderGuiController.this, uploaderController.getTableModel(), giftCloudProperties, resourceBundle, uploaderController.getUploaderStatusModel(), reporter);
-
-        this.queryRetrieveController = new QueryRetrieveController(queryRetrieveDialogController, giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);
-        this.mainFrame.addMainPanel(uploaderPanel);
+        this.uploaderPanel = new UploaderPanel(mainFrame, UploaderGuiController.this, uploaderController.getTableModel(), resourceBundle, uploaderController.getUploaderStatusModel(), reporter);
         this.menuController = new MenuController(mainFrame.getParent(), UploaderGuiController.this, resourceBundle, reporter);
+
+        // Create the controller for query-retrieve operations
+        this.queryRetrieveController = new QueryRetrieveController(queryRetrieveDialogController, giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);
 
         mainFrame.addListener(menuController.new MainWindowVisibilityListener());
         uploaderController.addBackgroundAddToUploaderServiceListener(menuController.new BackgroundAddToUploaderServiceListener());
@@ -73,8 +75,12 @@ public class UploaderGuiController {
     }
 
     public void showAboutDialog() {
-        mainFrame.show();
-        giftCloudDialogs.showMessage(resourceBundle.getString("giftCloudAboutBoxText"));
+        try {
+            mainFrame.show();
+            giftCloudDialogs.showMessage(resourceBundle.getString("giftCloudAboutBoxText"));
+        } catch (Throwable e) {
+            reporter.reportErrorToUser("The about box could not be displayed", e);
+        }
     }
 
     public void hide() {
@@ -96,7 +102,7 @@ public class UploaderGuiController {
     public void retrieve(List<QuerySelection> currentRemoteQuerySelectionList) {
         try {
             queryRetrieveController.retrieve(currentRemoteQuerySelectionList);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             reporter.reportErrorToUser(resourceBundle.getString("dicomRetrieveFailureMessage"), e);
         }
     }
@@ -104,7 +110,7 @@ public class UploaderGuiController {
     public void query(final QueryParams queryParams) {
         try {
             queryRetrieveController.query(queryParams);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             reporter.reportErrorToUser(resourceBundle.getString("dicomQueryFailureMessage"), e);
         }
     }
@@ -155,7 +161,11 @@ public class UploaderGuiController {
     }
 
     public void importFromPacs() {
-        queryRetrieveDialogController.showQueryRetrieveDialog();
+        try {
+            queryRetrieveDialogController.showQueryRetrieveDialog();
+        } catch (Throwable e) {
+            reporter.reportErrorToUser("The query-retrieve dialog could not be displayed", e);
+        }
     }
 
     public void exportPatientList() {
@@ -163,6 +173,10 @@ public class UploaderGuiController {
     }
 
     public void showPixelDataTemplateDialog() {
-        pixelDataDialogController.showPixelDataTemplateDialog();
+        try {
+            pixelDataDialogController.showPixelDataTemplateDialog();
+        } catch (Throwable e) {
+            reporter.reportErrorToUser("The pixel data template crearion dialog could not be displayed", e);
+        }
     }
 }

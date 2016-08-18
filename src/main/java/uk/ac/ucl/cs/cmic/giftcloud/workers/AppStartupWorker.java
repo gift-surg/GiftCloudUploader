@@ -18,7 +18,6 @@ public class AppStartupWorker implements Runnable {
     private GiftCloudUploaderAppConfiguration appConfiguration;
     private UploaderGuiController guiController;
     private UploaderController uploaderController;
-    private boolean wait;
     private List<File> filesToImport;
     private final GiftCloudReporter reporter;
 
