@@ -64,8 +64,8 @@ public class UploaderGuiController {
         }
     }
 
-    public void startDicomNodeAndCheckProperties(final boolean wait, final List<File> filesToImport) {
-        new Thread(new AppStartupWorker(appConfiguration, this, uploaderController, wait, filesToImport, reporter)).start();
+    public void startDicomNodeAndCheckProperties(final List<File> filesToImport) {
+        new Thread(new AppStartupWorker(appConfiguration, this, uploaderController, filesToImport, reporter)).start();
     }
 
     public void showConfigureDialog(final boolean wait) {

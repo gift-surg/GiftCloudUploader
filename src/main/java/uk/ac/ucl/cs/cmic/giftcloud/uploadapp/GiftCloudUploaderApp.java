@@ -40,7 +40,7 @@ public class GiftCloudUploaderApp {
             final UploaderGuiController uploaderMain = new UploaderGuiController(applicationConfiguration, uploaderController, mainFrame, dialogs, reporter);
 
             // Start the Dicom listener and report errors to the user if encountered
-            uploaderMain.startDicomNodeAndCheckProperties(true, fileList);
+            uploaderMain.startDicomNodeAndCheckProperties(fileList);
         }
         catch (Throwable t) {
             t.printStackTrace(System.err);

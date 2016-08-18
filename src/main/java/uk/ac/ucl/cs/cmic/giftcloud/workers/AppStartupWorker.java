@@ -26,15 +26,13 @@ public class AppStartupWorker implements Runnable {
      * @param appConfiguration
      * @param guiController
      * @param uploaderController
-     * @param wait
      * @param filesToImport
      * @param reporter
      */
-    public AppStartupWorker(final GiftCloudUploaderAppConfiguration appConfiguration, final UploaderGuiController guiController, final UploaderController uploaderController, final boolean wait, final List<File> filesToImport, final GiftCloudReporter reporter) {
+    public AppStartupWorker(final GiftCloudUploaderAppConfiguration appConfiguration, final UploaderGuiController guiController, final UploaderController uploaderController, final List<File> filesToImport, final GiftCloudReporter reporter) {
         this.appConfiguration = appConfiguration;
         this.guiController = guiController;
         this.uploaderController = uploaderController;
-        this.wait = wait;
         this.filesToImport = filesToImport;
         this.reporter = reporter;
     }
@@ -60,18 +58,21 @@ public class AppStartupWorker implements Runnable {
         final Optional<String> propertiesNotConfigured = checkProperties();
         if (propertiesNotConfigured.isPresent()) {
             reporter.showMessageToUser(propertiesNotConfigured.get());
-            guiController.showConfigureDialog(wait);
+
+            // This call will block until the user has had a chance to correct errors; otherwise it is likely the startUploading() call would fail
+            guiController.showConfigureDialog(true);
 
         } else {
             // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
             if (dicomNodeFailureException.isPresent()) {
                 reporter.reportErrorToUser(appConfiguration.getResourceBundle().getString("dicomNodeFailureMessage"), dicomNodeFailureException.get());
-                guiController.showConfigureDialog(wait);
+
+                // Do not block here; while there has been a failure in the DicomListener, the Uploader might still be able to import and upload files
+                guiController.showConfigureDialog(false);
             }
         }
 
         // Initiate the process that moves files from the uploading queue to the uploading process
-        // If wait has been specified, the above ConfigurationDialog calls will block until the user has had a chance to correct errors
         uploaderController.startUploading();
     }
 
