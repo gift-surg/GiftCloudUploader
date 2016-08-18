@@ -1,4 +1,4 @@
-package uk.ac.ucl.cs.cmic.giftcloud;
+package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 public interface Progress {
     void startProgressBar(int maximum);

@@ -3,7 +3,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import com.pixelmed.dicom.VersionAndConstants;
 import com.pixelmed.display.SafeProgressBarUpdaterThread;
 import com.pixelmed.display.StatusBarManager;
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 import javax.swing.*;

@@ -1,7 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.DicomException;
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderController;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 

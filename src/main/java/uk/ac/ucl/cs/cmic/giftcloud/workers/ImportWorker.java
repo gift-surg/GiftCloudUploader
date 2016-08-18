@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.workers;
 
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.MasterFileImporter;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;

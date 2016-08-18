@@ -20,8 +20,6 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.util;
 
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-
 public interface GiftCloudReporter extends LoggingReporter, Progress {
 
     /**

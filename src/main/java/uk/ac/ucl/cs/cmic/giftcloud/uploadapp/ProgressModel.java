@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
 
 import java.util.ArrayList;
 import java.util.List;

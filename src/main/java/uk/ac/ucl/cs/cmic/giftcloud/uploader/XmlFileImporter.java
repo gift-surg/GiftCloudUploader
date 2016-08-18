@@ -6,7 +6,7 @@ import com.pixelmed.dicom.MediaImporter;
 import com.tomdoel.mpg2dcm.EndoscopicXmlToDicomConverter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;

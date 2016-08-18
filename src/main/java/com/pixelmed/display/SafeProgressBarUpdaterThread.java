@@ -2,7 +2,7 @@
 
 package com.pixelmed.display;
 
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
 
 import javax.swing.JProgressBar;
 
