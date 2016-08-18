@@ -5,14 +5,16 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 /**
  * Factory/controller class for the dialog that allows creation of pixel data redaction templates
+ *
+ * @author  Tom Doel
  */
 class PixelDataTemplateDialogController {
     private PixelDataTemplateDialog pixelDataDialog = null;
-    private GiftCloudUploaderAppConfiguration appConfiguration;
-    private PixelDataAnonymiserFilterCache pixelDataAnonymiserFilterCache;
+    private final GiftCloudUploaderAppConfiguration appConfiguration;
+    private final PixelDataAnonymiserFilterCache pixelDataAnonymiserFilterCache;
     private final MainFrame mainFrame;
-    private GiftCloudDialogs dialogs;
-    private GiftCloudReporterFromApplication reporter;
+    private final GiftCloudDialogs dialogs;
+    private final GiftCloudReporterFromApplication reporter;
 
     /**
      * Creates a new controller class
@@ -30,7 +32,6 @@ class PixelDataTemplateDialogController {
         this.dialogs = dialogs;
         this.reporter = reporter;
     }
-
 
     /**
      * Lazy creation for showing the pixel data template dialog
