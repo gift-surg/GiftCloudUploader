@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 /**
  * Factory/controller class for the dialog that allows creation of pixel data redaction templates
@@ -36,7 +37,7 @@ class PixelDataTemplateDialogController {
      */
     void showPixelDataTemplateDialog() {
         if (pixelDataDialog == null || !pixelDataDialog.isVisible()) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
+            GiftCloudUtils.runLaterOnEdt(new Runnable() {
                 @Override
                 public void run() {
                     pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), appConfiguration.getResourceBundle().getString("pixelDataDialogTitle"), pixelDataAnonymiserFilterCache, appConfiguration.getProperties(), dialogs, reporter);
