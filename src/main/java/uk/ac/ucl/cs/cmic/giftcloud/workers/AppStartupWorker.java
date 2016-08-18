@@ -46,33 +46,50 @@ public class AppStartupWorker implements Runnable {
         }
 
         // Add any leftover files from the last session to the upload queue
-        uploaderController.importPendingFiles();
+        try {
+            uploaderController.importPendingFiles();
+        } catch (Throwable e) {
+            reporter.silentLogException(e, "Error when importing pending files");
+        }
 
         // Add any files specified in the startup parameters to the upload queue
-        if (!filesToImport.isEmpty()) {
-            uploaderController.runImport(filesToImport, true, reporter);
-        }
-
-        // We check whether the main properties have been set. If not, we warn the user and bring up the configuration dialog. We suppress the Dicom node start failure in this case, as we assume the lack of properties is responsible
-        final Optional<String> propertiesNotConfigured = checkProperties();
-        if (propertiesNotConfigured.isPresent()) {
-            reporter.showMessageToUser(propertiesNotConfigured.get());
-
-            // This call will block until the user has had a chance to correct errors; otherwise it is likely the startUploading() call would fail
-            guiController.showConfigureDialog(true);
-
-        } else {
-            // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
-            if (dicomNodeFailureException.isPresent()) {
-                reporter.reportErrorToUser(appConfiguration.getResourceBundle().getString("dicomNodeFailureMessage"), dicomNodeFailureException.get());
-
-                // Do not block here; while there has been a failure in the DicomListener, the Uploader might still be able to import and upload files
-                guiController.showConfigureDialog(false);
+        try {
+            if (!filesToImport.isEmpty()) {
+                uploaderController.runImport(filesToImport, true, reporter);
             }
+        } catch (Throwable e) {
+            reporter.silentLogException(e, "Error when importing specified files");
         }
 
-        // Initiate the process that moves files from the uploading queue to the uploading process
-        uploaderController.startUploading();
+        try {
+            // We check whether the main properties have been set. If not, we warn the user and bring up the configuration dialog. We suppress the Dicom node start failure in this case, as we assume the lack of properties is responsible
+            final Optional<String> propertiesNotConfigured = checkProperties();
+            if (propertiesNotConfigured.isPresent()) {
+                reporter.showMessageToUser(propertiesNotConfigured.get());
+
+                // This call will block until the user has had a chance to correct errors; otherwise it is likely the startUploading() call would fail
+                guiController.showConfigureDialog(true, false);
+
+            } else {
+                // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
+                if (dicomNodeFailureException.isPresent()) {
+                    reporter.reportErrorToUser(appConfiguration.getResourceBundle().getString("dicomNodeFailureMessage"), dicomNodeFailureException.get());
+
+                    // Do not block here; while there has been a failure in the DicomListener, the Uploader might still be able to import and upload files
+                    guiController.showConfigureDialog(false, false);
+                }
+            }
+        } catch (Throwable e) {
+            reporter.silentLogException(e, "Error when checking the properties");
+        }
+
+        try {
+            // Initiate the process that moves files from the uploading queue to the uploading process
+            uploaderController.startUploading();
+        } catch (Throwable e) {
+            reporter.reportErrorToUser("Could not start the upload service. Please check the settings and start the service from the menu.", e);
+            guiController.showConfigureDialog(false, false);
+        }
     }
 
     private Optional<String> checkProperties() {

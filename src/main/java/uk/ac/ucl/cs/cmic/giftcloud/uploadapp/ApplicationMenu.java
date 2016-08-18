@@ -59,7 +59,7 @@ public class ApplicationMenu {
             MRJApplicationUtils.registerPrefsHandler(new MRJPrefsHandler() {
                 @Override
                 public void handlePrefs() throws IllegalStateException {
-                    controller.showConfigureDialog(false);
+                    controller.showConfigureDialog(false, true);
                 }
             });
             MRJApplicationUtils.registerQuitHandler(new MRJQuitHandler() {
@@ -166,7 +166,7 @@ public class ApplicationMenu {
                 menuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        controller.showConfigureDialog(false);
+                        controller.showConfigureDialog(false, true);
                     }
                 });
                 menu.add(menuItem);
@@ -186,7 +186,7 @@ public class ApplicationMenu {
                 hideItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        controller.hide();
+                        controller.hide(true);
                     }
                 });
                 menu.add(hideItem);
@@ -197,7 +197,7 @@ public class ApplicationMenu {
                 showItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        controller.show();
+                        controller.show(true);
                     }
                 });
                 menu.add(showItem);

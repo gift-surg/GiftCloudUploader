@@ -15,7 +15,7 @@ import java.util.ResourceBundle;
 /**
  * The main dialog panel for the GIFT-Cloud Uploader application
  */
-public class UploaderPanel {
+class UploaderPanel {
 
     // User interface components
     private final JFrame parentFrame;
@@ -31,7 +31,19 @@ public class UploaderPanel {
     private UploaderStatusModel uploaderStatusModel;
     private final GiftCloudReporterFromApplication reporter;
 
-    public UploaderPanel(final MainFrame mainFrame, final UploaderGuiController controller, final TableModel tableModel, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws InvocationTargetException, InterruptedException {
+    /**
+     * Create the main panel and its components, and add to the parent frame
+     *
+     * @param mainFrame
+     * @param controller
+     * @param tableModel
+     * @param resourceBundle
+     * @param uploaderStatusModel
+     * @param reporter
+     * @throws InvocationTargetException
+     * @throws InterruptedException
+     */
+    UploaderPanel(final MainFrame mainFrame, final UploaderGuiController controller, final TableModel tableModel, final ResourceBundle resourceBundle, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) throws InvocationTargetException, InterruptedException {
         this.controller = controller;
         this.tableModel = tableModel;
         this.resourceBundle = resourceBundle;
@@ -195,14 +207,14 @@ public class UploaderPanel {
     protected class CloseActionListener implements ActionListener {
 
         public void actionPerformed(ActionEvent event) {
-            controller.hide();
+            controller.hide(false);
         }
     }
 
     private class ConfigureActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             try {
-                controller.showConfigureDialog(false);
+                controller.showConfigureDialog(false, true);
             } catch (Exception e) {
                 e.printStackTrace(System.err);
             }

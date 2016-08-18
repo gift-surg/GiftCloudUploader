@@ -617,7 +617,7 @@ public class ConfigurationDialog {
                 controller.invalidateServerAndRestartUploader();
             }
             if (forcePatientListExport) {
-                controller.exportPatientList();
+                controller.exportPatientList(false);
             }
 
             dialog.setCursor(was);

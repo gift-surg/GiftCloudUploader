@@ -86,7 +86,7 @@ public class ApplicationSystemTray {
         popup.add(hideItem);
         hideItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                controller.hide();
+                controller.hide(true);
             }
         });
 
@@ -94,7 +94,7 @@ public class ApplicationSystemTray {
         popup.add(showItem);
         showItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                controller.show();
+                controller.show(true);
             }
         });
 
@@ -137,7 +137,7 @@ public class ApplicationSystemTray {
         configItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    controller.showConfigureDialog(false);
+                    controller.showConfigureDialog(false, true);
                 } catch (Throwable throwable) {
                     trayIcon.displayMessage("Warning", "Error occurred while showing the settings dialog", TrayIcon.MessageType.WARNING);
                     reporter.silentLogException(throwable, "Error occurred while showing the settings dialog");
