@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.StatusObservable;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
@@ -9,16 +10,15 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 
-public class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> {
+class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> {
 
     private Container container;
     private JFrame parent;
-    private final GiftCloudUploaderAppConfiguration application;
 
     /**
      * Enumeration for the visible states of the main window. Less error-prone than passing round booleans for specifying visibility
      */
-    public enum MainWindowVisibility {
+    enum MainWindowVisibility {
         VISIBLE(true),
         HIDDEN(false);
 
@@ -33,20 +33,12 @@ public class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> 
         }
     }
 
-    public MainFrame(final GiftCloudUploaderAppConfiguration application) throws InvocationTargetException, InterruptedException {
-        this.application = application;
-        createFrame();
-
-        // Invoke the hide method on the controller, to ensure the system tray menu gets updated correctly
-        parent.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent ev) {
-                System.exit(0);
-            }
-        });
+    MainFrame(final GiftCloudUploaderAppConfiguration application) throws InvocationTargetException, InterruptedException {
+        createFrame(application);
     }
 
-    private void createFrame() throws InvocationTargetException, InterruptedException {
-        java.awt.EventQueue.invokeAndWait(new Runnable() {
+    private void createFrame(final GiftCloudUploaderAppConfiguration application) throws InvocationTargetException, InterruptedException {
+        GiftCloudUtils.runNowOnEdt(new Runnable() {
             @Override
             public void run() {
                 setSystemLookAndFeel();
@@ -58,13 +50,20 @@ public class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> 
                 }
                 parent.setTitle(application.getApplicationTitle());
                 parent.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+                // Invoke the hide method on the controller, to ensure the system tray menu gets updated correctly
+                parent.addWindowListener(new WindowAdapter() {
+                    public void windowClosing(WindowEvent ev) {
+                        System.exit(0);
+                    }
+                });
             }
         });
 
     }
 
-    public void show() {
-        java.awt.EventQueue.invokeLater(new Runnable() {
+    void show() {
+        GiftCloudUtils.runLaterOnEdt(new Runnable() {
             @Override
             public void run() {
                 container.setVisible(true);
@@ -77,8 +76,8 @@ public class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> 
         });
     }
 
-    public void hide() {
-        java.awt.EventQueue.invokeLater(new Runnable() {
+    void hide() {
+        GiftCloudUtils.runLaterOnEdt(new Runnable() {
             @Override
             public void run() {
                 container.setVisible(false);
@@ -87,12 +86,12 @@ public class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> 
         });
     }
 
-    public Container getContainer() {
+    Container getContainer() {
         return container;
     }
 
-    public void addMainPanel(final Container panel) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
+    void addMainPanel(final Container panel) {
+        GiftCloudUtils.runLaterOnEdt(new Runnable() {
             @Override
             public void run() {
                 container.add(panel);
@@ -101,7 +100,7 @@ public class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> 
         });
     }
 
-    public JFrame getParent() {
+    JFrame getParent() {
         return parent;
     }
 
@@ -114,11 +113,9 @@ public class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> 
             UIManager.put("OptionPane.background", Color.white);
             UIManager.put("Panel.background", Color.white);
 
-            Font font = new Font("Arial Unicode MS",Font.PLAIN,12);
-            if (font != null) {
-                UIManager.put("Tree.font", font);
-                UIManager.put("Table.font", font);
-            }
+            Font font = new Font("Arial Unicode MS", Font.PLAIN,12);
+            UIManager.put("Tree.font", font);
+            UIManager.put("Table.font", font);
         } catch (Throwable t) {
             System.out.println("Error when setting the system look and feel: " + t.getLocalizedMessage());
         }

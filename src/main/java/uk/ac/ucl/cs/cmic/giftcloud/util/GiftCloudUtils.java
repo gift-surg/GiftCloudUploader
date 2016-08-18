@@ -29,7 +29,9 @@ import org.nrg.IOUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import java.awt.*;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -287,4 +289,35 @@ public class GiftCloudUtils {
         // If we get here it means the strings are equal or they have different numbers of substrings
         return Integer.signum(versionNumbers1.length - versionNumbers2.length);
     }
+
+    /**
+     * Runs a given method on the EDT, which may or may not be the current thread
+     *
+     * @param runnable
+     * @throws InterruptedException
+     * @throws InvocationTargetException
+     */
+    public static void runNowOnEdt(final Runnable runnable) throws InterruptedException, InvocationTargetException {
+        if (EventQueue.isDispatchThread()) {
+            runnable.run();
+        } else {
+            java.awt.EventQueue.invokeAndWait(runnable);
+        }
+    }
+
+    /**
+     * Runs a given method on the EDT, which may or may not be the current thread. If it is not the current thread, the call will be asynchronous
+     *
+     * @param runnable
+     * @throws InterruptedException
+     * @throws InvocationTargetException
+     */
+    public static void runLaterOnEdt(final Runnable runnable) {
+        if (EventQueue.isDispatchThread()) {
+            runnable.run();
+        } else {
+            java.awt.EventQueue.invokeLater(runnable);
+        }
+    }
+
 }
