@@ -39,24 +39,8 @@ public class GiftCloudUploaderApp {
             // Create the GUI and related GUI controller code
             final UploaderGuiController uploaderMain = new UploaderGuiController(applicationConfiguration, uploaderController, mainFrame, dialogs, reporter);
 
-            // Add any leftover files from the last session to the upload queue
-            uploaderController.importPendingFiles();
-
-            // Add any specified files to the upload queue
-            if (!fileList.isEmpty()) {
-                uploaderController.runImport(fileList, true, reporter);
-            }
-
-            // Start the uploading thread
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    uploaderController.startUploading();
-                }
-            }).start();
-
-            // Start the Dicom listener and report errors to the user if found
-            uploaderMain.startDicomNodeAndCheckProperties(false, fileList);
+            // Start the Dicom listener and report errors to the user if encountered
+            uploaderMain.startDicomNodeAndCheckProperties(true, fileList);
         }
         catch (Throwable t) {
             t.printStackTrace(System.err);

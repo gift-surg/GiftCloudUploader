@@ -1,13 +1,13 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.DicomException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderController;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.workers.AppStartupWorker;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -29,10 +29,12 @@ public class UploaderGuiController {
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
     private final MenuController menuController;
+    private GiftCloudUploaderAppConfiguration appConfiguration;
     private final UploaderController uploaderController;
 
     public UploaderGuiController(final GiftCloudUploaderAppConfiguration appConfiguration, final UploaderController uploaderController, final MainFrame mainFrame, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         this.resourceBundle = appConfiguration.getResourceBundle();
+        this.appConfiguration = appConfiguration;
         this.uploaderController = uploaderController;
         this.mainFrame = mainFrame;
         this.giftCloudDialogs = dialogs;
@@ -63,69 +65,7 @@ public class UploaderGuiController {
     }
 
     public void startDicomNodeAndCheckProperties(final boolean wait, final List<File> filesToImport) {
-        Optional<Throwable> dicomNodeFailureException = Optional.empty();
-        try {
-            uploaderController.startDicomListener();
-        } catch (Throwable e) {
-            dicomNodeFailureException = Optional.of(e);
-            reporter.silentLogException(e, resourceBundle.getString("dicomNodeFailureMessageWithDetails") + e.getLocalizedMessage());
-        }
-
-        propertiesCheckAndImportLoop(dicomNodeFailureException, wait, filesToImport);
-    }
-
-    private void propertiesCheckAndImportLoop(final Optional<Throwable> dicomNodeFailureException, final boolean wait, final List<File> filesToImport) {
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // We check whether the main properties have been set. If not, we warn the user and bring up the configuration dialog. We suppress the Dicom node start failure in this case, as we assume the lack of properties is responsible
-                final Optional<String> propertiesNotConfigured = checkProperties();
-                if (propertiesNotConfigured.isPresent()) {
-                    reporter.showMessageToUser(propertiesNotConfigured.get());
-                    showConfigureDialog(wait);
-
-                } else {
-                    // If the properties have been set but the Dicom node still fails to start, then we report this to the user.
-                    if (dicomNodeFailureException.isPresent()) {
-                        reporter.reportErrorToUser(resourceBundle.getString("dicomNodeFailureMessage"), dicomNodeFailureException.get());
-                        showConfigureDialog(wait);
-                    }
-                }
-            }
-        }).start();
-
-    }
-
-    private Optional<String> checkProperties() {
-        final List<String> toBeSet = new ArrayList<String>();
-
-        if (!giftCloudProperties.getGiftCloudUrl().isPresent()) {
-            toBeSet.add("server URL");
-        }
-        if (!giftCloudProperties.getLastUserName().isPresent()) {
-            toBeSet.add("username");
-        }
-        if (!giftCloudProperties.getLastPassword().isPresent()) {
-            toBeSet.add("password");
-        }
-
-        final int numMessages = toBeSet.size();
-
-        if (numMessages > 0) {
-            String message = "Please set the GIFT-Cloud " + toBeSet.get(0);
-
-            if (numMessages > 1) {
-                for (int index = 1; index < toBeSet.size() - 1; index++) {
-                    message = message + ", " + toBeSet.get(index);
-                }
-                message = message + " and " + toBeSet.get(numMessages - 1);
-            }
-            message = message + " in the Settings dialog";
-            return Optional.of(message);
-        } else {
-            return Optional.empty();
-        }
+        new Thread(new AppStartupWorker(appConfiguration, this, uploaderController, wait, filesToImport, reporter)).start();
     }
 
     public void showConfigureDialog(final boolean wait) {
