@@ -1,9 +1,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.DicomException;
-import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
 import javax.swing.table.TableModel;
@@ -22,7 +20,6 @@ public class UploaderPanel extends JPanel {
     // User interface components
     private final StatusPanel statusPanel;
     private final JPanel srcDatabasePanel;
-    private final QueryRetrieveDialog remoteQueryRetrieveDialog;
 
     // Callback to the controller for invoking actions
     private final UploaderGuiController controller;
@@ -43,8 +40,6 @@ public class UploaderPanel extends JPanel {
                 controller.runImport(Arrays.asList(files), true, reporter);
             }
         });
-
-        remoteQueryRetrieveDialog = new QueryRetrieveDialog(dialog, controller, resourceBundle);
 
         JPanel combinedPanel = new JPanel();
 
@@ -152,27 +147,6 @@ public class UploaderPanel extends JPanel {
         }
     }
 
-    public QueryRetrieveRemoteView getQueryRetrieveRemoteView() {
-        return remoteQueryRetrieveDialog.getQueryRetrieveRemoteView();
-    }
-
-    public void showQueryRetrieveDialog() {
-        final Optional<String> queryHost = giftCloudProperties.getPacsHostName();
-        if (!queryHost.isPresent() || StringUtils.isBlank(queryHost.get())) {
-            reporter.showMessageToUser("Please set the PACS host name before importing from PACS.");
-            controller.showConfigureDialog(false);
-            return;
-        }
-        final Optional<String> queryCalledAETitle = giftCloudProperties.getPacsAeTitle();
-        if (!queryCalledAETitle.isPresent() || StringUtils.isBlank(queryCalledAETitle.get())) {
-            reporter.showMessageToUser("Please set the PACS AE title before importing from PACS.");
-            controller.showConfigureDialog(false);
-            return;
-        }
-
-        remoteQueryRetrieveDialog.setVisible(true);
-    }
-
     private class ImportActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
             controller.selectAndImport();
@@ -181,7 +155,7 @@ public class UploaderPanel extends JPanel {
 
     private class ImportPacsActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            showQueryRetrieveDialog();
+            controller.importFromPacs();
         }
     }
 

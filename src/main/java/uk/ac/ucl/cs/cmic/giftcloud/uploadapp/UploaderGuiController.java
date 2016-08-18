@@ -23,6 +23,7 @@ public class UploaderGuiController {
     private final MainFrame mainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
     private final UploaderPanel uploaderPanel;
+    private  final QueryRetrieveDialogController queryRetrieveDialogController;
     private final ConfigurationDialogController configurationDialogController;
     private final PixelDataTemplateDialogController pixelDataDialogController;
     private final GiftCloudReporterFromApplication reporter;
@@ -38,10 +39,12 @@ public class UploaderGuiController {
         this.giftCloudProperties = appConfiguration.getProperties();
         this.reporter = reporter;
 
+        this.queryRetrieveDialogController = new QueryRetrieveDialogController(appConfiguration, mainFrame, this, reporter);
         this.pixelDataDialogController = new PixelDataTemplateDialogController(appConfiguration, uploaderController.getPixelDataAnonymiserFilterCache(), mainFrame, dialogs, reporter);
         this.configurationDialogController = new ConfigurationDialogController(appConfiguration, mainFrame, this, uploaderController.getProjectListModel(), dialogs, reporter);
         this.uploaderPanel = new UploaderPanel(mainFrame.getParent(), UploaderGuiController.this, uploaderController.getTableModel(), giftCloudProperties, resourceBundle, uploaderController.getUploaderStatusModel(), reporter);
-        this.queryRetrieveController = new QueryRetrieveController(uploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);
+
+        this.queryRetrieveController = new QueryRetrieveController(queryRetrieveDialogController.getQueryRetrieveRemoteView(), giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);
         this.mainFrame.addMainPanel(uploaderPanel);
         this.menuController = new MenuController(mainFrame.getParent(), UploaderGuiController.this, resourceBundle, reporter);
 
@@ -212,7 +215,7 @@ public class UploaderGuiController {
     }
 
     public void importFromPacs() {
-        uploaderPanel.showQueryRetrieveDialog();
+        queryRetrieveDialogController.showQueryRetrieveDialog();
     }
 
     public void exportPatientList() {
