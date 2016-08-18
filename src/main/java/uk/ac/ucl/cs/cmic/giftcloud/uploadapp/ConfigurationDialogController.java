@@ -6,9 +6,9 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Creates and shows/hides the configuration dialog
+ * Creates and shows/hides the configuration dialog for the GIFT-Cloud Uploader
  */
-public class ConfigurationDialogController {
+class ConfigurationDialogController {
     private ConfigurationDialog configurationDialog = null;
     private MainFrame mainFrame;
     private UploaderGuiController uploaderGuiController;
@@ -27,7 +27,7 @@ public class ConfigurationDialogController {
      * @param dialogs
      * @param reporter
      */
-    public ConfigurationDialogController(final GiftCloudUploaderAppConfiguration appConfiguration, final MainFrame mainFrame, final UploaderGuiController uploaderGuiController, final ProjectListModel projectListModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
+    ConfigurationDialogController(final GiftCloudUploaderAppConfiguration appConfiguration, final MainFrame mainFrame, final UploaderGuiController uploaderGuiController, final ProjectListModel projectListModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
         this.appConfiguration = appConfiguration;
         this.mainFrame = mainFrame;
         this.uploaderGuiController = uploaderGuiController;
@@ -40,7 +40,7 @@ public class ConfigurationDialogController {
      * Creates a new configuration dialog if it is not already visible
      * @param wait determines whether to block the thread waiting for the dialog to show
      */
-    public void showConfigureDialog(final boolean wait) {
+    void showConfigureDialog(final boolean wait) {
         if (configurationDialog == null || !configurationDialog.isVisible()) {
             if (wait) {
                 try {

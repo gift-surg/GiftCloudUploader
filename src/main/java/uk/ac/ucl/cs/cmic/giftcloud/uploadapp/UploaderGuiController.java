@@ -23,8 +23,8 @@ public class UploaderGuiController {
     private final MainFrame mainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
     private final UploaderPanel uploaderPanel;
-    private ConfigurationDialogController configurationDialogController = null;
-    private PixelDataTemplateDialog pixelDataDialog = null;
+    private final ConfigurationDialogController configurationDialogController;
+    private final PixelDataTemplateDialogController pixelDataDialogController;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
     private final MenuController menuController;
@@ -33,11 +33,13 @@ public class UploaderGuiController {
     public UploaderGuiController(final GiftCloudUploaderAppConfiguration appConfiguration, final UploaderController uploaderController, final MainFrame mainFrame, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
         this.resourceBundle = appConfiguration.getResourceBundle();
         this.uploaderController = uploaderController;
-        this.configurationDialogController = new ConfigurationDialogController(appConfiguration, mainFrame, this, uploaderController.getProjectListModel(), dialogs, reporter);
         this.mainFrame = mainFrame;
         this.giftCloudDialogs = dialogs;
         this.giftCloudProperties = appConfiguration.getProperties();
         this.reporter = reporter;
+
+        this.pixelDataDialogController = new PixelDataTemplateDialogController(appConfiguration, uploaderController.getPixelDataAnonymiserFilterCache(), mainFrame, dialogs, reporter);
+        this.configurationDialogController = new ConfigurationDialogController(appConfiguration, mainFrame, this, uploaderController.getProjectListModel(), dialogs, reporter);
         this.uploaderPanel = new UploaderPanel(mainFrame.getParent(), UploaderGuiController.this, uploaderController.getTableModel(), giftCloudProperties, resourceBundle, uploaderController.getUploaderStatusModel(), reporter);
         this.queryRetrieveController = new QueryRetrieveController(uploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);
         this.mainFrame.addMainPanel(uploaderPanel);
@@ -218,13 +220,6 @@ public class UploaderGuiController {
     }
 
     public void showPixelDataTemplateDialog() {
-        if (pixelDataDialog == null || !pixelDataDialog.isVisible()) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    pixelDataDialog = new PixelDataTemplateDialog(mainFrame.getContainer(), resourceBundle.getString("pixelDataDialogTitle"), uploaderController.getPixelDataAnonymiserFilterCache(), giftCloudProperties, giftCloudDialogs, reporter);
-                }
-            });
-        }
+        pixelDataDialogController.showPixelDataTemplateDialog();
     }
 }
