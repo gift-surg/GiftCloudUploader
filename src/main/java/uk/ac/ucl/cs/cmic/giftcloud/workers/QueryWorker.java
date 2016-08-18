@@ -28,8 +28,8 @@ public class QueryWorker implements Runnable {
         reporter.updateStatusText("Performing query on " + calledAET + " (" + calledAET + ")");
         try {
             queryRetrieveRemoteView.updateQueryPanel(currentRemoteQueryInformationModel, filter, currentRemoteQueryInformationModel);
-            reporter.updateStatusText("Query to " + calledAET + ") complete");
-            uploaderStatusModel.setUploadingStatusMessage("Query to " + calledAET + ") complete");
+            reporter.updateStatusText("Query to " + calledAET + " complete");
+            uploaderStatusModel.setUploadingStatusMessage("Query to " + calledAET + " complete");
         } catch (GiftCloudException e) {
             uploaderStatusModel.setUploadingStatusMessage(e.getPithyMessage());
             reporter.reportErrorToUser("The PACS query failed. Please ensure the PACS settings are correct and that the PACS is running.", e);

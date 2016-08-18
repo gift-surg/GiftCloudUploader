@@ -17,15 +17,15 @@ import java.util.List;
 
 public class QueryRetrieveController {
 
-    private QueryRetrieveRemoteView queryRetrieveRemoteView;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
     private UploaderStatusModel uploaderStatusModel;
     private final GiftCloudReporterFromApplication reporter;
     private Optional<QueryInformationModel> currentRemoteQueryInformationModel = Optional.empty();
     private Thread activeThread = null;
+    private QueryRetrieveDialogController dialogController;
 
-    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrieveRemoteView, final GiftCloudPropertiesFromApplication giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
-        this.queryRetrieveRemoteView = queryRetrieveRemoteView;
+    QueryRetrieveController(final QueryRetrieveDialogController dialogController, final GiftCloudPropertiesFromApplication giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
+        this.dialogController = dialogController;
         this.giftCloudProperties = giftCloudProperties;
         this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
@@ -68,11 +68,14 @@ public class QueryRetrieveController {
         }
 
         currentRemoteQueryInformationModel = Optional.of(createRemoteQueryInformationModel());
-        queryRetrieveRemoteView.removeAll();
-        queryRetrieveRemoteView.validate();
-
+        Optional<QueryRetrieveRemoteView> remoteView = dialogController.getQueryRetrieveRemoteView();
+        if (!remoteView.isPresent()) {
+            throw new IllegalStateException("query() was called but no QueryRetrieveRemoteView was found for storing the results");
+        }
+        remoteView.get().removeAll();
+        remoteView.get().validate();
         AttributeList filter = queryParams.build();
-        Thread activeThread = new Thread(new QueryWorker(queryRetrieveRemoteView, currentRemoteQueryInformationModel.get(), filter, uploaderStatusModel, reporter));
+        Thread activeThread = new Thread(new QueryWorker(remoteView.get(), currentRemoteQueryInformationModel.get(), filter, uploaderStatusModel, reporter));
         activeThread.start();
     }
 

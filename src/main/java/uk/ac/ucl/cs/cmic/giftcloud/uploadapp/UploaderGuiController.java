@@ -44,7 +44,7 @@ public class UploaderGuiController {
         this.configurationDialogController = new ConfigurationDialogController(appConfiguration, mainFrame, this, uploaderController.getProjectListModel(), dialogs, reporter);
         this.uploaderPanel = new UploaderPanel(mainFrame.getParent(), UploaderGuiController.this, uploaderController.getTableModel(), giftCloudProperties, resourceBundle, uploaderController.getUploaderStatusModel(), reporter);
 
-        this.queryRetrieveController = new QueryRetrieveController(queryRetrieveDialogController.getQueryRetrieveRemoteView(), giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);
+        this.queryRetrieveController = new QueryRetrieveController(queryRetrieveDialogController, giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);
         this.mainFrame.addMainPanel(uploaderPanel);
         this.menuController = new MenuController(mainFrame.getParent(), UploaderGuiController.this, resourceBundle, reporter);
 
