@@ -309,8 +309,6 @@ public class GiftCloudUtils {
      * Runs a given method on the EDT, which may or may not be the current thread. If it is not the current thread, the call will be asynchronous
      *
      * @param runnable
-     * @throws InterruptedException
-     * @throws InvocationTargetException
      */
     public static void runLaterOnEdt(final Runnable runnable) {
         if (EventQueue.isDispatchThread()) {

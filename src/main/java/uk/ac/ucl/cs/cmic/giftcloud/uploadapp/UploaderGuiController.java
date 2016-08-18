@@ -7,7 +7,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -24,34 +23,33 @@ public class UploaderGuiController {
     private final MainFrame mainFrame;
     private final GiftCloudDialogs giftCloudDialogs;
     private final UploaderPanel uploaderPanel;
-    private ConfigurationDialog configurationDialog = null;
+    private ConfigurationDialogController configurationDialogController = null;
     private PixelDataTemplateDialog pixelDataDialog = null;
     private final GiftCloudReporterFromApplication reporter;
     private final QueryRetrieveController queryRetrieveController;
     private final MenuController menuController;
     private final UploaderController uploaderController;
 
-    public UploaderGuiController(final GiftCloudUploaderAppConfiguration application, final UploaderController uploaderController, final MainFrame mainFrame, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
-        resourceBundle = application.getResourceBundle();
+    public UploaderGuiController(final GiftCloudUploaderAppConfiguration appConfiguration, final UploaderController uploaderController, final MainFrame mainFrame, final GiftCloudDialogs dialogs, final GiftCloudReporterFromApplication reporter) throws DicomException, IOException {
+        this.resourceBundle = appConfiguration.getResourceBundle();
         this.uploaderController = uploaderController;
+        this.configurationDialogController = new ConfigurationDialogController(appConfiguration, mainFrame, this, uploaderController.getProjectListModel(), dialogs, reporter);
         this.mainFrame = mainFrame;
         this.giftCloudDialogs = dialogs;
-        this.giftCloudProperties = application.getProperties();
+        this.giftCloudProperties = appConfiguration.getProperties();
         this.reporter = reporter;
+        this.uploaderPanel = new UploaderPanel(mainFrame.getParent(), UploaderGuiController.this, uploaderController.getTableModel(), giftCloudProperties, resourceBundle, uploaderController.getUploaderStatusModel(), reporter);
+        this.queryRetrieveController = new QueryRetrieveController(uploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);
+        this.mainFrame.addMainPanel(uploaderPanel);
+        this.menuController = new MenuController(mainFrame.getParent(), UploaderGuiController.this, resourceBundle, reporter);
 
-        uploaderPanel = new UploaderPanel(mainFrame.getParent(), this, uploaderController.getTableModel(), giftCloudProperties, resourceBundle, uploaderController.getUploaderStatusModel(), reporter);
-        queryRetrieveController = new QueryRetrieveController(uploaderPanel.getQueryRetrieveRemoteView(), giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);
-
-        mainFrame.addMainPanel(uploaderPanel);
-
-        menuController = new MenuController(mainFrame.getParent(), this, resourceBundle, reporter);
         mainFrame.addListener(menuController.new MainWindowVisibilityListener());
         uploaderController.addBackgroundAddToUploaderServiceListener(menuController.new BackgroundAddToUploaderServiceListener());
 
-        final Optional<Boolean> hideWindowOnStartupProperty = giftCloudProperties.getHideWindowOnStartup();
-
         // We hide the main window only if specified in the preferences, AND if the system tray or menu is supported
+        final Optional<Boolean> hideWindowOnStartupProperty = giftCloudProperties.getHideWindowOnStartup();
         final boolean hideMainWindow = hideWindowOnStartupProperty.isPresent() && hideWindowOnStartupProperty.get() && menuController.isPresent();
+
         if (hideMainWindow) {
             hide();
         } else {
@@ -126,29 +124,7 @@ public class UploaderGuiController {
     }
 
     public void showConfigureDialog(final boolean wait) {
-        if (configurationDialog == null || !configurationDialog.isVisible()) {
-            if (wait) {
-                try {
-                    java.awt.EventQueue.invokeAndWait(new Runnable() {
-                        @Override
-                        public void run() {
-                            configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), UploaderGuiController.this, giftCloudProperties, uploaderController.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
-                        }
-                    });
-                } catch (InvocationTargetException e) {
-                    reporter.silentLogException(e, "Failure in starting the configuration dialog");
-                } catch (InterruptedException e) {
-                    reporter.silentLogException(e, "Failure in starting the configuration dialog");
-                }
-            } else {
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        configurationDialog = new ConfigurationDialog(mainFrame.getContainer(), UploaderGuiController.this, giftCloudProperties, uploaderController.getProjectListModel(), resourceBundle, giftCloudDialogs, reporter);
-                    }
-                });
-            }
-        }
+        configurationDialogController.showConfigureDialog(wait);
     }
 
     public void showAboutDialog() {
