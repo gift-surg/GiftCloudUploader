@@ -177,16 +177,6 @@ public class StringUtilities {
 	}
 
 	/**
-	 * <p>Remove any trailing spaces from a string.</p>
-	 *
-	 * @param	src	the string that may have trailing spaces
-	 * @return		the value of the string argument with any trailing spaces removed
-	 */
-	static public final String removeTrailingSpaces(String src) {
-		return removeTrailingCharacter(src,' ');
-	}
-	
-	/**
 	 * <p>Remove any leading spaces from a string.</p>
 	 *
 	 * @param	src	the string that may have leading spaces

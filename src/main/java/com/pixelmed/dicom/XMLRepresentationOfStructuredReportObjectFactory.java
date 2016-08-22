@@ -1005,31 +1005,6 @@ public class XMLRepresentationOfStructuredReportObjectFactory {
 		Document document = db.parse(stream);
 		return getAttributeList(document);
 	}
-	
-	/**
-	 * <p>Given a DICOM SR object encoded as an XML document in a named file
-	 * convert it to a list of attributes.</p>
-	 *
-	 * @param		name			the input file containing the XML document
-	 * @return						the list of DICOM attributes
-	 * @throws	IOException
-	 * @throws	SAXException
-	 * @throws	ParserConfigurationException
-	 * @throws	DicomException
-	 */
-	public AttributeList getAttributeList(String name) throws IOException, SAXException, ParserConfigurationException, DicomException {
-		InputStream fi = new FileInputStream(name);
-		BufferedInputStream bi = new BufferedInputStream(fi);
-		AttributeList list = null;
-		try {
-			list = getAttributeList(bi);
-		}
-		finally {
-			bi.close();
-			fi.close();
-		}
-		return list;
-	}
 
 	/**
 	 * @param	documentNode

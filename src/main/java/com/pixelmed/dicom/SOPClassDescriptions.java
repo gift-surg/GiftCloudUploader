@@ -32,15 +32,6 @@ public class SOPClassDescriptions {
 		return abbreviation == null ? "" : abbreviation;
 	}
 
-	/**
-	 * @param	sopClassUID	UID of the SOP Class, as a String without trailing zero padding
-	 * @return			a description of the SOP Class, or an empty string if none
-	 */
-	public static String getDescriptionFromUID(String sopClassUID) {
-		String description = (String)ourself.descriptionsByUID.get(sopClassUID);
-		return description == null ? "" : description;
-	}
-	
 	private void createAbbreviationsByUID() {
 		abbreviationsByUID = new HashMap();
 

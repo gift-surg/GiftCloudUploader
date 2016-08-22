@@ -174,17 +174,6 @@ public class ByteArray {
 		}
 //System.err.print("Within:  "+dump(src));
 	}
-	
-	private static final String dump(byte[] src) {
-		//StringBuffer sb = new StringBuffer();
-		//for (int i=0; i<src.length; ++i) {
-		//	sb.append(HexDump.byteToPaddedHexString(src[i]));
-		//	sb.append(" ");
-		//}
-		//sb.append("\n");
-		//return sb.toString();
-		return HexDump.dump(src);
-	}
 
 }
 

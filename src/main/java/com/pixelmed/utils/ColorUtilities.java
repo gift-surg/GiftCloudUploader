@@ -220,16 +220,6 @@ public class ColorUtilities {
 	}
 
 	/**
-	 * <p>Convert RGB values in sRGB to 16 bit fractional integer scaled CIELab in ICC PCS.</p>
-	 *
-	 * @param	rgb		array of length 3 containing R,G,B values each from 0 to 255
-	 * return			array of length 3 containing L*,a*,b* values each from 0 to 65535
-	 */
-	public static int[] getIntegerScaledCIELabPCSFromSRGB(int[] rgb) {
-		return getIntegerScaledCIELabFromCIELab(getCIELabPCSFromSRGB(rgb));
-	}
-	
-	/**
 	 * <p>Convert CIELab in ICC PCS to RGB values in sRGB.</p>
 	 *
 	 * @param	cieLab	array of length 3 containing L*,a*,b* values

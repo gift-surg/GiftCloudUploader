@@ -4,8 +4,6 @@ package com.pixelmed.dicom;
 
 import java.io.*;
 
-import java.util.Date;	// for test timing of routines
-
 /**
  * <p>A class that extends {@link java.io.FilterOutputStream FilterOutputStream} by adding
  * the concept of little and big endian binary value encoding, and supplies functions
@@ -373,18 +371,6 @@ public class BinaryOutputStream extends FilterOutputStream {
 	 */
 	public final void writeDouble(double[] f,int len) throws IOException {
 		for (int i=0; i<len; ++i) writeDouble(f[i]);
-	}
-
-	/**
-	 * @param	msg
-	 * @param	n
-	 */
-	private final void dumpBuffer(String msg,int n) {
-		System.err.print("after "+msg);
-		for (int i=0; i<n; ++i) {
-			System.err.print(" 0x"+Integer.toHexString(buffer[i]&0xff));
-		}
-		System.err.println();
 	}
 
 	/**

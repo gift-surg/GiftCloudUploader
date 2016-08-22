@@ -8,14 +8,6 @@ import com.pixelmed.utils.StringUtilities;
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.xml.sax.SAXException;
 
 import java.io.*;
@@ -333,21 +325,7 @@ public class XMLRepresentationOfDicomObjectFactory {
 		dbf.setNamespaceAware(true);
 		db = dbf.newDocumentBuilder();
 	}
-	
-	/**
-	 * <p>Given a DICOM object encoded as a list of attributes, get an XML document
-	 * as a DOM tree.</p>
-	 *
-	 * @param	list	the list of DICOM attributes
-	 */
-	public Document getDocument(AttributeList list) {
-		Document document = db.newDocument();
-		org.w3c.dom.Node element = document.createElement("DicomObject");
-		document.appendChild(element);
-		addAttributesFromListToNode(list,document,element);
-		return document;
-	}
-	
+
 	/**
 	 * <p>Given a DICOM object encoded as an XML document
 	 * convert it to a list of attributes.</p>
@@ -377,30 +355,6 @@ public class XMLRepresentationOfDicomObjectFactory {
 	public AttributeList getAttributeList(InputStream stream) throws IOException, SAXException, DicomException {
 		Document document = db.parse(stream);
 		return getAttributeList(document);
-	}
-	
-	/**
-	 * <p>Given a DICOM object encoded as an XML document in a named file
-	 * convert it to a list of attributes.</p>
-	 *
-	 * @param		name			the input file containing the XML document
-	 * @return						the list of DICOM attributes
-	 * @throws	IOException
-	 * @throws	SAXException
-	 * @throws	DicomException
-	 */
-	public AttributeList getAttributeList(String name) throws IOException, SAXException, DicomException {
-		InputStream fi = new FileInputStream(name);
-		BufferedInputStream bi = new BufferedInputStream(fi);
-		AttributeList list = null;
-		try {
-			list = getAttributeList(bi);
-		}
-		finally {
-			bi.close();
-			fi.close();
-		}
-		return list;
 	}
 
 	/**
@@ -435,50 +389,6 @@ public class XMLRepresentationOfDicomObjectFactory {
 	public static String toString(Node node) {
 		return toString(node,0);
 	}
-	
-	/**
-	 * <p>Serialize an XML document (DOM tree).</p>
-	 *
-	 * @param	out		the output stream to write to
-	 * @param	document	the XML document
-	 * @throws	IOException
-	 */
-	public static void write(OutputStream out,Document document) throws IOException, TransformerConfigurationException, TransformerException {
-		
-		DOMSource source = new DOMSource(document);
-		StreamResult result = new StreamResult(out);
-		Transformer transformer = TransformerFactory.newInstance().newTransformer();
-		Properties outputProperties = new Properties();
-		outputProperties.setProperty(OutputKeys.METHOD,"xml");
-		outputProperties.setProperty(OutputKeys.INDENT,"yes");
-		outputProperties.setProperty(OutputKeys.ENCODING,"UTF-8");	// the default anyway
-		transformer.setOutputProperties(outputProperties);
-		transformer.transform(source, result);
-	}
-	
-	/**
-	 * <p>Serialize an XML document (DOM tree) created from a DICOM attribute list.</p>
-	 *
-	 * @param	list		the list of DICOM attributes
-	 * @param	out		the output stream to write to
-	 * @throws	IOException
-	 * @throws	DicomException
-	 */
-	public static void createDocumentAndWriteIt(AttributeList list,OutputStream out) throws IOException, DicomException {
-		try {
-			Document document = new XMLRepresentationOfDicomObjectFactory().getDocument(list);
-			write(out,document);
-		}
-		catch (ParserConfigurationException e) {
-			throw new DicomException("Could not create XML document - problem creating object model from DICOM"+e);
-		}
-		catch (TransformerConfigurationException e) {
-			throw new DicomException("Could not create XML document - could not instantiate transformer"+e);
-		}
-		catch (TransformerException e) {
-			throw new DicomException("Could not create XML document - could not transform to XML"+e);
-		}
-	}
-		
+
 }
 

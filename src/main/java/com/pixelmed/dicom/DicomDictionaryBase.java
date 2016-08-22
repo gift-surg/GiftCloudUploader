@@ -127,27 +127,6 @@ public abstract class DicomDictionaryBase {
 	}
 
 	/**
-	 * <p>Get the string full name of an attribute from its tag.</p>
-	 *
-	 * <p>The full name may not be unique, so do not use it as a key (e.g., "Group Length").</p>
-	 *
-	 * @param	tag	the tag of the attribute
-	 * @return		the string full name of the attribute
-	 */
-	public String getFullNameFromTag(AttributeTag tag) {
-		String fullName = (String)fullNameByTag.get(tag);
-		if (fullName == null || fullName.length() == 0) {
-			if (tag.isGroupLength()) {		// i.e., unless overridden by an actual dictionary entry
-				fullName="Group Length";
-			}
-			else if (tag.isRepeatingGroup()) {
-				fullName =(String)fullNameByTag.get(tag.getTagWithRepeatingGroupBase());
-			}
-		}
-		return fullName;
-	}
-
-	/**
 	 * <p>Get an {@link java.util.Iterator Iterator} to iterate through every tag in the dictionary.</p>
 	 *
 	 * <p>The order in which the dictionary attributes are returned is by ascending tag value.</p>

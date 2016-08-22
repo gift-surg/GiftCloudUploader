@@ -41,18 +41,6 @@ public class DicomFileUtilities {
 	/**
 	 * <p>Does the file contain a DICOM (or DICOM-like ACR-NEMA) dataset ?</p>
 	 *
-	 * <p>Any exceptions during attempts to read are caught and false returned.</p>
-	 *
-	 * @param	filename	the file
-	 * @return				true if file exists, can be read, and seems to contain a DICOM or ACR-NEMA dataset (with or without a PS 3.10 preamble and meta information header)
-	 */
-	public static boolean isDicomOrAcrNemaFile(String filename) {
-		return isDicomOrAcrNemaFile(new File(filename));
-	}
-	
-	/**
-	 * <p>Does the file contain a DICOM (or DICOM-like ACR-NEMA) dataset ?</p>
-	 *
 	 * <p>Any exceptions during attempts to read are (silently) caught and false returned.</p>
 	 *
 	 * <p>Note that this method may return true but {@link com.pixelmed.dicom.DicomInputStream DicomInputStream} and {@link com.pixelmed.dicom.AttributeList AttributeList} may fail

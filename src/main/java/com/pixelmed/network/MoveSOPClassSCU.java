@@ -41,8 +41,6 @@ public class MoveSOPClassSCU extends SOPClass {
 	protected int debugLevel;
 	
 	protected CMoveResponseHandler responseHandler;
-	
-	public int getStatus() { return responseHandler.getStatus(); }
 
 	/***/
 	protected class CMoveResponseHandler extends CompositeResponseHandler {

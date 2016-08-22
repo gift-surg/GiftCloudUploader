@@ -1,6 +1,5 @@
 package com.pixelmed.utils;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
@@ -67,10 +66,6 @@ public class Syslog {
 		facilityByName.put("local7",new Integer(LOCAL7));
 	}
 
-	public int getFacilityByName(String s) {
-		return ((Integer)(facilityByName.get(s.toLowerCase(java.util.Locale.US)))).intValue();
-	}
-	
 	// Priorities
 	
 	static public final int EMERG	= 0;  		// system is unusable
@@ -97,10 +92,6 @@ public class Syslog {
 		priorityByName.put("debug",new Integer(DEBUG));
 	}
 
-	public int getPriorityByName(String s) {
-		return ((Integer)(priorityByName.get(s.toLowerCase(java.util.Locale.US)))).intValue();
-	}
-	
 	static private final int SYSLOG_PORT = 514;
 	
 	private InetAddress address;
@@ -117,14 +108,6 @@ public class Syslog {
 			makePriorityByName();
 		}
 	}
-	
-	public final void send(int facility,int priority,String message)
-			throws IOException,UnknownHostException,SocketException {
-		String sData = "<"+Integer.toString(facility+priority)+">"+message;
-//System.err.println(sData);
-		byte[] data = sData.getBytes();
-		DatagramPacket sendPacket = new DatagramPacket(data,data.length);
-		socket.send(sendPacket);
-	}
+
 }
 

@@ -252,21 +252,6 @@ if (debugLevel > 0) System.err.println((useBufferedOutputStream ? "U" : "Not u")
 		out.close();
 	}
 
-	/**
-	 * <p>Copy an entire input file to an output file.</p>
-	 *
-	 * @param	inFile									the source
-	 * @param	outFile									the destination
-	 * @param	readBufferSize							how much data to read in each request
-	 * @param	bufferedInputStreamSizeForFileCopy		the buffered input stream size (or zero if unbuffered)
-	 * @param	bufferedOutputStreamSizeForFileCopy		and the buffered output stream size (or zero if unbuffered)
-	 * @param	debugLevel
-	 * @throws	IOException	thrown if the copying fails for any reason
-	 */
-	public static final void copy(String inFile,String outFile,int readBufferSize,int bufferedInputStreamSizeForFileCopy,int bufferedOutputStreamSizeForFileCopy,int debugLevel) throws IOException {
-		copy(new File(inFile),new File(outFile),readBufferSize,bufferedInputStreamSizeForFileCopy,bufferedOutputStreamSizeForFileCopy,debugLevel);
-	}
-
 
 	/**
 	 * <p>Copy an entire input file to an output file.</p>

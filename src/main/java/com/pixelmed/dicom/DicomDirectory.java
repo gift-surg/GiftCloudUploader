@@ -812,22 +812,6 @@ public class DicomDirectory implements TreeModel {
 		list.get(TagFromName.OffsetOfTheLastDirectoryRecordOfTheRootDirectoryEntity).setValue(directoryRecordSequence.getItem(directoryRecordSequence.getNumberOfItems()-1).getByteOffset());
 		walkTreeToFixUpOffsetsInAttributeList(directoryRecordSequence,root);
 	}
-	
-	/**
-	 * <p>Write the directory to the named file.</p>
-	 *
-	 * @param	name			the file name to write to
-	 * @throws	IOException		if an I/O error occurs
-	 * @throws	DicomException	if error in DICOM encoding
-	 */
-	public void write(String name) throws IOException, DicomException {
-		AttributeList list = walkTreeToBuildAttributeList();
-//System.err.println("DicomDirectory.main(): flattened attribute list:\n"+list);
-		list.write(new NullOutputStream(),TransferSyntax.ExplicitVRLittleEndian,true/*useMeta*/,true/*useBufferedStream*/,true/*closeAfterWrite*/);
-		 walkTreeToFixUpOffsetsInAttributeList(list);
-//System.err.println("DicomDirectory.main(): offsets inserted in attribute list:\n"+list);
-		list.write(name,TransferSyntax.ExplicitVRLittleEndian,true/*useMeta*/,true/*useBufferedStream*/);
-	}
 
 	/**
 	 * @param	node

@@ -29,22 +29,6 @@ public class FloatFormatter {
 	/**
 	 * <p>Given a double value, return a string representation without too many decimal places.</p>
 	 *
-	 * <p>Uses the default Locale for formatting, e.g., if the default is Locale.FRENCH, decimal point will be ",".</p>
-	 *
-	 * <p>Do NOT use this method for formatting strings that always need to have a period for a decimal point (such as DICOM DS values)
-	 * but rather {@link #toString(double,Locale) toString(double,Locale)}
-	 * and explictly specify the Locale to be Locale.US.</p>
-	 *
-	 * @param	value		the value to format into a string
-	 * @return			the formatted string
-	 */
-	public static String toString(double value) {
-		return toString(value,Locale.getDefault());
-	}
-	
-	/**
-	 * <p>Given a double value, return a string representation without too many decimal places.</p>
-	 *
 	 * @param	value		the value to format into a string
 	 * @param	locale		locale to use when formatting (must be explicitly set to Locale.US when creating DICOM DS)
 	 * @return			the formatted string
@@ -80,25 +64,7 @@ public class FloatFormatter {
 //System.err.println("FloatFormatter.toString(): value="+value+" numberOfIntegerDigits="+numberOfIntegerDigits+" maximumFractionDigits="+maximumFractionDigits+" sValue="+sValue);
 		return sValue;
 	}
-	
-	/**
-	 * <p>Given a double value, return a string representation that fits in a fixed length.</p>
-	 *
-	 * <p>Uses the default Locale for formatting, e.g., if the default is Locale.FRENCH, decimal point will be ",".</p>
-	 *
-	 * <p>Do NOT use this method for formatting strings that always need to have a period for a decimal point (such as DICOM DS values)
-	 * but rather {@link #toStringOfFixedMaximumLength(double,int,boolean,Locale) toStringOfFixedMaximumLength(double,int,boolean,Locale)}
-	 * and explictly specify the Locale to be Locale.US.</p>
-	 *
-	 * @param	value			the value to format into a string
-	 * @param	maxLength		the maximum length of the string
-	 * @param	allowNonNumbers	whether to return NaN and infinity as string values (true), or as zero length string (false)
-	 * @return					the formatted string
-	 */
-	public static String toStringOfFixedMaximumLength(double value,int maxLength,boolean allowNonNumbers) {
-		return toStringOfFixedMaximumLength(value,maxLength,allowNonNumbers,Locale.getDefault());
-	}
-	
+
 	/**
 	 * <p>Given a double value, return a string representation that fits in a fixed length.</p>
 	 *

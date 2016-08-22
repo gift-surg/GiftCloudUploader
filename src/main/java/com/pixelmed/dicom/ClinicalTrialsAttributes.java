@@ -33,9 +33,9 @@ abstract public class ClinicalTrialsAttributes {
 	protected static Map mapOfOriginalToReplacementUIDs = null;
 	protected static UIDGenerator uidGenerator = null;	
 
-	private ClinicalTrialsAttributes() {};
-	
-	protected static void addType1LongStringAttribute(AttributeList list,AttributeTag t,String value,SpecificCharacterSet specificCharacterSet) throws DicomException {
+	private ClinicalTrialsAttributes() {}
+
+    protected static void addType1LongStringAttribute(AttributeList list,AttributeTag t,String value,SpecificCharacterSet specificCharacterSet) throws DicomException {
 		if (value == null || value.length() == 0) {
 			value=defaultValueForMissingNonZeroLengthStrings;
 		}
@@ -341,92 +341,7 @@ abstract public class ClinicalTrialsAttributes {
 		list.remove(TagFromName.ClinicalTrialTimePointDescription);
 		list.remove(TagFromName.ClinicalTrialCoordinatingCenterName);
 	}
-	
-	/**
-	 * <p>Add the attributes of the Clinical Trials Patient, Study and Series Modules, to a list of attributes.</p>
-	 *
-	 * @param	list								the list of attributes to which to add the attributes
-	 * @param	replaceConventionalAttributes		if true, use the supplied clinical trials attributes in place of the conventional ID attributes as well
-	 * @param	clinicalTrialSponsorName			the sponsor name
-	 * @param	clinicalTrialProtocolID				the protocol ID
-	 * @param	clinicalTrialProtocolName			the protocol name
-	 * @param	clinicalTrialSiteID					the site ID
-	 * @param	clinicalTrialSiteName				the site name
-	 * @param	clinicalTrialSubjectID				the subject ID
-	 * @param	clinicalTrialSubjectReadingID		the subject reading ID
-	 * @param	clinicalTrialTimePointID			the time point ID
-	 * @param	clinicalTrialTimePointDescription	the time point description
-	 * @param	clinicalTrialCoordinatingCenterName	the coordinating center name
-	 * @throws	DicomException	if error in DICOM encoding
-	 */
-	public static void addClinicalTrialsAttributes(AttributeList list,boolean replaceConventionalAttributes,
-			String clinicalTrialSponsorName,
-			String clinicalTrialProtocolID,
-			String clinicalTrialProtocolName,
-			String clinicalTrialSiteID,
-			String clinicalTrialSiteName,
-			String clinicalTrialSubjectID,
-			String clinicalTrialSubjectReadingID,
-			String clinicalTrialTimePointID,
-			String clinicalTrialTimePointDescription,
-			String clinicalTrialCoordinatingCenterName) throws DicomException {
-			
-		Attribute aSpecificCharacterSet = list.get(TagFromName.SpecificCharacterSet);
-		SpecificCharacterSet specificCharacterSet = aSpecificCharacterSet == null ? null : new SpecificCharacterSet(aSpecificCharacterSet.getStringValues());
-			
-		// Clinical Trial Subject Module
 
-		addType1LongStringAttribute(list,TagFromName.ClinicalTrialSponsorName,clinicalTrialSponsorName,specificCharacterSet);
-		addType1LongStringAttribute(list,TagFromName.ClinicalTrialProtocolID,clinicalTrialProtocolID,specificCharacterSet);
-		addType2LongStringAttribute(list,TagFromName.ClinicalTrialProtocolName,clinicalTrialProtocolName,specificCharacterSet);
-		addType2LongStringAttribute(list,TagFromName.ClinicalTrialSiteID,clinicalTrialSiteID,specificCharacterSet);
-		addType2LongStringAttribute(list,TagFromName.ClinicalTrialSiteName,clinicalTrialSiteName,specificCharacterSet);
-		if (clinicalTrialSubjectID != null || clinicalTrialSubjectReadingID == null)	// must be one or the other present
-			addType1LongStringAttribute(list,TagFromName.ClinicalTrialSubjectID,clinicalTrialSubjectID,specificCharacterSet);
-		if (clinicalTrialSubjectReadingID != null)
-			addType1LongStringAttribute(list,TagFromName.ClinicalTrialSubjectReadingID,clinicalTrialSubjectReadingID,specificCharacterSet);
-
-		// Clinical Trial Study Module
-
-		addType2LongStringAttribute(list,TagFromName.ClinicalTrialTimePointID,clinicalTrialTimePointID,specificCharacterSet);
-		addType3ShortTextAttribute(list,TagFromName.ClinicalTrialTimePointDescription,clinicalTrialTimePointDescription,specificCharacterSet);
-
-		// Clinical Trial Series Module
-
-		addType2LongStringAttribute(list,TagFromName.ClinicalTrialCoordinatingCenterName,clinicalTrialCoordinatingCenterName,specificCharacterSet);
-		
-		if (replaceConventionalAttributes) {
-			// Use ClinicalTrialSubjectID to replace both PatientName and PatientID
-			{
-				String value = clinicalTrialSubjectID;
-				if (value == null) value=defaultValueForMissingNonZeroLengthStrings;
-				{
-					//list.remove(TagFromName.PatientName);
-					Attribute a = new PersonNameAttribute(TagFromName.PatientName,specificCharacterSet);
-					a.addValue(value);
-					list.put(TagFromName.PatientName,a);
-				}
-				{
-					//list.remove(TagFromName.PatientID);
-					Attribute a = new LongStringAttribute(TagFromName.PatientID,specificCharacterSet);
-					a.addValue(value);
-					list.put(TagFromName.PatientID,a);
-				}
-			}
-			// Use ClinicalTrialTimePointID to replace Study ID
-			{
-				String value = clinicalTrialTimePointID;
-				if (value == null) value=defaultValueForMissingNonZeroLengthStrings;
-				{
-					//list.remove(TagFromName.StudyID);
-					Attribute a = new ShortStringAttribute(TagFromName.StudyID,specificCharacterSet);
-					a.addValue(value);
-					list.put(TagFromName.StudyID,a);
-				}
-			}
-		}
-	}
-	
 	/**
 	 * <p>Is a private tag safe.</p>
 	 *

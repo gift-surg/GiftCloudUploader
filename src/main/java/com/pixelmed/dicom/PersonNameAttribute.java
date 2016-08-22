@@ -317,54 +317,5 @@ public class PersonNameAttribute extends StringAttributeAffectedBySpecificCharac
 		return phoneticName;
 	}
 
-	private static void processFileOrDirectory(File file) {
-//System.err.println("PersonNameAttribute.processFileOrDirectory(): "+file);
-		if (file.isDirectory()) {
-//System.err.println("PersonNameAttribute.processFileOrDirectory(): Recursing into directory "+file);
-			try {
-				boolean noFileDoneYet = true;
-				File listOfFiles[] = file.listFiles();
-				for (int i=0; i<listOfFiles.length; ++i) {
-					if (listOfFiles[i].isDirectory()) {
-						processFileOrDirectory(listOfFiles[i]);
-					}
-					else if (listOfFiles[i].isFile() && !file.isHidden() && noFileDoneYet) {	// only do first file found, since names probably all the same
-						processFileOrDirectory(listOfFiles[i]);
-						noFileDoneYet = false;
-					}
-				}
-			}
-			catch (Exception e) {
-				//e.printStackTrace(System.err);
-			}
-		}
-		else if (file.isFile()) {
-			if (!file.isHidden()) {
-//System.err.println("PersonNameAttribute.processFileOrDirectory(): Doing file "+file);
-				try {
-					DicomInputStream dfi = new DicomInputStream(new BufferedInputStream(new FileInputStream(file)));
-					AttributeList list = new AttributeList();
-					list.read(dfi);
-					dfi.close();
-					
-					String name = Attribute.getSingleStringValueOrNull(list,TagFromName.PatientName);
-					if (name != null) {
-						String canonicalName = PersonNameAttribute.getCanonicalForm(name);
-						String phoneticName = getPhoneticName(canonicalName);
-						System.out.println(name+"\t"+canonicalName+"\t"+phoneticName);
-					}
-				}
-				catch (Exception e) {
-					//e.printStackTrace(System.err);
-				}
-			}
-			else {
-//System.err.println("PersonNameAttribute.processFileOrDirectory(): Skipping hidden "+file);
-			}
-		}
-		else {
-//System.err.println("PersonNameAttribute.processFileOrDirectory(): Not a directory or file "+file);
-		}
-	}
 }
 
