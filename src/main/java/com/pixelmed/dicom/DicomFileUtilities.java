@@ -126,19 +126,5 @@ public class DicomFileUtilities {
 		return success;
 	}
 
-	
-	/**
-	 * <p>Iterate through a list of files and report which are DICOM and which are not.</p>
-	 *
-	 * @param	arg	a list of files to test
-	 */
-	public static void main(String arg[]) {
-		try {
-			for (String filename : arg) {
-				System.err.println("File "+filename+" isDicomOrAcrNemaFile() = "+isDicomOrAcrNemaFile(filename));
-			}
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
+
 }

@@ -106,33 +106,6 @@ public class StructuredReportBrowser extends JFrame {
 		}
 	}
 
-	/**
-	 * <p>For testing.</p>
-	 *
-	 * <p>Display the SR encoded in the file name on the command line as a tree.</p>
-	 *
-	 * @param	arg
-	 */
-	public static void main(String arg[]) {
-
-		AttributeList list = new AttributeList();
-
-		try {
-			final String suppliedFileName=arg[0];
-
-			System.err.println("test reading SR Document");
-			list.read(suppliedFileName);
-
-			System.err.println("building tree");
-			StructuredReportBrowser tree = new StructuredReportBrowser(list);
-
-			System.err.println("display tree");
-			tree.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }
 
 

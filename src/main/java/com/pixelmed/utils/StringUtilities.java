@@ -407,59 +407,5 @@ public class StringUtilities {
 			}
 		}
 	}
-	
-	/**
-	 * <p>Unit testing.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
-		String s;
-		s="1234";
-		System.err.println("src <"+s+"> dst <"+removeTrailingSpaces(s)+">");
-		s="1234  ";
-		System.err.println("src <"+s+"> dst <"+removeTrailingSpaces(s)+">");
-		s="12  34  ";
-		System.err.println("src <"+s+"> dst <"+removeTrailingSpaces(s)+">");
-		s="  1234";
-		System.err.println("src <"+s+"> dst <"+removeTrailingSpaces(s)+">");
-		s="  1234  ";
-		System.err.println("src <"+s+"> dst <"+removeTrailingSpaces(s)+">");
-		s="1";
-		System.err.println("src <"+s+"> dst <"+removeTrailingSpaces(s)+">");
-		s=" ";
-		System.err.println("src <"+s+"> dst <"+removeTrailingSpaces(s)+">");
-		s="    ";
-		System.err.println("src <"+s+"> dst <"+removeTrailingSpaces(s)+">");
-		s="";
-		System.err.println("src <"+s+"> dst <"+removeTrailingSpaces(s)+">");
-		
-		String s1;
-		String s2;
-		
-		s1 = "this is 2 way";
-		s2 = "this is 2 way";
-		System.err.println("s1 <"+s1+"> s2 <"+s2+"> : compare ="+compareStringsWithEmbeddedNonZeroPaddedIntegers(s1,s2));
 
-		s1 = "this is 2 way";
-		s2 = "this is 10 way";
-		System.err.println("s1 <"+s1+"> s2 <"+s2+"> : compare ="+compareStringsWithEmbeddedNonZeroPaddedIntegers(s1,s2));
-
-		s1 = "this is 10 way";
-		s2 = "this is 2 way";
-		System.err.println("s1 <"+s1+"> s2 <"+s2+"> : compare ="+compareStringsWithEmbeddedNonZeroPaddedIntegers(s1,s2));
-
-		s1 = "this is 2 way";
-		s2 = "this is 2 way plus";
-		System.err.println("s1 <"+s1+"> s2 <"+s2+"> : compare ="+compareStringsWithEmbeddedNonZeroPaddedIntegers(s1,s2));
-
-		s1 = "this is 2 way";
-		s2 = "this is 10 way plus";
-		System.err.println("s1 <"+s1+"> s2 <"+s2+"> : compare ="+compareStringsWithEmbeddedNonZeroPaddedIntegers(s1,s2));
-
-		s1 = "this is 10 way";
-		s2 = "this is 2 way plus";
-		System.err.println("s1 <"+s1+"> s2 <"+s2+"> : compare ="+compareStringsWithEmbeddedNonZeroPaddedIntegers(s1,s2));
-
-	}
 }

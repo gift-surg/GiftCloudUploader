@@ -499,20 +499,4 @@ public class SOPClassDescriptions {
 		descriptionsByUID.put(SOPClass.DICONDEEddyCurrentMultiframeImageStorage,"DICONDE Eddy Current Multi-frame Image Storage");
 	}
 
-	/**
-	 * <p>Unit test.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
-
-		try {
-			System.err.println(getDescriptionFromUID(SOPClass.MRSpectroscopyStorage));
-			System.err.println(getAbbreviationFromUID(SOPClass.MRSpectroscopyStorage));
-		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }

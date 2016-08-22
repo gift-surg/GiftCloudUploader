@@ -379,18 +379,6 @@ public class HexDump {
 		return dump(s, s == null ? 0 : s.length());
 	}
 
-	/**
-	 * <p>Unit test.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
-
-		byte[] b = new byte[256];
-		for (int i=0; i<256; ++i) b[i]=(byte)i;
-		System.err.println(dump(b));
-	}
-
 }
 
 

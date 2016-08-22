@@ -5,12 +5,8 @@ package com.pixelmed.dicom;
 import com.pixelmed.utils.FileUtilities;
 
 import java.io.File;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -126,15 +122,5 @@ public class SetOfFrameSets extends HashSet<FrameSet> {
 		doCommonConstructorStuff(files);
 	}
 
-	/**
-	 * <p>For testing, read all DICOM files and partition them into {@link com.pixelmed.dicom.FrameSet FrameSet}s.</p>
-	 *
-	 * @param	arg	the filenames and/or folder names of files containing the images
-	 */
-	public static void main(String arg[]) {
-		SetOfFrameSets setOfFrameSets = new SetOfFrameSets(arg);
-System.err.println("SetOfFrameSets.main(): Result");
-		System.err.println(setOfFrameSets.toString());
-	}
 }
 

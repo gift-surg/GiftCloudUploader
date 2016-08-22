@@ -158,33 +158,4 @@ public abstract class DicomDictionaryBase {
 	 */
 	public Iterator getTagIterator() { return tagList.iterator(); }
 
-	/**
-	 * <p>Unit test.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
-
-		try {
-			DicomDictionaryBase dictionary = new DicomDictionary();
-			System.err.println(new String(dictionary.getValueRepresentationFromTag(TagFromName.PixelRepresentation)));
-			System.err.println(new String(dictionary.getValueRepresentationFromTag(new AttributeTag(0x0028,0x0103))));
-			
-			System.err.println(dictionary.getInformationEntityFromTag(TagFromName.PatientName));
-			System.err.println(dictionary.getInformationEntityFromTag(TagFromName.StudyDate));
-			System.err.println(dictionary.getInformationEntityFromTag(TagFromName.PixelRepresentation));
-
-			System.err.println(dictionary.getNameFromTag(TagFromName.PatientName));
-			System.err.println(dictionary.getNameFromTag(TagFromName.StudyDate));
-			System.err.println(dictionary.getNameFromTag(TagFromName.PixelRepresentation));
-
-			System.err.println(dictionary.getFullNameFromTag(TagFromName.PatientName));
-			System.err.println(dictionary.getFullNameFromTag(TagFromName.StudyDate));
-			System.err.println(dictionary.getFullNameFromTag(TagFromName.PixelRepresentation));
-		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }

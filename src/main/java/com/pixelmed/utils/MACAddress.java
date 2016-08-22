@@ -5,7 +5,6 @@ package com.pixelmed.utils;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.StringTokenizer;
 
 /**
@@ -229,14 +228,6 @@ public class MACAddress {
 //System.err.println("MACAddress(): MAC address="+macAddressValue+" dec (0x"+Long.toHexString(macAddressValue)+")");
 		return macAddressValue;
 	}
-	
-	/**
-	 * <p>Testing.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
-		System.out.println("MAC address = 0x"+Long.toHexString(new MACAddress().getMACAddress()));
-	}
+
 }
 

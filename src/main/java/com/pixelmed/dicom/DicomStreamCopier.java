@@ -2,11 +2,16 @@
 
 package com.pixelmed.dicom;
 
-import java.io.*;
-
-import java.util.zip.*;
-
 import com.pixelmed.utils.ByteArray;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 /**
  * <p>A class to copy DICOM attributes from anm input stream to an output stream,
@@ -492,24 +497,7 @@ System.err.println("Ignoring bad Item at "+byteOffset+" "+tag+" VL=<0x"+Long.toH
 		this.o=o;
 		copy(0,0xffffffffl,false/*stopAfterMetaInformationHeader*/,false/*copyMetaInformationHeader*/,true/*doCopy*/,true/*closeWhenDone*/);
 	}
-	
-	/**
-	 * <p>Copy one file to another parsing and recreating the DICOM attributes using the specified transfer syntaxes.</p>
-	 *
-	 * @param	arg	four arguments, the input transfer syntax uid (must be zero length if metaheader present), the input filename,
-	 *			the output transfer syntax uid and the output filename
-	 */
-	public static void main(String arg[]) {
-		try {
-			DicomInputStream  i = new DicomInputStream (new BufferedInputStream(new FileInputStream(arg[1])),arg[0],arg[0].length() == 0/*tryMeta*/);
-			DicomOutputStream o = new DicomOutputStream(new BufferedOutputStream(new FileOutputStream(arg[3])),null/*meta*/,arg[2]/*dataset*/);
-			new  DicomStreamCopier(i,o);
-		} catch (Exception e) {
-			//System.err.println(e);
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
+
 }
 
 

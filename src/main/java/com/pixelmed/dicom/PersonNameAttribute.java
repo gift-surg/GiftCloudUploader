@@ -366,16 +366,5 @@ public class PersonNameAttribute extends StringAttributeAffectedBySpecificCharac
 //System.err.println("PersonNameAttribute.processFileOrDirectory(): Not a directory or file "+file);
 		}
 	}
-
-	/**
-	 * <p>Test read the DICOM files listed on the command line, get the patient name and make canonical form.</p>
-	 *
-	 * @param	arg	a list of DICOM file names or directories to search for such
-	 */
-	public static void main(String arg[]) {
-		for (int i=0; i<arg.length; ++i) {
-			processFileOrDirectory(new File(arg[i]));
-		}
-	}
 }
 

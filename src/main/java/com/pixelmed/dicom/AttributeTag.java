@@ -241,21 +241,6 @@ public class AttributeTag implements Comparable {
 		return (group<<16)+(element&0xffff);
 	}
 
-	public static void main(String arg[]) {
-		int group = 0x0010;
-		int element = 0x0020;
-		AttributeTag t1 = new AttributeTag(group,element);
-		System.err.println("Test numeric constructor: "+(t1.getGroup() == group && t1.getElement() == element ? "PASS" : "FAIL"));
-		String t1s = t1.toString();
-		try {
-			AttributeTag t2 = new AttributeTag(t1s);
-			System.err.println("Test string round trip:   "+(t1.getGroup() == group && t1.getElement() == element ? "PASS" : "FAIL"));
-		}
-		catch (Exception e) {
-			System.err.println("Test string round trip:   FAIL with exception "+e);
-		}
-	}
-	
 }
 
 

@@ -43,11 +43,5 @@ public class StoredFilePathStrategyComponentFolders extends StoredFilePathStrate
 		return "BYSOPINSTANCEUIDCOMPONENTFOLDERS";
 	}
 
-	/**
-	 * <p>Perform self test.  If arguments are given, then use then as test UIDs.  If no arguments, then use internal test UIDs.</p>
-	 */
-	public static void main(String arg[]) {
-		BYSOPINSTANCEUIDCOMPONENTFOLDERS.test(arg);
-	}
 }
 

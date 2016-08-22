@@ -290,50 +290,6 @@ if (debugLevel > 0) System.err.println((useBufferedOutputStream ? "U" : "Not u")
 		copy(new File(inFile),new File(outFile),defaultReadBufferSize,defaultBufferedInputStreamSizeForFileCopy,defaultBufferedOutputStreamSizeForFileCopy,0/*debugLevel*/);
 	}
 
-	/**
-	 * <p>Copy one file to another.</p>
-	 *
-	 * @param	arg	array of two or five strings - input file, output file,
-	 *			optionally the copy buffer size,
-	 *			the buffered input stream size (or zero if unbuffered),
-	 *			and the buffered output stream size (or zero if unbuffered),
-	 */
-	public static void main(String arg[]) {
-		try {
-			String inFile = null;
-			String outFile = null;
-			int readBufferSize = defaultReadBufferSize;
-			int bufferedInputStreamSizeForFileCopy  = 0;
-			int bufferedOutputStreamSizeForFileCopy = 0;
-			if (arg.length == 2) {
-				inFile = arg[0];
-				outFile = arg[1];
-			}
-			else if (arg.length == 5) {
-				inFile = arg[0];
-				outFile = arg[1];
-				readBufferSize = Integer.parseInt(arg[2]);
-				bufferedInputStreamSizeForFileCopy  = Integer.parseInt(arg[3]);
-				bufferedOutputStreamSizeForFileCopy = Integer.parseInt(arg[4]);
-			}
-			if (inFile == null) {
-				System.err.println("Error: Usage: java com.pixelmed.utils.CopyStream infile outfile [ readBufferSize bufferedInputStreamSizeForFileCopy bufferedOutputStreamSizeForFileCopy]");
-			}
-			else {
-				long startTime=System.currentTimeMillis();
-				copy(inFile,outFile,readBufferSize,bufferedInputStreamSizeForFileCopy,bufferedOutputStreamSizeForFileCopy,1/*debugLevel*/);
-				double copyTime = (System.currentTimeMillis()-startTime)/1000.0;
-				System.err.println("Copy time "+copyTime+" seconds");
-				long lengthOfFile = new File(inFile).length();
-				double lengthOfFileInMB = ((double)lengthOfFile)/(1024*1024);
-				double copyRate = lengthOfFileInMB/copyTime;
-				System.err.println("Copy rate "+copyRate+" MB/s");
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
 }
 
 

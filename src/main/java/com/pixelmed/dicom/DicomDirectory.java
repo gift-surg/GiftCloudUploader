@@ -1078,48 +1078,6 @@ public class DicomDirectory implements TreeModel {
 		return attributeLists;
 	}
 
-	/**
-	 * <p>Read DICOM files and create a DICOMDIR.</p>
-	 *
-	 * @param	arg	 optionally the folder in which the files and DICOMDIR are rooted, the filename of the DICOMDIR to be created, then the filenames of the DICOM files to include
-	 */
-	public static void main(String arg[]) {
-		if (arg.length >= 2) {
-			try {
-				File rootDirectoryName = new File(arg[0]);
-				int offset;
-				String dicomdirName;
-				if (rootDirectoryName.isDirectory()) {
-					offset = 2;
-					dicomdirName = new File(rootDirectoryName,arg[1]).getCanonicalPath();
-				}
-				else {
-					rootDirectoryName = null;
-					offset = 1;
-					dicomdirName = arg[0];
-				}
-				int nFiles  = arg.length - offset;
-				String[] sourceFiles = new String[nFiles];
-				System.arraycopy(arg,offset,sourceFiles,0,nFiles);
-				DicomDirectory dicomDirectory;
-				if (rootDirectoryName == null) {
-					dicomDirectory = new DicomDirectory(sourceFiles);
-				}
-				else {
-					dicomDirectory = new DicomDirectory(rootDirectoryName,sourceFiles);
-				}
-//System.err.println("DicomDirectory.main(): created:\n"+dicomDirectory);
-				dicomDirectory.write(dicomdirName);
-			}
-			catch (Exception e) {
-				e.printStackTrace(System.err);
-				System.exit(0);
-			}
-		}
-		else {
-			System.err.println("Usage:");
-		}
-	}
 }
 
 

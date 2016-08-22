@@ -2265,26 +2265,6 @@ System.err.println("SingleImagePanel.paintComponent(): not ARGB superimposed ima
 //System.err.println("SingleImagePanel.paintComponent(): end");
 	}
 
-	/**
-	 * @param	arg
-	 */
-	public static void main(String arg[]) {
-		try {
-			if (arg.length == 1) {
-				JFrame p = new JFrame();
-				p.add(new SingleImagePanel(new SourceImage(arg[0])));
-				//AttributeList list = new AttributeList();
-				//list.read(arg[0]);
-				//p.add(new SingleImagePanel(new SourceImage(list)));
-				p.setBackground(Color.BLACK);
-				p.setSize(512,512);
-				p.setVisible(true);
-			}
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }
 
 

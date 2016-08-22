@@ -126,20 +126,5 @@ public class Syslog {
 		DatagramPacket sendPacket = new DatagramPacket(data,data.length);
 		socket.send(sendPacket);
 	}
-	
-	/**
-	 * <p>Testing.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
-		try {
-			Syslog logger = new Syslog("localhost");
-			logger.send(logger.getFacilityByName("local6"),logger.getPriorityByName("notice"),"deidentify: dclunie - hello again more");
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
 }
 

@@ -480,58 +480,5 @@ public class XMLRepresentationOfDicomObjectFactory {
 		}
 	}
 		
-	/**
-	 * <p>Read a DICOM dataset and write an XML representation of it to the standard output, or vice versa.</p>
-	 *
-	 * @param	arg	either one filename of the file containing the DICOM dataset, or a direction argument (toDICOM or toXML, case insensitive) and an input filename
-	 */
-	public static void main(String arg[]) {
-		try {
-			boolean bad = true;
-			boolean toXML = true;
-			String filename = null;
-			if (arg.length == 1) {
-				bad = false;
-				toXML = true;
-				filename = arg[0];
-			}
-			else if (arg.length == 2) {
-				filename = arg[1];
-				if (arg[0].toLowerCase(java.util.Locale.US).equals("toxml")) {
-					bad = false;
-					toXML = true;
-				}
-				else if (arg[0].toLowerCase(java.util.Locale.US).equals("todicom") || arg[0].toLowerCase(java.util.Locale.US).equals("todcm")) {
-					bad = false;
-					toXML = false;
-				}
-			}
-			if (bad) {
-				System.err.println("usage: XMLRepresentationOfDicomObjectFactory [toDICOM|toXML] inputfile");
-			}
-			else {
-				if (toXML) {
-					AttributeList list = new AttributeList();
-					//System.err.println("reading list");
-					list.read(filename,null,true,true);
-					//System.err.println("making document");
-					Document document = new XMLRepresentationOfDicomObjectFactory().getDocument(list);
-					//System.err.println(toString(document));
-					write(System.out,document);
-				}
-				else {
-//long startReadTime = System.currentTimeMillis();
-					AttributeList list = new XMLRepresentationOfDicomObjectFactory().getAttributeList(filename);
-//System.err.println("AttributeList.main(): read XML and create DICOM AttributeList - done in "+(System.currentTimeMillis()-startReadTime)+" ms");
-					String sourceApplicationEntityTitle = Attribute.getSingleStringValueOrEmptyString(list,TagFromName.SourceApplicationEntityTitle);
-					list.removeMetaInformationHeaderAttributes();
-					FileMetaInformation.addFileMetaInformation(list,TransferSyntax.ExplicitVRLittleEndian,sourceApplicationEntityTitle);
-					list.write(System.out,TransferSyntax.ExplicitVRLittleEndian,true/*useMeta*/,true/*useBufferedStream*/);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
 }
 

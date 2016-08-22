@@ -2,17 +2,9 @@
 
 package com.pixelmed.dicom;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
-import java.util.*;
-import java.io.*;
-
 import com.pixelmed.utils.JTreeWithAdditionalKeyStrokeActions;
 
-import com.pixelmed.display.ApplicationFrame;	// for main() test
+import javax.swing.*;
 
 /**
  * <p>The {@link com.pixelmed.dicom.StructuredReportTreeBrowser StructuredReportTreeBrowser} class implements a Swing graphical user interface
@@ -47,36 +39,6 @@ public class StructuredReportTreeBrowser {
 		treeBrowserScrollPane.setViewportView(tree);
 	}
 
-	/**
-	 * <p>For testing.</p>
-	 *
-	 * <p>Displays an SR tree browser built from the attributes in the file named on the command line.</p>
-	 *
-	 * @param	arg
-	 */
-	public static void main(String arg[]) {
-		AttributeList list = new AttributeList();
-		try {
-			list.read(arg[0]);
-		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-		
-		ApplicationFrame af = new ApplicationFrame();
-		JScrollPane scrollPane = new JScrollPane();
-		try {
-			StructuredReportTreeBrowser browser = new StructuredReportTreeBrowser(list,scrollPane);
-		}
-		catch (DicomException e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-		af.getContentPane().add(scrollPane);
-		af.pack();
-		af.setVisible(true);
-	}
 }
 
 

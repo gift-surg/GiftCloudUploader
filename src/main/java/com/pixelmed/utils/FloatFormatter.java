@@ -463,19 +463,5 @@ public class FloatFormatter {
 		"32767",
 		"-32768"
 	};
-	
-	public static void main(String arg[]) {
-		System.err.println("Test of FloatFormatter.toString():");
-		for (int i=0; i< testDoubleValues.length; ++i) {
-			String sv = FloatFormatter.toString(testDoubleValues[i]);
-			System.err.println("\t"+(sv.equals(testDoubleStringExpectedForToString[i]) ? "PASS" : "FAIL")+": Supplied <"+testDoubleStringSupplied[i]+">\t Got <"+sv+">\t Expected <"+testDoubleStringExpectedForToString[i]+">");
-		}
-		System.err.println("Test of FloatFormatter.toStringOfFixedMaximumLength(double,16):");
-		for (int i=0; i< testDoubleValues.length; ++i) {
-			String sv = FloatFormatter.toStringOfFixedMaximumLength(testDoubleValues[i],16,true);
-			int svl = sv.length();
-			System.err.println("\t"+(sv.equals(testDoubleStringExpectedForFixedMaximumLength16[i]) && svl <= 16 ? "PASS" : "FAIL")+": Supplied <"+testDoubleStringSupplied[i]+">\t Got <"+sv+"> (length="+svl+")\t Expected <"+testDoubleStringExpectedForFixedMaximumLength16[i]+">\t Double.toString() <"+Double.toString(testDoubleValues[i])+">");
-		}
-		
-	}
+
 }

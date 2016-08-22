@@ -2,9 +2,6 @@
 
 package com.pixelmed.dicom;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-
 /**
  * <p>A class to categorize DICOM images as having been lossy compressed or not.</p>
  *
@@ -86,23 +83,5 @@ public class LossyImageCompression {
 		return value;
 	}
 
-	/**
-	 * <p>Read a DICOM image input file, and determine if it has ever been lossy compressed.</p>
-	 *
-	 * @param	arg	one required parameters, the input file name
-	 */
-	public static void main(String arg[]) {
-		String dicomFileName = arg[0];
-		try {
-			AttributeList list = new AttributeList();
-			DicomInputStream in = new DicomInputStream(new BufferedInputStream(new FileInputStream(dicomFileName)));
-			list.read(in,TagFromName.PixelData);
-			in.close();
-			System.out.println(hasEverBeenLossyCompressed(list));
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
 }
 

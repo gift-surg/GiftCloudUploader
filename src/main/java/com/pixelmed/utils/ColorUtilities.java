@@ -249,53 +249,7 @@ public class ColorUtilities {
 		return getSRGBFromCIELabPCS(getCIELabPCSFromIntegerScaledCIELabPCS(cieLabScaled));
 	}
 
-	
-	/**
-	 * <p>Convert color values</p>
-	 *
-	 * @param	arg	sRGB8toCIELab16 or CIELab16tosRGB8 (case insensitive) and three color values (each decimal or 0xhex)
-	 */
-	public static void main(String arg[]) {
-		boolean bad = true;
-		try {
-			if (arg.length == 4) {
-				int[] input = new int[3];
-				input[0] = arg[1].startsWith("0x") ? Integer.parseInt(arg[1].replaceFirst("0x",""),16) :  Integer.parseInt(arg[1]);
-				input[1] = arg[2].startsWith("0x") ? Integer.parseInt(arg[2].replaceFirst("0x",""),16) :  Integer.parseInt(arg[2]);
-				input[2] = arg[3].startsWith("0x") ? Integer.parseInt(arg[3].replaceFirst("0x",""),16) :  Integer.parseInt(arg[3]);
-				int[] output = null;
-				String inputType = null;
-				String outputType = null;
-				if (arg[0].toLowerCase(java.util.Locale.US).equals("sRGB8toCIELab16".toLowerCase(java.util.Locale.US))) {
-					output = getIntegerScaledCIELabPCSFromSRGB(input);
-					inputType = "sRGB8";
-					outputType = "CIELab16";
-					bad = false;
-				}
-				else if (arg[0].toLowerCase(java.util.Locale.US).equals("CIELab16tosRGB8".toLowerCase(java.util.Locale.US))) {
-					output = getSRGBFromIntegerScaledCIELabPCS(input);
-					inputType = "CIELab16";
-					outputType = "sRGB8";
-					bad = false;
-				}
-				else {
-					System.err.println("Unrecognized conversion type "+arg[0]);
-				}
-				if (output != null) {
-					System.err.println(inputType+": "+input[0]+" "+input[1]+" "+input[2]+" (dec) (0x"+Integer.toHexString(input[0])+" 0x"+Integer.toHexString(input[1])+" 0x"+Integer.toHexString(input[2])+")");
-					System.err.println(outputType+": "+output[0]+" "+output[1]+" "+output[2]+" (dec) (0x"+Integer.toHexString(output[0])+" 0x"+Integer.toHexString(output[1])+" 0x"+Integer.toHexString(output[2])+")");
-				}
-			}
-			else {
-				System.err.println("Error: incorrect number of arguments");
-			}
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-		if (bad) {
-			System.err.println("usage: ColorUtilities sRGB8toCIELab16|CIELab16tosRGB8 R|L G|a B|b");
-		}
-	}
+
 }
 
 

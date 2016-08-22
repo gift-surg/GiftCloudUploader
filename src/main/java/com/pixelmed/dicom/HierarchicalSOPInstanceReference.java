@@ -266,34 +266,5 @@ public class HierarchicalSOPInstanceReference {
 		}
 		return str.toString();
 	}
-	
-	/**
-	 * <p>Dump the references in an a file (whether it is an SR file or not).</p>
-	 *
-	 * @param	arg	DICOM file
-	 */
-	public static void main(String arg[]) {
-		try {
-			AttributeList list = new AttributeList();
-			list.read(arg[0]);
-			{
-				System.err.println("Result of findHierarchicalReferencesToSOPInstancesInStructuredReport():");
-				Map<String,HierarchicalSOPInstanceReference> map = HierarchicalSOPInstanceReference.findHierarchicalReferencesToSOPInstancesInStructuredReport(list);
-				System.err.println(HierarchicalSOPInstanceReference.toString(map));
-			}
-			{
-				System.err.println("Result of findHierarchicalReferencesToSOPInstances():");
-				Map<String,HierarchicalSOPInstanceReference> map = HierarchicalSOPInstanceReference.findHierarchicalReferencesToSOPInstances(list);
-				{
-					HierarchicalSOPInstanceReference ourselves = new HierarchicalSOPInstanceReference(list);
-					map.put(ourselves.getSOPInstanceUID(),ourselves);
-				}
-				System.err.println(HierarchicalSOPInstanceReference.toString(map));
-			}
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }
 
