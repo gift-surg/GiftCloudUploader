@@ -24,7 +24,8 @@ import java.util.ResourceBundle;
  */
 public class ApplicationMenu {
 
-    private final JMenuBar menuBar = new JMenuBar();;
+    private final JMenuBar menuBar = new JMenuBar();
+    private final JFrame frame;
     private JMenuItem startUploaderItem;
     private JMenuItem pauseUploaderItem;
     private JMenuItem hideItem;
@@ -45,6 +46,7 @@ public class ApplicationMenu {
      */
     public ApplicationMenu(final JFrame frame, final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
 
+        this.frame = frame;
         // After pausing, the "start" item changes to "resume"
         resumeText = resourceBundle.getString("menuResumeUploader");
 
@@ -65,7 +67,7 @@ public class ApplicationMenu {
             MRJApplicationUtils.registerQuitHandler(new MRJQuitHandler() {
                 @Override
                 public void handleQuit() {
-                    System.exit(0);
+                    controller.quit();
                 }
             });
         }
@@ -103,7 +105,7 @@ public class ApplicationMenu {
                 menuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        System.exit(0);
+                        controller.quit();
                     }
                 });
                 menu.add(menuItem);
@@ -225,6 +227,10 @@ public class ApplicationMenu {
             menuBar.add(menu);
         }
         frame.setJMenuBar(menuBar);
+    }
+
+    public void remove() {
+        frame.setJMenuBar(null);
     }
 
     /**

@@ -47,6 +47,9 @@ public class MenuController {
         if (systemTray.isPresent()) {
             systemTray.get().remove();
         }
+        if (menu.isPresent()) {
+            menu.get().remove();
+        }
     }
 
     private void windowVisibilityStatusChanged(GiftCloudMainFrame.MainWindowVisibility visibility) {

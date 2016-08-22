@@ -156,8 +156,7 @@ public class ApplicationSystemTray {
         popup.add(exitItem);
         exitItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //ToDo: remove system tray icon here
-                System.exit(0);
+                controller.quit();
             }
         });
 

@@ -298,4 +298,13 @@ public class UploaderGuiController {
             reporter.reportErrorToUser(message, throwable);
         }
     }
+
+    public void quit() {
+        try {
+            hide(false);
+            menuController.remove();
+        } catch (Throwable t) {
+        } // Ignore any errors generated from hiding the dialogs
+        System.exit(0);
+    }
 }
