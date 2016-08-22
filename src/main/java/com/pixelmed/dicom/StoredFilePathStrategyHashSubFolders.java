@@ -42,11 +42,5 @@ public final class StoredFilePathStrategyHashSubFolders extends StoredFilePathSt
 		return "BYSOPINSTANCEUIDHASHSUBFOLDERS";
 	}
 
-	/**
-	 * <p>Perform self test.  If arguments are given, then use then as test UIDs.  If no arguments, then use internal test UIDs.</p>
-	 */
-	public static void main(String arg[]) {
-		BYSOPINSTANCEUIDHASHSUBFOLDERS.test(arg);
-	}
 }
 

@@ -2,14 +2,13 @@
 
 package com.pixelmed.network;
 
-import com.pixelmed.utils.*;
 import com.pixelmed.dicom.*;
+import com.pixelmed.utils.CopyStream;
 
+import java.io.*;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.LinkedList;
 import java.util.Set;
-import java.io.*;
 
 /**
  * <p>This class implements the SCU role of SOP Classes of the Storage Service Class.</p>
@@ -658,76 +657,6 @@ if (debugLevel > 0) System.err.println(new java.util.Date().toString()+": Storag
 //System.err.println("StorageSOPClassSCU.sendMultipleSOPInstances() sent "+nCompleted+" instances in "+(System.currentTimeMillis()-startTime)+" ms");
 	}
 
-	/**
-	 * <p>For testing, establish an association to the specified AE and send one or more DICOM instances (C-STORE requests).</p>
-	 *
-	 * @param	arg	array of seven or nine strings - their hostname, their port, their AE Title, our AE Title,
-	 *			the filename containing the instance to send (or a hyphen '-' if a list of one or more filenames is to be read from stdin)
-	 * 			optionally the SOP Class and the SOP Instance (otherwise will be read from the file(s); if multiple files use an empty string for the SOP Instance),
-	 *			the compression level (0=none,1=propose deflate,2=propose deflate and bzip2) and the debugging level
-	 */
-	public static void main(String arg[]) {
-		try {
-			String      theirHost=null;
-			int         theirPort=-1;
-			String   theirAETitle=null;
-			String     ourAETitle=null;
-			String       fileName=null;
-			String    SOPClassUID=null;
-			String SOPInstanceUID=null;
-			int  compressionLevel=0;
-			int        debugLevel=0;
-	
-			if (arg.length == 9) {
-				     theirHost=arg[0];
-				     theirPort=Integer.parseInt(arg[1]);
-				  theirAETitle=arg[2];
-				    ourAETitle=arg[3];
-				      fileName=arg[4];
-				   SOPClassUID=arg[5];
-				SOPInstanceUID=arg[6];
-			      compressionLevel=Integer.parseInt(arg[7]);
-				    debugLevel=Integer.parseInt(arg[8]);
-			}
-			else if (arg.length == 7) {
-				     theirHost=arg[0];
-				     theirPort=Integer.parseInt(arg[1]);
-				  theirAETitle=arg[2];
-				    ourAETitle=arg[3];
-				      fileName=arg[4];
-				   SOPClassUID=null;			// figured out by StorageSOPClassSCU() by reading the metaheader
-				SOPInstanceUID=null;			// figured out by StorageSOPClassSCU() by reading the metaheader
-			      compressionLevel=Integer.parseInt(arg[5]);
-				    debugLevel=Integer.parseInt(arg[6]);
-			}
-			else {
-				throw new Exception("Argument list must be 7 or 9 values");
-			}
-			if (fileName.equals("-")) {
-				SetOfDicomFiles setOfDicomFiles = new SetOfDicomFiles();
-				BufferedReader dicomFileNameReader = new BufferedReader(new InputStreamReader(System.in));
-				String dicomFileName = dicomFileNameReader.readLine();
-				while (dicomFileName != null) {
-					if (SOPClassUID == null) {
-						setOfDicomFiles.add(dicomFileName);
-					}
-					else {
-						setOfDicomFiles.add(dicomFileName,SOPClassUID,null,null);	// OK to leave instance and transfer syntax uids as null; only need SOP Class to negotiate
-					}
-					dicomFileName = dicomFileNameReader.readLine();
-				}
-//System.err.println(setOfDicomFiles.toString());
-				new StorageSOPClassSCU(theirHost,theirPort,theirAETitle,ourAETitle,setOfDicomFiles,compressionLevel,null,null,0,debugLevel);
-			}
-			else {
-				new StorageSOPClassSCU(theirHost,theirPort,theirAETitle,ourAETitle,fileName,SOPClassUID,SOPInstanceUID,compressionLevel,debugLevel);
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }
 
 

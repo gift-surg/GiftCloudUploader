@@ -62,17 +62,6 @@ public class TransferSyntaxFromName {
 		}
 		return uid;
 	}
-	
-	/**
-	 * <p>Test.</p>
-	 *
-	 * @param	arg	none
-	 */
-	public static void main(String arg[]) {
-		System.err.println("Default from name: "+(TransferSyntaxFromName.getUID("Default").equals(TransferSyntax.Default)));
-		System.err.println("Default from uid : "+(TransferSyntaxFromName.getUID(TransferSyntax.Default).equals(TransferSyntax.Default)));
-		System.err.println("Dummy from name  : "+(TransferSyntaxFromName.getUID("Dummy") == null));
-	}
 
 }
 
