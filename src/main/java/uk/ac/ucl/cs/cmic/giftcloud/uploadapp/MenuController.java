@@ -2,7 +2,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundService;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.StatusObservable;
-
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
@@ -27,10 +26,10 @@ public class MenuController {
      * @param resourceBundle
      * @param reporter
      */
-    MenuController(final JFrame parent, final UploaderGuiController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
+    MenuController(final GiftCloudUploaderAppConfiguration appConfiguration, final JFrame parent, final UploaderGuiController controller, final ResourceBundle resourceBundle, final GiftCloudReporterFromApplication reporter) {
         // Try to create a system tray icon. If this fails, then we warn the user and make the main dialog visible
         final boolean isMac = isOSX();
-        systemTray = ApplicationSystemTray.safeCreateSystemTray(controller, resourceBundle, isMac, reporter);
+        systemTray = ApplicationSystemTray.safeCreateSystemTray(appConfiguration, controller, resourceBundle, isMac, reporter);
         menu = ApplicationMenu.safeCreateMenu(parent, controller, resourceBundle, isMac, reporter);
     }
 

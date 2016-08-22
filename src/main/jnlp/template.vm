@@ -9,9 +9,10 @@
     <homepage href="doc/manual.pdf"/>
     <description>$project.Description</description>
     <description kind="short">Uploads data to a GIFT-Cloud server</description>
-    <icon href="res/icon256.png"/>
-    <icon kind="shortcut" href="res/icon256.png"/>
-    <icon kind="splash" href="res/splash.png"/>
+	<icon href="res/gs64x64.png" width="64" height="64"/>
+	<icon href="res/gs32x32.png" width="32" height="32"/>
+	<icon kind="shortcut" href="res/gs32x32.png" width="32" height="32"/>
+    <icon kind="splash" href="res/gssplash.png"/>
     <offline-allowed/>
     <shortcut online="true" install="true">
       <desktop/>

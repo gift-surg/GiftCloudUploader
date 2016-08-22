@@ -2,7 +2,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.StatusObservable;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,10 +43,11 @@ class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> {
                 setSystemLookAndFeel();
                 parent = new JFrame();
                 container = parent;
-                Optional<Image> icon = application.getIconImage();
-                if (icon.isPresent()) {
-                    parent.setIconImage(icon.get());
+                java.util.List<Image> iconList = application.getIconList();
+                if (!iconList.isEmpty()) {
+                    parent.setIconImages(iconList);
                 }
+
                 parent.setTitle(application.getApplicationTitle());
                 parent.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 

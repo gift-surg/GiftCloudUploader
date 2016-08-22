@@ -37,7 +37,7 @@ public class GiftCloudDialogs {
         UI.put("Panel.background", Color.white);
 
         // Get the GIFT-Cloud icon - this will return null if not found
-        icon = new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
+        icon = appConfiguration.getMainLogo();
     }
 
     public void showMessage(final String message) throws HeadlessException {

@@ -3,7 +3,6 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.BackgroundService;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,6 +30,7 @@ public class ApplicationSystemTray {
 
     private boolean startIsResume = false;
     private final String resumeText;
+    private GiftCloudUploaderAppConfiguration appConfiguration;
 
     /**
      * Private constructor for creating a new menu and icon for the system tray
@@ -42,14 +42,20 @@ public class ApplicationSystemTray {
      * @throws AWTException     if the desktop system tray is missing
      * @throws IOException      if an error occured while attempting to read the icon file
      */
-    private ApplicationSystemTray(final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
+    private ApplicationSystemTray(final GiftCloudUploaderAppConfiguration appConfiguration, final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) throws AWTException, IOException {
+        this.appConfiguration = appConfiguration;
 
-        Image iconImage = ImageIO.read(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png"));
-        trayIcon = new TrayIcon(iconImage, resourceBundle.getString("systemTrayIconText"));
-        trayIcon.setImageAutoSize(true);
+        // Get the system tray
         tray = SystemTray.getSystemTray();
-        trayIcon.setToolTip(resourceBundle.getString("systemTrayIconToolTip"));
 
+        // Manually resize the tray icon image to fit the tray (varies between OS and the default rescaling operation may not be so good)
+        final Dimension trayIconSize = tray.getTrayIconSize();
+        Image iconImage = appConfiguration.getTrayIcon();
+        iconImage = iconImage.getScaledInstance(trayIconSize.width, trayIconSize.height, Image.SCALE_SMOOTH);
+        // Note icon is not truely b/w
+
+        trayIcon = new TrayIcon(iconImage, resourceBundle.getString("systemTrayIconText"));
+        trayIcon.setToolTip(resourceBundle.getString("systemTrayIconToolTip"));
         tray.add(trayIcon);
 
         final PopupMenu popup = new PopupMenu();
@@ -171,13 +177,13 @@ public class ApplicationSystemTray {
      * @param reporter          the reporter object used to record errors
      * @return                  an (@link Optional) containing the (@link ApplicationSystemTray) object or an empty (@link Optional) if the SystemTray is not supported, or an error occurred, e.g. in attempting to load the icon
      */
-    static Optional<ApplicationSystemTray> safeCreateSystemTray(final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
+    static Optional<ApplicationSystemTray> safeCreateSystemTray(final GiftCloudUploaderAppConfiguration appConfiguration, final UploaderGuiController controller, final ResourceBundle resourceBundle, final boolean isMac, final GiftCloudReporterFromApplication reporter) {
         if (!SystemTray.isSupported()) {
             reporter.silentWarning("SystemTray is not supported on this system.");
             return Optional.empty();
         } else {
             try {
-                return Optional.of(new ApplicationSystemTray(controller, resourceBundle, isMac, reporter));
+                return Optional.of(new ApplicationSystemTray(appConfiguration, controller, resourceBundle, isMac, reporter));
             } catch (Throwable t) {
                 reporter.silentLogException(t, "The system tray icon could not be created.");
                 return Optional.empty();

@@ -13,20 +13,33 @@ import javax.jnlp.UnavailableServiceException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 /**
  * Provides essential application configuration, logging and preference file loading. Generally this class should be instantiated before any GUI items are created
  */
 public class GiftCloudUploaderAppConfiguration {
-    private static String resourceBundleName  = "uk.ac.ucl.cs.cmic.giftcloud.GiftCloudUploader";
-    private static String iconURLString  = "/uk/ac/ucl/cs/cmic/giftcloud/GiftSurgMiniIcon.png";
+    private static String resourceBundleName = "uk.ac.ucl.cs.cmic.giftcloud.GiftCloudUploader";
+    private static String mainLogoURLString = "/uk/ac/ucl/cs/cmic/giftcloud/GiftCloudLogo.png";
+    private static String trayIconURLString  = "/uk/ac/ucl/cs/cmic/giftcloud/TrayIcon.png";
+
+    private static String icon16 = "/uk/ac/ucl/cs/cmic/giftcloud/gs16x16.png";
+    private static String icon32 = "/uk/ac/ucl/cs/cmic/giftcloud/gs32x32.png";
+    private static String icon64 = "/uk/ac/ucl/cs/cmic/giftcloud/gs64x64.png";
+    private static String icon128 = "/uk/ac/ucl/cs/cmic/giftcloud/gs128x128.png";
+    private static String icon256 = "/uk/ac/ucl/cs/cmic/giftcloud/gs256x256.png";
+    private static String icon512 = "/uk/ac/ucl/cs/cmic/giftcloud/gs512x512.png";
+    private static String icon1024 = "/uk/ac/ucl/cs/cmic/giftcloud/gs1024x1024.png";
+
     private Optional<SingleInstanceService> singleInstanceService;
     private final ResourceBundle resourceBundle;
     private Optional<MainFrame> mainFrame = Optional.empty();
     private final String applicationTitle;
-    private Optional<Image> iconImage = Optional.empty();
+    private final Optional<Image> dockIconImage;
+    private final Optional<ImageIcon> mainLogo;
     private final GiftCloudLogger logger;
     private final GiftCloudPropertiesFromApplication properties;
 
@@ -48,28 +61,8 @@ public class GiftCloudUploaderAppConfiguration {
         resourceBundle = ResourceBundle.getBundle(resourceBundleName);
         applicationTitle = resourceBundle.getString("applicationTitle");
 
-        // Set the dock icon
-        final URL iconURL = GiftCloudUploaderApp.class.getResource(iconURLString);
-
-        if (iconURL == null) {
-            logger.silentWarning("Could not find the Uploader icon resource.");
-        } else {
-            try {
-                final Image loadedImage = ImageIO.read(iconURL);
-                if (loadedImage == null) {
-                    logger.silentWarning("Could not find the Uploader icon.");
-                } else {
-                    iconImage = Optional.of(loadedImage);
-
-                    // OSX-specific code to set dock icon
-                    if (isOSX()) {
-                        Application.getApplication().setDockIconImage(iconImage.get());
-                    }
-                }
-            } catch (Exception e) {
-                logger.silentLogException(e, "Failed to load the Uploader icon.");
-            }
-        }
+        dockIconImage = loadIcon(icon1024);
+        mainLogo = loadImageIcon(mainLogoURLString);
 
         if (isOSX()) {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -77,10 +70,49 @@ public class GiftCloudUploaderAppConfiguration {
 
             // This is used to set the application title on OSX, but may not work when run from the debugger
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", applicationTitle);
+
+            if (dockIconImage.isPresent()) {
+                Application.getApplication().setDockIconImage(dockIconImage.get());
+            }
+
         }
 
         // Initialise application properties
         properties = new GiftCloudPropertiesFromApplication(new PropertyStoreFromApplication(GiftCloudMainFrame.propertiesFileName, logger), resourceBundle, logger);
+    }
+
+    private Optional<ImageIcon> loadImageIcon(final String urlString) {
+        final URL url = GiftCloudUploaderApp.class.getResource(urlString);
+        if (url == null) {
+            logger.silentWarning("Could not find the Uploader icon resource.");
+        } else {
+            try {
+                return Optional.of(new ImageIcon(url));
+            } catch (Exception e) {
+                logger.silentLogException(e, "Failed to load the Uploader icon.");
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Image> loadIcon(final String urlString) {
+        final URL url = GiftCloudUploaderApp.class.getResource(urlString);
+
+        if (url == null) {
+            logger.silentWarning("Could not find the Uploader icon resource.");
+        } else {
+            try {
+                final Image loadedImage = ImageIO.read(url);
+                if (loadedImage == null) {
+                    logger.silentWarning("Could not find the Uploader icon.");
+                } else {
+                    return Optional.of(loadedImage);
+                }
+            } catch (Exception e) {
+                logger.silentLogException(e, "Failed to load the Uploader icon.");
+            }
+        }
+        return Optional.empty();
     }
 
     public String getApplicationTitle() {
@@ -99,12 +131,8 @@ public class GiftCloudUploaderAppConfiguration {
         return (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0);
     }
 
-    public Optional<Image> getIconImage() {
-        return iconImage;
-    }
-
-    public ImageIcon getLargeIcon() {
-        return new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
+    public ImageIcon getMainLogo() {
+        return mainLogo.orElse(null);
     }
 
     public GiftCloudLogger getLogger() {
@@ -113,6 +141,31 @@ public class GiftCloudUploaderAppConfiguration {
 
     public GiftCloudPropertiesFromApplication getProperties() {
         return properties;
+    }
+
+    public java.util.List<Image> getIconList() {
+        final java.util.List<Image> imageList = new ArrayList<Image>();
+        addImageIfExists(imageList, icon16);
+        addImageIfExists(imageList, icon32);
+        addImageIfExists(imageList, icon64);
+        addImageIfExists(imageList, icon128);
+        addImageIfExists(imageList, icon256);
+        addImageIfExists(imageList, icon512);
+        addImageIfExists(imageList, icon1024);
+
+        return imageList;
+    }
+
+    private void addImageIfExists(final java.util.List<Image> imageList, final String resourceName) {
+        final Optional<Image> image = loadIcon(resourceName);
+        if (image.isPresent()) {
+            imageList.add(image.get());
+        }
+    }
+
+    public Image getTrayIcon() throws IOException {
+        final Optional<Image> image = loadIcon(trayIconURLString);
+        return image.orElse(null);
     }
 
     /**

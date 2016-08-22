@@ -60,7 +60,7 @@ public class UploaderGuiController {
         this.pixelDataDialogController = new PixelDataTemplateDialogController(appConfiguration, uploaderController.getPixelDataAnonymiserFilterCache(), mainFrame, dialogs, reporter);
         this.configurationDialogController = new ConfigurationDialogController(appConfiguration, mainFrame, this, uploaderController.getProjectListModel(), dialogs, reporter);
         this.uploaderPanel = new UploaderPanel(mainFrame, UploaderGuiController.this, uploaderController.getTableModel(), resourceBundle, uploaderController.getUploaderStatusModel(), reporter);
-        this.menuController = new MenuController(mainFrame.getParent(), UploaderGuiController.this, resourceBundle, reporter);
+        this.menuController = new MenuController(appConfiguration, mainFrame.getParent(), UploaderGuiController.this, resourceBundle, reporter);
 
         // Create the controller for query-retrieve operations
         this.queryRetrieveController = new QueryRetrieveController(queryRetrieveDialogController, giftCloudProperties, this.uploaderController.getUploaderStatusModel(), reporter);

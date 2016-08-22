@@ -49,7 +49,7 @@ public class GiftCloudLoginDialog {
     private final Component parent;
 
     public GiftCloudLoginDialog(final GiftCloudUploaderAppConfiguration appConfiguration, final GiftCloudProperties giftCloudProperties, final Component parent) {
-        this.icon = appConfiguration.getLargeIcon();
+        this.icon = appConfiguration.getMainLogo();
         this.giftCloudProperties = giftCloudProperties;
         this.parent = parent;
     }
