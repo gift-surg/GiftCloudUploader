@@ -22,6 +22,7 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
 
     private final String userAgentString;
     private final String anonymisationMethodString;
+    private final String defaultUrl;
 
     private final PropertyStore properties;
     private final LoggingReporter reporter;
@@ -37,12 +38,12 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         final String versionString = resourceBundle.getString("mavenVersion");
         userAgentString = (nameString != null ? nameString : "") + (versionString != null ? versionString : "");
         anonymisationMethodString =  (anonymisationMethodPrefix != null ? anonymisationMethodPrefix : "") + (versionString != null ? versionString : "");
+        defaultUrl = resourceBundle.getString("defaultServerUrl") ;
     }
-
 
     @Override
     public Optional<String> getGiftCloudUrl() {
-        return Optional.of(getStringWithDefault(propertyName_GiftCloudServerUrl, "https://gift-cloud.cs.ucl.ac.uk"));
+        return Optional.of(getStringWithDefault(propertyName_GiftCloudServerUrl, defaultUrl));
     }
 
     public void setGiftCloudUrl(final String giftCloudUrl) {
