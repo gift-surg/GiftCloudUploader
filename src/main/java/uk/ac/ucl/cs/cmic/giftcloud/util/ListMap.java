@@ -47,6 +47,18 @@ public class ListMap<K, V> {
     }
 
     /**
+     * Removes a key-value pair at the specified index position
+     * @param index the index position of the value to remove
+     */
+    public synchronized void removeFromIndex(final int index) {
+        if (mapToIndex.size() <= index) {
+            throw new java.lang.IllegalArgumentException("No key at this index");
+        }
+        final K keyToRemove = keyList.get(index);
+        remove(keyToRemove);
+    }
+
+    /**
      * Returns the value using an index lookup. This index could change if items are removed from the ListMap
      * @param index the index of the item to fetch
      * @return the value for the given index
@@ -95,4 +107,5 @@ public class ListMap<K, V> {
         }
         return mapToIndex.get(key);
     }
+
 }

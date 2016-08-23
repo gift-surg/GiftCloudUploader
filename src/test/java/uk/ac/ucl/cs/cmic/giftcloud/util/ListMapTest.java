@@ -47,6 +47,34 @@ public class ListMapTest {
     }
 
     @Test
+    public void removeFromIndex() throws Exception {
+        ListMap<String, String> map = new ListMap<String, String>();
+        Assert.assertEquals(0, map.put("A", "B1"));
+        Assert.assertEquals(1, map.put("B", "B1"));
+        Assert.assertEquals(2, map.put("C", "C1"));
+        Assert.assertEquals(3, map.put("D", "D1"));
+        map.removeFromIndex(1);
+        Assert.assertEquals(map.containsKey("B"), false);
+        Assert.assertEquals(map.getIndex("A"), 0);
+        Assert.assertEquals(map.getIndex("C"), 1);
+        Assert.assertEquals(map.getIndex("D"), 2);
+        map.removeFromIndex(0);
+        Assert.assertEquals(map.containsKey("A"), false);
+        Assert.assertEquals(map.getIndex("C"), 0);
+        Assert.assertEquals(map.getIndex("D"), 1);
+        map.removeFromIndex(1);
+        Assert.assertEquals(map.containsKey("D"), false);
+        Assert.assertEquals(map.getIndex("C"), 0);
+        map.removeFromIndex(0);
+        Assert.assertEquals(map.containsKey("C"), false);
+        try {
+            map.getIndex("C");
+            Assert.assertTrue(false);
+        } catch (java.lang.IllegalArgumentException e) {
+        }
+    }
+
+    @Test
     public void getFromIndex() throws Exception {
         ListMap<String, String> map = new ListMap<String, String>();
         map.put("A", "A1");

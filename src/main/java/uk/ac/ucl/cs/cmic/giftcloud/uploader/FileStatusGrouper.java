@@ -11,8 +11,18 @@ import java.util.List;
  */
 public class FileStatusGrouper {
     private final List<Integer> groupsChanged = new ArrayList<Integer>();
+    private final int maxGroups;
     private boolean anyGroupsAddedOrRemoved = false;
     private final ListMap<String, FileStatusGroup> groupStatusMap = new ListMap<String, FileStatusGroup>();
+    private static int DEFAUT_MAX_GROUPS = 1000;
+
+    public FileStatusGrouper() {
+        this(DEFAUT_MAX_GROUPS);
+    }
+
+    public FileStatusGrouper(final int maxGroups) {
+        this.maxGroups = maxGroups;
+    }
 
     /**
      * Reset the flags indicating which groups have been modified. Call this before adding or signalling done on a group of files, in order to determine afterwards which groups have changed
@@ -34,6 +44,9 @@ public class FileStatusGrouper {
             groupStatusMap.getFromKey(groupId).add(fileUids);
         } else {
             anyGroupsAddedOrRemoved = true;
+            if (groupStatusMap.size() >= maxGroups) {
+                groupStatusMap.removeFromIndex(0);
+            }
             groupStatusMap.put(groupId, new FileStatusGroup(date, modality, description, fileUids));
         }
     }

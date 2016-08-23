@@ -178,4 +178,21 @@ public class FileStatusGrouperTest {
         Assert.assertFalse(grouper.getAnyGroupsAddedOrRemoved());
     }
 
+    @Test
+    public void maxGroups() throws Exception {
+        FileStatusGrouper grouper = new FileStatusGrouper(3);
+        Assert.assertFalse(grouper.getAnyGroupsAddedOrRemoved());
+        Assert.assertEquals(grouper.numGroups(), 0);
+        grouper.addFiles("G1", "date", "modality", "desc1", new ArrayList<String>() {{ add("U1"); add("U2"); add("U3"); }});
+        Assert.assertEquals(grouper.numGroups(), 1);
+        grouper.addFiles("G2", "date", "modality", "desc1", new ArrayList<String>() {{ add("U4"); add("U5"); }});
+        Assert.assertEquals(grouper.numGroups(), 2);
+        grouper.addFiles("G3", "date", "modality", "desc1", new ArrayList<String>() {{ add("U4"); add("U5"); }});
+        Assert.assertEquals(grouper.numGroups(), 3);
+        grouper.addFiles("G4", "date", "modality", "desc1", new ArrayList<String>() {{ add("U6"); add("U7"); }});
+        Assert.assertEquals(grouper.numGroups(), 3);
+        grouper.resetChanged();
+        grouper.addFiles("G1", "date", "modality", "desc1", new ArrayList<String>() {{ add("U4"); add("U5"); }});
+        Assert.assertEquals(grouper.numGroups(), 3);
+    }
 }
