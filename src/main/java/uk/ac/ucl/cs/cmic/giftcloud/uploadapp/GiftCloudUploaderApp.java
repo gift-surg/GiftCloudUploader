@@ -19,7 +19,7 @@ public class GiftCloudUploaderApp {
             logger = Optional.of(applicationConfiguration.getLogger());
 
             // Create the main gui component
-            final GiftCloudMainFrame mainFrame = new GiftCloudMainFrame(applicationConfiguration);
+            final MainFrame mainFrame = new MainFrame(applicationConfiguration);
 
             // Tell the applicationConfiguration about the main frame. This will allow the singleton processing to show and bring the window to the front if a second attempt is made to instantiate the application
             applicationConfiguration.registerMainFrame(mainFrame);

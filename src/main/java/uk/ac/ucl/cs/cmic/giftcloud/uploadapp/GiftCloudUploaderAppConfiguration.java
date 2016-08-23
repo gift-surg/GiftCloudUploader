@@ -41,6 +41,9 @@ public class GiftCloudUploaderAppConfiguration {
     private final Optional<Image> dockIconImage;
     private final Optional<ImageIcon> mainLogo;
     private final GiftCloudLogger logger;
+
+    public static String propertiesFileName  = "GiftCloudUploader.properties";
+
     private final GiftCloudPropertiesFromApplication properties;
 
     public GiftCloudUploaderAppConfiguration() {
@@ -78,7 +81,7 @@ public class GiftCloudUploaderAppConfiguration {
         }
 
         // Initialise application properties
-        properties = new GiftCloudPropertiesFromApplication(new PropertyStoreFromApplication(GiftCloudMainFrame.propertiesFileName, logger), resourceBundle, logger);
+        properties = new GiftCloudPropertiesFromApplication(new PropertyStoreFromApplication(propertiesFileName, logger), resourceBundle, logger);
     }
 
     private Optional<ImageIcon> loadImageIcon(final String urlString) {

@@ -52,7 +52,7 @@ public class MenuController {
         }
     }
 
-    private void windowVisibilityStatusChanged(GiftCloudMainFrame.MainWindowVisibility visibility) {
+    private void windowVisibilityStatusChanged(MainFrame.MainWindowVisibility visibility) {
         if (systemTray.isPresent()) {
             systemTray.get().updateMenuForWindowVisibility(visibility);
         }

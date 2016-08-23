@@ -257,7 +257,7 @@ public class ApplicationMenu {
      *
      * @param mainWindowVisibility  whether the main window is currently hidden or visible
      */
-    void updateMenuForWindowVisibility(final GiftCloudMainFrame.MainWindowVisibility mainWindowVisibility) {
+    void updateMenuForWindowVisibility(final MainFrame.MainWindowVisibility mainWindowVisibility) {
         hideItem.setEnabled(mainWindowVisibility.isVisible());
         showItem.setEnabled(!mainWindowVisibility.isVisible());
     }

@@ -162,7 +162,7 @@ public class ApplicationSystemTray {
 
         trayIcon.setPopupMenu(popup);
 
-        updateMenuForWindowVisibility(GiftCloudMainFrame.MainWindowVisibility.HIDDEN);
+        updateMenuForWindowVisibility(MainFrame.MainWindowVisibility.HIDDEN);
         updateMenuForBackgroundUploadingServiceStatus(BackgroundService.ServiceStatus.INITIALIZED);
     }
 
@@ -195,7 +195,7 @@ public class ApplicationSystemTray {
      *
      * @param mainWindowVisibility  whether the main window is currently hidden or visible
      */
-    void updateMenuForWindowVisibility(final GiftCloudMainFrame.MainWindowVisibility mainWindowVisibility) {
+    void updateMenuForWindowVisibility(final MainFrame.MainWindowVisibility mainWindowVisibility) {
         if (tray == null) {
             return;
         }
