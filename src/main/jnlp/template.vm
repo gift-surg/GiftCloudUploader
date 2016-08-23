@@ -3,31 +3,50 @@
 <jnlp
   codebase="$project.Url/uploader/"
   href="$outputFile">
-  <information>
+  <information os="Mac">
     <title>$project.name</title>
     <vendor>$project.Organization.Name</vendor>
     <homepage href="doc/manual.pdf"/>
     <description>$project.Description</description>
     <description kind="short">Uploads data to a GIFT-Cloud server</description>
-	<icon href="res/gs1024x1024.png" width="1024" height="1024"/>
-	<icon href="res/gs512x512.png" width="512" height="512"/>
-	<icon href="res/gs64x64.png" width="64" height="64"/>
-	<icon href="res/gs32x32.png" width="32" height="32"/>
     <icon kind="splash" href="res/gssplash.png"/>
+	<icon href="res/gs.icns"/>
+	<icon kind="shortcut" href="res/gs.icns"/>
     <offline-allowed/>
     <shortcut online="true" install="true">
       <desktop/>
       <menu submenu="GIFT-Surg"/>
     </shortcut>
   </information>
-  <information os="Mac">
-	<icon kind="shortcut" href="res/gs.icns"/>
-  </information>
   <information os="Win">
+    <title>$project.name</title>
+    <vendor>$project.Organization.Name</vendor>
+    <homepage href="doc/manual.pdf"/>
+    <description>$project.Description</description>
+    <description kind="short">Uploads data to a GIFT-Cloud server</description>
+    <icon kind="splash" href="res/gssplash.png"/>
+	<icon href="res/gs.ico"/>
 	<icon kind="shortcut" href="res/gs.ico"/>
+    <offline-allowed/>
+    <shortcut online="true" install="true">
+      <desktop/>
+      <menu submenu="GIFT-Surg"/>
+    </shortcut>
   </information>
   <information os="Linux">
+    <title>$project.name</title>
+    <vendor>$project.Organization.Name</vendor>
+    <homepage href="doc/manual.pdf"/>
+    <description>$project.Description</description>
+    <description kind="short">Uploads data to a GIFT-Cloud server</description>
+    <icon kind="splash" href="res/gssplash.png"/>
+	<icon href="res/gs.ico"/>
 	<icon kind="shortcut" href="res/gs.ico"/>
+    <offline-allowed/>
+    <shortcut online="true" install="true">
+      <desktop/>
+      <menu submenu="GIFT-Surg"/>
+    </shortcut>
   </information>
   <update check="always" policy="prompt-update" />
   <security>
