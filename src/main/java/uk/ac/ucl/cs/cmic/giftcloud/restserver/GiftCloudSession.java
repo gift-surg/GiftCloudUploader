@@ -21,7 +21,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
@@ -37,8 +36,6 @@ class GiftCloudSession {
     GiftCloudSession(final String baseUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final UserCallback userCallback, final GiftCloudReporter reporter) throws MalformedURLException {
         this.baseUrlString = baseUrlString;
 
-        // Get the GIFT-Cloud icon - this will return null if not found
-        ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
         giftCloudAuthentication = new GiftCloudAuthentication(baseUrlString, connectionFactory, userCallback, giftCloudProperties, reporter);
     }
 
