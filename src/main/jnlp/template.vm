@@ -9,6 +9,8 @@
     <homepage href="doc/manual.pdf"/>
     <description>$project.Description</description>
     <description kind="short">Uploads data to a GIFT-Cloud server</description>
+	<icon href="res/gs1024x1024.png" width="1024" height="1024"/>
+	<icon href="res/gs512x512.png" width="512" height="512"/>
 	<icon href="res/gs64x64.png" width="64" height="64"/>
 	<icon href="res/gs32x32.png" width="32" height="32"/>
 	<icon kind="shortcut" href="res/gs32x32.png" width="32" height="32"/>
