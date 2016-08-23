@@ -37,10 +37,13 @@ public class GiftCloudUploaderApp {
             final UploaderController uploaderController = new UploaderController(restServerFactory, applicationConfiguration.getProperties(), uploaderControllerCallback, reporter);
 
             // Create the GUI and related GUI controller code
-            final UploaderGuiController uploaderMain = new UploaderGuiController(applicationConfiguration, uploaderController, mainFrame, dialogs, reporter);
+            final UploaderGuiController uploaderGuiController = new UploaderGuiController(applicationConfiguration, uploaderController, mainFrame, dialogs, reporter);
+
+            // Give the MainFrame a controller for the exit callback
+            mainFrame.registerCloseOperationController(uploaderGuiController);
 
             // Start the Dicom listener and report errors to the user if encountered
-            uploaderMain.startDicomNodeAndCheckProperties(fileList);
+            uploaderGuiController.startDicomNodeAndCheckProperties(fileList);
         }
         catch (Throwable t) {
             t.printStackTrace(System.err);

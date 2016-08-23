@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.StatusObservable;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +14,7 @@ class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> {
 
     private Container container;
     private JFrame parent;
+    private Optional<UploaderGuiController> controller = Optional.empty();
 
     /**
      * Enumeration for the visible states of the main window. Less error-prone than passing round booleans for specifying visibility
@@ -36,6 +38,14 @@ class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> {
         createFrame(application);
     }
 
+    /**
+     * Registers a callback for frame closing operations
+     * @param uploaderController
+     */
+    public void registerCloseOperationController(final UploaderGuiController uploaderController) {
+        this.controller = Optional.of(uploaderController);
+    }
+
     private void createFrame(final GiftCloudUploaderAppConfiguration application) throws InvocationTargetException, InterruptedException {
         GiftCloudUtils.runNowOnEdt(new Runnable() {
             @Override
@@ -54,7 +64,16 @@ class MainFrame extends StatusObservable<MainFrame.MainWindowVisibility> {
                 // Invoke the hide method on the controller, to ensure the system tray menu gets updated correctly
                 parent.addWindowListener(new WindowAdapter() {
                     public void windowClosing(WindowEvent ev) {
-                        System.exit(0);
+                        // We attempt to use the controller to exit the application, but if anything goes wrong we quit using System.exit
+                        try {
+                            if (controller.isPresent()) {
+                                controller.get().quit();
+                            } else {
+                                System.exit(0);
+                            }
+                        } catch (Throwable t) {
+                            System.exit(0);
+                        }
                     }
                 });
             }
