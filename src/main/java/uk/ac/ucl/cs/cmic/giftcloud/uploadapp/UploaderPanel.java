@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 
 /**
- * The main dialog panel for the GIFT-Cloud Uploader application
+ * The main dialog panel for the GIFT-Cloud Uploader, containing a status window and a button panel
  */
 class UploaderPanel {
 
@@ -108,12 +108,6 @@ class UploaderPanel {
         buttonPanel.add(closeButton);
         closeButton.addActionListener(new CloseActionListener());
 
-        // Restart listener button
-//        JButton restartListenerButton = new JButton(resourceBundle.getString("restartListenerButtonLabelText"));
-//        restartListenerButton.setToolTipText(resourceBundle.getString("restartListenerButtonToolTipText"));
-//        buttonPanel.add(restartListenerButton);
-//        restartListenerButton.addActionListener(new RestartListenerActionListener());
-
         statusPanel = new StatusPanel(controller, uploaderStatusModel);
         reporter.addProgressListener(statusPanel);
 
@@ -148,6 +142,7 @@ class UploaderPanel {
                 GridBagConstraints combinedPanelConstraints = new GridBagConstraints();
                 combinedPanelConstraints.gridx = 0;
                 combinedPanelConstraints.gridy = 0;
+                combinedPanelConstraints.weighty = 1.0;
                 combinedPanelConstraints.fill = GridBagConstraints.BOTH;
                 combinedPanelConstraints.insets = new Insets(5, 5, 5, 5);
                 mainPanelLayout.setConstraints(combinedPanel, combinedPanelConstraints);
@@ -161,7 +156,7 @@ class UploaderPanel {
                 separatorConstraint.fill = GridBagConstraints.HORIZONTAL;
                 separatorConstraint.gridwidth = GridBagConstraints.REMAINDER;
                 JSeparator separator = new JSeparator();
-                mainPanelLayout.setConstraints(separator,separatorConstraint);
+                mainPanelLayout.setConstraints(separator, separatorConstraint);
                 basePanel.add(separator);
             }
             {
@@ -185,12 +180,6 @@ class UploaderPanel {
     private class ImportPacsActionListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
             controller.importFromPacs();
-        }
-    }
-
-    private class RestartListenerActionListener implements ActionListener {
-        public void actionPerformed(ActionEvent event) {
-            controller.restartDicomService();
         }
     }
 
