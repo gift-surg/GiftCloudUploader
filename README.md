@@ -109,7 +109,7 @@ GIFT-Cloud is part of GIFT-Surg. [GIFT-Surg][[giftsurg] was supported through an
 [xnatmodule]: https://wiki.xnat.org/display/XNAT16/Developing+Modules
 [xnatdocumentation]: https://wiki.xnat.org/display/XNAT16/Home
 [xnatdiscussion]: http://groups.google.com/group/xnat_discussion
-
+[dicomcleaner]: http://www.dclunie.com/pixelmed/software/webstart/DicomCleanerUsage.html
 
 
 Copyright and licensing information for GIFT-Cloud and GIFT-Cloud Uploader
