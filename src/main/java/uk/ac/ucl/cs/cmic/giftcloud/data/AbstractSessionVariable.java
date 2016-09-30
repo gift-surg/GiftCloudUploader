@@ -57,15 +57,6 @@ public abstract class AbstractSessionVariable implements SessionVariable {
 
     /*
      * (non-Javadoc)
-     * @see SessionVariable#getExportField()
-     */
-    @Override
-    public String getExportField() {
-        return exportField;
-    }
-
-    /*
-     * (non-Javadoc)
      * @see SessionVariable#getName()
      */
     @Override

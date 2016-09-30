@@ -1,3 +1,14 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import java.util.HashMap;
@@ -8,6 +19,7 @@ public class BackgroundCompletionServiceTaskList<T, U> extends BackgroundService
     private final CompletionService<T> completionService;
     private final Map<Future<T>, BackgroundServiceTaskWrapper<CallableWithParameter<T, U>, Future<T>>> uploaderResultMap = new HashMap<Future<T>, BackgroundServiceTaskWrapper<CallableWithParameter<T, U>, Future<T>>>();
     private final ExecutorService executor;
+    private long taskNumber = 0;
 
     public BackgroundCompletionServiceTaskList(final int numThreads) {
         executor = Executors.newFixedThreadPool(numThreads);
@@ -17,7 +29,7 @@ public class BackgroundCompletionServiceTaskList<T, U> extends BackgroundService
     @Override
     public final void add(final CallableWithParameter<T, U> callable, final BackgroundServiceErrorRecord errorRecord) {
         final Future<T> future = completionService.submit(callable);
-        uploaderResultMap.put(future, new BackgroundServiceTaskWrapper<CallableWithParameter<T, U>, Future<T>>(callable, future, errorRecord));
+        uploaderResultMap.put(future, new BackgroundServiceTaskWrapper<CallableWithParameter<T, U>, Future<T>>(callable, future, errorRecord, taskNumber++));
     }
 
     @Override
@@ -36,6 +48,11 @@ public class BackgroundCompletionServiceTaskList<T, U> extends BackgroundService
     @Override
     protected final boolean isEmpty() {
         return uploaderResultMap.isEmpty();
+    }
+
+    @Override
+    protected BackgroundServiceErrorRecord createErrorRecord() {
+        return BackgroundServiceErrorRecord.createExponentialRepeater();
     }
 
 }

@@ -359,23 +359,7 @@ public class StructuredReport implements TreeModel {
 		}
 		return instances;
 	}
-	
-	/**
-	 * <p>Dump the SR encoded in the file name on the console.</p>
-	 *
-	 * @param	arg
-	 */
-	public static void main(String arg[]) {
-		try {
-			AttributeList list = new AttributeList();
-			list.read(arg[0]);
-			StructuredReport sr = new StructuredReport(list);
-			System.err.println(sr);
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
+
 }
 
 

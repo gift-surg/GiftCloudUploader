@@ -7,21 +7,11 @@ package com.pixelmed.network;
 //import com.pixelmed.transfermonitor.TransferMonitoringContext;
 
 import com.pixelmed.utils.ByteArray;
-import com.pixelmed.utils.HexDump;
 import com.pixelmed.utils.StringUtilities;
-import com.pixelmed.dicom.SOPClass;
-import com.pixelmed.dicom.TransferSyntax;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.LinkedList;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.ServerSocket;
+import java.util.LinkedList;
 
 /**
  * @author	dclunie
@@ -224,15 +214,6 @@ if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": Associ
 		return getLocalPort();
 	}
 
-	//public static void main(String arg[]) {
-	//	try {
-	//		new AssociationAcceptor(arg[0],arg[1]);
-	//	}
-	//	catch (Exception e) {
-	//		e.printStackTrace(System.err);
-	//		System.exit(0);
-	//	}
-	//}
 }
 
 

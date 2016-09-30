@@ -1,3 +1,19 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Parts of this software are derived from XNAT
+    http://www.xnat.org
+    Copyright (c) 2014, Washington University School of Medicine
+    All Rights Reserved
+    See license/XNAT_license.txt
+
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
@@ -11,34 +27,35 @@ public class XnatModalityParams {
     private String formatString;
     private String collectionString;
 
-    private XnatModalityParams(final XnatScanType xnatScanType, final ImageFileFormat imageFileFormat) {
+    private XnatModalityParams(final XnatScanType primaryXnatScanType, final XnatScanType secondaryScanType, final ImageFileFormat imageFileFormat) {
         {
             this.formatString = imageFileFormat.getFormatString();
             this.collectionString = imageFileFormat.getCollectionString();
 
-            final String xnatSessionTagFromScanType = xnatScanType.getXnatSessionType();
+            // Get the session type from the primary scan type. If there is no corresponding session type (for example, if the scan is a secondary capture) then we use the secondary scan type
+            String xnatSessionTagFromScanType = primaryXnatScanType.getXnatSessionType();
+            if (primaryXnatScanType == XnatScanType.Unknown || StringUtils.isBlank(xnatSessionTagFromScanType)) {
+                xnatSessionTagFromScanType = secondaryScanType.getXnatSessionType();
+            }
             if (StringUtils.isNotBlank(xnatSessionTagFromScanType)) {
                 xnatSessionTag = xnatSessionTagFromScanType;
             }
 
-            final String xnatScanTagFromScanType = xnatScanType.getXnatScanType();
+            String xnatScanTagFromScanType = primaryXnatScanType.getXnatScanType();
+            if (primaryXnatScanType == XnatScanType.Unknown || StringUtils.isBlank(xnatScanTagFromScanType)) {
+                xnatScanTagFromScanType = secondaryScanType.getXnatScanType();
+            }
             if (StringUtils.isNotBlank(xnatScanTagFromScanType)) {
                 xnatScanTag = xnatScanTagFromScanType;
             }
         }
     }
 
-    public static XnatModalityParams createFromDicom(final String dicomModalityString, final String sopClassUId) {
-        final DicomSopClass dicomSopClass = DicomSopClass.getModalityFromDicomTag(sopClassUId);
-
-        if (dicomSopClass.equals(DicomSopClass.Unknown)) {
-            final DicomModality dicomModality = DicomModality.getModalityFromDicomTag(dicomModalityString);
-            return new XnatModalityParams(dicomModality.getXnatScanType(), ImageFileFormat.DICOM);
-        } else {
-            return new XnatModalityParams(dicomSopClass.getXnatScanType(), ImageFileFormat.DICOM);
-        }
+    public static XnatModalityParams createFromDicom(final String dicomModalityString, final String sopClassUID) {
+        final XnatScanType primaryScanType = DicomSopClass.getModalityFromDicomTag(sopClassUID).getXnatScanType();
+        final XnatScanType secondaryScanType = DicomModality.getModalityFromDicomTag(dicomModalityString).getXnatScanType();
+        return new XnatModalityParams(primaryScanType, secondaryScanType, ImageFileFormat.DICOM);
     }
-
 
     public String getXnatSessionTag() {
         return xnatSessionTag;

@@ -3,30 +3,20 @@
   GIFT-Cloud: A data storage and collaboration platform
 
   Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
 
   Parts of this software are derived from XNAT
     http://www.xnat.org
     Copyright (c) 2014, Washington University School of Medicine
     All Rights Reserved
-    Released under the Simplified BSD.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.
-
-  See LICENSE.txt in the top level directory for details.
+    See license/XNAT_license.txt
 
 =============================================================================*/
 
 package uk.ac.ucl.cs.cmic.giftcloud.util;
 
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-
-import java.awt.*;
-
-public interface GiftCloudReporter extends Progress {
-
-    Container getContainer();
+public interface GiftCloudReporter extends LoggingReporter, Progress {
 
     /**
      * Used to display a message to the end user, unless running in background mode
@@ -41,16 +31,4 @@ public interface GiftCloudReporter extends Progress {
      * @param messageText text to display
      */
     void showMessageToUser(final String messageText);
-
-    /**
-     * Indicates a warning that should not be reported to the user, but should be recorded in the log
-     * @param warning the text of the warning
-     */
-    void silentWarning(final String warning);
-
-    /**
-     * Indicates that we wish to log an exception because it may be swallowed
-     * @param errorMessage the text of the error
-     */
-    void silentLogException(final Throwable throwable, final String errorMessage);
 }

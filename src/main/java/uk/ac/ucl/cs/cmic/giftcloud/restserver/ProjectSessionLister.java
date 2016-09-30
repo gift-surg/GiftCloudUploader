@@ -3,18 +3,14 @@
   GIFT-Cloud: A data storage and collaboration platform
 
   Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
 
   Parts of this software are derived from XNAT
     http://www.xnat.org
     Copyright (c) 2014, Washington University School of Medicine
     All Rights Reserved
-    Released under the Simplified BSD.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.
-
-  See LICENSE.txt in the top level directory for details.
+    See license/XNAT_license.txt
 
 =============================================================================*/
 
@@ -27,11 +23,11 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public final class ProjectSessionLister implements Callable<Map<String,String>> {
-	private final RestServer restServer;
+	private final RestClient restServer;
 	private final String projectName;
 	
-	public ProjectSessionLister(final RestServer restServer, final String projectName) {
-		this.restServer = restServer;
+	public ProjectSessionLister(final RestClient restClient, final String projectName) {
+		this.restServer = restClient;
 		this.projectName = projectName;
 	}
 

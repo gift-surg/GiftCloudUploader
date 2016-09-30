@@ -2,8 +2,6 @@
 
 package com.pixelmed.dicom;
 
-import java.io.File;
-
 /**
  * <p>Store files in a single folder, using the SOP Instance UID as the filename.</p>
  *
@@ -30,11 +28,5 @@ public final class StoredFilePathStrategySingleFolder extends StoredFilePathStra
 	    return "BYSOPINSTANCEUIDINSINGLEFOLDER";
 	}
 
-	/**
-	 * <p>Perform self test.  If arguments are given, then use then as test UIDs.  If no arguments, then use internal test UIDs.</p>
-	 */
-	public static void main(String arg[]) {
-		BYSOPINSTANCEUIDINSINGLEFOLDER.test(arg);
-	}
 }
 

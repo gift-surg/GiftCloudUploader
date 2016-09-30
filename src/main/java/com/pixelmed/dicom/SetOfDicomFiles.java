@@ -6,13 +6,10 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
 import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Vector;
 
 /**
  * <p>A class to describe a set of DICOM files and their features such as SOP Class, Instance and Transfer Syntax UIDs.</p>
@@ -330,32 +327,5 @@ public class SetOfDicomFiles extends HashSet<SetOfDicomFiles.DicomFile> {
 		super();
 	}
 
-	/**
-	 * <p>For testing, read all DICOM files and build a set of them.</p>
-	 *
-	 * @param	arg	the filenames
-	 */
-	public static void main(String arg[]) {
-		{
-			SetOfDicomFiles setOfDicomFiles = new SetOfDicomFiles(arg);
-			System.out.println(setOfDicomFiles.toString());
-		}
-		{
-			ArrayList<String> arrayList = new ArrayList<String>(arg.length);
-			for (String f : arg) {
-				arrayList.add(f);
-			}
-			SetOfDicomFiles setOfDicomFiles = new SetOfDicomFiles(arrayList);
-			System.out.println(setOfDicomFiles.toString());
-		}
-		{
-			Vector<String> vector = new Vector<String>(arg.length);
-			for (String f : arg) {
-				vector.add(f);
-			}
-			SetOfDicomFiles setOfDicomFiles = new SetOfDicomFiles(vector);
-			System.out.println(setOfDicomFiles.toString());
-		}
-	}
 }
 

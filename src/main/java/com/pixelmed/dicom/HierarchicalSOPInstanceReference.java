@@ -2,7 +2,6 @@
 
 package com.pixelmed.dicom;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -89,73 +88,6 @@ public class HierarchicalSOPInstanceReference {
 	 */
 	public String getSOPClassUID()    { return sopClassUID; }
 
-	/**
-	 * <p>Find hierarchical references to instances that may be referenced in the content tree of an SR object.</p>
-	 *
-	 * <p>Uses the mandatory Current Requested Procedure Evidence Sequence in the top level dataset of an SR object.</p>
-	 *
-	 * @param	list	the top level dataset of an SR instance
-	 * @return		a {@link java.util.Map Map} of {@link java.lang.String String} SOPInstanceUIDs to {@link com.pixelmed.dicom.HierarchicalSOPInstanceReference HierarchicalSOPInstanceReference}
-	 */
-	public static Map<String,HierarchicalSOPInstanceReference> findHierarchicalReferencesToSOPInstancesInStructuredReport(AttributeList list) {
-		Map<String,HierarchicalSOPInstanceReference> map = new HashMap<String,HierarchicalSOPInstanceReference>();
-		if (list != null) {
-			Attribute aEvidence = list.get(TagFromName.CurrentRequestedProcedureEvidenceSequence);
-			if (aEvidence != null && aEvidence instanceof SequenceAttribute) {
-				SequenceAttribute sEvidence = (SequenceAttribute)aEvidence;
-				Iterator studyIterator = sEvidence.iterator();
-				while (studyIterator.hasNext()) {
-					SequenceItem studyItem = (SequenceItem)(studyIterator.next());
-					AttributeList studyList = studyItem.getAttributeList();
-					if (studyList != null) {
-						String studyInstanceUID = Attribute.getSingleStringValueOrNull(studyList,TagFromName.StudyInstanceUID);
-						Attribute aReferencedSeriesSequence = studyList.get(TagFromName.ReferencedSeriesSequence);
-						if (studyInstanceUID != null && studyInstanceUID.length() > 0 && aReferencedSeriesSequence != null && aReferencedSeriesSequence instanceof SequenceAttribute) {
-							SequenceAttribute sReferencedSeriesSequence = (SequenceAttribute)aReferencedSeriesSequence;
-							Iterator seriesIterator = sReferencedSeriesSequence.iterator();
-							while (seriesIterator.hasNext()) {
-								SequenceItem seriesItem = (SequenceItem)(seriesIterator.next());
-								AttributeList seriesList = seriesItem.getAttributeList();
-								if (seriesList != null) {
-									String seriesInstanceUID = Attribute.getSingleStringValueOrNull(seriesList,TagFromName.SeriesInstanceUID);
-									Attribute aReferencedSOPSequence = seriesList.get(TagFromName.ReferencedSOPSequence);
-									if (seriesInstanceUID != null && seriesInstanceUID.length() > 0 && aReferencedSOPSequence != null && aReferencedSOPSequence instanceof SequenceAttribute) {
-										SequenceAttribute sReferencedSOPSequence = (SequenceAttribute)aReferencedSOPSequence;
-										Iterator instanceIterator = sReferencedSOPSequence.iterator();
-										while (instanceIterator.hasNext()) {
-											SequenceItem instanceItem = (SequenceItem)(instanceIterator.next());
-											AttributeList instanceList = instanceItem.getAttributeList();
-											String sopClassUID    = Attribute.getSingleStringValueOrNull(instanceList,TagFromName.ReferencedSOPClassUID);
-											String sopInstanceUID = Attribute.getSingleStringValueOrNull(instanceList,TagFromName.ReferencedSOPInstanceUID);
-											if (sopClassUID != null && sopClassUID.length() > 0 && sopInstanceUID != null && sopInstanceUID.length() > 0) {
-												map.put(sopInstanceUID,new HierarchicalSOPInstanceReference(studyInstanceUID,seriesInstanceUID,sopInstanceUID,sopClassUID));
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return map;
-	}
-	
-	/**
-	 * <p>Find hierarchical references to instances that may be referenced anywhere in any dataset regardless of depth of nesting.</p>
-	 *
-	 * <p>Detects any occurence of ReferencedSOPInstanceUID and then uses surround context to establish hierarchy.</p>
-	 *
-	 * @param	list	the top level dataset of an  instance
-	 * @return			a {@link java.util.Map Map} of {@link java.lang.String String} SOPInstanceUIDs to {@link com.pixelmed.dicom.HierarchicalSOPInstanceReference HierarchicalSOPInstanceReference}
-	 */
-	public static Map<String,HierarchicalSOPInstanceReference> findHierarchicalReferencesToSOPInstances(AttributeList list) {
-		Map<String,HierarchicalSOPInstanceReference> hierarchicalInstancesBySOPInstanceUID = new HashMap<String,HierarchicalSOPInstanceReference>();
-		addToHierarchicalReferencesToSOPInstances(list,hierarchicalInstancesBySOPInstanceUID);
-		return hierarchicalInstancesBySOPInstanceUID;
-	}
-		
 	/**
 	 * <p>Find hierarchical references to instances that may be referenced anywhere in any dataset regardless of depth of nesting.</p>
 	 *
@@ -255,45 +187,5 @@ public class HierarchicalSOPInstanceReference {
 	}
 
 
-	public static String toString(Map<String,HierarchicalSOPInstanceReference> map) {
-		StringBuffer str = new StringBuffer();
-		Iterator<String> i = map.keySet().iterator();
-		while (i.hasNext()) {
-			String key = i.next();
-			HierarchicalSOPInstanceReference ref = map.get(key);
-			str.append(ref);
-			str.append("\n");
-		}
-		return str.toString();
-	}
-	
-	/**
-	 * <p>Dump the references in an a file (whether it is an SR file or not).</p>
-	 *
-	 * @param	arg	DICOM file
-	 */
-	public static void main(String arg[]) {
-		try {
-			AttributeList list = new AttributeList();
-			list.read(arg[0]);
-			{
-				System.err.println("Result of findHierarchicalReferencesToSOPInstancesInStructuredReport():");
-				Map<String,HierarchicalSOPInstanceReference> map = HierarchicalSOPInstanceReference.findHierarchicalReferencesToSOPInstancesInStructuredReport(list);
-				System.err.println(HierarchicalSOPInstanceReference.toString(map));
-			}
-			{
-				System.err.println("Result of findHierarchicalReferencesToSOPInstances():");
-				Map<String,HierarchicalSOPInstanceReference> map = HierarchicalSOPInstanceReference.findHierarchicalReferencesToSOPInstances(list);
-				{
-					HierarchicalSOPInstanceReference ourselves = new HierarchicalSOPInstanceReference(list);
-					map.put(ourselves.getSOPInstanceUID(),ourselves);
-				}
-				System.err.println(HierarchicalSOPInstanceReference.toString(map));
-			}
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }
 

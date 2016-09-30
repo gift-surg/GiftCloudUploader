@@ -1,3 +1,15 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import junit.framework.Assert;
@@ -7,7 +19,7 @@ public class BackgroundServiceErrorRecordTest {
 
     @Test
     public void testAddException() throws Exception {
-        final BackgroundServiceErrorRecord record = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord record = BackgroundServiceErrorRecord.createInstantRepeater();
         final Exception e1 = new Exception("TestException");
         record.addException(e1);
     }
@@ -15,7 +27,7 @@ public class BackgroundServiceErrorRecordTest {
     @Test
     public void testShouldRetry() throws Exception {
 
-        final BackgroundServiceErrorRecord record = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord record = BackgroundServiceErrorRecord.createInstantRepeater();
         final Exception e1 = new Exception("TestException1");
         final Exception e2 = new Exception("TestException2");
         final Exception e3 = new Exception("TestException3");
@@ -33,7 +45,7 @@ public class BackgroundServiceErrorRecordTest {
 
     @Test
     public void testGetErrorList() throws Exception {
-        final BackgroundServiceErrorRecord record = new BackgroundServiceErrorRecord();
+        final BackgroundServiceErrorRecord record = BackgroundServiceErrorRecord.createInstantRepeater();
         Assert.assertEquals(record.getErrorList().size(), 0);
 
         final Exception e1 = new Exception("TestException1");

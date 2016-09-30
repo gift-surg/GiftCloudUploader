@@ -174,37 +174,7 @@ public class ByteArray {
 		}
 //System.err.print("Within:  "+dump(src));
 	}
-	
-	private static final String dump(byte[] src) {
-		//StringBuffer sb = new StringBuffer();
-		//for (int i=0; i<src.length; ++i) {
-		//	sb.append(HexDump.byteToPaddedHexString(src[i]));
-		//	sb.append(" ");
-		//}
-		//sb.append("\n");
-		//return sb.toString();
-		return HexDump.dump(src);
-	}
 
-	/**
-	 * <p>Testing.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
-		int[] wordLengths = { 1,2,4,8 };
-		byte[] bytes = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 };
-		for (int i=0; i<wordLengths.length; ++i) {
-			int wordLength=wordLengths[i];
-			System.err.println("swapEndianness: wordLength = "+wordLength);
-			System.err.print("Before: "+dump(bytes));
-			swapEndianness(bytes,bytes.length,wordLength);
-			System.err.print("After:  "+dump(bytes));
-			swapEndianness(bytes,bytes.length,wordLength);
-			System.err.print("Back:   "+dump(bytes));
-			System.err.println();
-		}
-	}
 }
 
 

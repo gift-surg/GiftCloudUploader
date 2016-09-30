@@ -1,3 +1,14 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.apache.commons.lang.StringUtils;
@@ -17,14 +28,16 @@ public class GiftCloudServerFactory {
     private final RestServerFactory restServerFactory;
     private final GiftCloudProperties properties;
     private final ProjectListModel projectListModel;
+    private UserCallback userCallback;
     private final GiftCloudReporter reporter;
     private final PixelDataAnonymiserFilterCache filters;
 
-    public GiftCloudServerFactory(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final GiftCloudProperties properties, final ProjectListModel projectListModel, final GiftCloudReporter reporter) {
+    public GiftCloudServerFactory(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final GiftCloudProperties properties, final ProjectListModel projectListModel, final UserCallback userCallback, final GiftCloudReporter reporter) {
         this.filters = filters;
         this.restServerFactory = restServerFactory;
         this.properties = properties;
         this.projectListModel = projectListModel;
+        this.userCallback = userCallback;
         this.reporter = reporter;
     }
 
@@ -42,10 +55,10 @@ public class GiftCloudServerFactory {
         // We need to create new GiftCloudServer if one does not exist, or if the URL has changed
         if (!(giftCloudServer.isPresent() && giftCloudServer.get().matchesServer(giftCloudUrl))) {
 
-            // The project list is no longer valid. We will update it after creating a new GiftCloudAutoUploader, but if that throws an exception, we want to leave the project list model in an invalid state
+            // The project list is no longer valid. We will update it after creating a new AutoUploader, but if that throws an exception, we want to leave the project list model in an invalid state
             projectListModel.invalidate();
 
-            giftCloudServer = Optional.of(new GiftCloudServer(filters, restServerFactory, giftCloudUrl, properties, reporter));
+            giftCloudServer = Optional.of(new GiftCloudServer(filters, restServerFactory, giftCloudUrl, properties, userCallback, reporter));
 
             // Now update the project list
             projectListModel.setItems(giftCloudServer.get().getListOfProjects());

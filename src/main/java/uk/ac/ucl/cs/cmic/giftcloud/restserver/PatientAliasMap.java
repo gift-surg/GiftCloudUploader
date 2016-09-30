@@ -1,11 +1,23 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import com.google.common.base.Objects;
 import uk.ac.ucl.cs.cmic.giftcloud.util.LabelUidMap;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.IOException;
 import java.util.Map;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * Stores a mapping of hashed patient IDs and patient labels to patient records
@@ -87,7 +99,7 @@ public class PatientAliasMap {
      * @return an Optional, set to the GIFT-Cloud experiment label if the hashed ID exists
      */
     public Optional<GiftCloudLabel.ExperimentLabel> getExperimentLabel(final GiftCloudLabel.SubjectLabel subjectLabel, final String hashedStudyInstanceUid) {
-        if (subjectMap.containsLabel(subjectLabel)) {
+        if (!subjectMap.containsLabel(subjectLabel)) {
             return Optional.empty();
         } else {
             return subjectMap.getValueForLabel(subjectLabel).getExperimentLabel(hashedStudyInstanceUid);
@@ -103,7 +115,7 @@ public class PatientAliasMap {
      * @return an Optional, set to the scan label if the hashed ID exists
      */
     public Optional<GiftCloudLabel.ScanLabel> getScanLabel(final GiftCloudLabel.SubjectLabel subjectLabel, final GiftCloudLabel.ExperimentLabel experimentLabel, final String hashedSeriesInstanceUid) {
-        if (subjectMap.containsLabel(subjectLabel)) {
+        if (!subjectMap.containsLabel(subjectLabel)) {
             return Optional.empty();
         } else {
             return subjectMap.getValueForLabel(subjectLabel).getScanLabel(experimentLabel, hashedSeriesInstanceUid);

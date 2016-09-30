@@ -1,3 +1,15 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import junit.framework.Assert;
@@ -9,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -253,10 +266,11 @@ public class BackgroundServiceTest {
     class FakeBackgroundServiceTaskList extends BackgroundServiceTaskList<FakeTask, FakeTask> {
 
         final BlockingQueue<BackgroundServiceTaskWrapper<FakeTask, FakeTask>> taskList = new LinkedBlockingDeque<BackgroundServiceTaskWrapper<FakeTask, FakeTask>>();
+        private long fileNum = 0;
 
         @Override
         public void add(FakeTask task, BackgroundServiceErrorRecord errorRecord) {
-            taskList.add(new BackgroundServiceTaskWrapper<FakeTask, FakeTask>(task, task, errorRecord));
+            taskList.add(new BackgroundServiceTaskWrapper<FakeTask, FakeTask>(task, task, errorRecord, fileNum++));
         }
 
         @Override
@@ -267,6 +281,11 @@ public class BackgroundServiceTest {
         @Override
         protected boolean isEmpty() {
             return taskList.isEmpty();
+        }
+
+        @Override
+        protected BackgroundServiceErrorRecord createErrorRecord() {
+            return BackgroundServiceErrorRecord.createInstantRepeater();
         }
     }
 
@@ -308,7 +327,7 @@ public class BackgroundServiceTest {
         }
 
         void waitForCompletion() throws InterruptedException {
-            latch.await();
+            latch.await(1000, TimeUnit.MILLISECONDS);
         }
 
         void waitForThreadToComplete() {

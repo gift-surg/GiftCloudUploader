@@ -1,3 +1,22 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Parts of this software are derived from XNAT
+    http://www.xnat.org
+    Copyright (c) 2014, Washington University School of Medicine
+    All Rights Reserved
+    See license/XNAT_license.txt
+
+  Some parts of this software were derived from DicomCleaner,
+    Copyright (c) 2001-2014, David A. Clunie DBA Pixelmed Publishing. All rights reserved.
+
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.AttributeList;
@@ -6,29 +25,27 @@ import com.pixelmed.network.NetworkApplicationProperties;
 import com.pixelmed.query.QueryInformationModel;
 import com.pixelmed.query.StudyRootQueryInformationModel;
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudException;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.QueryWorker;
 import uk.ac.ucl.cs.cmic.giftcloud.workers.RetrieveWorker;
 
 import java.util.List;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public class QueryRetrieveController {
 
-    private QueryRetrieveRemoteView queryRetrieveRemoteView;
     private final GiftCloudPropertiesFromApplication giftCloudProperties;
-    private final DicomNode dicomNode;
     private UploaderStatusModel uploaderStatusModel;
     private final GiftCloudReporterFromApplication reporter;
     private Optional<QueryInformationModel> currentRemoteQueryInformationModel = Optional.empty();
     private Thread activeThread = null;
+    private QueryRetrieveDialogController dialogController;
 
-    QueryRetrieveController(final QueryRetrieveRemoteView queryRetrieveRemoteView, final GiftCloudPropertiesFromApplication giftCloudProperties, final DicomNode dicomNode, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
-        this.queryRetrieveRemoteView = queryRetrieveRemoteView;
+    QueryRetrieveController(final QueryRetrieveDialogController dialogController, final GiftCloudPropertiesFromApplication giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporterFromApplication reporter) {
+        this.dialogController = dialogController;
         this.giftCloudProperties = giftCloudProperties;
-        this.dicomNode = dicomNode;
         this.uploaderStatusModel = uploaderStatusModel;
         this.reporter = reporter;
 
@@ -70,11 +87,14 @@ public class QueryRetrieveController {
         }
 
         currentRemoteQueryInformationModel = Optional.of(createRemoteQueryInformationModel());
-        queryRetrieveRemoteView.removeAll();
-        queryRetrieveRemoteView.validate();
-
+        Optional<QueryRetrieveRemoteView> remoteView = dialogController.getQueryRetrieveRemoteView();
+        if (!remoteView.isPresent()) {
+            throw new IllegalStateException("query() was called but no QueryRetrieveRemoteView was found for storing the results");
+        }
+        remoteView.get().removeAll();
+        remoteView.get().validate();
         AttributeList filter = queryParams.build();
-        Thread activeThread = new Thread(new QueryWorker(queryRetrieveRemoteView, currentRemoteQueryInformationModel.get(), filter, dicomNode, uploaderStatusModel, reporter));
+        Thread activeThread = new Thread(new QueryWorker(remoteView.get(), currentRemoteQueryInformationModel.get(), filter, uploaderStatusModel, reporter));
         activeThread.start();
     }
 

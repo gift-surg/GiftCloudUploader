@@ -32,15 +32,6 @@ public class SOPClassDescriptions {
 		return abbreviation == null ? "" : abbreviation;
 	}
 
-	/**
-	 * @param	sopClassUID	UID of the SOP Class, as a String without trailing zero padding
-	 * @return			a description of the SOP Class, or an empty string if none
-	 */
-	public static String getDescriptionFromUID(String sopClassUID) {
-		String description = (String)ourself.descriptionsByUID.get(sopClassUID);
-		return description == null ? "" : description;
-	}
-	
 	private void createAbbreviationsByUID() {
 		abbreviationsByUID = new HashMap();
 
@@ -499,20 +490,4 @@ public class SOPClassDescriptions {
 		descriptionsByUID.put(SOPClass.DICONDEEddyCurrentMultiframeImageStorage,"DICONDE Eddy Current Multi-frame Image Storage");
 	}
 
-	/**
-	 * <p>Unit test.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
-
-		try {
-			System.err.println(getDescriptionFromUID(SOPClass.MRSpectroscopyStorage));
-			System.err.println(getAbbreviationFromUID(SOPClass.MRSpectroscopyStorage));
-		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }

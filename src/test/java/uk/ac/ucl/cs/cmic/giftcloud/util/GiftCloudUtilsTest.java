@@ -1,3 +1,15 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
+
 package uk.ac.ucl.cs.cmic.giftcloud.util;
 
 import com.google.common.io.Files;
@@ -10,12 +22,25 @@ public class GiftCloudUtilsTest {
 
     @Test
     public void testIsDirectoryWritable() throws Exception {
-        File tempDir = Files.createTempDir();
-        final String tempDirString = tempDir.getPath();
-        Assert.assertTrue(GiftCloudUtils.isDirectoryWritable(tempDirString));
+        {
+            File tempDir = Files.createTempDir();
+            final String tempDirString = tempDir.getPath();
+            Assert.assertTrue(GiftCloudUtils.isDirectoryWritable(tempDirString));
+            tempDir.delete();
+        }
+        {
+            File tempDir = Files.createTempDir();
+            boolean setReadOnlySuccess = tempDir.setWritable(false);
 
-        final String rootDir = "/";
-        Assert.assertFalse(GiftCloudUtils.isDirectoryWritable(rootDir));
+            // Java setWritable() doesn't work on Windows folders so we can't perform this test
+            // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=2189716
+            if (setReadOnlySuccess) {
+                final String tempDirString = tempDir.getPath();
+                Assert.assertFalse(GiftCloudUtils.isDirectoryWritable(tempDirString));
+                tempDir.setWritable(true);
+            }
+            tempDir.delete();
+        }
     }
 
     @Test

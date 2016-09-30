@@ -4,8 +4,6 @@ package com.pixelmed.dicom;
 
 import java.io.*;
 
-import java.util.Date;	// for test timing of routines
-
 /**
  * <p>A class that extends {@link java.io.FilterOutputStream FilterOutputStream} by adding
  * the concept of little and big endian binary value encoding, and supplies functions
@@ -376,164 +374,12 @@ public class BinaryOutputStream extends FilterOutputStream {
 	}
 
 	/**
-	 * @param	msg
-	 * @param	n
-	 */
-	private final void dumpBuffer(String msg,int n) {
-		System.err.print("after "+msg);
-		for (int i=0; i<n; ++i) {
-			System.err.print(" 0x"+Integer.toHexString(buffer[i]&0xff));
-		}
-		System.err.println();
-	}
-
-	/**
 	 * @return	the underlying stream
 	 */
 	//public OutputStream getUnderlyingOutputStream() {
 	//	return out;	// a protected field in java.io.FilteredOutputStream
 	//}
 
-	/**
-	 * <p>For testing.</p>
-	 *
-	 * @param	arg file to write to
-	 */
-	public static void main(String arg[]) {
-
-		// little endian ...
-
-		BinaryOutputStream o=null;
-		try {
-			o = new BinaryOutputStream(new FileOutputStream(arg[0]),false);
-		} catch (Exception e) {
-			System.err.println(e);
-			System.exit(0);
-		}
-
-		o.insertUnsigned8(0xff);
-		o.dumpBuffer("After insertUnsigned8(0xff)",1);
-		o.insertUnsigned16(0xff);
-		o.dumpBuffer("After insertUnsigned16(0xff)",2);
-		o.insertUnsigned32(0xff);
-		o.dumpBuffer("After insertUnsigned32(0xff)",4);
-		
-		o.insertUnsigned8(0xffff);
-		o.dumpBuffer("After insertUnsigned8(0xffff)",1);
-		o.insertUnsigned16(0xffff);
-		o.dumpBuffer("After insertUnsigned16(0xffff)",2);
-		o.insertUnsigned32(0xffff);
-		o.dumpBuffer("After insertUnsigned32(0xffff)",4);
-		
-		o.insertUnsigned8(0xffffff);
-		o.dumpBuffer("After insertUnsigned8(0xffffff)",1);
-		o.insertUnsigned16(0xffffff);
-		o.dumpBuffer("After insertUnsigned16(0xffffff)",2);
-		o.insertUnsigned32(0xffffff);
-		o.dumpBuffer("After insertUnsigned32(0xffffff)",4);
-		
-		o.insertUnsigned8(0xffffffff);
-		o.dumpBuffer("After insertUnsigned8(0xffffffff)",1);
-		o.insertUnsigned16(0xffffffff);
-		o.dumpBuffer("After insertUnsigned16(0xffffffff)",2);
-		o.insertUnsigned32(0xffffffff);
-		o.dumpBuffer("After insertUnsigned32(0xffffffff)",4);
-
-
-		o.insertUnsigned8(0x7f);
-		o.dumpBuffer("After insertUnsigned8(0x7f)",1);
-		o.insertUnsigned16(0x7f);
-		o.dumpBuffer("After insertUnsigned16(0x7f)",2);
-		o.insertUnsigned32(0x7f);
-		o.dumpBuffer("After insertUnsigned32(0x7f)",4);
-		
-		o.insertUnsigned8(0x7f7f);
-		o.dumpBuffer("After insertUnsigned8(0x7f7f)",1);
-		o.insertUnsigned16(0x7f7f);
-		o.dumpBuffer("After insertUnsigned16(0x7f7f)",2);
-		o.insertUnsigned32(0x7f7f);
-		o.dumpBuffer("After insertUnsigned32(0x7f7f)",4);
-		
-		o.insertUnsigned8(0x7f7f7f);
-		o.dumpBuffer("After insertUnsigned8(0x7f7f7f)",1);
-		o.insertUnsigned16(0x7f7f7f);
-		o.dumpBuffer("After insertUnsigned16(0x7f7f7f)",2);
-		o.insertUnsigned32(0x7f7f7f);
-		o.dumpBuffer("After insertUnsigned32(0x7f7f7f)",4);
-		
-		o.insertUnsigned8(0x7f7f7f7f);
-		o.dumpBuffer("After insertUnsigned8(0x7f7f7f7f)",1);
-		o.insertUnsigned16(0x7f7f7f7f);
-		o.dumpBuffer("After insertUnsigned16(0x7f7f7f7f)",2);
-		o.insertUnsigned32(0x7f7f7f7f);
-		o.dumpBuffer("After insertUnsigned32(0x7f7f7f7f)",4);
-
-		// big endian ...
-
-		try {
-			o = new BinaryOutputStream(new FileOutputStream(arg[0]),true);
-		} catch (Exception e) {
-			System.err.println(e);
-			System.exit(0);
-		}
-
-		o.insertUnsigned8(0xff);
-		o.dumpBuffer("After insertUnsigned8(0xff)",1);
-		o.insertUnsigned16(0xff);
-		o.dumpBuffer("After insertUnsigned16(0xff)",2);
-		o.insertUnsigned32(0xff);
-		o.dumpBuffer("After insertUnsigned32(0xff)",4);
-		
-		o.insertUnsigned8(0xffff);
-		o.dumpBuffer("After insertUnsigned8(0xffff)",1);
-		o.insertUnsigned16(0xffff);
-		o.dumpBuffer("After insertUnsigned16(0xffff)",2);
-		o.insertUnsigned32(0xffff);
-		o.dumpBuffer("After insertUnsigned32(0xffff)",4);
-		
-		o.insertUnsigned8(0xffffff);
-		o.dumpBuffer("After insertUnsigned8(0xffffff)",1);
-		o.insertUnsigned16(0xffffff);
-		o.dumpBuffer("After insertUnsigned16(0xffffff)",2);
-		o.insertUnsigned32(0xffffff);
-		o.dumpBuffer("After insertUnsigned32(0xffffff)",4);
-		
-		o.insertUnsigned8(0xffffffff);
-		o.dumpBuffer("After insertUnsigned8(0xffffffff)",1);
-		o.insertUnsigned16(0xffffffff);
-		o.dumpBuffer("After insertUnsigned16(0xffffffff)",2);
-		o.insertUnsigned32(0xffffffff);
-		o.dumpBuffer("After insertUnsigned32(0xffffffff)",4);
-
-
-		o.insertUnsigned8(0x7f);
-		o.dumpBuffer("After insertUnsigned8(0x7f)",1);
-		o.insertUnsigned16(0x7f);
-		o.dumpBuffer("After insertUnsigned16(0x7f)",2);
-		o.insertUnsigned32(0x7f);
-		o.dumpBuffer("After insertUnsigned32(0x7f)",4);
-		
-		o.insertUnsigned8(0x7f7f);
-		o.dumpBuffer("After insertUnsigned8(0x7f7f)",1);
-		o.insertUnsigned16(0x7f7f);
-		o.dumpBuffer("After insertUnsigned16(0x7f7f)",2);
-		o.insertUnsigned32(0x7f7f);
-		o.dumpBuffer("After insertUnsigned32(0x7f7f)",4);
-		
-		o.insertUnsigned8(0x7f7f7f);
-		o.dumpBuffer("After insertUnsigned8(0x7f7f7f)",1);
-		o.insertUnsigned16(0x7f7f7f);
-		o.dumpBuffer("After insertUnsigned16(0x7f7f7f)",2);
-		o.insertUnsigned32(0x7f7f7f);
-		o.dumpBuffer("After insertUnsigned32(0x7f7f7f)",4);
-		
-		o.insertUnsigned8(0x7f7f7f7f);
-		o.dumpBuffer("After insertUnsigned8(0x7f7f7f7f)",1);
-		o.insertUnsigned16(0x7f7f7f7f);
-		o.dumpBuffer("After insertUnsigned16(0x7f7f7f7f)",2);
-		o.insertUnsigned32(0x7f7f7f7f);
-		o.dumpBuffer("After insertUnsigned32(0x7f7f7f7f)",4);
-	}
 }
 
 

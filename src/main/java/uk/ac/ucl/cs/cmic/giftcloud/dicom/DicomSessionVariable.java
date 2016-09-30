@@ -49,14 +49,6 @@ extends AbstractSessionVariable implements SessionVariable,ValueListener {
         return Strings.isNullOrEmpty(description) ? v.getName() : description;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see SessionVariable#getExportField()
-     */
-    public String getExportField() {
-        return v.getExportField();
-    }
-
     /* (non-Javadoc)
      * @see SessionVariable#getValue()
      */

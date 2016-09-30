@@ -1,15 +1,31 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Parts of this software are derived from XNAT
+    http://www.xnat.org
+    Copyright (c) 2014, Washington University School of Medicine
+    All Rights Reserved
+    See license/XNAT_license.txt
+
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.network.NetworkDefaultValues;
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PropertyStore;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
 import java.io.IOException;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.util.ResourceBundle;
 
 
@@ -21,25 +37,29 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     protected static String KEYSTORE_PATIENT_LIST_SPREDSHEET_PASSWORD_KEY = "GiftCloud.PatientListSpreadsheetPassword";
 
     private final String userAgentString;
+    private final String anonymisationMethodString;
+    private final String defaultUrl;
 
     private final PropertyStore properties;
-    private GiftCloudReporter reporter;
+    private final LoggingReporter reporter;
 
 
-    public GiftCloudPropertiesFromApplication(final PropertyStore properties, final ResourceBundle resourceBundle, final GiftCloudReporter reporter) {
+    public GiftCloudPropertiesFromApplication(final PropertyStore properties, final ResourceBundle resourceBundle, final LoggingReporter reporter) {
         this.reporter = reporter;
         this.properties = properties;
 
         // Set the user agent string for the application
         final String nameString = resourceBundle.getString("userAgentNameApplication");
+        final String anonymisationMethodPrefix = resourceBundle.getString("anonymisationMethodPrefix");
         final String versionString = resourceBundle.getString("mavenVersion");
         userAgentString = (nameString != null ? nameString : "") + (versionString != null ? versionString : "");
+        anonymisationMethodString =  (anonymisationMethodPrefix != null ? anonymisationMethodPrefix : "") + (versionString != null ? versionString : "");
+        defaultUrl = resourceBundle.getString("defaultServerUrl") ;
     }
-
 
     @Override
     public Optional<String> getGiftCloudUrl() {
-        return Optional.of(getStringWithDefault(propertyName_GiftCloudServerUrl, "https://gift-cloud.cs.ucl.ac.uk"));
+        return Optional.of(getStringWithDefault(propertyName_GiftCloudServerUrl, defaultUrl));
     }
 
     public void setGiftCloudUrl(final String giftCloudUrl) {
@@ -74,7 +94,7 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     }
 
     @Override
-    public File getUploadFolder(final GiftCloudReporter reporter) {
+    public File getUploadFolder(final LoggingReporter reporter) {
         final String uploadFolderString = properties.getProperty(propertyName_GiftCloudLocalUploadFolder);
         if (StringUtils.isNotBlank(uploadFolderString)) {
             return new File(uploadFolderString);
@@ -86,6 +106,11 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     @Override
     public String getUserAgentString() {
         return userAgentString;
+    }
+
+    @Override
+    public String getAnonymisationMethodString() {
+        return anonymisationMethodString;
     }
 
     @Override
@@ -126,11 +151,6 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     @Override
     public Optional<String> getPacsQueryModel() {
         return getOptionalProperty(propertyName_PacsQueryModel);
-    }
-
-    @Override
-    public Optional<String> getPacsPrimaryDeviceType() {
-        return getOptionalProperty(propertyName_PacsPrimaryDeviceType);
     }
 
     @Override
@@ -211,10 +231,6 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         return getIntegerWithDefault(propertyName_ListenerPort, NetworkDefaultValues.StandardDicomReservedPortNumber);
     }
 
-    public int getStorageSCPDebugLevel() {
-        return getIntegerWithDefault(propertyName_StorageSCPDebugLevel, 0);
-    }
-
     @Override
     public void save() {
         try {
@@ -281,31 +297,6 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
         if (!lastImportDirectory.equals(getLastImportDirectory())) {
             properties.setProperty(propertyName_LastImportDirectory, lastImportDirectory);
         }
-    }
-
-    public Optional<String> getLastExportDirectory() {
-        final String lastExportDirectory = properties.getProperty(propertyName_LastExportDirectory);
-        if (StringUtils.isNotBlank(lastExportDirectory)) {
-            return Optional.of(lastExportDirectory);
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public void setLastExportDirectory(final String lastExportDirectory) {
-        if (!lastExportDirectory.equals(getLastExportDirectory())) {
-            properties.setProperty(propertyName_LastExportDirectory, lastExportDirectory);
-        }
-    }
-
-    // ToDo: Previously this was supported via a checkbox
-    public boolean hierarchicalExport() {
-        return true;
-    }
-
-    // ToDo: Previously this was supported via a checkbox
-    public boolean zipExport() {
-        return false;
     }
 
     private void setPropertyString(final String propertyName, final String propertyValue) {

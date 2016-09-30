@@ -1,54 +1,67 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Parts of this software were derived from DicomCleaner,
+    Copyright (c) 2001-2014, David A. Clunie DBA Pixelmed Publishing. All rights reserved.
+
+  Parts of this software are derived from XNAT
+    http://www.xnat.org
+    Copyright (c) 2014, Washington University School of Medicine
+    All Rights Reserved
+    See license/XNAT_license.txt
+
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import com.pixelmed.database.DatabaseInformationModel;
 import com.pixelmed.dicom.DicomException;
-import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudDialogs;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.LocalWaitingForUploadDatabase;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.security.sasl.AuthenticationException;
-import java.awt.*;
+import javax.swing.table.TableModel;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.CancellationException;
 
 public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOutcomeCallback {
-    private final LocalWaitingForUploadDatabase uploadDatabase;
+    private final WaitingForUploadDatabase uploadDatabase;
     private final GiftCloudProperties giftCloudProperties;
-    private GiftCloudDialogs dialogs;
-    private final Container container;
     private final PendingUploadTaskList pendingUploadList;
     private final GiftCloudReporter reporter;
     private final ProjectListModel projectListModel;
     private final GiftCloudServerFactory serverFactory;
     private final BackgroundAddToUploaderService backgroundAddToUploaderService;
-    private final GiftCloudAutoUploader autoUploader;
+    private final AutoUploader autoUploader;
     private final BackgroundUploader backgroundUploader;
+    private final PixelDataAnonymiserFilterCache pixelDataAnonymiserFilterCache;
 
-    public GiftCloudUploader(final PixelDataAnonymiserFilterCache filters, final RestServerFactory restServerFactory, final LocalWaitingForUploadDatabase uploadDatabase, final File pendingUploadFolder, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final GiftCloudDialogs dialogs, final GiftCloudReporter reporter) {
-        this.uploadDatabase = uploadDatabase;
+    private final int DELAY_BETWEEN_UPDATES = 500;
+
+    public GiftCloudUploader(final RestServerFactory restServerFactory, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final UserCallback userCallback, final GiftCloudReporter reporter) {
+        this.uploadDatabase =  new WaitingForUploadDatabase(DELAY_BETWEEN_UPDATES);
         this.giftCloudProperties = giftCloudProperties;
-        this.dialogs = dialogs;
-        this.container = reporter.getContainer();
         this.reporter = reporter;
+        pixelDataAnonymiserFilterCache = new PixelDataAnonymiserFilterCache(giftCloudProperties, reporter);
         projectListModel = new ProjectListModel(giftCloudProperties);
-        serverFactory = new GiftCloudServerFactory(filters, restServerFactory, giftCloudProperties, projectListModel, reporter);
-        pendingUploadList = new PendingUploadTaskList(giftCloudProperties, pendingUploadFolder, reporter);
+        serverFactory = new GiftCloudServerFactory(pixelDataAnonymiserFilterCache, restServerFactory, giftCloudProperties, projectListModel, userCallback, reporter);
+        pendingUploadList = new PendingUploadTaskList(reporter);
 
         final int numThreads = 1;
         backgroundUploader = new BackgroundUploader(new BackgroundCompletionServiceTaskList<CallableWithParameter<Set<String>, FileCollection>, FileCollection>(numThreads), this, uploaderStatusModel, reporter);
-        autoUploader = new GiftCloudAutoUploader(backgroundUploader, giftCloudProperties, reporter);
-        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, serverFactory, this, autoUploader, uploaderStatusModel, reporter);
+        autoUploader = new AutoUploader(serverFactory, backgroundUploader, giftCloudProperties, userCallback, reporter);
+        backgroundAddToUploaderService = new BackgroundAddToUploaderService(pendingUploadList, autoUploader, uploaderStatusModel, reporter);
 
         // Add a shutdown hook for graceful exit
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -115,69 +128,14 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
         return projectListModel;
     }
 
-    public boolean uploadToGiftCloud(Vector<String> paths) throws IOException {
 
+    public void importFiles(final FileImportRecord fileImportRecord) throws IOException, DicomException {
         try {
-            final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-
-            // Allow user to log in again if they have previously cancelled a login dialog
-            giftCloudServer.resetCancellation();
-
-            final String projectName = getProjectName(giftCloudServer);
-
-            return autoUploader.uploadToGiftCloud(giftCloudServer, paths, projectName);
+            uploadDatabase.addFiles(fileImportRecord);
+            pendingUploadList.addFiles(giftCloudProperties.getLastProject(), fileImportRecord);
 
         } catch (Throwable throwable) {
-
-            return false;
-        }
-    }
-
-    String getProjectName(final GiftCloudServer giftCloudServer) throws IOException {
-        final Optional<String> lastProjectName = giftCloudProperties.getLastProject();
-        if (lastProjectName.isPresent() && StringUtils.isNotBlank(lastProjectName.get())) {
-            return lastProjectName.get();
-        } else {
-            try {
-                final String selectedProject = dialogs.showInputDialogToSelectProject(giftCloudServer.getListOfProjects(), container, lastProjectName);
-                giftCloudProperties.setLastProject(selectedProject);
-                giftCloudProperties.save();
-                return selectedProject;
-            } catch (IOException e) {
-                throw new IOException("Unable to retrieve project list due to following error: " + e.getMessage(), e);
-            }
-        }
-    }
-
-    public void importFile(String dicomFileName, String fileReferenceType) throws IOException, DicomException {
-        uploadDatabase.importFileIntoDatabase(dicomFileName, fileReferenceType);
-
-        if (fileReferenceType.equals(DatabaseInformationModel.FILE_COPIED)) {
-            addFileInstance(dicomFileName);
-        } else if (fileReferenceType.equals(DatabaseInformationModel.FILE_REFERENCED)) {
-            addFileReference(dicomFileName);
-        } else {
-            throw new RuntimeException("Unexpected file reference type");
-        }
-    }
-
-    private void addFileReference(final String mediaFileName) {
-        try {
-            final Optional<String> projectName = giftCloudProperties.getLastProject();
-            pendingUploadList.addFileReference(mediaFileName, projectName);
-
-        } catch (Throwable throwable) {
-            reporter.silentLogException(throwable, "Error when attempting to import a file reference to " + mediaFileName);
-        }
-    }
-
-    private void addFileInstance(final String dicomFileName) {
-        try {
-            final Optional<String> projectName = giftCloudProperties.getLastProject();
-            pendingUploadList.addFileInstance(dicomFileName, projectName);
-
-        } catch (Throwable throwable) {
-            reporter.silentLogException(throwable, "Error when attempting to import a file copy of " + dicomFileName);
+            reporter.silentLogException(throwable, "Error when attempting to import files " + fileImportRecord.getFilenames());
         }
     }
 
@@ -185,7 +143,7 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     public void fileUploadSuccess(final FileCollection fileCollection) {
         pendingUploadList.fileUploadSuccess(fileCollection);
         for (final File file : fileCollection.getFiles()) {
-            uploadDatabase.deleteFileFromDatabase(file);
+            uploadDatabase.removeAndDeleteCopies(file.getPath());
         }
     }
 
@@ -211,4 +169,16 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
     public void invalidateServer() {
         serverFactory.invalidate();
     }
+
+    public TableModel getTableModel() {
+        return uploadDatabase.getTableModel();
+    }
+
+    /**
+     * @return the object containing pixel data anonymisation filters
+     */
+    public PixelDataAnonymiserFilterCache getPixelDataAnonymiserFilterCache() {
+        return pixelDataAnonymiserFilterCache;
+    }
 }
+

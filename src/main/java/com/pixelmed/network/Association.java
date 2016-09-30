@@ -2,23 +2,19 @@
 
 package com.pixelmed.network;
 
-import com.pixelmed.utils.ByteArray;
-import com.pixelmed.utils.HexDump;
 import com.pixelmed.dicom.TransferSyntax;
+import com.pixelmed.utils.ByteArray;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.IOException;
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 /**
  * @author	dclunie
@@ -455,7 +451,7 @@ if (debugLevel > 2) System.err.println(new java.util.Date().toString()+": Associ
 			}
 			catch (IOException e2) {
 			}
-			throw new DicomNetworkException("A-P-ABORT indication - "+e);		// AA-4      - indicate A-P-ABORT
+			throw new DicomNetworkException("A-P-ABORT indication - " + e, e);        // AA-4      - indicate A-P-ABORT
 												// State 1   - Idle
 		}
 		// normal return is after all requested P-DATA PDUs have been received, still in State 6

@@ -1005,31 +1005,6 @@ public class XMLRepresentationOfStructuredReportObjectFactory {
 		Document document = db.parse(stream);
 		return getAttributeList(document);
 	}
-	
-	/**
-	 * <p>Given a DICOM SR object encoded as an XML document in a named file
-	 * convert it to a list of attributes.</p>
-	 *
-	 * @param		name			the input file containing the XML document
-	 * @return						the list of DICOM attributes
-	 * @throws	IOException
-	 * @throws	SAXException
-	 * @throws	ParserConfigurationException
-	 * @throws	DicomException
-	 */
-	public AttributeList getAttributeList(String name) throws IOException, SAXException, ParserConfigurationException, DicomException {
-		InputStream fi = new FileInputStream(name);
-		BufferedInputStream bi = new BufferedInputStream(fi);
-		AttributeList list = null;
-		try {
-			list = getAttributeList(bi);
-		}
-		finally {
-			bi.close();
-			fi.close();
-		}
-		return list;
-	}
 
 	/**
 	 * @param	documentNode
@@ -1132,61 +1107,6 @@ public class XMLRepresentationOfStructuredReportObjectFactory {
 			throw new DicomException("Could not create XML document - could not transform to XML"+e);
 		}
 	}
-		
-	/**
-	 * <p>Read a DICOM dataset (that contains a structured report) and write an XML representation of it to the standard output, or vice versa.</p>
-	 *
-	 * @param	arg	either one filename of the file containing the DICOM dataset, or a direction argument (toDICOM or toXML, case insensitive) and an input filename
-	 */
-	public static void main(String arg[]) {
-		try {
-			boolean bad = true;
-			boolean toXML = true;
-			String filename = null;
-			if (arg.length == 1) {
-				bad = false;
-				toXML = true;
-				filename = arg[0];
-			}
-			else if (arg.length == 2) {
-				filename = arg[1];
-				if (arg[0].toLowerCase(Locale.US).equals("toxml")) {
-					bad = false;
-					toXML = true;
-				}
-				else if (arg[0].toLowerCase(Locale.US).equals("todicom") || arg[0].toLowerCase(Locale.US).equals("todcm")) {
-					bad = false;
-					toXML = false;
-				}
-			}
-			if (bad) {
-				System.err.println("usage: XMLRepresentationOfDicomObjectFactory [toDICOM|toXML] inputfile");
-			}
-			else {
-				if (toXML) {
-					AttributeList list = new AttributeList();
-					//System.err.println("reading list");
-					list.read(filename,null,true,true);
-					//System.err.println("making sr");
-					StructuredReport sr = new StructuredReport(list);
-					//System.err.println("making document");
-					Document document = new XMLRepresentationOfStructuredReportObjectFactory().getDocument(sr,list);
-					//System.err.println(toString(document));
-					write(System.out,document);
-				}
-				else {
-					AttributeList list = new XMLRepresentationOfStructuredReportObjectFactory().getAttributeList(filename);
-					String sourceApplicationEntityTitle = Attribute.getSingleStringValueOrEmptyString(list,TagFromName.SourceApplicationEntityTitle);
-					list.insertSuitableSpecificCharacterSetForAllStringValues();
-					list.removeMetaInformationHeaderAttributes();
-					FileMetaInformation.addFileMetaInformation(list,TransferSyntax.ExplicitVRLittleEndian,sourceApplicationEntityTitle);
-					list.write(System.out,TransferSyntax.ExplicitVRLittleEndian,true/*useMeta*/,true/*useBufferedStream*/);
-				}
-			}
-				
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
+
 }
 

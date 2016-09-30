@@ -41,8 +41,6 @@ public class MoveSOPClassSCU extends SOPClass {
 	protected int debugLevel;
 	
 	protected CMoveResponseHandler responseHandler;
-	
-	public int getStatus() { return responseHandler.getStatus(); }
 
 	/***/
 	protected class CMoveResponseHandler extends CompositeResponseHandler {
@@ -247,28 +245,6 @@ if (debugLevel > 1) System.err.println(new java.util.Date().toString()+": MoveSO
 		}
 	}
 
-	/**
-	 * <p>For testing, establish an association to the specified AE and perform a retrieval using a C-MOVE request.</p>
-	 *
-	 * @param	arg	array of seven, eight or nine strings - their hostname, their port, their AE Title, our AE Title,
-	 *			the destination AE, the move level (STUDY, SERIES or IMAGE), then the Study Instance UID,
-	 *			optionally the Series Instance UID (if SERIES) and optionally the SOP Instance UID (if IMAGE)
-	 */
-	public static void main(String arg[]) {
-		try {
-			AttributeList identifier = new AttributeList();
-			{ AttributeTag t = TagFromName.QueryRetrieveLevel; Attribute a = new CodeStringAttribute(t); a.addValue(arg[5]); identifier.put(t,a); }
-			{ AttributeTag t = TagFromName.StudyInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(arg[6]); identifier.put(t,a); }
-			if (arg.length > 7) { AttributeTag t = TagFromName.SeriesInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(arg[7]); identifier.put(t,a); }
-			if (arg.length > 8) { AttributeTag t = TagFromName.SOPInstanceUID; Attribute a = new UniqueIdentifierAttribute(t); a.addValue(arg[8]); identifier.put(t,a); }
-			MoveSOPClassSCU moveSOPClassSCU = new MoveSOPClassSCU(arg[0],Integer.parseInt(arg[1]),arg[2],arg[3],arg[4],SOPClass.StudyRootQueryRetrieveInformationModelMove,identifier,0/*debugLevel*/);
-			System.err.println("MoveSOPClassSCU: final status = "+("0x"+Integer.toHexString(moveSOPClassSCU.getStatus())));
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }
 
 

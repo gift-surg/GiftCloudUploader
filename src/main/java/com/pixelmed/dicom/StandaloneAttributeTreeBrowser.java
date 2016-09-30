@@ -2,13 +2,10 @@
 
 package com.pixelmed.dicom;
 
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-
-import com.pixelmed.utils.JTreeWithAdditionalKeyStrokeActions;
 
 /**
  * <p>The {@link com.pixelmed.dicom.StandaloneAttributeTreeBrowser StandaloneAttributeTreeBrowser} class implements a Swing graphical user interface
@@ -42,22 +39,6 @@ public class StandaloneAttributeTreeBrowser extends JFrame {
 		AttributeTreeBrowser browser = new AttributeTreeBrowser(list,scrollPane);
 	}
 
-	/**
-	 * <p>Display the DICOM attributes in the file name on the command line as a tree.</p>
-	 *
-	 * @param	arg
-	 */
-	public static void main(String arg[]) {
-		AttributeList list = new AttributeList();
-		try {
-			list.read(arg[0]);
-			StandaloneAttributeTreeBrowser tree = new StandaloneAttributeTreeBrowser(list);
-			tree.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }
 
 

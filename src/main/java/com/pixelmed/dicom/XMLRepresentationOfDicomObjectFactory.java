@@ -8,14 +8,6 @@ import com.pixelmed.utils.StringUtilities;
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.xml.sax.SAXException;
 
 import java.io.*;
@@ -333,21 +325,7 @@ public class XMLRepresentationOfDicomObjectFactory {
 		dbf.setNamespaceAware(true);
 		db = dbf.newDocumentBuilder();
 	}
-	
-	/**
-	 * <p>Given a DICOM object encoded as a list of attributes, get an XML document
-	 * as a DOM tree.</p>
-	 *
-	 * @param	list	the list of DICOM attributes
-	 */
-	public Document getDocument(AttributeList list) {
-		Document document = db.newDocument();
-		org.w3c.dom.Node element = document.createElement("DicomObject");
-		document.appendChild(element);
-		addAttributesFromListToNode(list,document,element);
-		return document;
-	}
-	
+
 	/**
 	 * <p>Given a DICOM object encoded as an XML document
 	 * convert it to a list of attributes.</p>
@@ -377,30 +355,6 @@ public class XMLRepresentationOfDicomObjectFactory {
 	public AttributeList getAttributeList(InputStream stream) throws IOException, SAXException, DicomException {
 		Document document = db.parse(stream);
 		return getAttributeList(document);
-	}
-	
-	/**
-	 * <p>Given a DICOM object encoded as an XML document in a named file
-	 * convert it to a list of attributes.</p>
-	 *
-	 * @param		name			the input file containing the XML document
-	 * @return						the list of DICOM attributes
-	 * @throws	IOException
-	 * @throws	SAXException
-	 * @throws	DicomException
-	 */
-	public AttributeList getAttributeList(String name) throws IOException, SAXException, DicomException {
-		InputStream fi = new FileInputStream(name);
-		BufferedInputStream bi = new BufferedInputStream(fi);
-		AttributeList list = null;
-		try {
-			list = getAttributeList(bi);
-		}
-		finally {
-			bi.close();
-			fi.close();
-		}
-		return list;
 	}
 
 	/**
@@ -435,103 +389,6 @@ public class XMLRepresentationOfDicomObjectFactory {
 	public static String toString(Node node) {
 		return toString(node,0);
 	}
-	
-	/**
-	 * <p>Serialize an XML document (DOM tree).</p>
-	 *
-	 * @param	out		the output stream to write to
-	 * @param	document	the XML document
-	 * @throws	IOException
-	 */
-	public static void write(OutputStream out,Document document) throws IOException, TransformerConfigurationException, TransformerException {
-		
-		DOMSource source = new DOMSource(document);
-		StreamResult result = new StreamResult(out);
-		Transformer transformer = TransformerFactory.newInstance().newTransformer();
-		Properties outputProperties = new Properties();
-		outputProperties.setProperty(OutputKeys.METHOD,"xml");
-		outputProperties.setProperty(OutputKeys.INDENT,"yes");
-		outputProperties.setProperty(OutputKeys.ENCODING,"UTF-8");	// the default anyway
-		transformer.setOutputProperties(outputProperties);
-		transformer.transform(source, result);
-	}
-	
-	/**
-	 * <p>Serialize an XML document (DOM tree) created from a DICOM attribute list.</p>
-	 *
-	 * @param	list		the list of DICOM attributes
-	 * @param	out		the output stream to write to
-	 * @throws	IOException
-	 * @throws	DicomException
-	 */
-	public static void createDocumentAndWriteIt(AttributeList list,OutputStream out) throws IOException, DicomException {
-		try {
-			Document document = new XMLRepresentationOfDicomObjectFactory().getDocument(list);
-			write(out,document);
-		}
-		catch (ParserConfigurationException e) {
-			throw new DicomException("Could not create XML document - problem creating object model from DICOM"+e);
-		}
-		catch (TransformerConfigurationException e) {
-			throw new DicomException("Could not create XML document - could not instantiate transformer"+e);
-		}
-		catch (TransformerException e) {
-			throw new DicomException("Could not create XML document - could not transform to XML"+e);
-		}
-	}
-		
-	/**
-	 * <p>Read a DICOM dataset and write an XML representation of it to the standard output, or vice versa.</p>
-	 *
-	 * @param	arg	either one filename of the file containing the DICOM dataset, or a direction argument (toDICOM or toXML, case insensitive) and an input filename
-	 */
-	public static void main(String arg[]) {
-		try {
-			boolean bad = true;
-			boolean toXML = true;
-			String filename = null;
-			if (arg.length == 1) {
-				bad = false;
-				toXML = true;
-				filename = arg[0];
-			}
-			else if (arg.length == 2) {
-				filename = arg[1];
-				if (arg[0].toLowerCase(java.util.Locale.US).equals("toxml")) {
-					bad = false;
-					toXML = true;
-				}
-				else if (arg[0].toLowerCase(java.util.Locale.US).equals("todicom") || arg[0].toLowerCase(java.util.Locale.US).equals("todcm")) {
-					bad = false;
-					toXML = false;
-				}
-			}
-			if (bad) {
-				System.err.println("usage: XMLRepresentationOfDicomObjectFactory [toDICOM|toXML] inputfile");
-			}
-			else {
-				if (toXML) {
-					AttributeList list = new AttributeList();
-					//System.err.println("reading list");
-					list.read(filename,null,true,true);
-					//System.err.println("making document");
-					Document document = new XMLRepresentationOfDicomObjectFactory().getDocument(list);
-					//System.err.println(toString(document));
-					write(System.out,document);
-				}
-				else {
-//long startReadTime = System.currentTimeMillis();
-					AttributeList list = new XMLRepresentationOfDicomObjectFactory().getAttributeList(filename);
-//System.err.println("AttributeList.main(): read XML and create DICOM AttributeList - done in "+(System.currentTimeMillis()-startReadTime)+" ms");
-					String sourceApplicationEntityTitle = Attribute.getSingleStringValueOrEmptyString(list,TagFromName.SourceApplicationEntityTitle);
-					list.removeMetaInformationHeaderAttributes();
-					FileMetaInformation.addFileMetaInformation(list,TransferSyntax.ExplicitVRLittleEndian,sourceApplicationEntityTitle);
-					list.write(System.out,TransferSyntax.ExplicitVRLittleEndian,true/*useMeta*/,true/*useBufferedStream*/);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
+
 }
 

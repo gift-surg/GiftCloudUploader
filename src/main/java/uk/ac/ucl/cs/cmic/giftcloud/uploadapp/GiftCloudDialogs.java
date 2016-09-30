@@ -1,25 +1,51 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Parts of this software are derived from XNAT
+    http://www.xnat.org
+    Copyright (c) 2014, Washington University School of Medicine
+    All Rights Reserved
+    See license/XNAT_license.txt
+
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.display.SafeFileChooser;
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLoginDialog;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.PasswordAuthentication;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
-import java.util.Vector;
 import java.util.concurrent.CancellationException;
 
 public class GiftCloudDialogs {
 
     private final MainFrame mainFrame;
     private final ImageIcon icon;
+    private final String applicationName;
+    private final GiftCloudLoginDialog loginDialog;
 
-    public GiftCloudDialogs(MainFrame mainFrame) {
+    public GiftCloudDialogs(final GiftCloudUploaderAppConfiguration appConfiguration, final MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        this.applicationName = appConfiguration.getApplicationTitle();
+
+        // Create the object used for creating user login dialogs if necessary. Note this does not create any GUI in the constructor
+        loginDialog = new GiftCloudLoginDialog(appConfiguration, appConfiguration.getProperties(), mainFrame.getContainer());
 
         // Set the default background colour to white
         UIManager UI = new UIManager();
@@ -27,16 +53,42 @@ public class GiftCloudDialogs {
         UI.put("Panel.background", Color.white);
 
         // Get the GIFT-Cloud icon - this will return null if not found
-        icon = new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
+        icon = appConfiguration.getMainLogo();
     }
 
     public void showMessage(final String message) throws HeadlessException {
 
         final JPanel messagePanel = new JPanel(new GridBagLayout());
-        messagePanel.add(new JLabel(message, SwingConstants.CENTER));
+        final JEditorPane textField = new JEditorPane();
+        textField.setContentType("text/html");
+        textField.setText(message);
+        textField.setEditable(false);
+        textField.setBackground(null);
+        textField.setBorder(null);
+        textField.setEditable(false);
+        textField.setForeground(UIManager.getColor("Label.foreground"));
+        textField.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+        textField.setFont(UIManager.getFont("Label.font"));
+        textField.addHyperlinkListener(new HyperlinkListener() {
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+                if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    if(Desktop.isDesktopSupported()) {
+                        try {
+                            Desktop.getDesktop().browse(e.getURL().toURI());
+                        } catch (IOException e1) {
+                            // Ignore failure to launch URL
+                        } catch (URISyntaxException e1) {
+                            // Ignore failure to launch URL
+                        }
+                    }
+                }
+            }
+        });
 
+        messagePanel.add(textField);
+        textField.setAlignmentX(SwingConstants.CENTER);
 
-        JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, "GIFT-Cloud", JOptionPane.INFORMATION_MESSAGE, icon);
+        JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, applicationName, JOptionPane.INFORMATION_MESSAGE, icon);
     }
 
     public void showError(final String message, final Optional<String> additionalText) throws HeadlessException {
@@ -51,11 +103,8 @@ public class GiftCloudDialogs {
         stringMessage.append("</html>");
         messagePanel.add(new JLabel(stringMessage.toString(), SwingConstants.CENTER));
 
-        JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, "GIFT-Cloud", JOptionPane.ERROR_MESSAGE, icon);
+        JOptionPane.showMessageDialog(mainFrame.getContainer(), messagePanel, applicationName, JOptionPane.ERROR_MESSAGE, icon);
     }
-
-
-
 
     public String getSelection(String message, String title, String[] valueArray, String defaultSelection) {
         return (String)JOptionPane.showInputDialog(mainFrame.getContainer(), message, title, JOptionPane.QUESTION_MESSAGE, icon, valueArray, defaultSelection);
@@ -120,7 +169,7 @@ public class GiftCloudDialogs {
     }
 
 
-    public String showInputDialogToSelectProject(final Vector<String> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
+    public String showInputDialogToSelectProject(final java.util.List<String> projectMap, final Component component, final Optional<String> lastProject) throws IOException {
         final String lastProjectName = lastProject.isPresent() ? lastProject.get() : "";
 
         if (projectMap.size() < 1) {
@@ -131,7 +180,7 @@ public class GiftCloudDialogs {
 
         final String defaultSelection = projectMap.contains(lastProjectName) ? lastProjectName : null;
 
-        final Object returnValue = JOptionPane.showInputDialog(component, "Please select a project to which data will be uploaded.", "GIFT-Cloud", JOptionPane.QUESTION_MESSAGE, null, projectStringArray, defaultSelection);
+        final Object returnValue = JOptionPane.showInputDialog(component, "Please select a project to which data will be uploaded.", applicationName, JOptionPane.QUESTION_MESSAGE, null, projectStringArray, defaultSelection);
 
         if (returnValue == null) {
             throw new CancellationException("User cancelled project selection during upload");
@@ -149,7 +198,7 @@ public class GiftCloudDialogs {
         String returnString = "";
 
         while (returnString.length() < 1) {
-            final Object returnValue = JOptionPane.showInputDialog(component, message, "GIFT-Cloud", JOptionPane.PLAIN_MESSAGE, icon, null, initialName);
+            final Object returnValue = JOptionPane.showInputDialog(component, message, applicationName, JOptionPane.PLAIN_MESSAGE, icon, null, initialName);
             if (returnValue == null) {
                 throw new CancellationException("User cancelled template saving");
             }
@@ -159,6 +208,10 @@ public class GiftCloudDialogs {
             returnString = (String)returnValue;
         }
         return returnString;
+    }
+
+    public PasswordAuthentication getPasswordAuthentication(final String supplementalMessage) {
+        return loginDialog.getPasswordAuthentication(supplementalMessage);
     }
 
     /**

@@ -2,10 +2,6 @@
 
 package com.pixelmed.dicom;
 
-import com.pixelmed.utils.HexDump;
-
-import java.io.*;
-
 /**
  * <p>A class to abstract the contents of a file meta information header as used for a
  * DICOM PS 3.10 file, with additional static methods to add to and extract from an
@@ -111,32 +107,5 @@ public class FileMetaInformation {
 	 * @return	the attribute list
 	 */
 	public AttributeList getAttributeList() { return list; }
-	
-	/**
-	 * <p>For testing.</p>
-	 *
-	 * <p>Generate a dummy file meta information header and test reading and writing it.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
 
-		try {
-			AttributeList list = new FileMetaInformation("1.2.3.44","1.2",TransferSyntax.Default,"MYAE").getAttributeList();
-			System.err.println("As constructed:");
-			System.err.print(list);
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			list.write(new DicomOutputStream(bout,TransferSyntax.ExplicitVRLittleEndian,null));
-			byte[] b = bout.toByteArray();
-			System.err.print(HexDump.dump(b));
-			AttributeList rlist = new AttributeList();
-			rlist.read(new DicomInputStream(new ByteArrayInputStream(b),TransferSyntax.ExplicitVRLittleEndian,true));
-			System.err.println("As read:");
-			System.err.print(rlist);
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }

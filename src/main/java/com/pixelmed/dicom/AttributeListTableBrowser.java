@@ -2,13 +2,11 @@
 
 package com.pixelmed.dicom;
 
-import java.awt.*;
 import javax.swing.*;
-import javax.swing.table.*;
-import java.util.*;
-import java.io.*;
-
-import com.pixelmed.display.*;	// for ApplicationFrame for main() test
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.util.HashSet;
 
 /**
  * <p>The {@link com.pixelmed.dicom.AttributeListTableBrowser AttributeListTableBrowser} class implements a Swing graphical user interface
@@ -81,46 +79,6 @@ public class AttributeListTableBrowser extends JTable {
 		}
 	}
 
-	/**
-	 * <p>For testing.</p>
-	 *
-	 * <p>Displays a table built from the attributes in the file named on the command line.</p>
-	 *
-	 * @param	arg	DICOM filename
-	 */
-	public static void main(String arg[]) {
-		AttributeList list = new AttributeList();
-		try {
-			list.read(arg[0]);
-		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-		
-		ApplicationFrame af = new ApplicationFrame();
-		
-		//JTable table = new AttributeListTableBrowser(list);
-		//JTable table = new AttributeListTableBrowser(new AttributeListTableModel(list));
-		JTable table;
-		{
-			HashSet<AttributeTag> theList = new HashSet<AttributeTag>();
-			theList.add(TagFromName.FileMetaInformationGroupLength);
-			theList.add(TagFromName.ImplementationVersionName);
-			theList.add(TagFromName.SourceApplicationEntityTitle);
-			//table = new AttributeListTableBrowser(new AttributeListTableModel(list,theList,null));	// include
-			table = new AttributeListTableBrowser(new AttributeListTableModel(list,null,theList));		// exclude
-			//table = new AttributeListTableBrowser(new AttributeListTableModel(null,null,theList));	// exclude, null list
-		}
-		
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);		// Otherwise horizontal scroll doesn't work
-		JScrollPane scrollPane = new JScrollPane(table);
-		//table.setPreferredScrollableViewportSize(new Dimension(400, 100));
-		//af.getContentPane().add(scrollPane,BorderLayout.CENTER);	// why BorderLayout.CENTER ?
-		af.getContentPane().add(scrollPane);
-		af.pack();
-		af.setVisible(true);
-	}
 }
 
 

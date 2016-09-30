@@ -1206,7 +1206,7 @@ System.err.println("AttributeList.read(): "+tag+" explicit VR was UN but we know
 				if (a != null) {
 //System.err.println(a.toString());
 					if (get(tag) != null) {
-System.err.println("Illegal duplicate tag in dataset - "+tag+" - replacing previous occurence");
+//System.err.println("Illegal duplicate tag in dataset - "+tag+" - replacing previous occurence");
 					}
 					put(tag,a);
 

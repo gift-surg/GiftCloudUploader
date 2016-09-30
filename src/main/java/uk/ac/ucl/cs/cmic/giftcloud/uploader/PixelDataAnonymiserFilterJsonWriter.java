@@ -1,3 +1,14 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.json.simple.JSONArray;
@@ -5,7 +16,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.core.io.Resource;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 
 import java.awt.geom.Rectangle2D;
@@ -81,7 +94,7 @@ public class PixelDataAnonymiserFilterJsonWriter {
         return new PixelDataAnonymiseFilter(filterName, requiredTags, redactedShapes);
     }
 
-    private static List<Rectangle2D.Double> parseRedactedShapes(final JSONArray redactedShapesJson) {
+    private static List<Rectangle2D.Double> parseRedactedShapes(final JSONArray redactedShapesJson) throws IOException {
         final List<Rectangle2D.Double> redactedShapes = new ArrayList<Rectangle2D.Double>();
         final Iterator<JSONObject> iterator = redactedShapesJson.iterator();
         while (iterator.hasNext()) {
@@ -91,12 +104,23 @@ public class PixelDataAnonymiserFilterJsonWriter {
         return redactedShapes;
     }
 
-    private static Rectangle2D.Double parseShape(final JSONObject shape) {
-        final double x = ((Double)shape.get(SHAPE_X));
-        final double y = ((Double)shape.get(SHAPE_Y)).doubleValue();
-        final double width = ((Double)shape.get(SHAPE_WIDTH)).doubleValue();
-        final double height = ((Double)shape.get(SHAPE_HEIGHT)).doubleValue();
+    private static Rectangle2D.Double parseShape(final JSONObject shape) throws IOException {
+        final double x = PixelDataAnonymiserFilterJsonWriter.GetDoubleValue(shape, SHAPE_X);
+        final double y = PixelDataAnonymiserFilterJsonWriter.GetDoubleValue(shape, SHAPE_Y);
+        final double width = PixelDataAnonymiserFilterJsonWriter.GetDoubleValue(shape, SHAPE_WIDTH);
+        final double height = PixelDataAnonymiserFilterJsonWriter.GetDoubleValue(shape, SHAPE_HEIGHT);
         return new Rectangle2D.Double(x, y, width, height);
+    }
+
+    private static double GetDoubleValue(final JSONObject shape, final Object key) throws IOException {
+        final Object valueObject = shape.get(key);
+        if (valueObject instanceof Double) {
+            return ((Double)valueObject).doubleValue();
+        } else if (valueObject instanceof Long) {
+            return ((Long)valueObject).doubleValue();
+        } else {
+            throw new IOException("Could not read value from template");
+        }
     }
 
     private static List<PixelDataAnonymiseFilterRequiredTag> parseTagArray(final JSONArray requiredTagsJson) throws IOException {

@@ -12,13 +12,16 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import org.apache.commons.lang.StringUtils;
 import org.nrg.dcm.edit.ScriptFunction;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.DicomMetaDataAnonymiser;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.IndexedSessionLabelFunction;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.DicomPixelDataAnonymiser;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PixelDataAnonymiserFilterCache;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -31,15 +34,19 @@ public class Project {
 	private final Future<Map<String,String>> sessions;
 	private final Future<Iterable<org.nrg.dcm.edit.ScriptApplicator>> dicomScriptApplicator;
 	private Optional<SeriesImportFilterApplicatorRetriever> seriesImportFilter = Optional.empty();
+	private final DicomMetaDataAnonymiser dicomMetaDataAnonymiser;
+	private final DicomProjectAnonymisationScripts dicomProjectAnonymisationScripts;
+	private final DicomPixelDataAnonymiser pixelDataAnonymiser;
 
-
-	public Project(final String projectName, final RestServer restServer) {
+	public Project(final String projectName, final RestClient restClient, PixelDataAnonymiserFilterCache pixelDataAnonymiserFilterCache, GiftCloudProperties properties, GiftCloudReporter reporter) {
 		this.name = projectName;
 
-		sessions = executor.submit(new ProjectSessionLister(restServer, projectName));
-		subjects = executor.submit(new ProjectSubjectLister(restServer, projectName));
-        dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restServer, projectName, getDicomFunctions(sessions)));
-		executor.submit(new ProjectPreArcCodeRetriever(restServer, projectName));
+		sessions = executor.submit(new ProjectSessionLister(restClient, projectName));
+		subjects = executor.submit(new ProjectSubjectLister(restClient, projectName));
+		dicomScriptApplicator = executor.submit(new DicomScriptApplicatorRetriever(restClient, projectName, getDicomFunctions(sessions)));
+		dicomProjectAnonymisationScripts = new DicomProjectAnonymisationScripts(dicomScriptApplicator);
+		dicomMetaDataAnonymiser = new DicomMetaDataAnonymiser(dicomProjectAnonymisationScripts, properties, reporter);
+		pixelDataAnonymiser = new DicomPixelDataAnonymiser(pixelDataAnonymiserFilterCache, properties, reporter);
 	}
 
 	private static Map<String, ScriptFunction>
@@ -47,16 +54,6 @@ public class Project {
 		return Collections.singletonMap("makeSessionLabel",
 				(ScriptFunction) new IndexedSessionLabelFunction(sessions));
 	}
-
-	public Iterable<org.nrg.dcm.edit.ScriptApplicator> getDicomScriptApplicators() throws IOException {
-        try {
-            return dicomScriptApplicator.get();
-        } catch (InterruptedException e) {
-            throw new IOException("Unable to retrieve Dicom scripts", e.getCause());
-        } catch (ExecutionException e) {
-            throw new IOException("Unable to retrieve Dicom scripts", e.getCause());
-        }
-    }
 
 	public void dispose() {
 		sessions.cancel(true);
@@ -86,5 +83,13 @@ public class Project {
 		}
 
 		return seriesImportFilter.get();
+	}
+
+	public DicomMetaDataAnonymiser getDicomMetaDataAnonymiser() {
+		return dicomMetaDataAnonymiser;
+	}
+
+	public DicomPixelDataAnonymiser getPixelDataAnonymiser() {
+		return pixelDataAnonymiser;
 	}
 }

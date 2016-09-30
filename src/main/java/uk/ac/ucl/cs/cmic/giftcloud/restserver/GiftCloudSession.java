@@ -3,21 +3,26 @@
   GIFT-Cloud: A data storage and collaboration platform
 
   Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
 
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.
-
-  See LICENSE.txt in the top level directory for details.
+  Parts of this software are derived from XNAT
+    http://www.xnat.org
+    Copyright (c) 2014, Washington University School of Medicine
+    All Rights Reserved
+    See license/XNAT_license.txt
 
 =============================================================================*/
 
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
+import uk.ac.ucl.cs.cmic.giftcloud.request.AuthorisationFailureException;
+import uk.ac.ucl.cs.cmic.giftcloud.request.ConnectionFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.request.HttpRequest;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
@@ -30,12 +35,10 @@ class GiftCloudSession {
     private String baseUrlString;
 
 
-    GiftCloudSession(final String baseUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final GiftCloudReporter reporter) throws MalformedURLException {
+    GiftCloudSession(final String baseUrlString, final GiftCloudProperties giftCloudProperties, final ConnectionFactory connectionFactory, final UserCallback userCallback, final GiftCloudReporter reporter) throws MalformedURLException {
         this.baseUrlString = baseUrlString;
 
-        // Get the GIFT-Cloud icon - this will return null if not found
-        ImageIcon icon = new ImageIcon(this.getClass().getClassLoader().getResource("uk/ac/ucl/cs/cmic/giftcloud/GiftCloud.png"));
-        giftCloudAuthentication = new GiftCloudAuthentication(baseUrlString, connectionFactory, new GiftCloudLoginDialog(icon, giftCloudProperties, reporter.getContainer()), giftCloudProperties, reporter);
+        giftCloudAuthentication = new GiftCloudAuthentication(baseUrlString, connectionFactory, userCallback, giftCloudProperties, reporter);
     }
 
     /**

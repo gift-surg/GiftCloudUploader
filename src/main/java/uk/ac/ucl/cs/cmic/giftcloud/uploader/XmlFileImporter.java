@@ -1,3 +1,14 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.google.common.io.Files;
@@ -6,8 +17,8 @@ import com.pixelmed.dicom.MediaImporter;
 import com.tomdoel.mpg2dcm.EndoscopicXmlToDicomConverter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +30,10 @@ import java.util.Iterator;
 public class XmlFileImporter {
     private final MediaImporter mediaImporter;
 
-    public XmlFileImporter(final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final GiftCloudReporterFromApplication reporter) {
+    public XmlFileImporter(final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final GiftCloudReporter reporter) {
 
         // Any DICOM files created from the XML import will be temporary; therefore we must import as copy not reference
-        mediaImporter = new UploaderMediaImporter(reporter, acceptAnyTransferSyntax, giftCloudUploader, false);
+        mediaImporter = new UploaderMediaImporter(acceptAnyTransferSyntax, giftCloudUploader, false, reporter);
     }
 
     public boolean importFiles(final File fileOrDirectory, final Progress progress) throws IOException, DicomException {

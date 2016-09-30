@@ -1,14 +1,22 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudAutoUploader;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
-import java.util.Vector;
 
 public class BackgroundAddToUploaderService extends BackgroundService<PendingUploadTask, PendingUploadTask> {
 
@@ -18,15 +26,11 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
      */
     private static final long MAXIMUM_THREAD_COMPLETION_WAIT_MS = 1000;
 
-    private final GiftCloudServerFactory serverFactory;
-    private final GiftCloudUploader uploader;
-    private final GiftCloudAutoUploader autoUploader;
+    private final AutoUploader autoUploader;
     private final UploaderStatusModel uploaderStatusModel;
 
-    public BackgroundAddToUploaderService(final PendingUploadTaskList pendingUploadList, final GiftCloudServerFactory serverFactory, final GiftCloudUploader uploader, final GiftCloudAutoUploader autoUploader, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) {
+    public BackgroundAddToUploaderService(final PendingUploadTaskList pendingUploadList, final AutoUploader autoUploader, final UploaderStatusModel uploaderStatusModel, final GiftCloudReporter reporter) {
         super(BackgroundService.BackgroundThreadTermination.CONTINUE_UNTIL_TERMINATED, pendingUploadList.getList(), MAXIMUM_THREAD_COMPLETION_WAIT_MS, reporter);
-        this.serverFactory = serverFactory;
-        this.uploader = uploader;
         this.autoUploader = autoUploader;
         this.uploaderStatusModel = uploaderStatusModel;
     }
@@ -34,29 +38,12 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
     @Override
     protected void processItem(PendingUploadTask pendingUploadTask) throws Exception {
 
-        final Vector<String> paths = pendingUploadTask.getPaths();
-        if (paths.size() > 0) {
-            uploaderStatusModel.setImportingStatusMessage("Adding file to upload queue:" + new File(paths.get(0)).getName());
-        }
+//        final List<String> paths = pendingUploadTask.getPaths();
+//        if (paths.size() > 0) {
+//            uploaderStatusModel.setImportingStatusMessage("Adding file to upload queue:" + new File(paths.get(0)).getName());
+//        }
 
-        final GiftCloudServer giftCloudServer = serverFactory.getGiftCloudServer();
-        // Allow user to log in again if they have previously cancelled a login dialog
-        giftCloudServer.resetCancellation();
-
-        final String projectName;
-        final Optional<String> projectNameOptional = pendingUploadTask.getProjectName();
-        if (projectNameOptional.isPresent()) {
-            projectName = projectNameOptional.get();
-        } else {
-            projectName = uploader.getProjectName(giftCloudServer);
-        }
-
-
-        if (pendingUploadTask.shouldAppend()) {
-            autoUploader.appendToGiftCloud(giftCloudServer, pendingUploadTask.getPaths(), projectName);
-        } else {
-            autoUploader.uploadToGiftCloud(giftCloudServer, pendingUploadTask.getPaths(), projectName);
-        }
+        autoUploader.uploadToGiftCloud(pendingUploadTask.getPaths(), pendingUploadTask.getProjectName(), pendingUploadTask.shouldAppend());
     }
 
     @Override
@@ -65,7 +52,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
 
     @Override
     protected void notifyFailure(BackgroundServiceTaskWrapper<PendingUploadTask, PendingUploadTask> taskWrapper) {
-        final Vector<String> fileCollection = taskWrapper.getTask().getPaths();
+        final List<String> fileCollection = taskWrapper.getTask().getPaths();
 
         // Update the status for any listeners
         String message;
@@ -92,7 +79,7 @@ public class BackgroundAddToUploaderService extends BackgroundService<PendingUpl
         super.doPreprocessing();
         try {
             uploaderStatusModel.setUploadingStatusMessage("Trying to connect to GIFT-Cloud");
-            serverFactory.getGiftCloudServer().tryAuthentication();
+            autoUploader.tryAuthentication();
             uploaderStatusModel.setUploadingStatusMessage("Connected to GIFT-Cloud. Ready to upload.");
         } catch (IOException e) {
             uploaderStatusModel.setUploadingStatusMessage("Cannot upload", e);

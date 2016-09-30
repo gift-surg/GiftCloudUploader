@@ -1,9 +1,20 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
@@ -14,7 +25,7 @@ import java.util.Map;
  */
 public class PatientListStore {
     private GiftCloudProperties giftCloudProperties;
-    private final GiftCloudReporter reporter;
+    private final LoggingReporter reporter;
     private final File localCacheFolder;
 
     /**
@@ -22,7 +33,7 @@ public class PatientListStore {
      *
      * @param reporter for error and progress reporting
      */
-    public PatientListStore(final GiftCloudProperties giftCloudProperties, final GiftCloudReporter reporter) {
+    public PatientListStore(final GiftCloudProperties giftCloudProperties, final LoggingReporter reporter) {
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
 

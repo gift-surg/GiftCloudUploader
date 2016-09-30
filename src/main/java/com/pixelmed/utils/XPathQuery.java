@@ -31,15 +31,4 @@ public class XPathQuery {
 		return value;
 	}
 
-	/*
-	 * @param	arg
-	 */
-	public static void main(String arg[]) {
-		try {
-			System.err.println(javax.xml.xpath.XPathFactory.newInstance().newXPath().evaluate(arg[1],new org.xml.sax.InputSource(new java.io.FileInputStream(arg[0]))));
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-		}
-	}
 }

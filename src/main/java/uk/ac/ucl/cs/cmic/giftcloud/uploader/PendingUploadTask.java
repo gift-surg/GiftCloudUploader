@@ -1,8 +1,23 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
-import java.util.Vector;
 
+import java.util.List;
+
+/**
+ * A class representing a set of files waiting to be uploaded
+ */
 public class PendingUploadTask {
 
     enum Append {
@@ -10,32 +25,24 @@ public class PendingUploadTask {
         REPLACE
     }
 
-    enum DeleteAfterUpload {
+    public enum DeleteAfterUpload {
         DELETE_AFTER_UPLOAD,
         DO_NOT_DELETE_AFTER_UPLOAD
     }
 
     private final DeleteAfterUpload deleteAfterUpload;
-    private final Vector<String> paths;
+    private final List<String> paths;
     private final Append append;
     private final Optional<String> projectName;
 
-    public PendingUploadTask(final Vector<String> paths, final Optional<String> projectName, final Append append, final DeleteAfterUpload deleteAfterUpload) {
+    public PendingUploadTask(final List<String> paths, final Optional<String> projectName, final Append append, final DeleteAfterUpload deleteAfterUpload) {
         this.paths = paths;
         this.projectName = projectName;
         this.append = append;
         this.deleteAfterUpload = deleteAfterUpload;
     }
 
-    public PendingUploadTask(final String path, final Optional<String> projectName, final Append append, final DeleteAfterUpload deleteAfterUpload) {
-        this.projectName = projectName;
-        this.paths = new Vector<String>();
-        paths.add(path);
-        this.append = append;
-        this.deleteAfterUpload = deleteAfterUpload;
-    }
-
-    public Vector<String> getPaths() {
+    public List<String> getPaths() {
         return paths;
     }
 

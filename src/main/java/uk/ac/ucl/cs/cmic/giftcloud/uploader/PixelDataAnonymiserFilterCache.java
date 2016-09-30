@@ -1,11 +1,15 @@
-/*
+/*=============================================================================
 
- Author: Tom Doel
+  GIFT-Cloud: A data storage and collaboration platform
 
- Some parts of this software were derived from DicomCleaner, Copyright (c) 2001-2014, David A. Clunie DBA Pixelmed Publishing. All rights reserved.
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
 
+  Some parts of this software were derived from DicomCleaner,
+    Copyright (c) 2001-2014, David A. Clunie DBA Pixelmed Publishing. All rights reserved.
 
- */
+ ============================================================================*/
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
@@ -33,7 +37,7 @@ public class PixelDataAnonymiserFilterCache {
 
 
     /**
-     * Creates the PixelDataAnonymiser object. Parameters will be set at construction time
+     * Creates the DicomPixelDataAnonymiser object. Parameters will be set at construction time
      *
      * @param giftCloudProperties Shared properties use to define anonymsation options
      * @param reporter

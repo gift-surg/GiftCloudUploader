@@ -424,25 +424,5 @@ System.err.println("Overlay.SingleOverlay(): Extraction of overlay from PixelDat
 		return strbuf.toString();
 	}
 
-	/**
-	 * <p>Read the DICOM input file as a list of attributes and extract the information related to overlays.</p>
-	 *
-	 * @param	arg	array of one string (the filename to read and dump)
-	 */
-	public static void main(String arg[]) {
-		if (arg.length == 1) {
-			String inputFileName = arg[0];
-			try {
-				AttributeList list = new AttributeList();
-				list.read(inputFileName);
-				Overlay overlay = new Overlay(list);
-				System.err.print(overlay);
-				System.err.println("getNumberOfOverlays(frame 0) = "+overlay.getNumberOfOverlays(0));
-				System.err.println("getOverlayAsBinaryBufferedImage(frame 0,overlay 0) = "+overlay.getOverlayAsBinaryBufferedImage(0,0));
-			} catch (Exception e) {
-				e.printStackTrace(System.err);
-			}
-		}
-	}
 }
 

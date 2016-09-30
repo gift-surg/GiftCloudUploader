@@ -3,23 +3,22 @@
   GIFT-Cloud: A data storage and collaboration platform
 
   Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
 
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.
-
-  See LICENSE.txt in the top level directory for details.
+  Author: Tom Doel
 
 =============================================================================*/
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
+
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.util.ArrayList;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
-import java.util.Vector;
+import java.util.List;
 
 abstract class DropDownListModel extends DefaultComboBoxModel<String> implements ListDataListener {
 
@@ -41,7 +40,7 @@ abstract class DropDownListModel extends DefaultComboBoxModel<String> implements
         removeAllElements();
     }
 
-    final public void setItems(final Vector<String> objectList) {
+    final public void setItems(final List<String> objectList) {
 
         preventSettingLastUsedValue = true;
 

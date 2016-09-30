@@ -1,3 +1,14 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 /**
@@ -14,7 +25,7 @@ public abstract class BackgroundServiceTaskList<T_taskType, T_resultType> {
      * @param task the task to be processed
      */
     public final void addNewTask(final T_taskType task) {
-        add(task, new BackgroundServiceErrorRecord());
+        add(task, createErrorRecord());
     }
 
     /**
@@ -53,4 +64,6 @@ public abstract class BackgroundServiceTaskList<T_taskType, T_resultType> {
      * @return true if there are no tasks on the list to be processed
      */
     protected abstract boolean isEmpty();
+
+    protected abstract BackgroundServiceErrorRecord createErrorRecord();
 }

@@ -14,7 +14,6 @@ public interface SessionVariable {
     void addListener(ValueListener listener);
 
     String getDescription();
-    String getExportField();
 
     String getName();
     String getValue();

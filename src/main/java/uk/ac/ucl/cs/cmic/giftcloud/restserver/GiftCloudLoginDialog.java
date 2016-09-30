@@ -1,20 +1,24 @@
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
-
 /*=============================================================================
 
   GIFT-Cloud: A data storage and collaboration platform
 
   Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
 
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.
-
-  See LICENSE.txt in the top level directory for details.
+  Parts of this software are derived from XNAT
+    http://www.xnat.org
+    Copyright (c) 2014, Washington University School of Medicine
+    All Rights Reserved
+    See license/XNAT_license.txt
 
 =============================================================================*/
 
+package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+
+
 import org.apache.commons.lang.StringUtils;
+import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudUploaderAppConfiguration;
 
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
@@ -22,7 +26,7 @@ import javax.swing.event.AncestorListener;
 import java.awt.*;
 import java.net.PasswordAuthentication;
 
-class GiftCloudLoginDialog {
+public class GiftCloudLoginDialog {
     private final static GridBagConstraints promptConstraint = new GridBagConstraints();
     private final static GridBagConstraints labelConstraint = new GridBagConstraints();
     private final static GridBagConstraints fieldConstraint = new GridBagConstraints();
@@ -47,13 +51,13 @@ class GiftCloudLoginDialog {
     private final GiftCloudProperties giftCloudProperties;
     private final Component parent;
 
-    GiftCloudLoginDialog(final ImageIcon icon, final GiftCloudProperties giftCloudProperties, final Component parent) {
-        this.icon = icon;
+    public GiftCloudLoginDialog(final GiftCloudUploaderAppConfiguration appConfiguration, final GiftCloudProperties giftCloudProperties, final Component parent) {
+        this.icon = appConfiguration.getMainLogo();
         this.giftCloudProperties = giftCloudProperties;
         this.parent = parent;
     }
 
-    PasswordAuthentication getPasswordAuthentication(final String prompt) {
+    public PasswordAuthentication getPasswordAuthentication(final String prompt) {
         // Set the default background colour to white
         UIManager UI =new UIManager();
         UI.put("OptionPane.background", Color.white);

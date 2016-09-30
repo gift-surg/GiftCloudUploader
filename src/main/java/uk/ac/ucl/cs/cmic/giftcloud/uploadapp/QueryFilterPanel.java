@@ -1,7 +1,26 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+
+  Some parts of this software were derived from DicomCleaner,
+    Copyright (c) 2001-2014, David A. Clunie DBA Pixelmed Publishing. All rights reserved.
+
+  Parts of this software are derived from XNAT
+    http://www.xnat.org
+    Copyright (c) 2014, Washington University School of Medicine
+    All Rights Reserved
+    See license/XNAT_license.txt
+
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,15 +40,13 @@ public class QueryFilterPanel extends JPanel {
     private final JTextField queryFilterPatientIDTextField;
     private final JTextField queryFilterStudyDateTextField;
     private final JTextField queryFilterAccessionNumberTextField;
-    private GiftCloudUploaderController controller;
+    private UploaderGuiController controller;
 
-    QueryFilterPanel(final GiftCloudUploaderController controller, final ResourceBundle resourceBundle) {
+    QueryFilterPanel(final UploaderGuiController controller, final ResourceBundle resourceBundle) {
         this.controller = controller;
-        Border panelBorder = BorderFactory.createEtchedBorder();
 
         GridBagLayout layout = new GridBagLayout();
         setLayout(layout);
-        setBorder(panelBorder);
 
         final GridBagConstraints introConstraints = new GridBagConstraints();
         introConstraints.gridx = 0;

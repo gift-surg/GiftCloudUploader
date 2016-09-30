@@ -127,27 +127,6 @@ public abstract class DicomDictionaryBase {
 	}
 
 	/**
-	 * <p>Get the string full name of an attribute from its tag.</p>
-	 *
-	 * <p>The full name may not be unique, so do not use it as a key (e.g., "Group Length").</p>
-	 *
-	 * @param	tag	the tag of the attribute
-	 * @return		the string full name of the attribute
-	 */
-	public String getFullNameFromTag(AttributeTag tag) {
-		String fullName = (String)fullNameByTag.get(tag);
-		if (fullName == null || fullName.length() == 0) {
-			if (tag.isGroupLength()) {		// i.e., unless overridden by an actual dictionary entry
-				fullName="Group Length";
-			}
-			else if (tag.isRepeatingGroup()) {
-				fullName =(String)fullNameByTag.get(tag.getTagWithRepeatingGroupBase());
-			}
-		}
-		return fullName;
-	}
-
-	/**
 	 * <p>Get an {@link java.util.Iterator Iterator} to iterate through every tag in the dictionary.</p>
 	 *
 	 * <p>The order in which the dictionary attributes are returned is by ascending tag value.</p>
@@ -158,33 +137,4 @@ public abstract class DicomDictionaryBase {
 	 */
 	public Iterator getTagIterator() { return tagList.iterator(); }
 
-	/**
-	 * <p>Unit test.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
-
-		try {
-			DicomDictionaryBase dictionary = new DicomDictionary();
-			System.err.println(new String(dictionary.getValueRepresentationFromTag(TagFromName.PixelRepresentation)));
-			System.err.println(new String(dictionary.getValueRepresentationFromTag(new AttributeTag(0x0028,0x0103))));
-			
-			System.err.println(dictionary.getInformationEntityFromTag(TagFromName.PatientName));
-			System.err.println(dictionary.getInformationEntityFromTag(TagFromName.StudyDate));
-			System.err.println(dictionary.getInformationEntityFromTag(TagFromName.PixelRepresentation));
-
-			System.err.println(dictionary.getNameFromTag(TagFromName.PatientName));
-			System.err.println(dictionary.getNameFromTag(TagFromName.StudyDate));
-			System.err.println(dictionary.getNameFromTag(TagFromName.PixelRepresentation));
-
-			System.err.println(dictionary.getFullNameFromTag(TagFromName.PatientName));
-			System.err.println(dictionary.getFullNameFromTag(TagFromName.StudyDate));
-			System.err.println(dictionary.getFullNameFromTag(TagFromName.PixelRepresentation));
-		} catch (Exception e) {
-			System.err.println(e);
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }

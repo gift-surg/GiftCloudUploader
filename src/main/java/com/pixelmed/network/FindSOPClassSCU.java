@@ -230,54 +230,6 @@ if (debugLevel > 1) System.err.println("FindSOPClassSCU: releasing association")
 		}
 	}
 
-	/**
-	 * <p>For testing, establish an association to the specified AE and perform a study root query (send a C-FIND request),
-	 * for all studies.</p>
-	 *
-	 * @param	arg	array of four or five strings - their hostname, their port, their AE Title, our AE Title, and optionally an integer debug level
-	 */
-	public static void main(String arg[]) {
-		int debugLevel = arg.length > 4 ? Integer.parseInt(arg[4]) : 1;
-		try {
-			SpecificCharacterSet specificCharacterSet = new SpecificCharacterSet((String[])null);
-			AttributeList identifier = new AttributeList();
-			
-			boolean testimagelevel = true;
-			
-			if (!testimagelevel) {
-				identifier.putNewAttribute(TagFromName.QueryRetrieveLevel).addValue("STUDY");
-				identifier.putNewAttribute(TagFromName.PatientName,specificCharacterSet);
-				identifier.putNewAttribute(TagFromName.PatientID,specificCharacterSet);
-				identifier.putNewAttribute(TagFromName.PatientBirthDate);
-				identifier.putNewAttribute(TagFromName.PatientSex);
-				identifier.putNewAttribute(TagFromName.StudyInstanceUID);
-				identifier.putNewAttribute(TagFromName.ReferringPhysicianName,specificCharacterSet);
-				identifier.putNewAttribute(TagFromName.ModalitiesInStudy);
-				identifier.putNewAttribute(TagFromName.StudyDescription,specificCharacterSet);
-				identifier.putNewAttribute(TagFromName.StudyID,specificCharacterSet);
-				identifier.putNewAttribute(TagFromName.AccessionNumber,specificCharacterSet);
-			
-				identifier.putNewAttribute(TagFromName.QueryRetrieveLevel).addValue("SERIES");
-				{ Attribute a = new UniqueIdentifierAttribute(TagFromName.StudyInstanceUID); a.addValue("1.2.840.113704.1.111.5740.1224249944.1"); identifier.put(a); }
-				identifier.putNewAttribute(TagFromName.SeriesInstanceUID);
-			}
-			else {
-				identifier.putNewAttribute(TagFromName.QueryRetrieveLevel).addValue("IMAGE");
-				{ Attribute a = new UniqueIdentifierAttribute(TagFromName.StudyInstanceUID); a.addValue("1.2.840.113619.2.5.1762386977.1328.985934491.590"); identifier.put(a); }
-				{ Attribute a = new UniqueIdentifierAttribute(TagFromName.SeriesInstanceUID); a.addValue("1.2.840.113619.2.5.1762386977.1328.985934491.643"); identifier.put(a); }
-				
-				identifier.putNewAttribute(TagFromName.SOPInstanceUID);
-				identifier.putNewAttribute(TagFromName.AlternateRepresentationSequence);	// (000671)
-				identifier.putNewAttribute(TagFromName.InstanceNumber);
-			}
-			
-			new FindSOPClassSCU(arg[0],Integer.parseInt(arg[1]),arg[2],arg[3],SOPClass.StudyRootQueryRetrieveInformationModelFind,identifier,new IdentifierHandler(),debugLevel);
-		}
-		catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(0);
-		}
-	}
 }
 
 

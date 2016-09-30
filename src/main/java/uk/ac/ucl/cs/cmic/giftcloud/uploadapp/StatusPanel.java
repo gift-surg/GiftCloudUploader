@@ -1,9 +1,19 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import com.pixelmed.dicom.VersionAndConstants;
 import com.pixelmed.display.SafeProgressBarUpdaterThread;
 import com.pixelmed.display.StatusBarManager;
-import uk.ac.ucl.cs.cmic.giftcloud.Progress;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderStatusModel;
 
 import javax.swing.*;
@@ -20,9 +30,9 @@ public class StatusPanel extends JPanel implements Progress, UploaderStatusModel
     private final JLabel importerServiceStatusText;
     private final StatusBarManager statusBarManager;		// maintain a strong reference else weak reference to listener gets nulled when garbage collected
     private boolean isCancelled = false;
-    private GiftCloudUploaderController controller;
+    private UploaderGuiController controller;
 
-    StatusPanel(final GiftCloudUploaderController controller, final UploaderStatusModel uploaderStatusModel) {
+    StatusPanel(final UploaderGuiController controller, final UploaderStatusModel uploaderStatusModel) {
         this.controller = controller;
         statusBarManager = new StatusBarManager(getBuildDate()+" "+getReleaseString());
         statusBar = getStatusBar();
@@ -74,20 +84,6 @@ public class StatusPanel extends JPanel implements Progress, UploaderStatusModel
 //            add(progressBar, progressBarConstraints);
 
             progressBarUpdater = new SafeProgressBarUpdaterThread(progressBar);
-        }
-        {
-            JButton closeButton = new JButton("Hide uploading window");
-            closeButton.setToolTipText("Close the uploader window");
-
-            GridBagConstraints closeButtonConstraints = new GridBagConstraints();
-            closeButtonConstraints.gridx = 0;
-            closeButtonConstraints.gridy = 2;
-            closeButtonConstraints.weightx = 1;
-            closeButtonConstraints.fill = GridBagConstraints.EAST;
-            closeButtonConstraints.anchor = GridBagConstraints.EAST;
-            closeButtonConstraints.gridwidth = GridBagConstraints.RELATIVE;
-            closeButton.addActionListener(new CloseActionListener());
-            add(closeButton, closeButtonConstraints);
         }
 //        {
 //            JButton cancelButton = new JButton("Cancel");
@@ -200,12 +196,6 @@ public class StatusPanel extends JPanel implements Progress, UploaderStatusModel
 
         public void actionPerformed(ActionEvent event) {
             Cancel();
-        }
-    }
-    protected class CloseActionListener implements ActionListener {
-
-        public void actionPerformed(ActionEvent event) {
-            controller.hide();
         }
     }
 

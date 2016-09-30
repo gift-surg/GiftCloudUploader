@@ -99,6 +99,8 @@ public class QueryTreeBrowser {
 		JScrollPane treeBrowserScrollPane = new JScrollPane(tree);
 		JScrollPane attributeBrowserScrollPane = new JScrollPane();
 		final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,treeBrowserScrollPane,attributeBrowserScrollPane);
+		splitPane.setBorder(BorderFactory.createEmptyBorder());
+
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setResizeWeight(0.7);
 		//splitPane.setDividerLocation(1.0);	// setDividerLocation(1.0) to collapse bottom (attribute) pane doesn't work until split pane is actually shown ... 
@@ -107,8 +109,7 @@ public class QueryTreeBrowser {
 			public void componentHidden(ComponentEvent e) {}
 			public void componentMoved(ComponentEvent e) {}
 			public void componentResized(ComponentEvent e) {
-//System.err.println("DoseUtility.OurSourceDatabaseTreeBrowser.componentResized(): event = "+e);
-				splitPane.setDividerLocation(1.0);
+				splitPane.setDividerLocation(0.7);
 			}
 			public void componentShown(ComponentEvent e) {}
 		});

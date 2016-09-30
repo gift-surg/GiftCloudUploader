@@ -212,58 +212,6 @@ public class IntegerStringAttribute extends StringAttribute {
 		"127",
 		"-128"
 	};
-		
-	/**
-	 * <p>Test.</p>
-	 *
-	 * @param	arg	ignored
-	 */
-	public static void main(String arg[]) {
-		System.err.println("Test IntegerString.addValue(double):");
-		for (int i=0; i< testValues.length; ++i) {
-			IntegerStringAttribute a = new IntegerStringAttribute(TagFromName.InstanceNumber);
-			String sv = "";
-			try {
-				a.addValue(testValues[i]);
-				sv = Attribute.getSingleStringValueOrEmptyString(a);
-			}
-			catch (DicomException e) {
-				//System.err.println(e);
-				sv = "exception";
-			}
-			int svl = sv.length();
-			System.err.println("\t"+(sv.equals(testStringExpected[i]) && svl <= 12 ? "PASS" : "FAIL")+": Supplied <"+testStringSupplied[i]+">\t Got <"+sv+"> (length="+svl+")\t Expected <"+testStringExpected[i]+">\t Double.toString() <"+Double.toString(testValues[i])+">");
-		}
-		System.err.println("Test IntegerString.addValue(float):");
-		for (int i=0; i< testValues.length; ++i) {
-			IntegerStringAttribute a = new IntegerStringAttribute(TagFromName.InstanceNumber);
-			String sv = "";
-			try {
-				a.addValue((float)testValues[i]);
-				sv = Attribute.getSingleStringValueOrEmptyString(a);
-			}
-			catch (DicomException e) {
-				//System.err.println(e);
-				sv = "exception";
-			}
-			int svl = sv.length();
-			System.err.println("\t"+(sv.equals(testStringExpected[i]) && svl <= 12 ? "PASS" : "FAIL")+": Supplied <"+testStringSupplied[i]+">\t Got <"+sv+"> (length="+svl+")\t Expected <"+testStringExpected[i]+">\t Double.toString() <"+Double.toString(testValues[i])+">");
-		}
-		System.err.println("Test IntegerString.addValue(long):");
-		for (int i=0; i< testValues.length; ++i) {
-			IntegerStringAttribute a = new IntegerStringAttribute(TagFromName.InstanceNumber);
-			String sv = "";
-			try {
-				a.addValue((long)testValues[i]);
-				sv = Attribute.getSingleStringValueOrEmptyString(a);
-			}
-			catch (DicomException e) {
-				//System.err.println(e);
-				sv = "exception";
-			}
-			int svl = sv.length();
-			System.err.println("\t"+(sv.equals(testStringExpected[i]) && svl <= 12 ? "PASS" : "FAIL")+": Supplied <"+testStringSupplied[i]+">\t Got <"+sv+"> (length="+svl+")\t Expected <"+testStringExpected[i]+">\t Double.toString() <"+Double.toString(testValues[i])+">");
-		}
-	}
+
 }
 

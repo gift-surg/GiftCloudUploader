@@ -1,9 +1,25 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Parts of this software are derived from XNAT
+    http://www.xnat.org
+    Copyright (c) 2014, Washington University School of Medicine
+    All Rights Reserved
+    See license/XNAT_license.txt
+
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.File;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 public interface GiftCloudProperties {
 
@@ -22,12 +38,10 @@ public interface GiftCloudProperties {
     String propertyName_PacsAeTitle = "GiftCloud_RemoteAeTitle";
     String propertyName_PacsHostName = "GiftCloud_RemoteHostName";
     String propertyName_PacsQueryModel = "GiftCloud_RemoteQueryModel";
-    String propertyName_PacsPrimaryDeviceType = "GiftCloud_RemotePrimaryDeviceType";
     String propertyName_HideWindowOnStartup = "GiftCloud_HideWindowOnStartup";
     String propertyName_PacsPort = "GiftCloud_RemotePort";
     String propertyName_Shutdowntimeout = "GiftCloud_ShutdownTimeout";
     String propertyName_QueryDebugLevel = "GiftCloud_QueryDebugLevel";
-    String propertyName_StorageSCPDebugLevel = "GiftCloud_StorageSCPDebugLevel";
     String propertyName_ShortTimeoutMs = "GiftCloud_QuickAuthenticationTimeout";
     String propertyName_LongTimeoutMs = "GiftCloud_RequestTimeout";
 
@@ -49,9 +63,11 @@ public interface GiftCloudProperties {
 
     void setLastProject(final String lastProjectName);
 
-    File getUploadFolder(final GiftCloudReporter reporter);
+    File getUploadFolder(final LoggingReporter reporter);
 
     String getUserAgentString();
+
+    String getAnonymisationMethodString();
 
     long getShutdownTimeoutMs();
 
@@ -68,8 +84,6 @@ public interface GiftCloudProperties {
     void setPacsPort(final int port);
 
     Optional<String> getPacsQueryModel();
-
-    Optional<String> getPacsPrimaryDeviceType();
 
     Optional<Boolean> getHideWindowOnStartup();
 
