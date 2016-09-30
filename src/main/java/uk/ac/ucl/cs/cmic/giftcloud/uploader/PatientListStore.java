@@ -1,8 +1,18 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Author: Tom Doel
+=============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
-import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;

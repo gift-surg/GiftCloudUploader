@@ -1,3 +1,16 @@
+/*=============================================================================
+
+  GIFT-Cloud: A data storage and collaboration platform
+
+  Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
+
+  Some parts of this software were derived from DicomCleaner,
+    Copyright (c) 2001-2014, David A. Clunie DBA Pixelmed Publishing. All rights reserved.
+
+ ============================================================================*/
+
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import uk.ac.ucl.cs.cmic.giftcloud.util.ConsecutiveThreadExecutor;

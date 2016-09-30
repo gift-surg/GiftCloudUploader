@@ -3,18 +3,14 @@
   GIFT-Cloud: A data storage and collaboration platform
 
   Copyright (c) University College London (UCL). All rights reserved.
+  Released under the Modified BSD License
+  github.com/gift-surg
 
   Parts of this software are derived from XNAT
     http://www.xnat.org
     Copyright (c) 2014, Washington University School of Medicine
     All Rights Reserved
-    Released under the Simplified BSD.
-
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.
-
-  See LICENSE.txt in the top level directory for details.
+    See license/XNAT_license.txt
 
 =============================================================================*/
 
@@ -24,11 +20,11 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 /**
  * Turns a JSON object from the XNAT configuration service into a map.
