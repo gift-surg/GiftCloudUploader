@@ -1,4 +1,5 @@
 GIFT-Cloud incorporates code from XNAT. Please see the file XNAT_license.txt for copyright and licensing information relating to original XNAT code.
+GIFT-Cloud Uploader incorporates code from DicomCleaner. Please see the file DicomCleaner_license.txt for copyright and licensing information relating to original XNAT code.
 
 The code modifications and new code developed at UCL are covered by the following copyright and licensing information:
 
