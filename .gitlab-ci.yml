@@ -19,6 +19,7 @@ gift-adelie:
     - java
   except:
     - dev  
+    - master  
 
 gift-adelie-deploy:
   script:
@@ -30,6 +31,17 @@ gift-adelie-deploy:
     - java
   only:
     - dev  		
+
+gift-adelie-deploy-master:
+  script:
+    - export JAVA_HOME="/usr/lib/jvm/java-8-oracle/"
+    - "$CI_SCRIPTS_DIR/test-and-build-release-linux.sh"
+  tags:
+    - gift-adelie
+    - gift-linux
+    - java
+  only:
+    - master  		
 
 gift-jalousie:
   script:
