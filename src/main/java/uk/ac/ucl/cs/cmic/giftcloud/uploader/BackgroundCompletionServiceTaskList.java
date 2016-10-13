@@ -11,6 +11,8 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.CallableWithParameter;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;

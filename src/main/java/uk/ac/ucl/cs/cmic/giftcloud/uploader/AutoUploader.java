@@ -22,6 +22,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 import uk.ac.ucl.cs.cmic.giftcloud.data.Study;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.MasterTrawler;
+import uk.ac.ucl.cs.cmic.giftcloud.dicom.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.util.*;
 

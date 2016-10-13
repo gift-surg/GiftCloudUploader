@@ -13,7 +13,6 @@
 package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.CallableWithParameter;
 
 import java.util.Set;
 

@@ -21,9 +21,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestClientFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;

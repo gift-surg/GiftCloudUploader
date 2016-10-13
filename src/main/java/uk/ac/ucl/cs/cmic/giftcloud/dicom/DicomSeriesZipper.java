@@ -13,7 +13,6 @@ import org.nrg.dcm.edit.ScriptEvaluationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.DicomPixelDataAnonymiser;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
 

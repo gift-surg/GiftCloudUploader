@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestClientFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;

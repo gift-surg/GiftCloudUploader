@@ -20,7 +20,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.*;
 import uk.ac.ucl.cs.cmic.giftcloud.request.AuthorisationFailureException;
 import uk.ac.ucl.cs.cmic.giftcloud.request.ConnectionFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.ByteArrayInputStream;

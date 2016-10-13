@@ -12,7 +12,9 @@
     All Rights Reserved
     See license/XNAT_license.txt
 
-=============================================================================*/package uk.ac.ucl.cs.cmic.giftcloud.dicom;
+=============================================================================*/
+
+package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -28,7 +30,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.data.SessionVariableNames;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.DicomProjectAnonymisationScripts;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploadParameters;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;

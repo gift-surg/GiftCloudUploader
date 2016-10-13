@@ -12,6 +12,7 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.pixelmed.dicom.DicomException;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestClientFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomListener;

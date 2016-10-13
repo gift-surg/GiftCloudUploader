@@ -12,7 +12,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
 import org.apache.commons.lang.StringUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.awt.*;

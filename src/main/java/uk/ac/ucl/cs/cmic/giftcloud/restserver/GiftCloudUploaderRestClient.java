@@ -21,7 +21,6 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnection;
 import uk.ac.ucl.cs.cmic.giftcloud.request.*;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
