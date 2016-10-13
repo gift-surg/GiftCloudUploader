@@ -10,9 +10,10 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.google.common.base.Objects;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.LabelUidMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 

@@ -17,7 +17,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.ProjectSubjectAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.util.HashMap;

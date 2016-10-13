@@ -16,7 +16,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.LoggingReporter;
 
 import java.io.*;

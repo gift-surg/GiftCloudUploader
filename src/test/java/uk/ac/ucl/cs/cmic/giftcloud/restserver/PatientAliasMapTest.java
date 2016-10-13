@@ -15,6 +15,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientAliasMap;
 
 import java.util.HashMap;
 import java.util.Map;
