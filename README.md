@@ -86,7 +86,10 @@ If you specifically have an issue with GIFT-Cloud Uploader
 Funding
 -------
 
-GIFT-Cloud is part of GIFT-Surg. [GIFT-Surg][giftsurg] is supported through an Innovative Engineering for Health award by the [Wellcome Trust][wellcometrust] [WT101957], the [Engineering and Physical Sciences Research Council (EPSRC)][epsrc] [NS/A000027/1] and a [National Institute for Health Research][nihr] Biomedical Research Centre [UCLH][uclh]/UCL High Impact Initiative.
+GIFT-Cloud is part of GIFT-Surg. [GIFT-Surg][giftsurg] is supported through:
+ * Innovative Engineering for Health award by the [Wellcome Trust][wellcometrust] (WT101957)
+ * [Engineering and Physical Sciences Research Council (EPSRC)][epsrc] (NS/A000027/1)
+ * [National Institute for Health Research][nihr] Biomedical Research Centre [UCLH][uclh]/UCL High Impact Initiative.
 
 
 [tig]: http://cmictig.cs.ucl.ac.uk
