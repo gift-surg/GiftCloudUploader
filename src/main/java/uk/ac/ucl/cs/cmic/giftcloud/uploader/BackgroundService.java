@@ -138,7 +138,7 @@ public abstract class BackgroundService<T_taskType, T_resultType> extends Status
         return (serviceStatus == ServiceStatus.RUNNING);
     }
 
-    public final List<BackgroundServiceFailureList.FailureRecord> getFailures() {
+    public final List<BackgroundServiceFailureList<T_taskType> .FailureRecord> getFailures() {
         return backgroundServiceFailureList.getFailures();
     }
 

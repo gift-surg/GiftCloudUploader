@@ -37,7 +37,7 @@ public class BackgroundServiceFailureListTest {
 
             backgroundServiceFailureList.addFailure(task1, errorRecord1);
 
-            final List<BackgroundServiceFailureList.FailureRecord> failures = backgroundServiceFailureList.getFailures();
+            final List<BackgroundServiceFailureList<String>.FailureRecord> failures = backgroundServiceFailureList.getFailures();
             Assert.assertEquals(failures.size(), 1);
             Assert.assertEquals(failures.get(0).getTask(), task1);
             Assert.assertEquals(failures.get(0).getErrorRecord(), errorRecord1);
@@ -46,7 +46,7 @@ public class BackgroundServiceFailureListTest {
         {
             errorRecord2.addException(exception2);
             backgroundServiceFailureList.addFailure(task2, errorRecord2);
-            final List<BackgroundServiceFailureList.FailureRecord> failures = backgroundServiceFailureList.getFailures();
+            final List<BackgroundServiceFailureList<String>.FailureRecord> failures = backgroundServiceFailureList.getFailures();
             Assert.assertEquals(failures.size(), 2);
             Assert.assertEquals(failures.get(0).getTask(), task1);
             Assert.assertEquals(failures.get(0).getErrorRecord(), errorRecord1);
