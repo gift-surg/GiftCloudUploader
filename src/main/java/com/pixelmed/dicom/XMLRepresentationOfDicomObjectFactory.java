@@ -4,14 +4,18 @@ package com.pixelmed.dicom;
 
 import com.pixelmed.utils.HexDump;
 import com.pixelmed.utils.StringUtilities;
-
-import javax.xml.parsers.*;
-import org.w3c.dom.*;
-
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import java.io.*;
-import java.util.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
 
 /**
  * <p>A class to encode a representation of a DICOM object in an XML form,
@@ -128,7 +132,6 @@ try {
  *
  * @see com.pixelmed.dicom.XMLRepresentationOfStructuredReportObjectFactory
  * @see com.pixelmed.utils.XPathQuery
- * @see com.pixelmed.validate
  * @see org.w3c.dom.Document
  *
  * @author	dclunie

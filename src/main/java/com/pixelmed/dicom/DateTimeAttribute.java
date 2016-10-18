@@ -139,7 +139,7 @@ public class DateTimeAttribute extends StringAttribute {
 	 *
 	 * <p>Will format the Date for the default timezone, converting from whatever timezone is specified in the supplied {@link java.util.Date Date} if not the default.</p>
 	 *
-	 * @deprecated	use {@link #getFormattedStringDefaultTimeZone(Date) getFormattedStringDefaultTimeZone()} instead
+	 * @deprecated	use {@link #getFormattedStringDefaultTimeZone(java.util.Date) getFormattedStringDefaultTimeZone()} instead
 	 *
 	 * @param	date			the Java {@link java.util.Date Date} to format
 	 * @return					a DICOM formatted DT value
