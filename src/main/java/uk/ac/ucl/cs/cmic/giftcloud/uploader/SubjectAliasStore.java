@@ -39,7 +39,7 @@ public class SubjectAliasStore {
     private final ProjectSubjectAliasMap projectMap;
 
     // Ensure synchronisation between adding and retrieving hashed patient IDs
-    private Object synchronizationLock = new Object();
+    private final Object synchronizationLock = new Object();
 
     /**
      * Creates a SubjectAliasStore

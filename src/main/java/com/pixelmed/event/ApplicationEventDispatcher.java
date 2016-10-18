@@ -32,7 +32,7 @@ public class ApplicationEventDispatcher implements EventDispatcher
 	private ApplicationEventDispatcher() {}
 
 	/***/
-	private Vector listeners = new Vector();		// Vectors are synchronized
+	private final Vector listeners = new Vector();		// Vectors are synchronized
 
 	/**
 	 * @param	l
