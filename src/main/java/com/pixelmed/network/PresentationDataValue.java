@@ -5,11 +5,6 @@ package com.pixelmed.network;
 import com.pixelmed.utils.HexDump;
 import com.pixelmed.utils.ByteArray;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
 /**
  * @author	dclunie
  */

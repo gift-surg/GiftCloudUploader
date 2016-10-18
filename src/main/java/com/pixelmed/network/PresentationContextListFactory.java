@@ -15,8 +15,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
-
 /**
  * <p>A factory object of static methods that can create lists of presentation contexts
  * for initiating associations, from lists of DICOM files based on SOP Class (abstract

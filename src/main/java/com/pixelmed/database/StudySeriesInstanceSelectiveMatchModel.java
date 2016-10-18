@@ -4,10 +4,6 @@ package com.pixelmed.database;
 
 import com.pixelmed.dicom.*;
 
-import java.sql.*;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * <p>The {@link com.pixelmed.database.StudySeriesInstanceSelectiveMatchModel StudySeriesInstanceSelectiveMatchModel} class
  * supports a minimal DICOM Study/Series/Instance model.</p>

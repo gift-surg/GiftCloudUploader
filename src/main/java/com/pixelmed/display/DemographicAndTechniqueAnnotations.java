@@ -12,7 +12,6 @@ import java.text.NumberFormat;
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
-import com.pixelmed.dicom.CodedSequenceItem;
 import com.pixelmed.dicom.DateTimeAttribute;
 import com.pixelmed.dicom.DescriptionFactory;
 import com.pixelmed.dicom.LossyImageCompression;

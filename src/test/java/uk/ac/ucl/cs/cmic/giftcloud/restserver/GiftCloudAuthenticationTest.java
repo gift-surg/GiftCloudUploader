@@ -32,7 +32,6 @@ import java.util.concurrent.CancellationException;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class GiftCloudAuthenticationTest {

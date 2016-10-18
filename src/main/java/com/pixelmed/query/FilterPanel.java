@@ -2,18 +2,13 @@
 
 package com.pixelmed.query;
 
-import java.awt.*; 
-import java.awt.event.*; 
-import java.awt.image.*; 
-import java.awt.color.*; 
-import java.util.*; 
-import java.io.*; 
-import javax.swing.*; 
+import java.awt.*;
+import java.awt.image.*;
+import java.util.*;
+import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.tree.*;
-import javax.swing.border.*;
 
 import com.pixelmed.dicom.*;
 

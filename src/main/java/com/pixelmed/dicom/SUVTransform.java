@@ -3,7 +3,7 @@
 package com.pixelmed.dicom;
 
 import java.util.*;
-import java.text.SimpleDateFormat;
+
 import com.pixelmed.utils.FloatFormatter;
 
 /**
