@@ -50,7 +50,7 @@ public class ConfigurationDialog {
     private GiftCloudReporter reporter;
     private final JDialog dialog;
 
-    private final JComboBox<String> projectList;
+    private final BackwardsCompatibleComboBox projectList;
     private final JTextField giftCloudServerText;
     private final JTextField giftCloudUsernameText;
     private final JPasswordField giftCloudPasswordText;
@@ -183,7 +183,7 @@ public class ConfigurationDialog {
                 giftCloudServerPanel.add(projectListLabel, labelConstraints);
 
                 inputConstraints.gridy = 5;
-                projectList = new JComboBox<String>();
+                projectList = new BackwardsCompatibleComboBox();
                 projectList.setEditable(false);
                 projectList.setToolTipText(resourceBundle.getString("giftCloudProjectTooltip"));
                 giftCloudServerPanel.add(projectList, inputConstraints);
@@ -715,13 +715,13 @@ public class ConfigurationDialog {
      * An example use would be in a dialog with cancel and apply buttons, so that the selection change is only applied if
      * the apply button is pushed, but not if the cancel button is pushed.
      */
-    public static class TemporaryProjectListModel implements ComboBoxModel<String> {
+    public static class TemporaryProjectListModel implements ComboBoxModel {
 
-        private final ComboBoxModel<String> comboBoxModel;
+        private final ProjectListModel projectListModel;
         private Object selectedItem = null;
 
-        public TemporaryProjectListModel(final ComboBoxModel<String> comboBoxModel, final Optional<String> initialSelectedItem) {
-            this.comboBoxModel = comboBoxModel;
+        public TemporaryProjectListModel(final ProjectListModel projectListModel, final Optional<String> initialSelectedItem) {
+            this.projectListModel = projectListModel;
             setSelectedItem(initialSelectedItem.orElse(""));
         }
 
@@ -737,22 +737,22 @@ public class ConfigurationDialog {
 
         @Override
         public int getSize() {
-            return comboBoxModel.getSize();
+            return projectListModel.getSize();
         }
 
         @Override
         public String getElementAt(int index) {
-            return comboBoxModel.getElementAt(index);
+            return (String)(projectListModel.getElementAt(index));
         }
 
         @Override
         public void addListDataListener(ListDataListener l) {
-            comboBoxModel.addListDataListener(l);
+            projectListModel.addListDataListener(l);
         }
 
         @Override
         public void removeListDataListener(ListDataListener l) {
-            comboBoxModel.removeListDataListener(l);
+            projectListModel.removeListDataListener(l);
         }
     }
 }
