@@ -162,7 +162,7 @@ public class PatientAliasMap {
         private final GiftCloudLabel.SubjectLabel subjectLabel;
         private final String patientId;
         private final String patientName;
-        private final LabelUidMap<GiftCloudLabel.ExperimentLabel, ExperimentAliasRecord> experimentAliasRecordMap = new LabelUidMap<GiftCloudLabel.ExperimentLabel, ExperimentAliasRecord>();;
+        private final LabelUidMap<GiftCloudLabel.ExperimentLabel, ExperimentAliasRecord> experimentAliasRecordMap = new LabelUidMap<GiftCloudLabel.ExperimentLabel, ExperimentAliasRecord>();
 
         /**
          * Creates a new subject record for local storage
