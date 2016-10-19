@@ -308,8 +308,13 @@ public abstract class DatabaseInformationModel {
 	}
 
 	/***/
-	protected void finalize() {
-		close();
+	protected void finalize() throws Throwable {
+		try {
+			close();
+		}
+		finally {
+			super.finalize();
+		}
 	}
 	
 	/***/
