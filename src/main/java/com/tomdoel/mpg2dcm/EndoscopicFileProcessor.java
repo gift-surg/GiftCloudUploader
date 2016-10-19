@@ -55,7 +55,7 @@ public class EndoscopicFileProcessor {
         dicomAttributes = convertEndoscopicXmlToDicomAttributes(parser.getTagMap());
 
         // Get full paths for each video file
-        final String path = FilenameUtils.getPath(xmlFile.getAbsolutePath());
+        final String path = FilenameUtils.getFullPath(xmlFile.getAbsolutePath());
         for (final String fileName : parser.getVideoFilenames()) {
             fullVideoFileNames.add(new File(path, fileName));
         }
