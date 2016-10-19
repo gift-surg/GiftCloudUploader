@@ -176,8 +176,8 @@ public class ImageEditUtilities {
 //long elapsedCopyingTime = 0;
 //long elapsedReconstructionTime = 0;
 
-		int                bitsAllocated = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.BitsAllocated,0);;
-		int                   bitsStored = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.BitsStored,0);;
+		int                bitsAllocated = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.BitsAllocated,0);
+		int                   bitsStored = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.BitsStored,0);
 		int                      highBit = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.HighBit,bitsStored - 1);
 		int              samplesPerPixel = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.SamplesPerPixel,1);
 		int          pixelRepresentation = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.PixelRepresentation,0);
@@ -660,8 +660,8 @@ public class ImageEditUtilities {
 //System.err.println("ImageEditUtilities.rotate(): actual rotation "+rotation);
 //System.err.println("ImageEditUtilities.rotate(): horizontal_flip "+horizontal_flip);
 
-		int                bitsAllocated = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.BitsAllocated,0);;
-		int                   bitsStored = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.BitsStored,0);;
+		int                bitsAllocated = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.BitsAllocated,0);
+		int                   bitsStored = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.BitsStored,0);
 		int                      highBit = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.HighBit,bitsStored - 1);
 		int              samplesPerPixel = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.SamplesPerPixel,1);
 		int          pixelRepresentation = Attribute.getSingleIntegerValueOrDefault(list,TagFromName.PixelRepresentation,0);
