@@ -27,7 +27,6 @@ import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 import java.io.ByteArrayInputStream;
 import java.net.PasswordAuthentication;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CancellationException;
 
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -143,7 +142,7 @@ public class GiftCloudAuthenticationTest {
         final String cookieString = "CookieOne";
 
         final HttpConnectionWrapper connectionWrapper = mock(HttpConnectionWrapper.class);
-        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
+        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
