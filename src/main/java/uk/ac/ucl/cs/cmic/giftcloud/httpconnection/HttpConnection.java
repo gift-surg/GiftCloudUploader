@@ -12,6 +12,8 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -60,7 +62,7 @@ public interface HttpConnection {
 
     void setRequestProperty(String key, String value);
 
-    void setFixedLengthStreamingMode(long contentLength);
+    void setFixedLengthStreamingMode(long contentLength) throws GiftCloudException;
 
     void connect() throws IOException;
 
