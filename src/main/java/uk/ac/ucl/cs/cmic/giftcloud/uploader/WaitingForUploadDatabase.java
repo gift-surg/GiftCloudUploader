@@ -27,7 +27,6 @@ import java.util.*;
 class WaitingForUploadDatabase extends Observable {
 
     private final List<DatabaseItem> databaseItems = new ArrayList<DatabaseItem>();
-    private final Map<String, DatabaseItem> fileNameToDatabaseItemMap = new HashMap<String, DatabaseItem>();
     private final UploadStatusTableModelAggregator tableModelUpdater;
     private final ConsecutiveThreadExecutor consecutiveThreadExecutor = new ConsecutiveThreadExecutor();
 
@@ -50,7 +49,6 @@ class WaitingForUploadDatabase extends Observable {
                 for (final String fileName : fileImportRecord.getFilenames()) {
                     final DatabaseItem databaseItem = new DatabaseItem(fileName, groupId, fileImportRecord.getDeleteAfterUpload());
                     databaseItems.add(databaseItem);
-                    fileNameToDatabaseItemMap.put(fileName, databaseItem);
                     fileUids.add(databaseItem.getUuid());
                 }
 
@@ -79,20 +77,33 @@ class WaitingForUploadDatabase extends Observable {
                         foundItems.add(item);
                     }
                 }
-                for (final DatabaseItem item : foundItems) {
-                    databaseItems.remove(item);
-                    if (item.deleteAfterUpload == PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD) {
-                        final File file = new File(item.fileName);
-                        if (file.exists()) {
-                            file.delete();
+
+                if (!foundItems.isEmpty()) {
+                    final DatabaseItem itemToRemove = foundItems.get(0);
+
+                    // Remove the first item with a matching filename. Normally there will be only one, but if data
+                    // are sent twice we could end up with duplicate references. We only remove one reference because
+                    // the duplicate entries will be in the pending queue or might even be in the process of uploading,
+                    // so deleting would cause unpredictable behaviour.
+                    databaseItems.remove(itemToRemove);
+
+                    // Only delete the file if all references are gone. There will only be multiple references to the
+                    // same file if a duplicate file is added before the original has finished uploading. We will allow
+                    // the file to be uploaded again by letting the uploading requests be honoured. The alternative
+                    // would be to suppress an upload request if the file already exists; but that would prevent the
+                    // triggering of an upload again if it had failed the first time. This behaviour might lead to
+                    // duplicate unnecessary file uploads, but it will behave in a well-defined way
+                    if (foundItems.size() == 1) {
+                        if (itemToRemove.deleteAfterUpload == PendingUploadTask.DeleteAfterUpload.DELETE_AFTER_UPLOAD) {
+                            final File file = new File(itemToRemove.fileName);
+                            if (file.exists()) {
+                                file.delete();
+                            }
                         }
                     }
-                }
 
-                // Update table model
-                if (fileNameToDatabaseItemMap.containsKey(fileName)) {
-                    final DatabaseItem item = fileNameToDatabaseItemMap.get(fileName);
-                    tableModelUpdater.notifyFileComplete(item.getGroupId(), item.getUuid());
+                    // Update table model
+                    tableModelUpdater.notifyFileComplete(itemToRemove.getGroupId(), itemToRemove.getUuid());
                 }
             }
         });
