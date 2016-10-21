@@ -12,7 +12,7 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.MockRestServerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.MockRestClientFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,6 +34,6 @@ public class GiftCloudIntegrationTestApp {
 			fileList.add(new File(arg[1]));
 		}
 
-		new GiftCloudUploaderApp(new MockRestServerFactory(), fileList);
+		new GiftCloudUploaderApp(new MockRestClientFactory(), fileList);
 	}
 }

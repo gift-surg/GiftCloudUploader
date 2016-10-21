@@ -2,9 +2,6 @@
 
 package com.pixelmed.dicom;
 
-import java.io.*;
-import java.util.*;
-
 /**
  * <p>A class to provide support for the Person Identification Macro.</p>
  *

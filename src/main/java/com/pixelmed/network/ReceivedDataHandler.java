@@ -2,7 +2,6 @@
 
 package com.pixelmed.network;
 
-import com.pixelmed.utils.*;
 import com.pixelmed.dicom.DicomException;
 
 import java.util.LinkedList;

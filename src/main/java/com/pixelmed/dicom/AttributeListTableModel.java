@@ -4,7 +4,6 @@ package com.pixelmed.dicom;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.*;
-import java.io.*;
 
 /**
  * <p>The {@link com.pixelmed.dicom.AttributeListTableModel AttributeListTableModel} class extends a

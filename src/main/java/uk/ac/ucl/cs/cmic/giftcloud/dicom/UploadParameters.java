@@ -9,10 +9,9 @@
   Author: Tom Doel
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.uploader;
+package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
 
-import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 

@@ -7,7 +7,6 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import java.util.Vector;
-import java.io.File;
 
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.DicomException;

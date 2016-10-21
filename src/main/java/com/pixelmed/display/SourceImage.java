@@ -2,19 +2,15 @@
 
 package com.pixelmed.display;
 
-import java.awt.*; 
-import java.awt.event.*;
-import java.awt.image.*; 
-import java.awt.color.*; 
-import java.util.*; 
+import java.awt.*;
+import java.awt.image.*;
+import java.awt.color.*;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.ShortBuffer;
-import javax.swing.*; 
-import javax.swing.event.*;
 
 import com.pixelmed.dicom.*;
 

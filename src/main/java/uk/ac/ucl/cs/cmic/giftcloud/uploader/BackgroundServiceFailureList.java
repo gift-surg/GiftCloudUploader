@@ -52,9 +52,8 @@ public class BackgroundServiceFailureList<T_taskType> {
 
     /**
      * A record of a failed task
-     * @param <T_taskType>
      */
-    class FailureRecord<T_taskType> {
+    class FailureRecord {
         private T_taskType task;
         private BackgroundServiceErrorRecord errorRecord;
 

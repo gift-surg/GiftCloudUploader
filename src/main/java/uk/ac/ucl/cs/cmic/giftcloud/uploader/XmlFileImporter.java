@@ -29,8 +29,10 @@ import java.util.Iterator;
  */
 public class XmlFileImporter {
     private final MediaImporter mediaImporter;
+    private GiftCloudReporter reporter;
 
     public XmlFileImporter(final boolean acceptAnyTransferSyntax, final GiftCloudUploader giftCloudUploader, final GiftCloudReporter reporter) {
+        this.reporter = reporter;
 
         // Any DICOM files created from the XML import will be temporary; therefore we must import as copy not reference
         mediaImporter = new UploaderMediaImporter(acceptAnyTransferSyntax, giftCloudUploader, false, reporter);
@@ -61,6 +63,7 @@ public class XmlFileImporter {
             EndoscopicXmlToDicomConverter.convert(nextXmlFile, dicomOutputPath.getCanonicalPath());
             return mediaImporter.importDicomFileOrPath(dicomOutputPath, progress);
         } catch (Throwable t) {
+            reporter.silentLogException(t, "Ignoring XML file " + nextXmlFile.toString() + " as an error occurred during import. This might not be an endoscopy file.");
             return false;
         }
     }

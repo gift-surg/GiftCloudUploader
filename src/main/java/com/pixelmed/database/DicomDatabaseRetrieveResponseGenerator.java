@@ -3,21 +3,14 @@
 package com.pixelmed.database;
 
 import com.pixelmed.dicom.Attribute;
-import com.pixelmed.dicom.AttributeFactory;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
 import com.pixelmed.dicom.AttributeTagAttribute;
-import com.pixelmed.dicom.CodeStringAttribute;
-import com.pixelmed.dicom.DicomDictionary;
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.dicom.InformationEntity;
-import com.pixelmed.dicom.IntegerStringAttribute;
-import com.pixelmed.dicom.PersonNameAttribute;
 import com.pixelmed.dicom.SetOfDicomFiles;
 import com.pixelmed.dicom.SOPClass;
 import com.pixelmed.dicom.TagFromName;
-import com.pixelmed.dicom.UniqueIdentifierAttribute;
-import com.pixelmed.dicom.ValueRepresentation;
 
 import com.pixelmed.network.ResponseStatus;
 
@@ -26,15 +19,6 @@ import com.pixelmed.query.RetrieveResponseGenerator;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Types;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 class DicomDatabaseRetrieveResponseGenerator implements RetrieveResponseGenerator {
 

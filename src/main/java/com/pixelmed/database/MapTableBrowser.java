@@ -6,7 +6,6 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.util.*;
-import java.io.*;
 
 /**
  * <p>The {@link com.pixelmed.database.MapTableBrowser MapTableBrowser} class extends a

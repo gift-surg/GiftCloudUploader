@@ -11,10 +11,11 @@
 
 
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
 
 import java.util.HashMap;
 import java.util.Map;

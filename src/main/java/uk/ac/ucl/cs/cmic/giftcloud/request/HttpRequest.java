@@ -216,7 +216,7 @@ abstract public class HttpRequest<T> {
      * @param relativePath the location relative to the base URI
      * @return the full URI string
      */
-    private static final String getFullUrl(final String baseUrlString, final String relativePath) {
+    private static String getFullUrl(final String baseUrlString, final String relativePath) {
         final StringBuilder sb = new StringBuilder(baseUrlString);
 
         // Remove any trailing '/' characters from the base URL

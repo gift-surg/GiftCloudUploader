@@ -63,7 +63,8 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     }
 
     public void setGiftCloudUrl(final String giftCloudUrl) {
-        if (!giftCloudUrl.equals(getGiftCloudUrl())) {
+        final Optional<String> currentUrl = getGiftCloudUrl();
+        if (!currentUrl.isPresent() || !giftCloudUrl.equals(currentUrl.get())) {
             properties.setProperty(propertyName_GiftCloudServerUrl, giftCloudUrl);
         }
     }
@@ -76,7 +77,8 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
 
     @Override
     public void setLastUserName(final String lastUserName) {
-        if (!lastUserName.equals(getLastUserName())) {
+        final Optional<String> current = getLastUserName();
+        if (!current.isPresent() || !lastUserName.equals(current.get())) {
             properties.setProperty(propertyName_GiftCloudLastUsername, lastUserName);
         }
     }
@@ -88,7 +90,8 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
 
     @Override
     public void setLastProject(final String lastProjectName) {
-        if (!lastProjectName.equals(getLastProject())) {
+        final Optional<String> current = getLastProject();
+        if (!current.isPresent() || !lastProjectName.equals(current.get())) {
             properties.setProperty(propertyName_GiftCloudLastProject, lastProjectName);
         }
     }
@@ -265,7 +268,8 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     }
 
     public void setLastTemplateImageSourceDirectory(final String lastTemplateImageSourceDirectory) {
-        if (!lastTemplateImageSourceDirectory.equals(getLastTemplateImageSourceDirectory())) {
+        final Optional<String> current = getLastTemplateImageSourceDirectory();
+        if (!current.isPresent() || !lastTemplateImageSourceDirectory.equals(current.get())) {
             properties.setProperty(propertyName_LastTemplateImageImportDirectory, lastTemplateImageSourceDirectory);
         }
     }
@@ -294,7 +298,8 @@ public class GiftCloudPropertiesFromApplication implements GiftCloudProperties {
     }
 
     public void setLastImportDirectory(final String lastImportDirectory) {
-        if (!lastImportDirectory.equals(getLastImportDirectory())) {
+        final Optional<String> current = getLastImportDirectory();
+        if (!current.isPresent() || !lastImportDirectory.equals(current.get())) {
             properties.setProperty(propertyName_LastImportDirectory, lastImportDirectory);
         }
     }

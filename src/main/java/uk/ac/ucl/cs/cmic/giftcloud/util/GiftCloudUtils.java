@@ -17,6 +17,7 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.util;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,8 +30,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import java.awt.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -243,17 +242,26 @@ public class GiftCloudUtils {
         }
     }
 
+    /**
+     * Makes a copy of a file with a date-hour timestamp. Any existing backup from the same date-hour will be overwritten.
+     * Does not throw an exception; returns false if the backup file could not be created
+     *
+     * @param fileToCopy the file to use when creating a backup
+     * @param folder the location for the backup
+     * @param backupPatientListFilenamePrefix a prefix tobe used in the filename of the backup file
+     * @param backupPatientListFilenameSuffix a suffix to be used in the filename of the backup file
+     * @return true if the backup was created successfully, false if any error occurred
+     */
     public static boolean createTimeStampedBackup(final File fileToCopy, final File folder, final String backupPatientListFilenamePrefix, final String backupPatientListFilenameSuffix) {
 
         try {
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMyy-HH");
             final File timeStampBackupFile = new File(folder, String.format(backupPatientListFilenamePrefix + "-%s." + backupPatientListFilenameSuffix, simpleDateFormat.format(new Date())));
-            final Path timeStampBackupPath = timeStampBackupFile.toPath();
 
             if (timeStampBackupFile.exists()) {
                 timeStampBackupFile.delete();
             }
-            Files.copy(fileToCopy.toPath(), timeStampBackupPath);
+            FileUtils.copyFile(fileToCopy, timeStampBackupFile);
             return true;
         } catch (Throwable t) {
             return false;

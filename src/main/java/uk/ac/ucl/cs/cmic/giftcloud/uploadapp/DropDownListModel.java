@@ -20,7 +20,7 @@ import javax.swing.event.ListDataListener;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class DropDownListModel extends DefaultComboBoxModel<String> implements ListDataListener {
+abstract class DropDownListModel extends DefaultComboBoxModel implements ListDataListener {
 
     // We prevent changing of the default value until the model has been populated
     private boolean preventSettingLastUsedValue = true;

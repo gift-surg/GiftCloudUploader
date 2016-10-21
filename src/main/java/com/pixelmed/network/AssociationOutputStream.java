@@ -4,7 +4,6 @@ package com.pixelmed.network;
 
 import java.io.*;
 
-import com.pixelmed.dicom.*;
 import com.pixelmed.utils.HexDump;
 
 /**

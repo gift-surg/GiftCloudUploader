@@ -7,18 +7,12 @@ package com.pixelmed.network;
 //import com.pixelmed.transfermonitor.TransferMonitoringContext;
 
 import com.pixelmed.utils.ByteArray;
-import com.pixelmed.utils.HexDump;
-
-import java.util.LinkedList;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
-import java.net.Socket;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.util.Arrays;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.LinkedList;
 
 /**
  * @author	dclunie

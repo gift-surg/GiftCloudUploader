@@ -4,7 +4,6 @@ package com.pixelmed.database;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.*;
-import java.io.*;
 
 /**
  * <p>The {@link com.pixelmed.database.MapTableModel MapTableModel} class extends a

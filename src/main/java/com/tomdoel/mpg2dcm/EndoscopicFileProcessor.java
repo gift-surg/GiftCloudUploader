@@ -8,6 +8,7 @@
 
 package com.tomdoel.mpg2dcm;
 
+import org.apache.commons.io.FilenameUtils;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
@@ -54,7 +55,7 @@ public class EndoscopicFileProcessor {
         dicomAttributes = convertEndoscopicXmlToDicomAttributes(parser.getTagMap());
 
         // Get full paths for each video file
-        final String path = xmlFile.toPath().getParent().toString();
+        final String path = FilenameUtils.getFullPath(xmlFile.getAbsolutePath());
         for (final String fileName : parser.getVideoFilenames()) {
             fullVideoFileNames.add(new File(path, fileName));
         }

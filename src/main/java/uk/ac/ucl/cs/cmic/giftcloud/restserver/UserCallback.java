@@ -9,9 +9,7 @@
   Author: Tom Doel
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.uploader;
-
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
+package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import java.io.IOException;
 import java.net.PasswordAuthentication;

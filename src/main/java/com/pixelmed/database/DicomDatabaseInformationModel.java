@@ -6,7 +6,6 @@ import com.pixelmed.dicom.*;
 import com.pixelmed.query.QueryResponseGeneratorFactory;
 import com.pixelmed.query.RetrieveResponseGeneratorFactory;
 
-import java.sql.*;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeSet;

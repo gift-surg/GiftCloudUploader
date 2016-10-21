@@ -3,7 +3,6 @@
 package com.pixelmed.network;
 
 import java.util.LinkedList;
-import java.util.ListIterator;
 
 /**
  * <p>Implementations of this interface accept or reject Presentation Contexts from a list based on the proposed combinations of Abstract Syntax and Transfer Syntax.</p>

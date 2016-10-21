@@ -47,22 +47,6 @@ public class PendingUploadTaskList {
         return taskList;
     }
 
-    /**
-     * Called after a file or set of files have been successfully uploaded to the server. Files stored in the local
-     * "waiting for upload" folder will be deleted.
-     * @param file
-     */
-    public void processFileAfterUpload(final File file) {
-        try {
-            final Optional<PendingUploadTask> task = fileMap.get(file);
-            if (task.isPresent()) {
-                fileMap.safeRemove(file);
-            }
-        } catch (IOException e) {
-            reporter.silentLogException(e, "The file " + file.getAbsolutePath() + " reported a successful upload, but could not be removed from the pending upload list because the canonical file name could not be determined. Error:" + e.getLocalizedMessage());
-        }
-    }
-
     public void fileUploadSuccess(FileCollection fileCollection) {
         for (final File file : fileCollection.getFiles()) {
             processFileAfterUpload(file);
@@ -71,6 +55,22 @@ public class PendingUploadTaskList {
 
     public void fileUploadFailure(FileCollection fileCollection) {
         failures.add(fileCollection);
+    }
+
+    /**
+     * Called after a file or set of files have been successfully uploaded to the server. Files stored in the local
+     * "waiting for upload" folder will be deleted.
+     * @param file
+     */
+    private void processFileAfterUpload(final File file) {
+        try {
+            final Optional<PendingUploadTask> task = fileMap.get(file);
+            if (task.isPresent()) {
+                fileMap.safeRemove(file);
+            }
+        } catch (IOException e) {
+            reporter.silentLogException(e, "The file " + file.getAbsolutePath() + " reported a successful upload, but could not be removed from the pending upload list because the canonical file name could not be determined. Error:" + e.getLocalizedMessage());
+        }
     }
 
     private class PendingUploadTaskReference extends PendingUploadTask {

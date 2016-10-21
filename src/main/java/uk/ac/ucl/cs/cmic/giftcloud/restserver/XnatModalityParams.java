@@ -137,7 +137,7 @@ public class XnatModalityParams {
             return xnatScanType == null ? null : "xnat:" + xnatScanType;
         }
 
-        private XnatScanType(final String xnatScanType, final String xnatSessionType) {
+        XnatScanType(final String xnatScanType, final String xnatSessionType) {
             this.xnatScanType = xnatScanType;
             this.xnatSessionType = xnatSessionType;
         }
@@ -221,7 +221,7 @@ public class XnatModalityParams {
         private final String dicomTag;
         private final XnatScanType xnatScanType;
 
-        private DicomModality(final String dicomTag, final XnatScanType xnatScanType, final String description) {
+        DicomModality(final String dicomTag, final XnatScanType xnatScanType, final String description) {
             this.dicomTag = dicomTag;
             this.xnatScanType = xnatScanType;
             this.description = description;
@@ -402,7 +402,7 @@ public class XnatModalityParams {
             return xnatScanType;
         }
 
-        private DicomSopClass(final String sopClassUid, final XnatScanType xnatScanType) {
+        DicomSopClass(final String sopClassUid, final XnatScanType xnatScanType) {
             this.sopClassUid = sopClassUid;
             this.xnatScanType = xnatScanType;
         }
