@@ -7,7 +7,6 @@ import com.pixelmed.utils.ByteArray;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 /**

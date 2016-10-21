@@ -4,8 +4,6 @@ package com.pixelmed.dicom;
 
 import java.io.*;
 
-import java.util.Date;			// for test timing of routines
-
 /**
  * <p>A class that extends {@link java.io.InputStream InputStream} by adding
  * a mechanism for unecapsulating an undefined length DICOM attribute, such as is used for

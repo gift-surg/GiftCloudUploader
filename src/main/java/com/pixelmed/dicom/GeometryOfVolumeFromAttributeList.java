@@ -2,10 +2,7 @@
 
 package com.pixelmed.dicom;
 
-import javax.vecmath.*;
 import com.pixelmed.geometry.*;
-
-import java.util.SortedSet;
 
 /**
  * <p>A class to extract and describe the spatial geometry of an entire volume of contiguous cross-sectional image slices, given a list of DICOM attributes.</p>

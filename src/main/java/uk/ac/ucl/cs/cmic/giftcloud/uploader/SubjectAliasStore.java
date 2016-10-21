@@ -10,10 +10,13 @@
 
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.restserver;
+package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import org.apache.commons.lang.StringUtils;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.PatientListStore;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudHttpException;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.OneWayHash;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
@@ -36,7 +39,7 @@ public class SubjectAliasStore {
     private final ProjectSubjectAliasMap projectMap;
 
     // Ensure synchronisation between adding and retrieving hashed patient IDs
-    private Object synchronizationLock = new Object();
+    private final Object synchronizationLock = new Object();
 
     /**
      * Creates a SubjectAliasStore

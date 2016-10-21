@@ -206,7 +206,7 @@ public class BackgroundServiceTest {
             backgroundService.setNumberOfTasksToWaitFor(1);
             backgroundServiceTaskList.add(task1, errorRecord1);
             backgroundService.waitForCompletion();
-            final List<BackgroundServiceFailureList.FailureRecord> failures = backgroundService.getFailures();
+            final List<BackgroundServiceFailureList<FakeTask> .FailureRecord> failures = backgroundService.getFailures();
             Assert.assertEquals(failures.size(), 0);
             Assert.assertEquals(backgroundService.processed.size(), 1);
         }
@@ -229,7 +229,7 @@ public class BackgroundServiceTest {
             backgroundService.setNumberOfTasksToWaitFor(1);
             backgroundServiceTaskList.add(task1, errorRecord1);
             backgroundService.waitForCompletion();
-            final List<BackgroundServiceFailureList.FailureRecord> failures = backgroundService.getFailures();
+            final List<BackgroundServiceFailureList<FakeTask>.FailureRecord> failures = backgroundService.getFailures();
             Assert.assertEquals(failures.size(), 1);
             Assert.assertEquals(backgroundService.processed.size(), 0);
         }

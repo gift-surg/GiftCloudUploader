@@ -15,7 +15,6 @@ import com.google.common.io.Files;
 import junit.framework.Assert;
 import org.junit.Test;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudLabel;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.PatientAliasMap;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 
 import java.io.File;

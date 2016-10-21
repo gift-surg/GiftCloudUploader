@@ -3,7 +3,6 @@ package com.pixelmed.utils;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.tree.*;
-import java.awt.*;
 import java.awt.event.*;
 
 /**

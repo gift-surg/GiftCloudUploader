@@ -3,7 +3,6 @@
 package com.pixelmed.network;
 
 import java.util.LinkedList;
-import java.util.ListIterator;
 
 /**
  * <p>Accept only SOP Classes for storage, query or retrieval of composite instances and verification SOP Classes

@@ -9,7 +9,7 @@
   Author: Tom Doel
 =============================================================================*/
 
-package uk.ac.ucl.cs.cmic.giftcloud.uploader;
+package uk.ac.ucl.cs.cmic.giftcloud.restserver;
 
 import java.util.concurrent.Callable;
 

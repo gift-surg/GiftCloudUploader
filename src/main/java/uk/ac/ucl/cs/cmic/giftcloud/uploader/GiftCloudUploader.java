@@ -21,9 +21,7 @@ package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.pixelmed.dicom.DicomException;
 import uk.ac.ucl.cs.cmic.giftcloud.dicom.FileCollection;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudProperties;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudServer;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.*;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.ProjectListModel;
 import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudReporter;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
@@ -49,13 +47,13 @@ public class GiftCloudUploader implements BackgroundUploader.BackgroundUploadOut
 
     private final int DELAY_BETWEEN_UPDATES = 500;
 
-    public GiftCloudUploader(final RestServerFactory restServerFactory, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final UserCallback userCallback, final GiftCloudReporter reporter) {
+    public GiftCloudUploader(final RestClientFactory restClientFactory, final GiftCloudProperties giftCloudProperties, final UploaderStatusModel uploaderStatusModel, final UserCallback userCallback, final GiftCloudReporter reporter) {
         this.uploadDatabase =  new WaitingForUploadDatabase(DELAY_BETWEEN_UPDATES);
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
         pixelDataAnonymiserFilterCache = new PixelDataAnonymiserFilterCache(giftCloudProperties, reporter);
         projectListModel = new ProjectListModel(giftCloudProperties);
-        serverFactory = new GiftCloudServerFactory(pixelDataAnonymiserFilterCache, restServerFactory, giftCloudProperties, projectListModel, userCallback, reporter);
+        serverFactory = new GiftCloudServerFactory(pixelDataAnonymiserFilterCache, restClientFactory, giftCloudProperties, projectListModel, userCallback, reporter);
         pendingUploadList = new PendingUploadTaskList(reporter);
 
         final int numThreads = 1;

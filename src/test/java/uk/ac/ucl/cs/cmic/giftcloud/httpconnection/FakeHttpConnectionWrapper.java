@@ -77,8 +77,6 @@ class FakeHttpConnectionWrapper implements HttpConnection {
 
     @Override
     public InputStream getInputStream() throws IOException {
-
-        // ToDo
         return null;
     }
 

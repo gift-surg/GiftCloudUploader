@@ -2,9 +2,6 @@
 
 package com.pixelmed.dicom;
 
-import java.util.*;
-import javax.swing.tree.*;
-
 /**
  * <p>An abstract class for representing a node in an internal representation of a structured reporting
  * tree (an instance of {@link com.pixelmed.dicom.StructuredReport StructuredReport}).</p>

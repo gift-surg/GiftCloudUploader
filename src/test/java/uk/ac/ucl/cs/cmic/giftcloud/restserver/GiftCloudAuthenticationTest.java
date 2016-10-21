@@ -16,24 +16,26 @@ import junit.framework.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.*;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionBuilder;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.httpconnection.HttpConnectionWrapper;
 import uk.ac.ucl.cs.cmic.giftcloud.request.AuthorisationFailureException;
 import uk.ac.ucl.cs.cmic.giftcloud.request.ConnectionFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudReporterFromApplication;
-import uk.ac.ucl.cs.cmic.giftcloud.uploader.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
 import java.io.ByteArrayInputStream;
 import java.net.PasswordAuthentication;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.concurrent.CancellationException;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class GiftCloudAuthenticationTest {
+
+    static final Charset UTF_8 = Charset.forName("UTF-8");
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -48,7 +50,7 @@ public class GiftCloudAuthenticationTest {
         final String cookieString = "CookieOne";
 
         final HttpConnectionWrapper connectionWrapper = mock(HttpConnectionWrapper.class);
-        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
+        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
@@ -102,7 +104,7 @@ public class GiftCloudAuthenticationTest {
         final Optional<char[]> emptyOptionalArray = Optional.empty();
 
         final HttpConnectionWrapper connectionWrapper = mock(HttpConnectionWrapper.class);
-        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
+        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
@@ -140,7 +142,7 @@ public class GiftCloudAuthenticationTest {
         final String cookieString = "CookieOne";
 
         final HttpConnectionWrapper connectionWrapper = mock(HttpConnectionWrapper.class);
-        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
+        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
@@ -184,7 +186,7 @@ public class GiftCloudAuthenticationTest {
         final String password = "Password";
 
         final HttpConnectionWrapper connectionWrapper = mock(HttpConnectionWrapper.class);
-        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
+        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);
@@ -217,7 +219,7 @@ public class GiftCloudAuthenticationTest {
         final String cookieString = "CookieOne";
 
         final HttpConnectionWrapper connectionWrapper = mock(HttpConnectionWrapper.class);
-        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(StandardCharsets.UTF_8)));
+        when(connectionWrapper.getInputStream()).thenReturn(new ByteArrayInputStream(cookieString.getBytes(UTF_8)));
 
         final HttpConnectionFactory connectionFactory = mock(HttpConnectionFactory.class);
         when(connectionFactory.createConnection(anyString(), any(HttpConnectionBuilder.class))).thenReturn(connectionWrapper);

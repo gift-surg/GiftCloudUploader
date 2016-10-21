@@ -12,8 +12,9 @@
 package uk.ac.ucl.cs.cmic.giftcloud.uploader;
 
 import com.pixelmed.dicom.DicomException;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.UserCallback;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Progress;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestClientFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.DicomListener;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.GiftCloudPropertiesFromApplication;
 import uk.ac.ucl.cs.cmic.giftcloud.uploadapp.MenuController;
@@ -34,10 +35,10 @@ public class UploaderController {
     private final GiftCloudReporter reporter;
     private final UploaderStatusModel uploaderStatusModel = new UploaderStatusModel();
 
-    public UploaderController(final RestServerFactory restServerFactory, final GiftCloudPropertiesFromApplication giftCloudProperties, final UserCallback userCallback, final GiftCloudReporter reporter) throws DicomException {
+    public UploaderController(final RestClientFactory restClientFactory, final GiftCloudPropertiesFromApplication giftCloudProperties, final UserCallback userCallback, final GiftCloudReporter reporter) throws DicomException {
         this.giftCloudProperties = giftCloudProperties;
         this.reporter = reporter;
-        giftCloudUploader = new GiftCloudUploader(restServerFactory, giftCloudProperties, uploaderStatusModel, userCallback, reporter);
+        giftCloudUploader = new GiftCloudUploader(restClientFactory, giftCloudProperties, uploaderStatusModel, userCallback, reporter);
         dicomListener = new DicomListener(giftCloudUploader, giftCloudProperties, uploaderStatusModel, reporter);
     }
 

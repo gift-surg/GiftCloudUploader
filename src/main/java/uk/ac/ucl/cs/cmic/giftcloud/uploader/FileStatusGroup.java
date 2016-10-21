@@ -87,7 +87,7 @@ public class FileStatusGroup {
         for (final String uid : fileUids) {
             filesToDo.add(uid);
 
-            // If a file is re-uploaded then we need to remove it from the already done list, otherwise the visible counts will change in non-intuitive ways
+            // If a duplicate file identifier is received, then we remove it from the already done list, otherwise the visible counts will change in non-intuitive ways
             if (filesDone.contains(uid)) {
                 filesDone.remove(uid);
             }

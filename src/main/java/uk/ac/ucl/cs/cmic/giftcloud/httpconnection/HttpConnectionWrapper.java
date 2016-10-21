@@ -12,15 +12,40 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.httpconnection;
 
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudException;
+import uk.ac.ucl.cs.cmic.giftcloud.util.GiftCloudUploaderError;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.ProtocolException;
+import java.net.URL;
 
 public class HttpConnectionWrapper implements HttpConnection {
     private HttpURLConnection connection;
     private final String urlString;
 
+    private static final Method SET_FIXED_LENGTH_STREAMING_MODE_METHOD;
+    private static final boolean SET_FIXED_LENGTH_STREAMING_MODE_LONG_EXISTS;
+    static {
+        Method method;
+        boolean long_method_exists = false;
+        try {
+            method = HttpURLConnection.class.getMethod("setFixedLengthStreamingMode", long.class);
+            long_method_exists = true;
+        } catch (NoSuchMethodException exception) {
+            try {
+                method = HttpURLConnection.class.getMethod("setFixedLengthStreamingMode", int.class);
+            } catch (NoSuchMethodException exception2) {
+                throw new RuntimeException(exception2);
+            }
+        }
+        SET_FIXED_LENGTH_STREAMING_MODE_LONG_EXISTS = long_method_exists;
+        SET_FIXED_LENGTH_STREAMING_MODE_METHOD = method;
+    }
 
     public HttpConnectionWrapper(final String urlString) throws IOException {
         this.urlString = urlString;
@@ -89,8 +114,20 @@ public class HttpConnectionWrapper implements HttpConnection {
     }
 
     @Override
-    public void setFixedLengthStreamingMode(long contentLength) {
-        connection.setFixedLengthStreamingMode(contentLength);
+    public void setFixedLengthStreamingMode(long contentLength) throws GiftCloudException {
+        if (!SET_FIXED_LENGTH_STREAMING_MODE_LONG_EXISTS) {
+            if ((int)contentLength != contentLength) {
+                throw new GiftCloudException(GiftCloudUploaderError.FILE_TOO_LARGE);
+            }
+        }
+
+        try {
+            SET_FIXED_LENGTH_STREAMING_MODE_METHOD.invoke(connection, contentLength);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Java reflection failed for setFixedLengthStreamingMode", e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Java reflection failed for setFixedLengthStreamingMode", e);
+        }
     }
 
     @Override

@@ -2,8 +2,6 @@
 
 package com.pixelmed.display;
 
-import com.pixelmed.utils.ThreadUtilities;
-
 import java.awt.Component;
 import java.awt.Cursor;
 

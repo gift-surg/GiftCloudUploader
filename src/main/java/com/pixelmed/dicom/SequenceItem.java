@@ -4,7 +4,6 @@ package com.pixelmed.dicom;
 
 import java.io.*;
 import java.text.NumberFormat;
-import java.util.*;
 
 /**
  * <p>A class to provide support for the contents of an individual item of a DICOM Sequence (SQ)

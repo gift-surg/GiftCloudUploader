@@ -14,8 +14,8 @@
 
 package uk.ac.ucl.cs.cmic.giftcloud.uploadapp;
 
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudUploaderRestServerFactory;
-import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestServerFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.GiftCloudUploaderRestClientFactory;
+import uk.ac.ucl.cs.cmic.giftcloud.restserver.RestClientFactory;
 import uk.ac.ucl.cs.cmic.giftcloud.uploader.UploaderController;
 import uk.ac.ucl.cs.cmic.giftcloud.util.Optional;
 
@@ -25,7 +25,7 @@ import java.util.List;
 
 public class GiftCloudUploaderApp {
 
-	public GiftCloudUploaderApp(final RestServerFactory restServerFactory, List<File> fileList) {
+	public GiftCloudUploaderApp(final RestClientFactory restClientFactory, List<File> fileList) {
 	    Optional<GiftCloudLogger> logger = Optional.empty();
         try {
             // Create and configure the application. This must be done before the main frame is created
@@ -48,7 +48,7 @@ public class GiftCloudUploaderApp {
             UploaderControllerCallback uploaderControllerCallback = new UploaderControllerCallback(applicationConfiguration, dialogs, mainFrame.getContainer());
 
             // Create the GUI-less UploaderController. This will use the UploaderControllerCallback and Reporting objects for any required output or user interaction
-            final UploaderController uploaderController = new UploaderController(restServerFactory, applicationConfiguration.getProperties(), uploaderControllerCallback, reporter);
+            final UploaderController uploaderController = new UploaderController(restClientFactory, applicationConfiguration.getProperties(), uploaderControllerCallback, reporter);
 
             // Create the GUI and related GUI controller code
             final UploaderGuiController uploaderGuiController = new UploaderGuiController(applicationConfiguration, uploaderController, mainFrame, dialogs, reporter);
@@ -78,6 +78,6 @@ public class GiftCloudUploaderApp {
             fileList.add(new File(arg[1]));
         }
 
-        new GiftCloudUploaderApp(new GiftCloudUploaderRestServerFactory(), fileList);
+        new GiftCloudUploaderApp(new GiftCloudUploaderRestClientFactory(), fileList);
 	}
 }

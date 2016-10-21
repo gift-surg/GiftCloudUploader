@@ -6,7 +6,6 @@ package com.pixelmed.dicom;
 
 import java.util.HashMap;
 import java.util.TreeSet;
-import java.util.Iterator;
 
 /**
  * <p>The {@link com.pixelmed.dicom.DicomDictionary DicomDictionary} class

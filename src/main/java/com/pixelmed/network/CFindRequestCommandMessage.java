@@ -2,10 +2,8 @@
 
 package com.pixelmed.network;
 
-import com.pixelmed.utils.*;
 import com.pixelmed.dicom.*;
 
-import java.util.LinkedList;
 import java.io.*;
 
 /**

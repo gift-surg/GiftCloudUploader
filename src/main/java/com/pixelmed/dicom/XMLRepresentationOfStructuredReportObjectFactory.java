@@ -3,7 +3,6 @@
 package com.pixelmed.dicom;
 
 import com.pixelmed.utils.FloatFormatter;
-import com.pixelmed.utils.HexDump;
 
 import javax.xml.parsers.*;
 import org.w3c.dom.*;

@@ -5,7 +5,6 @@ package com.pixelmed.dicom;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 import java.util.*;
-import java.io.File;
 
 /**
  * <p>The {@link com.pixelmed.dicom.AttributeTree AttributeTree} class implements a

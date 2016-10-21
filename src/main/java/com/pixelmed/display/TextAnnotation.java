@@ -2,14 +2,12 @@
 
 package com.pixelmed.display;
 
-import java.awt.*; 
-import java.awt.geom.Point2D; 
+import java.awt.geom.Point2D;
 
 /**
  * <p>A class to encapsulate a text annotation at a location on an image.</p>
  *
  * @see com.pixelmed.display.SingleImagePanel
- * @see com.pixelmed.display.DicomBrowser
  *
  * @author	dclunie
  */

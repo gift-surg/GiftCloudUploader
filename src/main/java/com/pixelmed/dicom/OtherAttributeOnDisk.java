@@ -4,8 +4,6 @@ package com.pixelmed.dicom;
 
 import java.io.*;
 
-import com.pixelmed.utils.CopyStream;
-
 /**
  * <p>An abstract class specializing {@link com.pixelmed.dicom.Attribute Attribute} for
  * Other (OB or OW) attributes whose values are not memory resident.</p>

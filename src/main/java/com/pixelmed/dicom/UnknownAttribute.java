@@ -158,7 +158,7 @@ public class UnknownAttribute extends Attribute {
 			try {
 				BinaryInputStream ibs = new BinaryInputStream(new ByteArrayInputStream(originalLittleEndianByteValues),false/*big endian*/);
 				int vm=(int)(valueLength/FloatDoubleAttribute.bytesPerValue);
-				values=new double[vm];;
+				values=new double[vm];
 				for (int j=0; j<vm; ++j) {
 					values[j] = ibs.readDouble();
 				}
@@ -187,7 +187,7 @@ public class UnknownAttribute extends Attribute {
 			try {
 				BinaryInputStream ibs = new BinaryInputStream(new ByteArrayInputStream(originalLittleEndianByteValues),false/*big endian*/);
 				int vm=(int)(valueLength/FloatSingleAttribute.bytesPerValue);
-				values=new float[vm];;
+				values=new float[vm];
 				for (int j=0; j<vm; ++j) {
 					values[j] = ibs.readFloat();
 				}

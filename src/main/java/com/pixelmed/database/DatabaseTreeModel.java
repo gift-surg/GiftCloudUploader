@@ -5,7 +5,6 @@ package com.pixelmed.database;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 import java.util.*;
-import java.io.File;
 
 import com.pixelmed.dicom.*;
 
