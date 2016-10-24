@@ -9,7 +9,7 @@
     <name>GIFT-Cloud Uploader</name>
     <description>An application for anonymising and uploading data securely on to a GIFT-Cloud server</description>
     <url>${gc.url}</url>
-    <version>1.1.13</version>
+    <version>1.1.14</version>
     <organization>
         <name>University College London</name>
         <url>http://cmictig.cs.ucl.ac.uk</url>
