@@ -139,6 +139,8 @@
                                 <phase>install</phase>
                                 <configuration>
                                     <tasks>
+                                        <!-- Use an ant task to copy the output into the zip folder -->
+                                        <copy file="${project.basedir}/target/${project.artifactId}-${project.version}.zip" todir="${gc.zipfolder}"/>
                                         <!-- Use an ant task to unzip the output into the installation folder -->
                                         <unzip src="${project.basedir}/target/${project.artifactId}-${project.version}.zip" dest="${gc.installfolder}"  overwrite="true"/>
                                     </tasks>
