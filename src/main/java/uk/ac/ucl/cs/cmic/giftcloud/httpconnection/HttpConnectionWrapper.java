@@ -115,14 +115,17 @@ public class HttpConnectionWrapper implements HttpConnection {
 
     @Override
     public void setFixedLengthStreamingMode(long contentLength) throws GiftCloudException {
-        if (!SET_FIXED_LENGTH_STREAMING_MODE_LONG_EXISTS) {
-            if ((int)contentLength != contentLength) {
-                throw new GiftCloudException(GiftCloudUploaderError.FILE_TOO_LARGE);
-            }
-        }
-
         try {
-            SET_FIXED_LENGTH_STREAMING_MODE_METHOD.invoke(connection, contentLength);
+            if (SET_FIXED_LENGTH_STREAMING_MODE_LONG_EXISTS) {
+                // Invoke method with long argument (if we are running Java 7 or later)
+                SET_FIXED_LENGTH_STREAMING_MODE_METHOD.invoke(connection, contentLength);
+            } else {
+                // Invoke method with int argument (for Java 6) but check that the length is <= 2.1GB
+                if ((int)contentLength != contentLength) {
+                    throw new GiftCloudException(GiftCloudUploaderError.FILE_TOO_LARGE);
+                }
+                SET_FIXED_LENGTH_STREAMING_MODE_METHOD.invoke(connection, (int)contentLength);
+            }
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Java reflection failed for setFixedLengthStreamingMode", e);
         } catch (InvocationTargetException e) {
