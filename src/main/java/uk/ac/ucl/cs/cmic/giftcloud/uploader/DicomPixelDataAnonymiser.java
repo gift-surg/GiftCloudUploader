@@ -68,7 +68,7 @@ public class DicomPixelDataAnonymiser {
     public RedactedFileWrapper createRedactedFile(final File file, boolean dataAlreadyAnonymised) throws IOException, DicomException {
         RedactedFileWrapper.FileRedactionStatus redactionStatus;
         Optional<File> redactedFile;
-        AttributeList attributeList = readAttributeList(file, true);
+        AttributeList attributeList = readAttributeList(file, false);
         if (attributeList == null) {
             throw new IOException("Could not read image");
         }
