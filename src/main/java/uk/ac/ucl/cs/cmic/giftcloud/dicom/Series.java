@@ -10,12 +10,9 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
-import org.nrg.dcm.DicomUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 
 import java.io.File;
@@ -32,10 +29,7 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         add(Tag.Modality);
     }});
 
-    private final Multimap<String,String> sopToTS = LinkedHashMultimap.create();
-    private final Set<String> modalities = Sets.newTreeSet();
     private final Set<File> files = Sets.newLinkedHashSet();
-    private DicomObject sampleObject = null;
     private boolean uploadAllowed = true;
     private XnatModalityParams modalityParams;
 
@@ -43,7 +37,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         put(Tag.SeriesInstanceUID, uid);
         put(Tag.SeriesNumber, number);
         put(Tag.SeriesDescription, description);
-        modalities.add(modality);
         modalityParams = XnatModalityParams.createFromDicom(modality, sopClassUid);
     }
 
@@ -54,16 +47,9 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
                 o.getString(Tag.Modality),
                 o.getString(Tag.SeriesDescription),
                 o.getString(Tag.SOPClassUID));
-        if (null == sampleObject) {
-            sampleObject = o;
-        }
     }
 
     public void addFile(final File f, final DicomObject o) {
-        if (null == sampleObject) {
-            sampleObject = o;
-        }
-        sopToTS.put(o.getString(Tag.SOPClassUID), DicomUtils.getTransferSyntaxUID(o));
         files.add(f);
     }
 
@@ -122,8 +108,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
     final String getUID() {
         return (String)this.get(Tag.SeriesInstanceUID);
     }
-
-    public DicomObject getSampleObject() { return sampleObject; }
 
     /*
      * (non-Javadoc)
