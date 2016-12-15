@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
  * and an underlying images, and creating BufferedImages suitable for
  * drawing on an underlying image.</p>
  *
- * @see com.pixelmed.display.SingleImagePanel
+ * @see com.pixelmed.display.SingleImagePane	l
  *
  * @author	dclunie
  */
