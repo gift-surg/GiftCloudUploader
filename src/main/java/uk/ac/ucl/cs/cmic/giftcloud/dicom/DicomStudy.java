@@ -160,7 +160,7 @@ public class DicomStudy extends MapEntity implements Entity, Study {
 
         final List<FileCollection> fileCollections = new ArrayList<FileCollection>();
         for (final Series series : uploads) {
-            fileCollections.add(series);
+            fileCollections.add(series.getMinimalFileCollection());
         }
         return fileCollections;
     }

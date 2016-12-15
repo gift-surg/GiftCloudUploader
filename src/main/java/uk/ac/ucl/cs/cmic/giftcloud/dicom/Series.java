@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.*;
 
 
-public class Series extends MapEntity implements Entity,Comparable<Series>,Iterable<File>,FileCollection {
+public class Series extends MapEntity implements Entity,Comparable<Series>,Iterable<File> {
 
     public static final int MAX_TAG = Collections.max(new ArrayList<Integer>() {{
         add(Tag.SOPClassUID);
@@ -85,12 +85,10 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         }        	
     }
 
-    @Override
     public int getFileCount() {
         return files.size();
     }
 
-    @Override
     public Collection<File> getFiles() {
         return Collections.unmodifiableCollection(files);
     }
@@ -117,7 +115,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         return Collections.singleton(this);
     }
 
-    @Override
     public long getSize() {
         long size = 0;
         for (final File f : files) {
@@ -160,5 +157,12 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
 
     public XnatModalityParams getModalityParams() {
         return modalityParams;
+    }
+
+    /**
+     * @return a minimally-sized object containing the FileCollection
+     */
+    public FileCollection getMinimalFileCollection() {
+        return new SeriesFileCollection(this);
     }
 }
