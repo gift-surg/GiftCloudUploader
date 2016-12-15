@@ -114,10 +114,9 @@ public class DicomStudy extends MapEntity implements Entity, Study {
         return Objects.hashCode(get(Tag.StudyInstanceUID));
     }
 
-    public Series addFileAndGetSeries(final DicomObject o, final File f) {
+    public void addFileToCorrectSeries(final DicomObject o, final File f) {
         final Series s = series.get(new Series(o));
         s.addFile(f, o);
-        return s;
     }
 
     /*
