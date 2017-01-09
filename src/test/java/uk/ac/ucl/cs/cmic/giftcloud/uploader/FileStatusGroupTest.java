@@ -51,8 +51,6 @@ public class FileStatusGroupTest {
         org.junit.Assert.assertEquals(group.getFileNumbers(), "(0/3)");
         group.done("uid3");
         org.junit.Assert.assertEquals(group.getFileNumbers(), "(1/3)");
-        group.done("uid3");
-        org.junit.Assert.assertEquals(group.getFileNumbers(), "(1/3)");
         group.done("uid1");
         org.junit.Assert.assertEquals(group.getFileNumbers(), "(2/3)");
         group.done("uid2");
@@ -67,8 +65,6 @@ public class FileStatusGroupTest {
         uids1.add("uid3");
         FileStatusGroup group = new FileStatusGroup("a date", "a modality", "A description", uids1);
         org.junit.Assert.assertEquals(group.getStatus(), "Waiting");
-        group.done("uid3");
-        org.junit.Assert.assertEquals(group.getStatus(), "Uploading");
         group.done("uid3");
         org.junit.Assert.assertEquals(group.getStatus(), "Uploading");
         group.done("uid1");
@@ -102,8 +98,6 @@ public class FileStatusGroupTest {
         uids1.add("uid3");
         FileStatusGroup group = new FileStatusGroup("a date", "a modality", "A description", uids1);
         org.junit.Assert.assertEquals(group.getFileNumbers(), "(0/3)");
-        group.done("uid3");
-        org.junit.Assert.assertEquals(group.getFileNumbers(), "(1/3)");
         group.done("uid3");
         org.junit.Assert.assertEquals(group.getFileNumbers(), "(1/3)");
         group.done("uid1");
