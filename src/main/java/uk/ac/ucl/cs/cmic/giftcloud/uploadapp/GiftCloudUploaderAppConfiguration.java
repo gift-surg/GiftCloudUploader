@@ -50,7 +50,6 @@ public class GiftCloudUploaderAppConfiguration {
     private final ResourceBundle resourceBundle;
     private Optional<MainFrame> mainFrame = Optional.empty();
     private final String applicationTitle;
-    private final Optional<Image> dockIconImage;
     private final Optional<ImageIcon> mainLogo;
     private final GiftCloudLogger logger;
 
@@ -76,7 +75,6 @@ public class GiftCloudUploaderAppConfiguration {
         resourceBundle = ResourceBundle.getBundle(resourceBundleName);
         applicationTitle = resourceBundle.getString("applicationTitle");
 
-        dockIconImage = loadIcon(icon1024);
         mainLogo = loadImageIcon(mainLogoURLString);
 
         if (isOSX()) {
@@ -86,6 +84,7 @@ public class GiftCloudUploaderAppConfiguration {
             // This is used to set the application title on OSX, but may not work when run from the debugger
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", applicationTitle);
 
+            final Optional<Image> dockIconImage = loadIcon(icon1024);
             if (dockIconImage.isPresent()) {
                 Application.getApplication().setDockIconImage(dockIconImage.get());
             }
