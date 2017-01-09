@@ -105,14 +105,14 @@ public final class DicomTrawler implements Trawler {
                         if (filters.checkSeries(description)) {
                             logger.debug("Series description {} matched series import filter restrictions, including in session", description);
                             final DicomStudy dicomStudy = studies.get(new DicomStudy(o));
-                            dicomStudy.addFileAndGetSeries(o, f);
+                            dicomStudy.addFileToCorrectSeries(o, f);
                         } else {
                             logger.debug("Series description {} did not match series import filter restrictions, excluding from session", description);
                         }
                     } else {
                         logger.debug("Series import filters not found, including series in session");
                         final DicomStudy dicomStudy = studies.get(new DicomStudy(o));
-                        dicomStudy.addFileAndGetSeries(o, f);
+                        dicomStudy.addFileToCorrectSeries(o, f);
                     }
                 }
 

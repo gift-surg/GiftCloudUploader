@@ -39,7 +39,7 @@ public abstract class PatientListWriter {
         this.patientListFolder = patientListFolder;
         this.reporter = reporter;
         if (!GiftCloudUtils.createDirectoryIfNotExisting(patientListFolder)) {
-            reporter.silentWarning("Could not create the patient list folder");
+            reporter.silentWarning("Could not create the patient list export folder:" + patientListFolder.toString());
         }
     }
 
@@ -51,7 +51,7 @@ public abstract class PatientListWriter {
         try {
             // Ensure the directory exists. We perform this here in case the folder was not accessible when the uploader started
             if (!GiftCloudUtils.createDirectoryIfNotExisting(patientListFolder)) {
-                reporter.silentWarning("Could not create the patient list folder");
+                reporter.silentWarning("Could not create the patient list export folder:" + patientListFolder.toString());
                 return;
             }
 

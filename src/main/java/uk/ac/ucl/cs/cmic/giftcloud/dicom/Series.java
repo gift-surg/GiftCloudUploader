@@ -10,19 +10,16 @@
  */
 package uk.ac.ucl.cs.cmic.giftcloud.dicom;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
-import org.nrg.dcm.DicomUtils;
 import uk.ac.ucl.cs.cmic.giftcloud.restserver.XnatModalityParams;
 
 import java.io.File;
 import java.util.*;
 
 
-public class Series extends MapEntity implements Entity,Comparable<Series>,Iterable<File>,FileCollection {
+public class Series extends MapEntity implements Entity,Comparable<Series>,Iterable<File> {
 
     public static final int MAX_TAG = Collections.max(new ArrayList<Integer>() {{
         add(Tag.SOPClassUID);
@@ -32,10 +29,7 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         add(Tag.Modality);
     }});
 
-    private final Multimap<String,String> sopToTS = LinkedHashMultimap.create();
-    private final Set<String> modalities = Sets.newTreeSet();
     private final Set<File> files = Sets.newLinkedHashSet();
-    private DicomObject sampleObject = null;
     private boolean uploadAllowed = true;
     private XnatModalityParams modalityParams;
 
@@ -43,7 +37,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         put(Tag.SeriesInstanceUID, uid);
         put(Tag.SeriesNumber, number);
         put(Tag.SeriesDescription, description);
-        modalities.add(modality);
         modalityParams = XnatModalityParams.createFromDicom(modality, sopClassUid);
     }
 
@@ -54,16 +47,9 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
                 o.getString(Tag.Modality),
                 o.getString(Tag.SeriesDescription),
                 o.getString(Tag.SOPClassUID));
-        if (null == sampleObject) {
-            sampleObject = o;
-        }
     }
 
     public void addFile(final File f, final DicomObject o) {
-        if (null == sampleObject) {
-            sampleObject = o;
-        }
-        sopToTS.put(o.getString(Tag.SOPClassUID), DicomUtils.getTransferSyntaxUID(o));
         files.add(f);
     }
 
@@ -99,12 +85,10 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         }        	
     }
 
-    @Override
     public int getFileCount() {
         return files.size();
     }
 
-    @Override
     public Collection<File> getFiles() {
         return Collections.unmodifiableCollection(files);
     }
@@ -123,8 +107,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         return (String)this.get(Tag.SeriesInstanceUID);
     }
 
-    public DicomObject getSampleObject() { return sampleObject; }
-
     /*
      * (non-Javadoc)
      * @see uk.ac.ucl.cs.cmic.giftcloud.dicom.Entity#getSeries()
@@ -133,7 +115,6 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
         return Collections.singleton(this);
     }
 
-    @Override
     public long getSize() {
         long size = 0;
         for (final File f : files) {
@@ -176,5 +157,12 @@ public class Series extends MapEntity implements Entity,Comparable<Series>,Itera
 
     public XnatModalityParams getModalityParams() {
         return modalityParams;
+    }
+
+    /**
+     * @return a minimally-sized object containing the FileCollection
+     */
+    public FileCollection getMinimalFileCollection() {
+        return new SeriesFileCollection(this);
     }
 }
