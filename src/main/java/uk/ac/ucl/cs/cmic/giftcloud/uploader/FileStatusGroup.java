@@ -23,12 +23,12 @@ public class FileStatusGroup {
     private final String modality;
     private final String date;
     private Set<String> filesToDo = new HashSet<String>();
-    private Set<String> filesDone = new HashSet<String>();
+    private int filesDoneCount = 0;
 
     /**
      * Create a new status item for a group of files
-     * @param description the viisble name for this group of files
-     * @param fileUids a set of unique itentifiers representing the files
+     * @param description the visible name for this group of files
+     * @param fileUids a set of unique identifiers representing the files
      */
     public FileStatusGroup(final String date, final String modality, final String description, final List<String> fileUids) {
         this.date = date;
@@ -49,7 +49,7 @@ public class FileStatusGroup {
      */
     public String getFileNumbers() {
         int numFilesToDo = filesToDo.size();
-        int numFilesDone = filesDone.size();
+        int numFilesDone = filesDoneCount;
         if (numFilesToDo == 0 && numFilesDone > 0) {
             return "(" + Integer.toString(numFilesDone) + "/" + Integer.toString(numFilesDone + numFilesToDo) + ")";
         } else if (numFilesToDo > 0 && numFilesDone > 0) {
@@ -66,7 +66,7 @@ public class FileStatusGroup {
      */
     public String getStatus() {
         int numFilesToDo = filesToDo.size();
-        int numFilesDone = filesDone.size();
+        int numFilesDone = filesDoneCount;
         if (numFilesToDo == 0 && numFilesDone > 0) {
             return "Done";
         } else if (numFilesToDo > 0 && numFilesDone > 0) {
@@ -86,11 +86,6 @@ public class FileStatusGroup {
     public void add(final List<String> fileUids) {
         for (final String uid : fileUids) {
             filesToDo.add(uid);
-
-            // If a duplicate file identifier is received, then we remove it from the already done list, otherwise the visible counts will change in non-intuitive ways
-            if (filesDone.contains(uid)) {
-                filesDone.remove(uid);
-            }
         }
     }
 
@@ -103,7 +98,7 @@ public class FileStatusGroup {
         if (filesToDo.contains(fileUid)) {
             filesToDo.remove(fileUid);
         }
-        filesDone.add(fileUid);
+        filesDoneCount++;
     }
 
     /**

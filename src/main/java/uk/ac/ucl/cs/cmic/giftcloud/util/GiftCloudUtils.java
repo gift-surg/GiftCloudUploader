@@ -174,7 +174,7 @@ public class GiftCloudUtils {
      * @return true if the directory already exists or has been successfully created
      */
     public static boolean createDirectoryIfNotExisting(final File directory) {
-        if (directory.exists()) {
+        if (directory.getAbsoluteFile().exists()) {
             return true;
         } else {
             try {
