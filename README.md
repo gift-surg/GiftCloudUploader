@@ -9,14 +9,17 @@ GiftCloudUploader can be run as a standalone application on any computer. It can
  
 Authors: Tom Doel and Dzhoshkun Shakir, [Translational Imaging Group][tig], [Centre for Medical Image Computing][cmic], [University College London (UCL)][ucl].
 GIFT-Cloud was developed as part of the [GIFT-Surg][giftsurg] project. 
-If you use this software, please cite [this paper][citation]. Tom Doel et al., GIFT-Cloud: A data sharing and collaboration platform for medical imaging research. Computer Methods and Programs in Biomedicine, Volume 139, February 2017, Pages 181–190.
 
 GIFT-Cloud Server extends the [XNAT][xnat] system developed by Harvard University / Howard Hughes Medical Institute (HHMI) / Washington University.
 
-
-
-Disclaimer
+Citation
 ----------
+
+If you use this software, please cite this paper:[Tom Doel et al., GIFT-Cloud: A data sharing and collaboration platform for medical imaging research. Computer Methods and Programs in Biomedicine, Volume 139, February 2017, Pages 181–190.][citation]. 
+
+
+
+
 
  * GIFT-Cloud and XNAT are not certified for clinical use.
 
