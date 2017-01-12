@@ -12,16 +12,17 @@ GIFT-Cloud was developed as part of the [GIFT-Surg][giftsurg] project.
 
 GIFT-Cloud Server extends the [XNAT][xnat] system developed by Harvard University / Howard Hughes Medical Institute (HHMI) / Washington University.
 
+ * GIFT-Cloud and XNAT are not certified for clinical use.
+
+
+
 Citation
 ----------
 
-If you use this software, please cite this paper:[Tom Doel et al., GIFT-Cloud: A data sharing and collaboration platform for medical imaging research. Computer Methods and Programs in Biomedicine, Volume 139, February 2017, Pages 181–190.][citation]. 
+If you use this software, please cite this paper:[Tom Doel et al., GIFT-Cloud: A data sharing and collaboration platform for medical imaging research. Computer Methods and Programs in Biomedicine, Volume 139, February 2017, Pages 181–190][citation]. 
 
 
 
-
-
- * GIFT-Cloud and XNAT are not certified for clinical use.
 
 
 Software links
