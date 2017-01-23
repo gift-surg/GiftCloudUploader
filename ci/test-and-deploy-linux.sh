@@ -1,6 +1,5 @@
 #!/bin/bash
-echo "Building and deploying..."
-mvn -e -U clean install -B -P Webstart;
+mvn -e -U clean install -B;
 if [ $? -eq 0 ]; then
 	exit 0;
 else
