@@ -9,10 +9,10 @@ gift-gala:
     - gift-mac
     - java
 
-gift-adelie:
+gift-adelie-test-and-package:
   script:
     - export JAVA_HOME="/usr/lib/jvm/java-8-oracle/"
-    - "$CI_SCRIPTS_DIR/test-linux.sh"
+    - "$CI_SCRIPTS_DIR/test-and-package-linux.sh"
   tags:
     - gift-adelie
     - gift-linux
@@ -21,7 +21,7 @@ gift-adelie:
     - dev  
     - master  
 
-gift-adelie-deploy:
+gift-adelie-deploy-testserver:
   script:
     - export JAVA_HOME="/usr/lib/jvm/java-8-oracle/"
     - "$CI_SCRIPTS_DIR/test-and-deploy-linux.sh"
@@ -30,12 +30,13 @@ gift-adelie-deploy:
     - gift-linux
     - java
   only:
-    - dev  		
+    - dev
 
 gift-adelie-deploy-master:
   script:
     - export JAVA_HOME="/usr/lib/jvm/java-8-oracle/"
     - "$CI_SCRIPTS_DIR/test-and-build-release-linux.sh"
+    - "$CI_SCRIPTS_DIR/deploy-docs.sh"
   tags:
     - gift-adelie
     - gift-linux
