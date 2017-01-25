@@ -9,7 +9,7 @@
     <name>GIFT-Cloud Uploader</name>
     <description>An application for anonymising and uploading data securely on to a GIFT-Cloud server</description>
     <url>${gc.url}</url>
-    <version>1.1.19</version>
+    <version>1.1.20</version>
     <organization>
         <name>University College London</name>
         <url>http://cmictig.cs.ucl.ac.uk</url>
@@ -177,10 +177,10 @@
                                 <phase>site</phase>
                                 <configuration>
                                     <target>
-                                        <exec dir="${project.basedir}" executable="rsync" spawn="false" failonerror="true" output="rsyncoutput.txt">
+                                        <exec dir="${project.basedir}" executable="rsync" spawn="false" failonerror="true">
                                             <arg value="-avz" />
                                             <arg value="-e" />
-                                            <arg value="'ssh -v'" />
+                                            <arg value="ssh -v" />
                                             <arg value="--numeric-ids" />
                                             <arg value="--delete" />
                                             <arg value="${project.basedir}/target/site/" />
