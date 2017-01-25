@@ -36,7 +36,6 @@ gift-adelie-deploy-master:
   script:
     - export JAVA_HOME="/usr/lib/jvm/java-8-oracle/"
     - "$CI_SCRIPTS_DIR/test-and-build-release-linux.sh"
-    - "$CI_SCRIPTS_DIR/deploy-docs.sh"
   tags:
     - gift-adelie
     - gift-linux
