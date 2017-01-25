@@ -179,7 +179,8 @@
                                     <target>
                                         <exec dir="${project.basedir}" executable="rsync" spawn="false" failonerror="true" output="rsyncoutput.txt">
                                             <arg value="-avz" />
-                                            <arg value="-e'ssh -v'" />
+                                            <arg value="-e" />
+                                            <arg value="'ssh -v'" />
                                             <arg value="--numeric-ids" />
                                             <arg value="--delete" />
                                             <arg value="${project.basedir}/target/site/" />
