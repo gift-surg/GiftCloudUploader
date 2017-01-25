@@ -1,5 +1,5 @@
 #!/bin/bash
-mvn -e -U clean package -B
+mvn -e -U clean package -B -P Webstart
 if [ $? -eq 0 ]; then
 	exit 0;
 else

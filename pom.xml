@@ -9,7 +9,7 @@
     <name>GIFT-Cloud Uploader</name>
     <description>An application for anonymising and uploading data securely on to a GIFT-Cloud server</description>
     <url>${gc.url}</url>
-    <version>1.1.18</version>
+    <version>1.1.19</version>
     <organization>
         <name>University College London</name>
         <url>http://cmictig.cs.ucl.ac.uk</url>
@@ -34,6 +34,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <distributionManagement>
+        <site>
+            <id>www.cmic.cs.ucl.ac.uk</id>
+        </site>
+    </distributionManagement>
 
     <profiles>
         <profile>
@@ -67,6 +73,15 @@
                         <configuration>
                             <source>1.6</source>
                             <target>1.6</target>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-project-info-reports-plugin</artifactId>
+                        <version>2.9</version>
+                        <configuration>
+                            <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                            <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -133,7 +148,15 @@
                         </configuration>
                     </plugin>
                     <plugin>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <version>3.3</version>
+                        <configuration>
+                            <skipDeploy>true</skipDeploy>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
                         <executions>
                             <execution>
                                 <phase>install</phase>
@@ -144,6 +167,25 @@
                                         <!-- Use an ant task to unzip the output into the installation folder -->
                                         <unzip src="${project.basedir}/target/${project.artifactId}-${project.version}.zip" dest="${gc.installfolder}"  overwrite="true"/>
                                     </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>upload-docs</id>
+                                <phase>site</phase>
+                                <configuration>
+                                    <target>
+                                        <exec dir="${project.basedir}" executable="rsync" spawn="false" failonerror="true" output="rsyncoutput.txt">
+                                            <arg value="-avz" />
+                                            <arg value="-e'ssh -v'" />
+                                            <arg value="--numeric-ids" />
+                                            <arg value="--delete" />
+                                            <arg value="${project.basedir}/target/site/" />
+                                            <arg value="${gc.remotedocsfolder}" />
+                                        </exec>
+                                    </target>
                                 </configuration>
                                 <goals>
                                     <goal>run</goal>
