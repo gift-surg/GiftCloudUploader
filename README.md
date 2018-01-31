@@ -21,7 +21,8 @@ GIFT-Cloud Server extends the [XNAT][xnat] system developed by Harvard Universit
 Citation
 ----------
 
-If you use this software, please cite this paper:[Tom Doel et al., GIFT-Cloud: A data sharing and collaboration platform for medical imaging research. Computer Methods and Programs in Biomedicine, Volume 139, February 2017, Pages 181–190][citation]. 
+If you use this software, please cite this paper:
+[Tom Doel et al., GIFT-Cloud: A data sharing and collaboration platform for medical imaging research. Computer Methods and Programs in Biomedicine, Volume 139, February 2017, Pages 181–190][citation]. 
 
 
 
