@@ -15,6 +15,8 @@ GIFT-Cloud Server extends the [XNAT][xnat] system developed by Harvard Universit
  * GIFT-Cloud and XNAT are not certified for clinical use.
 
 
+[![build status](https://cmiclab.cs.ucl.ac.uk/GIFT-Surg/GiftCloudUploader/badges/master/build.svg)](https://cmiclab.cs.ucl.ac.uk/GIFT-Surg/GiftCloudUploader/commits/master)
+
 
 Citation
 ----------
