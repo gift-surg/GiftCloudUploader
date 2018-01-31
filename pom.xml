@@ -9,7 +9,7 @@
     <name>GIFT-Cloud Uploader</name>
     <description>An application for anonymising and uploading data securely on to a GIFT-Cloud server</description>
     <url>${gc.url}</url>
-    <version>1.1.20</version>
+    <version>1.2.0</version>
     <organization>
         <name>University College London</name>
         <url>http://cmictig.cs.ucl.ac.uk</url>
@@ -531,6 +531,11 @@
             <groupId>mrj</groupId>
             <artifactId>MRJToolkitStubs</artifactId>
             <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-daemon</groupId>
+            <artifactId>commons-daemon</artifactId>
+            <version>1.0.15</version>
         </dependency>
     </dependencies>
 

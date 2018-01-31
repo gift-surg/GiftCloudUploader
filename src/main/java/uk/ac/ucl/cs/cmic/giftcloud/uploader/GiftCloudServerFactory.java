@@ -29,7 +29,7 @@ public class GiftCloudServerFactory {
     private final RestClientFactory restClientFactory;
     private final GiftCloudProperties properties;
     private final ProjectListModel projectListModel;
-    private UserCallback userCallback;
+    private final UserCallback userCallback;
     private final GiftCloudReporter reporter;
     private final PixelDataAnonymiserFilterCache filters;
 

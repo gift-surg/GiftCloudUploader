@@ -75,7 +75,6 @@ class BackgroundServiceTaskWrapper<T_taskType, T_resultType>  implements Delayed
         if (this.fileNumber > ((BackgroundServiceTaskWrapper) o).fileNumber) {
             return 1;
         }
-        System.out.println("Equal");
         return 0;
     }
 
